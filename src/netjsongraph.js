@@ -35,7 +35,7 @@
         // default options, overridable
         opts = d3._extend({
             el: "body",
-            zoomExtent: [0.25, 5],
+            scaleExtent: [0.25, 5],
             charge: -130,
             linkDistance: 40,
             linkStrength: 0.2,
@@ -99,7 +99,7 @@
                       .gravity(opts.gravity)
                       // width is easy to get, if height is 0 take the height of the body
                       .size([width, height]),
-            zoom = d3.behavior.zoom().scaleExtent(opts.zoomExtent),
+            zoom = d3.behavior.zoom().scaleExtent(opts.scaleExtent),
             // panner is the element that allows zooming and panning
             panner = el.append("svg")
                        .attr("width", width)
