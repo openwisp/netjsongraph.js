@@ -19,7 +19,19 @@
         return extended;
     };
 
+    d3._pxToNumber = function (val) {
+        return parseFloat(val.replace('px'));
+    };
+
+    d3._windowHeight = function () {
+        return window.innerHeight || document.documentElement.clientHeight || 600;
+    };
+
     d3.netJsonGraph = function(url, opts) {
+        if (d3._pxToNumber(d3.select("body").style("height")) < 60) {
+            d3.select("body").style("height", d3._windowHeight() + "px");
+        }
+
         // default options, overridable
         opts = d3._extend({
             el: "body",
@@ -75,8 +87,8 @@
 
         var el = d3.select(opts.el)
                    .style("position", "relative"),
-            width = parseFloat(el.style('width').replace('px')),
-            height = parseFloat(el.style('height').replace('px')),
+            width = d3._pxToNumber(el.style('width')),
+            height = d3._pxToNumber(el.style('height')),
             force = d3.layout.force()
                       .charge(opts.charge)
                       .linkStrength(opts.linkStrength)
@@ -85,6 +97,7 @@
                       .chargeDistance(opts.chargeDistance)
                       .theta(opts.theta)
                       .gravity(opts.gravity)
+                      // width is easy to get, if height is 0 take the height of the body
                       .size([width, height]),
             zoom = d3.behavior.zoom().scaleExtent(opts.zoomExtent),
             // panner is the element that allows zooming and panning
@@ -163,17 +176,17 @@
                  .start();
 
             var link = panner.selectAll(".link")
-                          .data(links)
-                          .enter().append("line")
-                          .attr("class", "link"),
+                             .data(links)
+                             .enter().append("line")
+                             .attr("class", "link"),
                 node = panner.selectAll(".node")
-                          .data(nodes)
-                          .enter().append("circle")
-                          .attr("class", "node")
-                          .attr("r", 7)
-                          .on("mouseover", nodeMouseOver)
-                          .on("mouseout", nodeMouseOut)
-                          .call(drag);
+                             .data(nodes)
+                             .enter().append("circle")
+                             .attr("class", "node")
+                             .attr("r", 7)
+                             .on("mouseover", nodeMouseOver)
+                             .on("mouseout", nodeMouseOut)
+                             .call(drag);
 
             force.on("tick", function() {
                 link.attr("x1", function(d) {
