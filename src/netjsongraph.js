@@ -44,6 +44,7 @@
         // default options, overridable
         opts = d3._extend({
             el: "body",
+            defaultStyle: true,
             scaleExtent: [0.25, 5],
             charge: -130,
             linkDistance: 40,
@@ -196,6 +197,29 @@
                              .on("mouseover", nodeMouseOver)
                              .on("mouseout", nodeMouseOut)
                              .call(drag);
+
+            // default style
+            if (opts.defaultStyle) {
+                var colors = d3.scale.category20c();
+                node.style({
+                    "fill": function(d){ return colors(d.linkCount); },
+                    "cursor": "pointer"
+                });
+                link.style({
+                    "stroke": "#999",
+                    "stroke-width": 2,
+                    "stroke-opacity": 0.4,
+                    "cursor": "pointer"
+                });
+                tooltip.style({
+                    "background": "rgba(0, 0, 0, 0.5)",
+                    "color": "#fff",
+                    "padding": "5px 10px",
+                    "border-radius": "3px",
+                    "font-family": "Arial, sans-serif",
+                    "font-size": "13px"
+                });
+            }
 
             force.on("tick", function() {
                 link.attr("x1", function(d) {

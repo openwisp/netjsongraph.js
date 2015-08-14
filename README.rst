@@ -13,6 +13,7 @@ Arguments
 1. ``url`` (**required**, string): URL to fetch the JSON data from
 2. ``options`` (optional, object): custom options described below
     * ``el``: container element, defaults to ``"body"``
+    * ``defaultStyle``: whether to use the default style or not, defaults to ``true``
     * ``scaleExtent``: see `d3 Zoom scaleExtent <https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent>`__, defaults to ``[0.25, 5]``
     * ``charge``: see `d3 Zoom charge <https://github.com/mbostock/d3/wiki/Force-Layout#charge>`__, defaults to ``-130``
     * ``linkDistance``: see `d3 Zoom linkDistance <https://github.com/mbostock/d3/wiki/Force-Layout#linkDistance>`__, defaults to ``40``,
@@ -88,8 +89,8 @@ Manipulate the graph as you prefer:
 Styling
 -------
 
-The library at the moment comes with no default styling, you should customize the styling
-to your own needs.
+The library at comes with a default styling, but you can disable by passing the option
+``defaultStyle: false`` and you can customize it with CSS.
 
 Here's a fulle example of how to show green links and dark green nodes:
 
@@ -138,6 +139,6 @@ Here's a fulle example of how to show green links and dark green nodes:
     <body>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
         <script src="src/netjsongraph.js"></script>
-        <script>d3.netJsonGraph("netjson.json");</script>
+        <script>d3.netJsonGraph("netjson.json", { defaultStyle: false });</script>
     </body>
     </html>
