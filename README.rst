@@ -31,7 +31,8 @@ Arguments
     * ``linkDistanceFunc``: by default high density areas have longer links, you can tweak this behaviour if you need
     * ``redraw``: function called when panning and zooming, you can tweak it if you need
     * ``prepareData``: function used to convert NetJSON NetworkGraph to the javascript data structured used internally, you won't need to modify it in most cases
-
+    * ``onClickNode``: function called when a node is clicked, you can customize it if you need
+    * ``onClickLink``: function called when a link is clicked, you can customize it if you need
 
 Example Usage
 -------------

@@ -89,6 +89,41 @@
                     nodes[targetIndex].linkCount++;
                 }
                 return { "nodes": nodes, "links": links };
+            },
+            /**
+             * called when a node is clicked
+             */
+            onClickNode: function (n) {
+                var html = "<p><b>id</b>: " + n.id + "</p>";
+                if (n.label) { html += "<p><b>label</b>: " + n.label + "</p>"; }
+                if (n.properties) {
+                    for (key in n.properties) {
+                        if (!n.properties.hasOwnProperty(key)) { continue; }
+                        key = key.replace("_", " ");
+                        html += "<p><b>"+key+"</b>: " + n.properties[key] + "</p>";
+                    }
+                }
+                if (n.linkCount) { html += "<p><b>links</b>: " + n.linkCount + "</p>"; }
+                overlayInner.html(html);
+                overlay.style("display", "block");
+            },
+            /**
+             * called when a node is clicked
+             */
+            onClickLink: function (l) {
+                console.log(l);
+                var html = "<p><b>source</b>: " + (l.source.label || l.source.id) + "</p>";
+                html += "<p><b>target</b>: " + (l.target.label || l.target.id) + "</p>";
+                html += "<p><b>cost</b>: " + l.cost + "</p>";
+                if (l.properties) {
+                    for (key in l.properties) {
+                        if (!l.properties.hasOwnProperty(key)) { continue; }
+                        key = key.replace("_", " ");
+                        html += "<p><b>"+key+"</b>: " + l.properties[key] + "</p>";
+                    }
+                }
+                overlayInner.html(html);
+                overlay.style("display", "block");
             }
         }, opts);
 
@@ -126,11 +161,34 @@
             tooltip = d3.select(opts.el)
                         .append("div")
                         .attr("class", "tooltip")
-                        .style("position", "absolute")
-                        .style("z-index", "10")
-                        .style("display", "none")
-                        .style("visibility", "hidden"),
-            nodeMouseOver = function(n) {
+                        .style({
+                            "position": "absolute",
+                            "left": 0,
+                            "top": 0,
+                            "z-index": "10",
+                            "display": "none",
+                            "visibility": "hidden"
+                        }),
+            overlay = d3.select(opts.el)
+                        .append("div")
+                        .attr("class", "overlay")
+                        .style({
+                            "position": "absolute",
+                            "z-index": "11",
+                            "display": "none",
+                        }),
+            closeIcon = overlay.append("a")
+                               .attr("class", "close")
+                               .style({
+                                   "position": "absolute",
+                                   "top": "10px",
+                                   "right": "10px",
+                                   "cursor": "pointer"
+                               })
+                               .text("\u2716"),
+            overlayInner = overlay.append("div")
+                                  .attr("class", "inner"),
+            onMouseOverNode = function(n) {
                 var self = this;
                 tooltip.text(n.label || n.id);
                 // use css "display" property to
@@ -153,7 +211,7 @@
                                   .style("visibility", "visible");
                 }, opts.tooltipDelay);
             },
-            nodeMouseOut = function(){
+            onMouseOutNode = function(){
                 tooltip.style({
                     "visibility": "hidden",
                     "display": "none"
@@ -191,7 +249,7 @@
             })
             // re-enable transitions when dragging stops
             .on('dragend', function(n){
-                d3.select(this).on("mouseover", nodeMouseOver);
+                d3.select(this).on("mouseover", onMouseOverNode);
                 zoom.on('zoom', opts.redraw);
             })
             .on("drag", function(d) {
@@ -206,15 +264,21 @@
             var link = panner.selectAll(".link")
                              .data(links)
                              .enter().append("line")
-                             .attr("class", "link"),
+                             .attr("class", "link")
+                             .on("click", opts.onClickLink),
                 node = panner.selectAll(".node")
                              .data(nodes)
                              .enter().append("circle")
                              .attr("class", "node")
                              .attr("r", 7)
-                             .on("mouseover", nodeMouseOver)
-                             .on("mouseout", nodeMouseOut)
+                             .on("mouseover", onMouseOverNode)
+                             .on("mouseout", onMouseOutNode)
+                             .on("click", opts.onClickNode)
                              .call(drag);
+
+            closeIcon.on("click", function () {
+                overlay.style("display", "none");
+            });
 
             // default style
             if (opts.defaultStyle) {
@@ -236,6 +300,21 @@
                     "border-radius": "3px",
                     "font-family": "Arial, sans-serif",
                     "font-size": "13px"
+                });
+                overlay.style({
+                    "width": "auto",
+                    "height": "auto",
+                    "min-width": "200px",
+                    "max-width": "400px",
+                    "border": "1px solid #ccc",
+                    "border-radius": "2px",
+                    "background": "#fbfbfb",
+                    "top": "10px",
+                    "right": "10px",
+                    "padding": "0 15px",
+                    "font-family": "Arial, sans-serif",
+                    "font-size": "14px",
+                    "color": "#6d6357"
                 });
             }
 
