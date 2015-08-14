@@ -22,7 +22,7 @@ Arguments
     * ``theta``: see `d3 Zoom theta <https://github.com/mbostock/d3/wiki/Force-Layout#theta>`__, defaults to ``0.8``
     * ``gravity``: see `d3 Zoom gravity <https://github.com/mbostock/d3/wiki/Force-Layout#gravity>`__, defaults to ``0.1``
     * ``linkDistanceFunc``: by default high density areas have longer links, you can tweak this behaviour if you need
-    * ``redraw``: functon called when panning and zooming, you can tweak it if you need
+    * ``redraw``: function called when panning and zooming, you can tweak it if you need
     * ``prepareData``: function used to convert NetJSON NetworkGraph to the javascript data structured used internally, you won't need to modify it in most cases
 
 
@@ -33,11 +33,9 @@ Very basic:
 
 .. code-block:: html
 
-    <body>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-        <script src="src/netjsongraph.js"></script>
-        <script>d3.netJsonGraph("./resources/netjson.json");</script>
-    </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="src/netjsongraph.js"></script>
+    <script>d3.netJsonGraph("./resources/netjson.json");</script>
 
 Show graph in a container:
 
@@ -93,8 +91,7 @@ Styling
 The library at the moment comes with no default styling, you should customize the styling
 to your own needs.
 
-Here's an example of how to show green links and dark green nodes
-(put this block in your ``<head>``):
+Here's a fulle example of how to show green links and dark green nodes:
 
 .. code-block:: html
 
