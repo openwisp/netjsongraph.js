@@ -25,6 +25,7 @@ Arguments
 1. ``url`` (**required**, string): URL to fetch the JSON data from
 2. ``options`` (optional, object): custom options described below
     * ``el``: container element, defaults to ``"body"``
+    * ``metadata``: whether to show `NetJSON <http://netjson.org>`__ ``NetworkGraph`` metadata or not, defaults to ``true``
     * ``defaultStyle``: whether to use the default style or not, defaults to ``true``
     * ``tooltipDelay``: milliseconds to wait before displaying tooltip when passing mouse over nodes, defaults to ``300``
     * ``scaleExtent``: see `d3 Zoom scaleExtent <https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent>`__, defaults to ``[0.25, 5]``

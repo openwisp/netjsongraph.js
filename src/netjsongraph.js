@@ -40,6 +40,7 @@
         // default options, overridable
         opts = d3._extend({
             el: "body",
+            metadata: true,
             defaultStyle: true,
             tooltipDelay: 300,
             scaleExtent: [0.25, 5],
@@ -180,17 +181,36 @@
                             "z-index": "11",
                             "display": "none",
                         }),
-            closeIcon = overlay.append("a")
-                               .attr("class", "close")
-                               .style({
-                                   "position": "absolute",
-                                   "top": "10px",
-                                   "right": "10px",
-                                   "cursor": "pointer"
-                               })
-                               .text("\u2716"),
+            closeOverlay = overlay.append("a")
+                                  .attr("class", "close")
+                                  .style({
+                                      "position": "absolute",
+                                      "top": "10px",
+                                      "right": "10px",
+                                      "cursor": "pointer"
+                                  })
+                                  .text("\u2716"),
             overlayInner = overlay.append("div")
                                   .attr("class", "inner"),
+            metadata = d3.select(opts.el)
+                         .append("div")
+                         .attr("class", "metadata")
+                         .style({
+                             "position": "absolute",
+                             "z-index": "12",
+                             "display": "none",
+                         }),
+            metadataInner = metadata.append("div")
+                                    .attr("class", "inner"),
+            closeMetadata = metadata.append("a")
+                                    .attr("class", "close")
+                                    .style({
+                                        "position": "absolute",
+                                        "top": "10px",
+                                        "right": "10px",
+                                        "cursor": "pointer"
+                                    })
+                                    .text("\u2716"),
             onMouseOverNode = function(n) {
                 var self = this;
                 tooltip.text(n.label || n.id);
@@ -279,8 +299,11 @@
                              .on("click", opts.onClickNode)
                              .call(drag);
 
-            closeIcon.on("click", function () {
+            closeOverlay.on("click", function () {
                 overlay.style("display", "none");
+            });
+            closeMetadata.on("click", function () {
+                metadata.style("display", "none");
             });
 
             // default style
@@ -319,6 +342,38 @@
                     "font-size": "14px",
                     "color": "#6d6357"
                 });
+                metadata.style({
+                    "width": "auto",
+                    "height": "auto",
+                    "min-width": "200px",
+                    "max-width": "500px",
+                    "border": "1px solid #ccc",
+                    "border-radius": "2px",
+                    "background": "#fbfbfb",
+                    "top": "10px",
+                    "left": "10px",
+                    "padding": "0 15px",
+                    "font-family": "Arial, sans-serif",
+                    "font-size": "14px",
+                    "color": "#6d6357"
+                });
+            }
+
+            if (opts.metadata) {
+                var attrs = ["protocol", "version", "revision",
+                             "metric", "router_id", "topology_id"],
+                    html = "";
+                if (graph.label) {
+                    html += "<h3>" + graph.label + "</h3>";
+                }
+                for (i in attrs) {
+                    var attr = attrs[i];
+                    if (graph[attr]) {
+                        html += "<p><b>" + attr + "</b>: <span>" + graph[attr] + "</span></p>";
+                    }
+                }
+                metadataInner.html(html);
+                metadata.style("display", "block");
             }
 
             force.on("tick", function() {
