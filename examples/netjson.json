@@ -1,11 +1,9 @@
 {
     "type": "NetworkGraph",
+    "label": "Ninux Roma",
     "protocol": "OLSR",
     "version": "0.6.6.2",
-    "revision": "6ec73b8f5213cc740816f2fd2ff93108",
     "metric": "ETX",
-    "router_id": "172.16.146.6",
-    "topology_id": "0",
     "nodes": [
         {
             "id": "172.16.146.6"
