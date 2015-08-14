@@ -45,6 +45,7 @@
         opts = d3._extend({
             el: "body",
             defaultStyle: true,
+            tooltipDelay: 300,
             scaleExtent: [0.25, 5],
             charge: -130,
             linkDistance: 40,
@@ -125,21 +126,36 @@
                         .attr("class", "tooltip")
                         .style("position", "absolute")
                         .style("z-index", "10")
+                        .style("display", "none")
                         .style("visibility", "hidden"),
             nodeMouseOver = function(n) {
+                var self = this;
                 tooltip.text(n.label || n.id);
-                // position of current element relative to svg container
-                var pos = getPosition(d3.select(this), svg),
-                // find horizontal and vertical offsets
-                    xOffset = (tooltip.node().getBoundingClientRect().width/2) - pos.width/2,
-                    yOffset = 1 + zoom.scale() / 5;
-                // position tooltip accordingly
-                return tooltip.style("left", pos.left - xOffset + "px")
-                              .style("top", pos.top - 25 * yOffset + "px")
-                              .style("visibility", "visible");
+                // use css "display" property to
+                // control wether mouse has moved out
+                // before the delayTooltip time has passed
+                // (mouseout event sets "display" back to "none")
+                tooltip.style("display", "block");
+                setTimeout(function () {
+                    if (tooltip.style("display") != "block") {
+                        return;
+                    }
+                    // position of current element relative to svg container
+                    var pos = getPosition(d3.select(self), svg),
+                    // find horizontal and vertical offsets
+                        xOffset = (tooltip.node().getBoundingClientRect().width/2) - pos.width/2,
+                        yOffset = 1 + zoom.scale() / 5;
+                    // position tooltip accordingly
+                    return tooltip.style("left", pos.left - xOffset + "px")
+                                  .style("top", pos.top - 25 * yOffset + "px")
+                                  .style("visibility", "visible");
+                }, opts.tooltipDelay);
             },
             nodeMouseOut = function(){
-                tooltip.style("visibility", "hidden");
+                tooltip.style({
+                    "visibility": "hidden",
+                    "display": "none"
+                });
             },
             /**
              * get position of `element` relative to `container`

@@ -14,6 +14,7 @@ Arguments
 2. ``options`` (optional, object): custom options described below
     * ``el``: container element, defaults to ``"body"``
     * ``defaultStyle``: whether to use the default style or not, defaults to ``true``
+    * ``tooltipDelay``: milliseconds to wait before displaying tooltip when passing mouse over nodes, defaults to ``300``
     * ``scaleExtent``: see `d3 Zoom scaleExtent <https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent>`__, defaults to ``[0.25, 5]``
     * ``charge``: see `d3 Zoom charge <https://github.com/mbostock/d3/wiki/Force-Layout#charge>`__, defaults to ``-130``
     * ``linkDistance``: see `d3 Zoom linkDistance <https://github.com/mbostock/d3/wiki/Force-Layout#linkDistance>`__, defaults to ``40``,
