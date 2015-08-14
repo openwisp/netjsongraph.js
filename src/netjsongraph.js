@@ -82,6 +82,9 @@
                 for (var c = 0; c < links_length; c++) {
                     var sourceIndex = nodesMap[links[c].source],
                         targetIndex = nodesMap[links[c].target];
+                    // ensure source and target exist
+                    if (!nodes[sourceIndex]) { throw("source '" + links[c].source + "' not found"); }
+                    if (!nodes[targetIndex]) { throw("target '" + links[c].target + "' not found"); }
                     links[c].source = sourceIndex;
                     links[c].target = targetIndex;
                     // add link count to both ends
