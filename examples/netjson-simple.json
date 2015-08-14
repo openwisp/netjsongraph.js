@@ -1,0 +1,108 @@
+{
+    "type": "NetworkGraph",
+    "protocol": "OLSR",
+    "version": "0.6.6.2",
+    "revision": "6ec73b8f5213cc740816f2fd2ff93108",
+    "metric": "ETX",
+    "router_id": "172.16.146.6",
+    "topology_id": "0",
+    "nodes": [
+        { "id": "172.16.146.6", "label": "Fusolab", "properties": {"hostname": "fusolab.nnx"} },
+        { "id": "172.16.145.2", "label": "Clauzroma", "properties": {"hostname": "clauzroma.nnx"} },
+        { "id": "172.16.146.4", "label": "Lux", "properties": {"hostname": "lux.nnx"} },
+        { "id": "172.16.146.1", "label": "Nino", "properties": {"hostname": "nino.nnx"} },
+        { "id": "172.16.146.7", "label": "Nemesis", "properties": {"hostname": "nemesis.nnx"} }
+    ],
+    "links": [
+        {
+            "source": "172.16.146.6",
+            "target": "172.16.145.2",
+            "cost": 1.2939453125,
+            "properties": {
+                "lq": 0.900,
+                "nlq": 0.497,
+                "bitrate": "20 mbit/s"
+            }
+        },
+        {
+            "source": "172.16.146.6",
+            "target": "172.16.146.4",
+            "cost": 1.10011212,
+            "properties": {
+                "lq": 0.940,
+                "nlq": 0.797,
+                "bitrate": "40 mbit/s"
+            }
+        },
+        {
+            "source": "172.16.146.6",
+            "target": "172.16.146.1",
+            "cost": 1.0,
+            "properties": {
+                "lq": 1.0,
+                "nlq": 1.0,
+                "bitrate": "30 mbit/s"
+            }
+        },
+        {
+            "source": "172.16.145.2",
+            "target": "172.16.146.7",
+            "cost": 1.0,
+            "properties": {
+                "lq": 1.0,
+                "nlq": 1.0,
+                "bitrate": "32 mbit/s"
+            }
+        },
+        {
+            "source": "172.16.145.2",
+            "target": "172.16.146.4",
+            "cost": 1.1,
+            "properties": {
+                "lq": 1.0,
+                "nlq": 1.0,
+                "bitrate": "35 mbit/s"
+            }
+        },
+        {
+            "source": "172.16.146.7",
+            "target": "172.16.146.6",
+            "cost": 1.0,
+            "properties": {
+                "lq": 1.0,
+                "nlq": 1.0,
+                "bitrate": "32 mbit/s"
+            }
+        },
+        {
+            "source": "172.16.145.2",
+            "target": "172.16.146.1",
+            "cost": 1.0,
+            "properties": {
+                "lq": 1.0,
+                "nlq": 1.0,
+                "bitrate": "29 mbit/s"
+            }
+        },
+        {
+            "source": "172.16.146.7",
+            "target": "172.16.146.1",
+            "cost": 1.0,
+            "properties": {
+                "lq": 1.0,
+                "nlq": 1.0,
+                "bitrate": "45 mbit/s"
+            }
+        },
+        {
+            "source": "172.16.146.7",
+            "target": "172.16.146.4",
+            "cost": 1.0,
+            "properties": {
+                "lq": 1.0,
+                "nlq": 1.0,
+                "bitrate": "39 mbit/s"
+            }
+        }
+    ]
+}
