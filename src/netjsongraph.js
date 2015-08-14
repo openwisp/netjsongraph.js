@@ -19,14 +19,23 @@
         return extended;
     };
 
+    /**
+     * converts strings like "10px" to 10
+     */
     d3._pxToNumber = function (val) {
         return parseFloat(val.replace('px'));
     };
 
+    /**
+     * gets window height
+     */
     d3._windowHeight = function () {
         return window.innerHeight || document.documentElement.clientHeight || 600;
     };
 
+    /**
+     * netjsongraph.js main function
+     */
     d3.netJsonGraph = function(url, opts) {
         if (d3._pxToNumber(d3.select("body").style("height")) < 60) {
             d3.select("body").style("height", d3._windowHeight() + "px");
