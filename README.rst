@@ -10,6 +10,13 @@ Build powerful and interoperable visualizations without losing flexibility!
 
 **This library is still in early stages, feedback and contributions are very welcome**.
 
+Examples:
+
+* `default style <https://nodeshot.org/netjsongraph/examples/index.html>`__
+* `dark green example <https://nodeshot.org/netjsongraph/examples/dark.html>`__
+* `light green example <https://nodeshot.org/netjsongraph/examples/green.html>`__
+* `custom attributes example <https://nodeshot.org/netjsongraph/examples/custom-attributes.html>`__
+
 Arguments
 ---------
 
