@@ -37,10 +37,6 @@
      * netjsongraph.js main function
      */
     d3.netJsonGraph = function(url, opts) {
-        if (d3._pxToNumber(d3.select("body").style("height")) < 60) {
-            d3.select("body").style("height", d3._windowHeight() + "px");
-        }
-
         // default options, overridable
         opts = d3._extend({
             el: "body",
@@ -95,6 +91,12 @@
                 return { "nodes": nodes, "links": links };
             }
         }, opts);
+
+        if (opts.el == "body" && d3._pxToNumber(d3.select("body").style("height")) < 60) {
+            var body = d3.select("body"),
+                rect = body.node().getBoundingClientRect();
+            body.style("height", d3._windowHeight() - rect.top - rect.bottom + "px");
+        }
 
         var el = d3.select(opts.el)
                    .style("position", "relative"),
