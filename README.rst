@@ -1,9 +1,14 @@
 netjsongraph.js
 ===============
 
-Experimental NetJSON NetworkGraph visualizer based on `d3.js <http://d3js.org/>`__.
+.. image:: https://raw.githubusercontent.com/interop-dev/netjsongraph.js/master/docs/netjsongraph-default.png
 
-**WORK IN PROGRESS**
+Leverage the power of `d3.js <http://d3js.org/>`__ to visualize network topology using the
+`NetJSON <http://netjson.org>`__ ``NetworkGraph`` format.
+
+Build powerful and interoperable visualizations without losing flexibility!
+
+**This library is still in early stages, feedback and contributions are very welcome**.
 
 Arguments
 ---------
