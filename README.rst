@@ -148,3 +148,8 @@ Here's a fulle example of how to show green links and dark green nodes:
         <script>d3.netJsonGraph("netjson.json", { defaultStyle: false });</script>
     </body>
     </html>
+
+License
+-------
+
+`BSD 3-Clause License <https://github.com/interop-dev/netjsongraph.js/blob/master/LICENSE>`__.
