@@ -116,7 +116,6 @@
              * called when a node is clicked
              */
             onClickLink: function (l) {
-                console.log(l);
                 var html = "<p><b>source</b>: " + (l.source.label || l.source.id) + "</p>";
                 html += "<p><b>target</b>: " + (l.target.label || l.target.id) + "</p>";
                 html += "<p><b>cost</b>: " + l.cost + "</p>";
