@@ -3,6 +3,7 @@
 <head>
     <title>netjsongraph.js: Dark Colors</title>
     <meta charset="utf-8">
+    <link href="../src/netjsongraph.css" rel="stylesheet">
     <style type="text/css">
         body {
             font-family: Arial, sans-serif;
@@ -10,7 +11,7 @@
             background: #9f9fa4;
         }
 
-        .overlay, .metadata{
+        .njg-overlay, .njg-metadata{
             width: auto;
             height: auto;
             min-width: 200px;
@@ -26,7 +27,7 @@
             color: #fff
         }
 
-        .metadata{
+        .njg-metadata{
             left: 10px;
             right: auto;
             max-width: 500px;
@@ -40,28 +41,30 @@
             background-color: #3e3e3e;
         }
 
-        .node {
+        .njg-node {
             fill: #fff5cc;
             stroke: #f1ec14;
             stroke-width: 1px;
             cursor: pointer;
         }
-        .node:hover {
+        .njg-node:hover,
+        .njg-node.njg-open{
             fill: #ffee00;
         }
 
-        .link {
+        .njg-link {
             stroke: #00ff00;
             stroke-width: 2;
             stroke-opacity: .5;
             cursor: pointer;
         }
-        .link:hover{
+        .njg-link:hover,
+        .njg-link.njg-open{
             stroke-width: 3;
             stroke-opacity: 1
         }
 
-        .tooltip {
+        .njg-tooltip {
             background: rgba(0, 0, 0, 0.5);
             color: #fff;
             padding: 5px 10px;
