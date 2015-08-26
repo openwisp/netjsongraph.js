@@ -111,6 +111,9 @@
                 if (n.linkCount) { html += "<p><b>links</b>: " + n.linkCount + "</p>"; }
                 overlayInner.html(html);
                 overlay.style("display", "block");
+                // set "open" class to current node
+                removeOpenClass();
+                d3.select(this).attr("class", "njg-node njg-open");
             },
             /**
              * called when a node is clicked
@@ -128,6 +131,9 @@
                 }
                 overlayInner.html(html);
                 overlay.style("display", "block");
+                // set "open" class to current link
+                removeOpenClass();
+                d3.select(this).attr("class", "njg-link njg-open");
             }
         }, opts);
 
@@ -225,6 +231,11 @@
                     height: nPos.height,
                     right: nPos.right - cPos.left
                 };
+            },
+            removeOpenClass = function () {
+                // remove open class to nodes and links
+                d3.selectAll(".njg-node.njg-open").attr("class", "njg-node");
+                d3.selectAll(".njg-link.njg-open").attr("class", "njg-link");
             };
 
         d3.json(url, function(error, graph) {
@@ -270,6 +281,7 @@
                              .call(drag);
 
             closeOverlay.on("click", function () {
+                removeOpenClass();
                 overlay.style("display", "none");
             });
             closeMetadata.on("click", function () {
