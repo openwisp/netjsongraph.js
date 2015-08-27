@@ -117,9 +117,9 @@ Manipulate the graph as you prefer:
 Styling
 -------
 
-The library comes with a default theme and a default styling for nodes,
-but you can disable by passing the option
-``defaultStyle: false`` and you can customize the look and feel with CSS.
+The library comes with a default theme and a default style (color) for nodes,
+you can disable this by passing the option
+``defaultStyle: false`` and define your own CSS rules.
 
 Here's a fulle example of how to show green links and dark green nodes:
 
@@ -130,8 +130,7 @@ Here's a fulle example of how to show green links and dark green nodes:
     <head>
         <meta charset="utf-8">
         <link href="src/netjsongraph.css" rel="stylesheet">
-        <!-- theme can be easily customized via css -->
-        <link href="src/netjsongraph-theme.css" rel="stylesheet">
+        <!-- custom theme example -->
         <style type="text/css">
             body {
                 font-family: Arial, sans-serif;
