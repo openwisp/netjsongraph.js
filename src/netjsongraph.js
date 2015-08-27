@@ -315,9 +315,9 @@
                         /**
                          * Check if the json contains a NetworkCollection
                          */
-                        if(graph.NetworkCollection && graph.NetworkCollection.length > 0) {
+                        if(graph.type === "NetworkCollection") {
                                 console.log("Provided json is grouped!");
-                                console.dir(graph.NetworkCollection);
+                                console.log(graph.collection);
 
                                 var selectGroup = body.append("div").attr("id", "selectGroup"),
                                 // The container of ungrouped networks json structure
@@ -331,7 +331,7 @@
                                         "name": "default",
                                         "disabled": "disabled"
                                 }).html("Choose the network to display");
-                                graph.NetworkCollection.forEach(function(structure) {
+                                graph.collection.forEach(function(structure) {
                                         // Collect each network json structure
                                         str[structure.type] = structure;
                                         select.append("option").attr("value", structure.type).html(structure.type);
@@ -345,7 +345,7 @@
                         } else {
                                 console.log("Provided json is not grouped");
                                 console.log(graph);
-                                processJson(structure);
+                                processJson(graph);
                         }
                 });
 
