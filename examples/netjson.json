@@ -1,6 +1,6 @@
 {
         "NetworkCollection": [{
-                "type": "NetworkGraph0",
+                "type": "Test",
                 "label": "Ninux Nowhere",
                 "description": "This is a test for multiple graph suport",
                 "protocol": "B.A.T.M.A.N",
@@ -107,7 +107,7 @@
                     }
                 ]
         }, {
-                "type": "NetworkGraph1",
+                "type": "Ninux",
                 "label": "Custom Attributes Example",
                 "protocol": "OLSR",
                 "version": "0.6.6.2",

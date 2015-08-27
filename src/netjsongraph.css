@@ -71,6 +71,7 @@ body {
         font-size: 13px;
         padding: 5px 10px;
         position: absolute;
+        top: -2000px;
 }
 .svg-overlay {
         background: #fbfbfb;

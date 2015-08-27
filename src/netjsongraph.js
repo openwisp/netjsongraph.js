@@ -20,22 +20,50 @@
         };
 
         /**
-        * Convert strings like "10px" to 10
-        *
-        * @param  {string}       val                     The value to convert
-        * @return {int}                                  The converted integer
-        */
+         * @function
+         *   @name d3._pxToNumber
+         * Convert strings like "10px" to 10
+         *
+         * @param  {string}       val                     The value to convert
+         * @return {int}                                  The converted integer
+         */
         d3._pxToNumber = function(val) {
                 return parseFloat(val.replace('px'));
         };
 
         /**
-        * Get window height
-        *
-        * @return  {int}                                The window innerHeight
-        */
+         * @function
+         *   @name d3._windowHeight
+         *
+         * Get window height
+         *
+         * @return  {int}                                The window innerHeight
+         */
         d3._windowHeight = function() {
                 return window.innerHeight || document.documentElement.clientHeight || 600;
+        };
+
+        /**
+         * @function
+         *   @name d3._getPosition
+         *
+         * Get the position of `element` relative to `container`
+         *
+         * @param  {object}              element
+         * @param  {object}              container
+         */
+        d3._getPosition = function(element, container) {
+                var n = element.node(),
+                nPos = n.getBoundingClientRect();
+                cPos = container.node().getBoundingClientRect();
+                return {
+                        top: nPos.top - cPos.top,
+                        left: nPos.left - cPos.left,
+                        width: nPos.width,
+                        bottom: nPos.bottom - cPos.top,
+                        height: nPos.height,
+                        right: nPos.right - cPos.left
+                };
         };
 
         /**
@@ -53,6 +81,7 @@
                  * @param  {bool}       metadata                true            Display NetJSON metadata at startup?
                  * @param  {bool}       defaultStyle            true            Use css style?
                  * @param  {int}        tooltipDelay            0               The delay before showing tooltip
+                 * @param  {bool}       animationAtStart        false           Animate nodes or not on load
                  * @param  {array}      scaleExtent             [0.25, 5]       The zoom scale's allowed range. @see {@link https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent}
                  * @param  {int}        charge                  -130            The charge strength to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#charge}
                  * @param  {int}        linkDistance            40              The target distance between linked nodes to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#linkDistance}
@@ -72,6 +101,7 @@
                         metadata: true,
                         defaultStyle: true,
                         tooltipDelay: 0,
+                        animationAtStart: false,
                         scaleExtent: [0.25, 5],
                         charge: -130,
                         linkDistance: 40,
@@ -130,9 +160,12 @@
                                 for(var c = 0; c < links_length; c++) {
                                         var sourceIndex = nodesMap[links[c].source],
                                         targetIndex = nodesMap[links[c].target];
+                                        console.log(nodesMap);
+                                        console.warn(links[c].source);
                                         // ensure source and target exist
-                                        if(!nodes[sourceIndex]) { throw("source '" + links[c].source + "' not found"); }
-                                        if(!nodes[targetIndex]) { throw("target '" + links[c].target + "' not found"); }
+                                        //
+                                        // if(!nodes[sourceIndex]) { throw("source '" + links[c].source + "' not found"); }
+                                        // if(!nodes[targetIndex]) { throw("target '" + links[c].target + "' not found"); }
                                         links[c].source = sourceIndex;
                                         links[c].target = targetIndex;
                                         // add link count to both ends
@@ -170,7 +203,6 @@
                          * Called when a node is clicked
                          */
                         onClickLink: function(l) {
-                                console.log(l);
                                 var html = "<p><b>source</b>: " + (l.source.label || l.source.id) + "</p>";
                                 html += "<p><b>target</b>: " + (l.target.label || l.target.id) + "</p>";
                                 html += "<p><b>cost</b>: " + l.cost + "</p>";
@@ -185,13 +217,17 @@
                                 overlay.classed("hidden", false);
                         }
                 }, opts);
+                if(!opts.animationAtStart) {
+                        opts.linkStrength = 2;
+                        opts.friction = 0.3;
+                        opts.gravity = 0;
+                }
 
                 if(opts.el == "body" && d3._pxToNumber(d3.select("body").style("height")) < 60) {
                         var body = d3.select(opts.el),
                         rect = body.node().getBoundingClientRect();
                         body.style("height", d3._windowHeight() - rect.top - rect.bottom + "px");
                 }
-
                 var el = d3.select(opts.el).style("position", "relative"),
                 width = d3._pxToNumber(el.style('width')),
                 height = d3._pxToNumber(el.style('height')),
@@ -229,28 +265,35 @@
                  * @name onMouseOverNode
                  */
                 onMouseOverNode = function(n) {
+                        var place = function(tooltip, self, svg, zoom) {
+                                // position of current element relative to svg container
+                                var pos = d3._getPosition(d3.select(self), svg),
+                                // find horizontal and vertical offsets
+                                xOffset = (tooltip.node().getBoundingClientRect().width/2) - pos.width/2,
+                                yOffset = 1 + zoom.scale() / 5;
+                                // position tooltip accordingly
+                                tooltip.style({
+                                        "left": Math.round(pos.left - xOffset) + "px",
+                                        "top": pos.top - 25 * yOffset + "px"
+                                }).classed("hidden", false);
+                        };
+
                         var self = this;
                         tooltip.text(n.label || n.id);
                         // use css "display" property to
                         // control whether mouse has moved out
                         // before the delayTooltip time has passed
                         // (mouseout event sets "display" back to "none")
-                        tooltip.classed("hidden", false);
-                        setTimeout(function() {
-                                if(tooltip.style("display") !== "block") {
-                                        return;
-                                }
-                                // position of current element relative to svg container
-                                var pos = getPosition(d3.select(self), svg),
-                                // find horizontal and vertical offsets
-                                xOffset = (tooltip.node().getBoundingClientRect().width/2) - pos.width/2,
-                                yOffset = 1 + zoom.scale() / 5;
-                                // position tooltip accordingly
-                                return tooltip.style({
-                                        "left": pos.left - xOffset + "px",
-                                        "top": pos.top - 25 * yOffset + "px"
-                                }).classed("hidden", false);
-                        }, opts.tooltipDelay);
+                        tooltip.style("display", "block");
+                        if(opts.tooltipDelay === 0) {
+                                place(tooltip, self, svg, zoom);
+                        } else {
+                                setTimeout(function() {
+                                        place(tooltip, self, svg, zoom);
+                                }, opts.tooltipDelay);
+                        }
+
+                        // tooltip.classed("hidden", false);
                 },
                 /**
                  * @function
@@ -258,28 +301,6 @@
                  */
                 onMouseOutNode = function(){
                         tooltip.classed("hidden", true);
-                },
-                /**
-                * @function
-                * @name getPosition
-                *
-                * Get the position of `element` relative to `container`
-                *
-                * @param  {object}              element
-                * @param  {object}              container
-                */
-                getPosition = function(element, container) {
-                        var n = element.node(),
-                        nPos = n.getBoundingClientRect();
-                        cPos = container.node().getBoundingClientRect();
-                        return {
-                                top: nPos.top - cPos.top,
-                                left: nPos.left - cPos.left,
-                                width: nPos.width,
-                                bottom: nPos.bottom - cPos.top,
-                                height: nPos.height,
-                                right: nPos.right - cPos.left
-                        };
                 };
 
                 /**
@@ -299,22 +320,27 @@
                                 console.dir(graph.NetworkCollection);
 
                                 var selectGroup = body.append("div").attr("id", "selectGroup"),
-                                select = selectGroup.append("select").attr("id", "select");
+                                // The container of ungrouped networks json structure
+                                str = [],
+                                select = selectGroup
+                                         .append("select")
+                                         .attr("id", "select");
                                 select.append("option").attr({
                                         "value": "",
                                         "selected": "selected",
-                                        "name": "default"
-                                }).html("Choose the network group to display");
+                                        "name": "default",
+                                        "disabled": "disabled"
+                                }).html("Choose the network to display");
                                 graph.NetworkCollection.forEach(function(structure) {
-                                        select.append("option")
-                                              .attr("value", structure.type).html(structure.type)
-                                              .on("click", function() {
-                                                      selectGroup.attr("class", "hidden");
-                                                      console.log(this.value);
-                                                      if(this.value == structure.type) {
-                                                              processJson(structure);
-                                                      }
-                                              })
+                                        // Collect each network json structure
+                                        str[structure.type] = structure;
+                                        select.append("option").attr("value", structure.type).html(structure.type);
+                                });
+                                select.on("change", function() {
+                                        selectGroup.attr("class", "hidden");
+                                        console.info("Selected \"" + this.value + "\" network");
+                                        // Call selected json structure
+                                        processJson(str[this.options[this.selectedIndex].value]);
                                 });
                         } else {
                                 console.log("Provided json is not grouped");
@@ -366,15 +392,23 @@
                         });
                         // Close Metadata panel
                         closeMetadata.on("click", function() {
+                                force.stop();
                                 metadata.classed("hidden", true);
 
                                 d3.select("#selectGroup").property("selected", function(d){ return d === "default"; });
                                 d3.select("#selectGroup").classed("hidden", false);
 
-                                d3.select(".svg-tooltip").remove();
-                                d3.select(".svg-overlay").remove();
-                                d3.select(".svg-metadata").remove();
-                                svg.remove();
+                                d3.select(".svg-tooltip").classed("hidden", true);
+                                d3.select(".svg-overlay").classed("hidden", true);
+                                d3.select(".svg-metadata").classed("hidden", true);
+                                svg.selectAll("g > *").remove();
+                                node.remove();
+                                link.remove();
+                                nodes = [];
+                                links = [];
+                                force.nodes(nodes);
+                                force.links(links);
+                                force.start();
                         });
 
                         /**
@@ -391,7 +425,7 @@
                                 // Tooltip style
                                 tooltip.attr("class", "svg-tooltip");
                                 // Overlay style
-                                overlay.attr("class", "svg-overlay");
+                                overlay.attr("class", "svg-overlay hidden");
                                 // Metadata style
                                 metadata.attr("class", "svg-metadata");
                         }
@@ -417,7 +451,9 @@
                                 metadata.classed("hidden", false);
                         }
                         force.on("tick", function() {
-                                link.attr("x1", function(d) { return d.source.x; })
+                                link.attr("x1", function(d) {
+                                        return d.source.x;
+                                })
                                 .attr("y1", function(d) {
                                         return d.source.y;
                                 })
