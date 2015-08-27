@@ -180,7 +180,9 @@
                          * Called when a node is clicked
                          */
                         onClickNode: function(n) {
-                                var html = "<p><b>id</b>: " + n.id + "</p>";
+                                var overlay = d3.select("#svg-overlay"),
+                                overlayInner = d3.select("#svg-overlay > .inner"),
+                                html = "<p><b>id</b>: " + n.id + "</p>";
                                 if(n.label) { html += "<p><b>label</b>: " + n.label + "</p>"; }
                                 if(n.properties) {
                                         for(var key in n.properties) {
@@ -192,7 +194,6 @@
                                 if(n.linkCount) { html += "<p><b>links</b>: " + n.linkCount + "</p>"; }
                                 overlayInner.html(html);
                                 overlay.classed("hidden", false);
-                                        console.log(overlay);
                         },
 
                         /**
@@ -202,7 +203,9 @@
                          * Called when a node is clicked
                          */
                         onClickLink: function(l) {
-                                var html = "<p><b>source</b>: " + (l.source.label || l.source.id) + "</p>";
+                                var overlay = d3.select("#svg-overlay"),
+                                overlayInner = d3.select("#svg-overlay > .inner"),
+                                html = "<p><b>source</b>: " + (l.source.label || l.source.id) + "</p>";
                                 html += "<p><b>target</b>: " + (l.target.label || l.target.id) + "</p>";
                                 html += "<p><b>cost</b>: " + l.cost + "</p>";
                                 if(l.properties) {
@@ -222,12 +225,12 @@
                         opts.gravity = 0;
                 }
 
-                if(opts.el == "body" && d3._pxToNumber(d3.select("body").style("height")) < 60) {
+                if(opts.el == "body") {
                         var body = d3.select(opts.el),
                         rect = body.node().getBoundingClientRect();
-                        body.style("height", d3._windowHeight() - rect.top - rect.bottom + "px");
-                } else {
-                        var body = d3.select(opts.el);
+                        if (d3._pxToNumber(d3.select("body").style("height")) < 60) {
+                                body.style("height", d3._windowHeight() - rect.top - rect.bottom + "px");
+                        }
                 }
                 var el = d3.select(opts.el).style("position", "relative"),
                 width = d3._pxToNumber(el.style('width')),
@@ -357,7 +360,7 @@
                          */
                         init = function(url, opts) {
                                 d3.netJsonGraph(url, opts);
-                        }
+                        };
 
                         /**
                          * Remove all instances
@@ -366,9 +369,10 @@
                                 force.stop();
                                 d3.select("#selectGroup").remove();
                                 d3.select(".svg-tooltip").remove();
-                                d3.select(".svg-overlay").remove();
-                                d3.select(".svg-metadata").remove();
+                                d3.select("#svg-overlay").remove();
+                                d3.select("#svg-metadata").remove();
                                 overlay.remove();
+                                overlayInner.remove();
                                 metadata.remove();
                                 svg.remove();
                                 node.remove();
@@ -384,7 +388,7 @@
                         reInit = function() {
                                 destroy();
                                 init(url, opts);
-                        }
+                        };
 
                         var data = opts.prepareData(graph),
                         links = data.links,
@@ -445,9 +449,9 @@
                                 // Tooltip style
                                 tooltip.attr("class", "svg-tooltip");
                                 // Overlay style
-                                overlay.attr("class", "svg-overlay hidden");
+                                overlay.attr("id", "svg-overlay").attr("class", "hidden");
                                 // Metadata style
-                                metadata.attr("class", "svg-metadata");
+                                metadata.attr("id", "svg-metadata");
                         }
 
                         if(opts.metadata) {
