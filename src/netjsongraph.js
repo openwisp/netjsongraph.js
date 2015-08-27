@@ -66,25 +66,6 @@
                 };
         };
 
-        d3._buildOption = function(collection) {
-                var select = d3.select("#select");
-                select.append("option").attr({
-                        "value": "",
-                        "selected": "selected",
-                        "name": "default",
-                        "disabled": "disabled"
-                }).html("Choose the network to display");
-
-                collection.forEach(function(structure) {
-                        select.append("option").attr("value", structure.type).html(structure.type);
-                });
-        };
-        d3._refreshOption = function(collection) {
-                var select = d3.select("#select");
-                select.html("");
-                d3._buildOption(collection);
-        };
-
         /**
         * netjsongraph.js main function
         *
@@ -347,11 +328,17 @@
                                          .append("select")
                                          .attr("id", "select");
                                 str = graph;
+                                select.append("option").attr({
+                                        "value": "",
+                                        "selected": "selected",
+                                        "name": "default",
+                                        "disabled": "disabled"
+                                }).html("Choose the network to display");
                                 graph.collection.forEach(function(structure) {
+                                        select.append("option").attr("value", structure.type).html(structure.type);
                                         // Collect each network json structure
                                         selected[structure.type] = structure;
                                 });
-                                d3._buildOption(graph.collection);
                                 select.on("change", function() {
                                         selectGroup.attr("class", "hidden");
                                         // console.info("Selected \"" + this.value + "\" network");
@@ -365,6 +352,40 @@
                 });
 
                 processJson = function(graph) {
+                        /**
+                         * Init netJsonGraph
+                         */
+                        init = function(url, opts) {
+                                d3.netJsonGraph(url, opts);
+                        }
+
+                        /**
+                         * Remove all instances
+                         */
+                        destroy = function() {
+                                force.stop();
+                                d3.select("#selectGroup").remove();
+                                d3.select(".svg-tooltip").remove();
+                                d3.select(".svg-overlay").remove();
+                                d3.select(".svg-metadata").remove();
+                                overlay.remove();
+                                metadata.remove();
+                                svg.remove();
+                                node.remove();
+                                link.remove();
+                                nodes = [];
+                                links = [];
+                        };
+
+                        /**
+                         * Destroy and e-init all instances
+                         * @return {[type]} [description]
+                         */
+                        reInit = function() {
+                                destroy();
+                                init(url, opts);
+                        }
+
                         var data = opts.prepareData(graph),
                         links = data.links,
                         nodes = data.nodes;
@@ -407,19 +428,7 @@
                         });
                         // Close Metadata panel
                         closeMetadata.on("click", function() {
-                                force.stop();
-                                d3.select("#selectGroup").remove();
-                                d3.select(".svg-tooltip").remove();
-                                d3.select(".svg-overlay").remove();
-                                d3.select(".svg-metadata").remove();
-                                overlay.remove();
-                                metadata.remove();
-                                svg.remove();
-                                node.remove();
-                                link.remove();
-                                nodes = [];
-                                links = [];
-                                d3.netJsonGraph(url, opts);
+                                reInit();
                         });
 
                         /**
