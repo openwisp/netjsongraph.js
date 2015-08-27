@@ -66,6 +66,25 @@
                 };
         };
 
+        d3._buildOption = function(collection) {
+                var select = d3.select("#select");
+                select.append("option").attr({
+                        "value": "",
+                        "selected": "selected",
+                        "name": "default",
+                        "disabled": "disabled"
+                }).html("Choose the network to display");
+
+                collection.forEach(function(structure) {
+                        select.append("option").attr("value", structure.type).html(structure.type);
+                });
+        };
+        d3._refreshOption = function(collection) {
+                var select = d3.select("#select");
+                select.html("");
+                d3._buildOption(collection);
+        };
+
         /**
         * netjsongraph.js main function
         *
@@ -160,14 +179,12 @@
                                 for(var c = 0; c < links_length; c++) {
                                         var sourceIndex = nodesMap[links[c].source],
                                         targetIndex = nodesMap[links[c].target];
-                                        console.log(nodesMap);
-                                        console.warn(links[c].source);
                                         // ensure source and target exist
                                         //
-                                        // if(!nodes[sourceIndex]) { throw("source '" + links[c].source + "' not found"); }
-                                        // if(!nodes[targetIndex]) { throw("target '" + links[c].target + "' not found"); }
-                                        links[c].source = sourceIndex;
-                                        links[c].target = targetIndex;
+                                        if(!nodes[sourceIndex]) { throw("source '" + links[c].source + "' not found"); }
+                                        if(!nodes[targetIndex]) { throw("target '" + links[c].target + "' not found"); }
+                                        links[c].source = nodesMap[links[c].source];
+                                        links[c].target = nodesMap[links[c].target];
                                         // add link count to both ends
                                         nodes[sourceIndex].linkCount++;
                                         nodes[targetIndex].linkCount++;
@@ -194,6 +211,7 @@
                                 if(n.linkCount) { html += "<p><b>links</b>: " + n.linkCount + "</p>"; }
                                 overlayInner.html(html);
                                 overlay.classed("hidden", false);
+                                        console.log(overlay);
                         },
 
                         /**
@@ -227,6 +245,8 @@
                         var body = d3.select(opts.el),
                         rect = body.node().getBoundingClientRect();
                         body.style("height", d3._windowHeight() - rect.top - rect.bottom + "px");
+                } else {
+                        var body = d3.select(opts.el);
                 }
                 var el = d3.select(opts.el).style("position", "relative"),
                 width = d3._pxToNumber(el.style('width')),
@@ -259,6 +279,9 @@
                 metadata = d3.select(opts.el).append("div").attr("class", "metadata"),
                 metadataInner = metadata.append("div").attr("class", "inner"),
                 closeMetadata = metadata.append("a").attr("class", "close"),
+                // The container of ungrouped networks json structure
+                str = [],
+                selected = [],
 
                 /**
                  * @function
@@ -303,6 +326,7 @@
                         tooltip.classed("hidden", true);
                 };
 
+
                 /**
                  * Parse the provided json file
                  * and call processJson() function
@@ -316,35 +340,26 @@
                          * Check if the json contains a NetworkCollection
                          */
                         if(graph.type === "NetworkCollection") {
-                                console.log("Provided json is grouped!");
-                                console.log(graph.collection);
+                                // console.log("Provided json is grouped!");
 
                                 var selectGroup = body.append("div").attr("id", "selectGroup"),
-                                // The container of ungrouped networks json structure
-                                str = [],
                                 select = selectGroup
                                          .append("select")
                                          .attr("id", "select");
-                                select.append("option").attr({
-                                        "value": "",
-                                        "selected": "selected",
-                                        "name": "default",
-                                        "disabled": "disabled"
-                                }).html("Choose the network to display");
+                                str = graph;
                                 graph.collection.forEach(function(structure) {
                                         // Collect each network json structure
-                                        str[structure.type] = structure;
-                                        select.append("option").attr("value", structure.type).html(structure.type);
+                                        selected[structure.type] = structure;
                                 });
+                                d3._buildOption(graph.collection);
                                 select.on("change", function() {
                                         selectGroup.attr("class", "hidden");
-                                        console.info("Selected \"" + this.value + "\" network");
+                                        // console.info("Selected \"" + this.value + "\" network");
                                         // Call selected json structure
-                                        processJson(str[this.options[this.selectedIndex].value]);
+                                        processJson(selected[this.options[this.selectedIndex].value]);
                                 });
                         } else {
-                                console.log("Provided json is not grouped");
-                                console.log(graph);
+                                // console.log("Provided json is not grouped");
                                 processJson(graph);
                         }
                 });
@@ -393,22 +408,18 @@
                         // Close Metadata panel
                         closeMetadata.on("click", function() {
                                 force.stop();
-                                metadata.classed("hidden", true);
-
-                                d3.select("#selectGroup").property("selected", function(d){ return d === "default"; });
-                                d3.select("#selectGroup").classed("hidden", false);
-
-                                d3.select(".svg-tooltip").classed("hidden", true);
-                                d3.select(".svg-overlay").classed("hidden", true);
-                                d3.select(".svg-metadata").classed("hidden", true);
-                                svg.selectAll("g > *").remove();
+                                d3.select("#selectGroup").remove();
+                                d3.select(".svg-tooltip").remove();
+                                d3.select(".svg-overlay").remove();
+                                d3.select(".svg-metadata").remove();
+                                overlay.remove();
+                                metadata.remove();
+                                svg.remove();
                                 node.remove();
                                 link.remove();
                                 nodes = [];
                                 links = [];
-                                force.nodes(nodes);
-                                force.links(links);
-                                force.start();
+                                d3.netJsonGraph(url, opts);
                         });
 
                         /**
