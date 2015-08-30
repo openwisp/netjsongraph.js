@@ -49,9 +49,19 @@ Very basic:
 
 .. code-block:: html
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-    <script src="src/netjsongraph.js"></script>
-    <script>d3.netJsonGraph("./resources/netjson.json");</script>
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <link href="src/netjsongraph.css" rel="stylesheet">
+            <!-- theme can be easily customized via css -->
+            <link href="src/netjsongraph-theme.css" rel="stylesheet">
+        </head>
+        <body>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+            <script src="src/netjsongraph.js"></script>
+            <script>d3.netJsonGraph("./resources/netjson.json");</script>
+        </body>
+    </html>
 
 Show graph in a container:
 
@@ -61,6 +71,9 @@ Show graph in a container:
     <html>
     <head>
         <meta charset="utf-8">
+        <link href="src/netjsongraph.css" rel="stylesheet">
+        <!-- theme can be easily customized via css -->
+        <link href="src/netjsongraph-theme.css" rel="stylesheet">
         <style type="text/css">
             body {
                 font-family: Arial, sans-serif;
@@ -104,8 +117,9 @@ Manipulate the graph as you prefer:
 Styling
 -------
 
-The library at comes with a default styling, but you can disable by passing the option
-``defaultStyle: false`` and you can customize it with CSS.
+The library comes with a default theme and a default style (color) for nodes,
+you can disable this by passing the option
+``defaultStyle: false`` and define your own CSS rules.
 
 Here's a fulle example of how to show green links and dark green nodes:
 
@@ -115,36 +129,56 @@ Here's a fulle example of how to show green links and dark green nodes:
     <html>
     <head>
         <meta charset="utf-8">
+        <link href="src/netjsongraph.css" rel="stylesheet">
+        <!-- custom theme example -->
         <style type="text/css">
             body {
                 font-family: Arial, sans-serif;
                 font-size: 13px;
             }
 
-            .node {
+            .njg-overlay{
+                width: auto;
+                height: auto;
+                min-width: 200px;
+                max-width: 400px;
+                border: 1px solid #000;
+                border-radius: 2px;
+                background: rgba(0, 0, 0, 0.7);
+                top: 10px;
+                right: 10px;
+                padding: 0 15px;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                color: #fff
+            }
+
+            .njg-node {
                 fill: #008000;
                 fill-opacity: 0.8;
                 stroke: #008000;
                 stroke-width: 1px;
                 cursor: pointer;
             }
-            .node:hover {
+            .njg-node:hover,
+            .njg-node.njg-open{
                 fill-opacity: 1;
             }
 
-            .link {
+            .njg-link {
                 stroke: #00ff00;
                 stroke-width: 2;
                 stroke-opacity: .5;
                 cursor: pointer;
             }
-            .link:hover{
+            .njg-link:hover,
+            .njg-link.njg-open{
                 stroke-width: 3;
                 stroke-opacity: 1
             }
 
-            .tooltip {
-                background: rgba(0, 0, 0, 0.75);
+            .njg-tooltip {
+                background: rgba(0, 0, 0, 0.6);
                 color: #fff;
                 padding: 5px 10px;
                 border-radius: 3px;
