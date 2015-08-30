@@ -101,7 +101,7 @@
                          metadata: true,
                          defaultStyle: true,
                          tooltipDelay: 300,
-                         animationAtStart: false,
+                         animationAtStart: true,
                          scaleExtent: [0.25, 5],
                          charge: -130,
                          linkDistance: 40,
@@ -223,7 +223,7 @@
                                 d3.select(this).attr("class", "njg-link njg-open");
                          }
                  }, opts);
-                 if(opts.animationAtStart) {
+                 if(!opts.animationAtStart) {
                          opts.linkStrength = 2;
                          opts.friction = 0.3;
                          opts.gravity = 0;
