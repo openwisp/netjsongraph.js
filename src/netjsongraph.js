@@ -485,6 +485,9 @@
                                                  html += "<p><b>" + attr + "</b>: <span>" + graph[attr] + "</span></p>";
                                          }
                                  }
+                                 // Add nodes and links count
+                                 html += "<p><b>Nodes</b>: <span>" + graph.nodes.length + "</span></p>";
+                                 html += "<p><b>Links</b>: <span>" + graph.links.length + "</span></p>";
                                  metadataInner.html(html);
                                  metadata.classed("hidden", false);
                          }
