@@ -1,28 +1,4 @@
-#njg-select-group {
-    text-align: center;
-    box-shadow: 0 0 10px #ccc;
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    width: 50%;
-    margin-top: -7.5em;
-    margin-left: -25%;
-    padding: 5em 2em;
-}
-#njg-select-group select {
-    font-size: 2em;
-    padding: 10px 15px;
-    width: 50%;
-    cursor: pointer;
-}
-#njg-select-group option {
-    padding: 0.5em;
-}
-#njg-select-group option[value=""] {
-    color: #aaa;
-}
-
-.hidden {
+.njg-hidden {
     display: none !important;
     visibility: hidden !important;
 }
@@ -55,23 +31,32 @@
     z-index: 12;
 }
 
-
-/* SVG STYLES */
-.link {
-    cursor: pointer;
-    stroke-opacity: 0.4;
-    stroke-width: 2;
-    stroke: #999;
-}
-.svg-tooltip {
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 3px;
-    color: #fff;
-    font-family: sans-serif;
-    font-size: 13px;
-    padding: 5px 10px;
-    position: absolute;
-    top: -2000px;
-}
 .njg-node{ cursor: pointer }
 .njg-link{ cursor: pointer }
+
+#njg-select-group {
+    text-align: center;
+    box-shadow: 0 0 10px #ccc;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 50%;
+    margin-top: -7.5em;
+    margin-left: -25%;
+    padding: 5em 2em;
+}
+
+#njg-select-group select {
+    font-size: 2em;
+    padding: 10px 15px;
+    width: 50%;
+    cursor: pointer;
+}
+
+#njg-select-group option {
+    padding: 0.5em;
+}
+
+#njg-select-group option[value=""] {
+    color: #aaa;
+}

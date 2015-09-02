@@ -190,7 +190,7 @@
                 }
                 if(n.linkCount) { html += "<p><b>links</b>: " + n.linkCount + "</p>"; }
                 overlayInner.html(html);
-                overlay.classed("hidden", false);
+                overlay.classed("njg-hidden", false);
                 overlay.style("display", "block");
                 // set "open" class to current node
                 removeOpenClass();
@@ -219,7 +219,7 @@
                     }
                 }
                 overlayInner.html(html);
-                overlay.classed("hidden", false);
+                overlay.classed("njg-hidden", false);
                 overlay.style("display", "block");
                 // set "open" class to current link
                 removeOpenClass();
@@ -291,7 +291,7 @@
                     tooltip.style({
                         "left": Math.round(pos.left - xOffset) + "px",
                         "top": pos.top - 25 * yOffset + "px"
-                    }).classed("hidden", false);
+                    }).classed("njg-hidden", false);
                 },
                 self = this;
                 tooltip.text(n.label || n.id);
@@ -316,7 +316,7 @@
              * @name onMouseOutNode
              */
             onMouseOutNode = function(){
-                tooltip.classed("hidden", true);
+                tooltip.classed("njg-hidden", true);
             },
             /**
              * @function
@@ -402,7 +402,7 @@
             // Close overlay
             closeOverlay.on("click", function() {
                 removeOpenClass();
-                overlay.classed("hidden", true);
+                overlay.classed("njg-hidden", true);
             });
             // Close Metadata panel
             closeMetadata.on("click", function() {
@@ -412,28 +412,22 @@
                 }
                 else {
                     removeOpenClass();
-                    metadata.classed("hidden", true);
+                    metadata.classed("njg-hidden", true);
                 }
             });
-            /**
-             * Styles
-             */
+            // default style
+            // TODO: probably change defaultStyle
+            // into something else
             if(opts.defaultStyle) {
                 var colors = d3.scale.category20c();
                 node.style({
                     "fill": function(d){ return colors(d.linkCount); },
                     "cursor": "pointer"
                 });
-                // Link style
-                link.attr("class", "njg-link");
-                // Tooltip style
-                tooltip.attr("class", "njg-tooltip");
-                // Overlay style
-                overlay.attr("class", "njg-overlay hidden");
-                // Metadata style
-                if(opts.metadata) {
-                    metadata.attr("class", "njg-metadata").attr("style", "display: block");
-                }
+            }
+            // Metadata style
+            if(opts.metadata) {
+                metadata.attr("class", "njg-metadata").attr("style", "display: block");
             }
 
             var attrs = ["protocol",
@@ -453,10 +447,10 @@
                 }
             }
             // Add nodes and links count
-            html += "<p><b>Nodes</b>: <span>" + graph.nodes.length + "</span></p>";
-            html += "<p><b>Links</b>: <span>" + graph.links.length + "</span></p>";
+            html += "<p><b>nodes</b>: <span>" + graph.nodes.length + "</span></p>";
+            html += "<p><b>links</b>: <span>" + graph.links.length + "</span></p>";
             metadataInner.html(html);
-            metadata.classed("hidden", false);
+            metadata.classed("njg-hidden", false);
 
             force.on("tick", function() {
                 link.attr("x1", function(d) {
@@ -521,7 +515,7 @@
                         selected[structure.type] = structure;
                     });
                     select.on("change", function() {
-                        selectGroup.attr("class", "hidden");
+                        selectGroup.attr("class", "njg-hidden");
                         // Call selected json structure
                         processJson(selected[this.options[this.selectedIndex].value]);
                     });
