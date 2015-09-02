@@ -16,6 +16,7 @@ Examples:
 * `dark green example <https://nodeshot.org/netjsongraph/examples/dark.html>`__
 * `light green example <https://nodeshot.org/netjsongraph/examples/green.html>`__
 * `custom attributes example <https://nodeshot.org/netjsongraph/examples/custom-attributes.html>`__
+* `NetJSON NetworkCollection example <https://nodeshot.org/netjsongraph/examples/network-collection.html>`__
 
 Arguments
 ---------
