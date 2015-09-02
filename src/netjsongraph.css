@@ -1,78 +1,77 @@
-
-#selectGroup {
-        text-align: center;
-        box-shadow: 0 0 10px #ccc;
-        position: fixed;
-        left: 50%;
-        top: 50%;
-        width: 50%;
-        margin-top: -7.5em;
-        margin-left: -25%;
-        padding: 5em 2em;
+#njg-select-group {
+    text-align: center;
+    box-shadow: 0 0 10px #ccc;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 50%;
+    margin-top: -7.5em;
+    margin-left: -25%;
+    padding: 5em 2em;
 }
-#selectGroup select {
-        font-size: 2em;
-        padding: 10px 15px;
-        width: 50%;
-        cursor: pointer;
+#njg-select-group select {
+    font-size: 2em;
+    padding: 10px 15px;
+    width: 50%;
+    cursor: pointer;
 }
-#selectGroup option {
-        padding: 0.5em;
+#njg-select-group option {
+    padding: 0.5em;
 }
-#selectGroup option[value=""] {
-        color: #aaa;
+#njg-select-group option[value=""] {
+    color: #aaa;
 }
 
 .hidden {
-        display: none !important;
-        visibility: hidden !important;
+    display: none !important;
+    visibility: hidden !important;
 }
 .njg-tooltip{
-        display: none;
-        left: 0;
-        position: absolute;
-        top: 0;
-        visibility: hidden;
-        z-index: 10;
+    display: none;
+    left: 0;
+    position: absolute;
+    top: 0;
+    visibility: hidden;
+    z-index: 10;
 }
 
 .njg-overlay{
-        display: none;
-        position: absolute;
-        z-index: 11;
+    display: none;
+    position: absolute;
+    z-index: 11;
 }
 
 .njg-close{
-        cursor: pointer;
-        position: absolute;
-        right: 10px;
-        top: 10px;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
 }
 .njg-close:before { content: "\2716"; }
 
 .njg-metadata{
-        display: block;
-        position: absolute;
-        z-index: 12;
+    display: block;
+    position: absolute;
+    z-index: 12;
 }
 
 
 /* SVG STYLES */
 .link {
-        cursor: pointer;
-        stroke-opacity: 0.4;
-        stroke-width: 2;
-        stroke: #999;
+    cursor: pointer;
+    stroke-opacity: 0.4;
+    stroke-width: 2;
+    stroke: #999;
 }
 .svg-tooltip {
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 3px;
-        color: #fff;
-        font-family: sans-serif;
-        font-size: 13px;
-        padding: 5px 10px;
-        position: absolute;
-        top: -2000px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 3px;
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 13px;
+    padding: 5px 10px;
+    position: absolute;
+    top: -2000px;
 }
 .njg-node{ cursor: pointer }
 .njg-link{ cursor: pointer }
