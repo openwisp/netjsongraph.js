@@ -1,0 +1,116 @@
+{
+        "type": "NetworkCollection",
+        "collection": [
+                {
+                        "type": "NetworkCollection",
+                        "protocol": "olsr",
+                        "version": "0.6.6",
+                        "revision": "5031a799fcbe17f61d57e387bc3806de",
+                        "metric": "etx",
+                        "router_id": "172.16.40.24",
+                        "nodes": [
+                                {
+                                        "id": "172.16.40.24"
+                                },
+                                {
+                                        "id": "172.16.40.60"
+                                }
+                        ],
+                        "links": [
+                                {
+                                        "source": "172.16.40.24",
+                                        "target": "172.16.40.60",
+                                        "cost": 1,
+                                        "properties": {
+                                                "lq": 1,
+                                                "nlq": 0.497
+                                        }
+                                }
+                        ]
+                },
+                {
+                        "type": "NetworkCollection",
+                        "protocol": "olsrv2",
+                        "version": "0.8.0",
+                        "revision": "v0.8.0-0-g31b63ec-dirty",
+                        "router_id": "192.168.0.101",
+                        "metric": "ff_dat_metric",
+                        "nodes": [
+                                {
+                                        "id": "192.168.0.101"
+                                },
+                                {
+                                        "id": "192.168.0.102"
+                                },
+                                {
+                                        "id": "192.168.0.103"
+                                },
+                                {
+                                        "id": "192.168.0.104"
+                                }
+                        ],
+                        "links": [
+                                {
+                                        "source": "192.168.0.101",
+                                        "target": "192.168.0.102",
+                                        "cost": 2105088,
+                                        "cost_text": "1020  bit/s",
+                                        "properties": {
+                                                "in": 2105088,
+                                                "in_txt": "1020  bit/s"
+                                        }
+                                },
+                                {
+                                        "source": "192.168.0.102",
+                                        "target": "192.168.0.101",
+                                        "cost": 2105088,
+                                        "cost_text": "1020  bit/s",
+                                        "properties": {
+                                                "in": 2105088,
+                                                "in_txt": "1020  bit/s"
+                                        }
+                                },
+                                {
+                                        "source": "192.168.0.102",
+                                        "target": "192.168.0.103",
+                                        "cost": 2105088,
+                                        "cost_text": "1020  bit/s",
+                                        "properties": {
+                                                "in": 2105088,
+                                                "in_txt": "1020  bit/s"
+                                        }
+                                },
+                                {
+                                        "source": "192.168.0.103",
+                                        "target": "192.168.0.102",
+                                        "cost": 2105088,
+                                        "cost_text": "1020  bit/s",
+                                        "properties": {
+                                                "in": 2105088,
+                                                "in_txt": "1020  bit/s"
+                                        }
+                                },
+                                {
+                                        "source": "192.168.0.103",
+                                        "target": "192.168.0.104",
+                                        "cost": 2105088,
+                                        "cost_text": "1020  bit/s",
+                                        "properties": {
+                                                "in": 2105088,
+                                                "in_txt": "1020  bit/s"
+                                        }
+                                },
+                                {
+                                        "source": "192.168.0.104",
+                                        "target": "192.168.0.103",
+                                        "cost": 2105088,
+                                        "cost_text": "1020  bit/s",
+                                        "properties": {
+                                                "in": 2105088,
+                                                "in_txt": "1020  bit/s"
+                                        }
+                                }
+                        ]
+                }
+        ]
+}
