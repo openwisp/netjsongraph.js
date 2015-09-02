@@ -82,6 +82,7 @@
                   * @param  {bool}       defaultStyle            true            Use css style?
                   * @param  {int}        tooltipDelay            0               The delay before showing tooltip
                   * @param  {bool}       animationAtStart        false           Animate nodes or not on load
+                  * @param  {bool}       randomAnimation         false           Animate nodes randomly
                   * @param  {array}      scaleExtent             [0.25, 5]       The zoom scale's allowed range. @see {@link https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent}
                   * @param  {int}        charge                  -130            The charge strength to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#charge}
                   * @param  {int}        linkDistance            40              The target distance between linked nodes to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#linkDistance}
@@ -102,6 +103,7 @@
                          defaultStyle: true,
                          tooltipDelay: 300,
                          animationAtStart: true,
+                         randomAnimation: false,
                          scaleExtent: [0.25, 5],
                          charge: -130,
                          linkDistance: 40,
@@ -196,6 +198,11 @@
                                  // set "open" class to current node
                                  removeOpenClass();
                                  d3.select(this).attr("class", "njg-node njg-open");
+
+                                 // Open Metadata panel
+                                 if(!opts.metadata) {
+                                         metadata.attr("class", "njg-metadata").attr("style", "display: block");
+                                 }
                          },
                          /**
                           * @function
@@ -221,6 +228,11 @@
                                 // set "open" class to current link
                                 removeOpenClass();
                                 d3.select(this).attr("class", "njg-link njg-open");
+
+                                // Open Metadata panel
+                                if(!opts.metadata) {
+                                        metadata.attr("class", "njg-metadata").attr("style", "display: block");
+                                }
                          }
                  }, opts);
                  if(!opts.animationAtStart) {
@@ -323,49 +335,6 @@
                         d3.selectAll(".njg-link.njg-open").attr("class", "njg-link");
                  };
 
-                 /**
-                  * Parse the provided json file
-                  * and call processJson() function
-                  *
-                  * @param  {string}     url             The provided json file
-                  * @param  {function}   error
-                  */
-                 d3.json(url, function(error, graph) {
-                         if(error) { throw error; }
-                         /**
-                          * Check if the json contains a NetworkCollection
-                          */
-                         if(graph.type === "NetworkCollection") {
-                                 // console.log("Provided json is grouped!");
-
-                                 var selectGroup = body.append("div").attr("id", "selectGroup"),
-                                 select = selectGroup
-                                          .append("select")
-                                          .attr("id", "select");
-                                 str = graph;
-                                 select.append("option").attr({
-                                         "value": "",
-                                         "selected": "selected",
-                                         "name": "default",
-                                         "disabled": "disabled"
-                                 }).html("Choose the network to display");
-                                 graph.collection.forEach(function(structure) {
-                                         select.append("option").attr("value", structure.type).html(structure.type);
-                                         // Collect each network json structure
-                                         selected[structure.type] = structure;
-                                 });
-                                 select.on("change", function() {
-                                         selectGroup.attr("class", "hidden");
-                                         // console.info("Selected \"" + this.value + "\" network");
-                                         // Call selected json structure
-                                         processJson(selected[this.options[this.selectedIndex].value]);
-                                 });
-                         } else {
-                                 // console.log("Provided json is not grouped");
-                                 processJson(graph);
-                         }
-                 });
-
                  processJson = function(graph) {
                          /**
                           * Init netJsonGraph
@@ -445,8 +414,14 @@
                          });
                          // Close Metadata panel
                          closeMetadata.on("click", function() {
+                                 console.log(graph);
                                  // Reinitialize the page
-                                 reInit();
+                                 if(graph.type === "NetworkCollection") {
+                                         reInit();
+                                 } else {
+                                         removeOpenClass();
+                                         metadata.classed("hidden", true);
+                                 }
                          });
 
                          /**
@@ -465,32 +440,33 @@
                                  // Overlay style
                                  overlay.attr("class", "njg-overlay hidden");
                                  // Metadata style
-                                 metadata.attr("class", "njg-metadata").attr("style", "display: block");
+                                 if(opts.metadata) {
+                                         metadata.attr("class", "njg-metadata").attr("style", "display: block");
+                                 }
                          }
 
-                         if(opts.metadata) {
-                                 var attrs = ["protocol",
-                                              "version",
-                                              "revision",
-                                              "metric",
-                                              "router_id",
-                                              "topology_id"],
-                                 html = "";
-                                 if(graph.label) {
-                                         html += "<h3>" + graph.label + "</h3>";
-                                 }
-                                 for(var i in attrs) {
-                                         var attr = attrs[i];
-                                         if(graph[attr]) {
-                                                 html += "<p><b>" + attr + "</b>: <span>" + graph[attr] + "</span></p>";
-                                         }
-                                 }
-                                 // Add nodes and links count
-                                 html += "<p><b>Nodes</b>: <span>" + graph.nodes.length + "</span></p>";
-                                 html += "<p><b>Links</b>: <span>" + graph.links.length + "</span></p>";
-                                 metadataInner.html(html);
-                                 metadata.classed("hidden", false);
+                         var attrs = ["protocol",
+                                      "version",
+                                      "revision",
+                                      "metric",
+                                      "router_id",
+                                      "topology_id"],
+                         html = "";
+                         if(graph.label) {
+                                 html += "<h3>" + graph.label + "</h3>";
                          }
+                         for(var i in attrs) {
+                                 var attr = attrs[i];
+                                 if(graph[attr]) {
+                                         html += "<p><b>" + attr + "</b>: <span>" + graph[attr] + "</span></p>";
+                                 }
+                         }
+                         // Add nodes and links count
+                         html += "<p><b>Nodes</b>: <span>" + graph.nodes.length + "</span></p>";
+                         html += "<p><b>Links</b>: <span>" + graph.links.length + "</span></p>";
+                         metadataInner.html(html);
+                         metadata.classed("hidden", false);
+
                          force.on("tick", function() {
                                  link.attr("x1", function(d) {
                                          return d.source.x;
@@ -518,5 +494,52 @@
 
                          return force;
                  };
+
+                if(typeof(url) === "object") {
+                        processJson(url);
+                } else {
+                        /**
+                        * Parse the provided json file
+                        * and call processJson() function
+                        *
+                        * @param  {string}     url             The provided json file
+                        * @param  {function}   error
+                        */
+                        d3.json(url, function(error, graph) {
+                                if(error) { throw error; }
+                                /**
+                                * Check if the json contains a NetworkCollection
+                                */
+                                if(graph.type === "NetworkCollection") {
+                                        // console.log("Provided json is grouped!");
+
+                                        var selectGroup = body.append("div").attr("id", "selectGroup"),
+                                        select = selectGroup
+                                                .append("select")
+                                                .attr("id", "select");
+                                        str = graph;
+                                        select.append("option").attr({
+                                                "value": "",
+                                                "selected": "selected",
+                                                "name": "default",
+                                                "disabled": "disabled"
+                                        }).html("Choose the network to display");
+                                        graph.collection.forEach(function(structure) {
+                                                select.append("option").attr("value", structure.type).html(structure.type);
+                                                // Collect each network json structure
+                                                selected[structure.type] = structure;
+                                        });
+                                        select.on("change", function() {
+                                                selectGroup.attr("class", "hidden");
+                                                // console.info("Selected \"" + this.value + "\" network");
+                                                // Call selected json structure
+                                                processJson(selected[this.options[this.selectedIndex].value]);
+                                        });
+                                } else {
+                                        // console.log("Provided json is not grouped");
+                                        processJson(graph);
+                                }
+                        });
+                }
          };
 })();

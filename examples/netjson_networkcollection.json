@@ -2,7 +2,7 @@
         "type": "NetworkCollection",
         "collection": [
                 {
-                        "type": "NetworkGraph",
+                        "type": "NetworkCollection",
                         "protocol": "olsr",
                         "version": "0.6.6",
                         "revision": "5031a799fcbe17f61d57e387bc3806de",
@@ -29,7 +29,7 @@
                         ]
                 },
                 {
-                        "type": "NetworkGraph2",
+                        "type": "NetworkCollection",
                         "protocol": "olsrv2",
                         "version": "0.8.0",
                         "revision": "v0.8.0-0-g31b63ec-dirty",
