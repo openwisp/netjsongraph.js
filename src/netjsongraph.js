@@ -280,43 +280,38 @@
              * @function
              * @name onMouseOverNode
              */
-            onMouseOverNode = function(n) {
-                var place = function(tooltip, self, svg, zoom) {
-                    // position of current element relative to svg container
-                    var pos = d3._getPosition(d3.select(self), svg),
-                    // find horizontal and vertical offsets
-                    xOffset = (tooltip.node().getBoundingClientRect().width/2) - pos.width/2,
-                    yOffset = 1 + zoom.scale() / 5;
-                    // position tooltip accordingly
-                    tooltip.style({
-                        "left": Math.round(pos.left - xOffset) + "px",
-                        "top": pos.top - 25 * yOffset + "px"
-                    }).classed("njg-hidden", false);
-                },
-                self = this;
-                tooltip.text(n.label || n.id);
-                // use css "display" property to
-                // control whether mouse has moved out
-                // before the delayTooltip time has passed
-                // (mouseout event sets "display" back to "none")
-                tooltip.style({
-                    "display": "block",
-                    "visibility": "visible"
-                });
-                if(opts.tooltipDelay === 0) {
-                    place(tooltip, self, svg, zoom);
-                } else {
-                    setTimeout(function() {
-                        place(tooltip, self, svg, zoom);
-                    }, opts.tooltipDelay);
-                }
-            },
+             onMouseOverNode = function(n) {
+                 var self = this;
+                 tooltip.text(n.label || n.id);
+                 // use css "display" property to
+                 // control wether mouse has moved out
+                 // before the delayTooltip time has passed
+                 // (mouseout event sets "display" back to "none")
+                 tooltip.style("display", "block");
+                 setTimeout(function () {
+                     if (tooltip.style("display") != "block") {
+                         return;
+                     }
+                     // position of current element relative to svg container
+                     var pos = d3._getPosition(d3.select(self), svg),
+                     // find horizontal and vertical offsets
+                         xOffset = (tooltip.node().getBoundingClientRect().width/2) - pos.width/2,
+                         yOffset = 1 + zoom.scale() / 5;
+                     // position tooltip accordingly
+                     return tooltip.style("left", pos.left - xOffset + "px")
+                                   .style("top", pos.top - 25 * yOffset + "px")
+                                   .style("visibility", "visible");
+                 }, opts.tooltipDelay);
+             },
             /**
              * @function
              * @name onMouseOutNode
              */
             onMouseOutNode = function(){
-                tooltip.classed("njg-hidden", true);
+                tooltip.style({
+                    "visibility": "hidden",
+                    "display": "none"
+                });
             },
             /**
              * @function

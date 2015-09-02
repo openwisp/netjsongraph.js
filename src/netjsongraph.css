@@ -2,12 +2,11 @@
     display: none !important;
     visibility: hidden !important;
 }
+
 .njg-tooltip{
-    display: none;
     left: 0;
-    position: absolute;
     top: 0;
-    visibility: hidden;
+    position: absolute;
     z-index: 10;
 }
 
