@@ -37,6 +37,7 @@ Arguments
     * ``chargeDistance``: see `d3 Zoom chargeDistance <https://github.com/mbostock/d3/wiki/Force-Layout#chargeDistance>`__, defaults to ``Infinity``
     * ``theta``: see `d3 Zoom theta <https://github.com/mbostock/d3/wiki/Force-Layout#theta>`__, defaults to ``0.8``
     * ``gravity``: see `d3 Zoom gravity <https://github.com/mbostock/d3/wiki/Force-Layout#gravity>`__, defaults to ``0.1``
+    * ``circleRadius``: radius of circles (nodes) in pixel, defalts to ``8``
     * ``linkDistanceFunc``: by default high density areas have longer links, you can tweak this behaviour if you need
     * ``redraw``: function called when panning and zooming, you can tweak it if you need
     * ``prepareData``: function used to convert NetJSON NetworkGraph to the javascript data structured used internally, you won't need to modify it in most cases

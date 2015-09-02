@@ -90,6 +90,7 @@
          * @param  {string}     chargeDistance      Infinity    The maximum distance over which charge forces are applied. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#chargeDistance}
          * @param  {float}      theta               0.8         The Barnes–Hut approximation criterion to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#theta}
          * @param  {float}      gravity             0.1         The gravitational strength to the specified numerical value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#gravity}
+         * @param  {int}        circleRadius        8           The radius of circles (nodes) in pixel
          * @param  {function}   linkDistanceFunc                By default high density areas have longer links
          * @param  {function}   redraw                          Called when panning and zooming
          * @param  {function}   prepareData                     Used to convert NetJSON NetworkGraph to the javascript data
@@ -110,6 +111,7 @@
             chargeDistance: Infinity,  // d3 default
             theta: 0.8,  // d3 default
             gravity: 0.1,
+            circleRadius: 8,
             /**
              * @function
              * @name linkDistanceFunc
@@ -388,7 +390,7 @@
                              .data(nodes)
                              .enter().append("circle")
                              .attr("class", "njg-node")
-                             .attr("r", 7)
+                             .attr("r", opts.circleRadius)
                              .on("mouseover", onMouseOverNode)
                              .on("mouseout", onMouseOutNode)
                              .on("click", opts.onClickNode)
