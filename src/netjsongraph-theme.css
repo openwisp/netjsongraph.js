@@ -65,7 +65,6 @@
 
 .njg-link:hover,
 .njg-link.njg-open{
-    stroke: #9f9fa4 !important;
-    stroke-width: 3 !important;
+    stroke-width: 4 !important;
     stroke-opacity: 0.5;
 }

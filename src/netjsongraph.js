@@ -112,6 +112,8 @@
             theta: 0.8,  // d3 default
             gravity: 0.1,
             circleRadius: 8,
+            nodeClassProperty: null,
+            linkClassProperty: null,
             /**
              * @function
              * @name linkDistanceFunc
@@ -383,12 +385,48 @@
                 var link = panner.selectAll(".link")
                                  .data(links)
                                  .enter().append("line")
-                                 .attr("class", "njg-link")
+                                 .attr("class", function (link) {
+                                     var baseClass = "njg-link",
+                                         addClass = null;
+                                         value = link.properties && link.properties[opts.linkClassProperty];
+                                     if (opts.linkClassProperty && value) {
+                                         // if value is stirng use that as class
+                                         if (typeof(value) === "string") {
+                                             addClass = value;
+                                         }
+                                         else if (typeof(value) === "number") {
+                                             addClass = opts.linkClassProperty + value;
+                                         }
+                                         else if (value === true) {
+                                             addClass = opts.linkClassProperty;
+                                         }
+                                         return baseClass + " " + addClass;
+                                     }
+                                     return baseClass;
+                                 })
                                  .on("click", opts.onClickLink),
                     node = panner.selectAll(".node")
                                  .data(nodes)
                                  .enter().append("circle")
-                                 .attr("class", "njg-node")
+                                 .attr("class", function (node) {
+                                     var baseClass = "njg-node",
+                                         addClass = null;
+                                         value = node.properties && node.properties[opts.nodeClassProperty];
+                                     if (opts.nodeClassProperty && value) {
+                                         // if value is stirng use that as class
+                                         if (typeof(value) === "string") {
+                                             addClass = value;
+                                         }
+                                         else if (typeof(value) === "number") {
+                                             addClass = opts.nodeClassProperty + value;
+                                         }
+                                         else if (value === true) {
+                                             addClass = opts.nodeClassProperty;
+                                         }
+                                         return baseClass + " " + addClass;
+                                     }
+                                     return baseClass;
+                                 })
                                  .attr("r", opts.circleRadius)
                                  .on("mouseover", onMouseOverNode)
                                  .on("mouseout", onMouseOutNode)

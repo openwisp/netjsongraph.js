@@ -37,6 +37,8 @@ Arguments
     * ``chargeDistance``: see `d3 Zoom chargeDistance <https://github.com/mbostock/d3/wiki/Force-Layout#chargeDistance>`__, defaults to ``Infinity``
     * ``theta``: see `d3 Zoom theta <https://github.com/mbostock/d3/wiki/Force-Layout#theta>`__, defaults to ``0.8``
     * ``gravity``: see `d3 Zoom gravity <https://github.com/mbostock/d3/wiki/Force-Layout#gravity>`__, defaults to ``0.1``
+    * ``nodeClassProperty``: if specified, nodes will have an additional CSS class that depends on the value of a specific NetJSON node property
+    * ``linkClassProperty``: if specified, links will have an additional CSS class that depends on the value of a specific NetJSON link property
     * ``circleRadius``: radius of circles (nodes) in pixel, defalts to ``8``
     * ``linkDistanceFunc``: by default high density areas have longer links, you can tweak this behaviour if you need
     * ``redraw``: function called when panning and zooming, you can tweak it if you need
