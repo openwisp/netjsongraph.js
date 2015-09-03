@@ -196,7 +196,7 @@
                 overlay.style("display", "block");
                 // set "open" class to current node
                 removeOpenClass();
-                d3.select(this).attr("class", "njg-node njg-open");
+                d3.select(this).classed("njg-open", true);
                 // Open Metadata panel
                 if(!opts.metadata) {
                     metadata.attr("class", "njg-metadata").attr("style", "display: block");
@@ -225,7 +225,7 @@
                 overlay.style("display", "block");
                 // set "open" class to current link
                 removeOpenClass();
-                d3.select(this).attr("class", "njg-link njg-open");
+                d3.select(this).classed("njg-open", true);
                 // Open Metadata panel
                 if(!opts.metadata) {
                     metadata.attr("class", "njg-metadata").attr("style", "display: block");
@@ -322,8 +322,7 @@
              * Remove open classes from nodes and links
              */
             removeOpenClass = function () {
-                d3.selectAll(".njg-node.njg-open").attr("class", "njg-node");
-                d3.selectAll(".njg-link.njg-open").attr("class", "njg-link");
+                d3.selectAll("svg .njg-open").classed("njg-open", false);
             };
             processJson = function(graph) {
                 /**
