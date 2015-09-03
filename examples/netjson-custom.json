@@ -1,6 +1,6 @@
 {
     "type": "NetworkGraph",
-    "label": "Custom Attributes Example",
+    "label": "Color Depending on Attribute Example",
     "protocol": "OLSR",
     "version": "0.6.6.2",
     "revision": "6ec73b8f5213cc740816f2fd2ff93108",
@@ -21,7 +21,8 @@
             "properties": {
                 "lq": 0.900,
                 "nlq": 0.497,
-                "bitrate": "20 mbit/s"
+                "bitrate": "20 mbit/s",
+                "type": "ethernet"
             }
         },
         {
@@ -31,7 +32,8 @@
             "properties": {
                 "lq": 0.940,
                 "nlq": 0.797,
-                "bitrate": "40 mbit/s"
+                "bitrate": "40 mbit/s",
+                "type": "wireless"
             }
         },
         {
@@ -41,7 +43,8 @@
             "properties": {
                 "lq": 1.0,
                 "nlq": 1.0,
-                "bitrate": "30 mbit/s"
+                "bitrate": "30 mbit/s",
+                "type": "wireless"
             }
         },
         {
@@ -51,7 +54,8 @@
             "properties": {
                 "lq": 1.0,
                 "nlq": 1.0,
-                "bitrate": "32 mbit/s"
+                "bitrate": "32 mbit/s",
+                "type": "wireless"
             }
         },
         {
@@ -61,7 +65,8 @@
             "properties": {
                 "lq": 1.0,
                 "nlq": 1.0,
-                "bitrate": "35 mbit/s"
+                "bitrate": "35 mbit/s",
+                "type": "wireless"
             }
         },
         {
@@ -71,7 +76,8 @@
             "properties": {
                 "lq": 1.0,
                 "nlq": 1.0,
-                "bitrate": "32 mbit/s"
+                "bitrate": "32 mbit/s",
+                "type": "ethernet"
             }
         },
         {
@@ -81,7 +87,8 @@
             "properties": {
                 "lq": 1.0,
                 "nlq": 1.0,
-                "bitrate": "29 mbit/s"
+                "bitrate": "29 mbit/s",
+                "type": "wireless"
             }
         },
         {
@@ -91,7 +98,8 @@
             "properties": {
                 "lq": 1.0,
                 "nlq": 1.0,
-                "bitrate": "45 mbit/s"
+                "bitrate": "45 mbit/s",
+                "type": "wireless"
             }
         },
         {
@@ -101,7 +109,8 @@
             "properties": {
                 "lq": 1.0,
                 "nlq": 1.0,
-                "bitrate": "39 mbit/s"
+                "bitrate": "39 mbit/s",
+                "type": "ethernet"
             }
         }
     ]
