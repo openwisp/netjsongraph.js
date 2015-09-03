@@ -1,17 +1,50 @@
 {
     "type": "NetworkGraph",
-    "label": "Color Depending on Attribute Example",
+    "label": "Custom Attributes Example",
     "protocol": "OLSR",
     "version": "0.6.6.2",
     "revision": "6ec73b8f5213cc740816f2fd2ff93108",
     "metric": "ETX",
     "router_id": "172.16.146.6",
     "nodes": [
-        { "id": "172.16.146.6", "label": "Fusolab", "properties": {"hostname": "fusolab.nnx"} },
-        { "id": "172.16.145.2", "label": "Clauzroma", "properties": {"hostname": "clauzroma.nnx"} },
-        { "id": "172.16.146.4", "label": "Lux", "properties": {"hostname": "lux.nnx"} },
-        { "id": "172.16.146.1", "label": "Nino", "properties": {"hostname": "nino.nnx"} },
-        { "id": "172.16.146.7", "label": "Nemesis", "properties": {"hostname": "nemesis.nnx"} }
+        {
+            "id": "172.16.146.6",
+            "label": "Fusolab",
+            "properties": {
+                "hostname": "fusolab.nnx",
+                "gateway": true
+            }
+        },
+        {
+            "id": "172.16.145.2",
+            "label": "Clauzroma",
+            "properties": {
+                "hostname": "clauzroma.nnx",
+                "gateway": false
+            }
+        },
+        {
+            "id": "172.16.146.4",
+            "label": "Lux",
+            "properties": {
+                "hostname": "lux.nnx"
+            }
+        },
+        {
+            "id": "172.16.146.1",
+            "label": "Nino",
+            "properties": {
+                "hostname": "nino.nnx",
+                "gateway": true
+            }
+        },
+        {
+            "id": "172.16.146.7",
+            "label": "Nemesis",
+            "properties": {
+                "hostname": "nemesis.nnx"
+            }
+        }
     ],
     "links": [
         {
@@ -22,7 +55,7 @@
                 "lq": 0.900,
                 "nlq": 0.497,
                 "bitrate": "20 mbit/s",
-                "type": "ethernet"
+                "type": "fiber"
             }
         },
         {
@@ -44,7 +77,7 @@
                 "lq": 1.0,
                 "nlq": 1.0,
                 "bitrate": "30 mbit/s",
-                "type": "wireless"
+                "type": "vpn"
             }
         },
         {
@@ -77,7 +110,7 @@
                 "lq": 1.0,
                 "nlq": 1.0,
                 "bitrate": "32 mbit/s",
-                "type": "ethernet"
+                "type": "fiber"
             }
         },
         {
@@ -110,7 +143,7 @@
                 "lq": 1.0,
                 "nlq": 1.0,
                 "bitrate": "39 mbit/s",
-                "type": "ethernet"
+                "type": "fiber"
             }
         }
     ]
