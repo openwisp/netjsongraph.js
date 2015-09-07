@@ -10,6 +10,49 @@
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script src="../src/netjsongraph.js"></script>
-    <script>d3.netJsonGraph("netjson.json");</script>
+    <script>
+    function addZero(t) {
+        return ('0' + t).slice(-2);
+    }
+    function getFormattedDate(d) {
+        var date = new Date(d),
+        str = date.getFullYear() + "-" + addZero(date.getMonth() + 1) + "-" + addZero(date.getDate()) + " " +  addZero(date.getHours()) + ":" + addZero(date.getMinutes()) + ":" + addZero(date.getSeconds());
+        return str;
+    }
+    function getFormattedCount(d) {
+        var date = new Date(d),
+        str = addZero(date.getHours() - 1) + ":" + addZero(date.getMinutes()) + ":" + addZero(date.getSeconds()) + ":" + date.getMilliseconds();
+        return str;
+    }
+
+    var data = {
+        onInit: function(url, opts) {
+            console.group("Script started")
+            console.info("URL:", url);
+            console.info("Passed parameters:", opts);
+            console.groupEnd();
+        },
+        onLoad: function(url, opts) {
+            console.group("JSON Loaded");
+                console.group("Callbacks");
+                console.info("URL:", url);
+                console.info("Passed parameters:", opts);
+                console.warn("Start execution time: ", getFormattedDate(opts.executionTime.start));
+                console.groupEnd();
+            console.groupEnd();
+        },
+        onEnd: function(url, opts) {
+            console.group("Animation end");
+                console.group("Callbacks");
+                console.info("URL:", url);
+                console.info("Passed parameters:", opts);
+                console.log("Current time: ", getFormattedDate(opts.executionTime.end));
+                console.warn("Total execution time: ", getFormattedCount(opts.executionTime.total));
+                console.groupEnd();
+            console.groupEnd();
+        }
+    }
+    d3.netJsonGraph("netjson.json", data);
+    </script>
 </body>
 </html>
