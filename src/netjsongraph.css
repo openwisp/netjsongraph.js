@@ -6,8 +6,10 @@
 .njg-tooltip{
     left: 0;
     top: 0;
+    visibility: hidden;
     position: absolute;
     z-index: 10;
+    display: none;
 }
 
 .njg-overlay{
@@ -25,7 +27,7 @@
 .njg-close:before { content: "\2716"; }
 
 .njg-metadata{
-    display: block;
+    display: none;
     position: absolute;
     z-index: 12;
 }
