@@ -83,12 +83,12 @@
         {
             "source": "172.16.145.2",
             "target": "172.16.146.7",
-            "cost": 1.0,
+            "cost": 12.739,
             "properties": {
-                "lq": 1.0,
-                "nlq": 1.0,
-                "bitrate": "32 mbit/s",
-                "type": "wireless"
+                "lq": 0.345,
+                "nlq": 0.227,
+                "bitrate": "1 mbit/s",
+                "type": "wireless_weak"
             }
         },
         {
