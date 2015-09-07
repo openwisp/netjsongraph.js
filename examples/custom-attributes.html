@@ -8,7 +8,9 @@
     <link href="../src/netjsongraph-theme.css" rel="stylesheet">
     <style>
         body{ overflow: hidden }
-        .wireless{ stroke: #007e02 }
+        .wireless{ stroke: #669999 }				/* light green */
+        .wireless_weak{ stroke: #ccccff }			/* light grey */
+        .ethernet{ stroke: #00ff00; stroke-opacity: 0.7 }	/* glowing green */
         .fiber{ stroke: #1f77b4 }
         .vpn{ stroke: purple; }
         .njg-node{ fill: #3182bd }
@@ -54,7 +56,9 @@
         }
         #legend .node{ background-color: #3182bd }
         #legend .gateway{ background-color: #ff8000 }
-        #legend .wireless{ border-color: #007e02 }
+        #legend .wireless{ border-color: #669999 }		/* light green */
+        #legend .wireless_weak{ border-color: #ccccff }		/* light grey */
+        #legend .ethernet{ border-color: #00ff00 }		/* glowing green */
         #legend .fiber{ border-color: #1f77b4 }
         #legend .vpn{ border-color: purple }
     </style>
@@ -64,6 +68,8 @@
         <p><span class="circle node">&nbsp;</span> ordinary node</p>
         <p><span class="circle gateway">&nbsp;</span> gateway node</p>
         <p><span class="link wireless">&nbsp;</span> wireless link</p>
+        <p><span class="link wireless_weak">&nbsp;</span> weak wireless link</p>
+        <p><span class="link ethernet">&nbsp;</span> ethernet link</p>
         <p><span class="link fiber">&nbsp;</span> fiber link</p>
         <p><span class="link vpn">&nbsp;</span> vpn link</p>
     </div>
