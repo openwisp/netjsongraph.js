@@ -8,6 +8,14 @@
     "router_id": "172.16.146.6",
     "nodes": [
         {
+            "id": "172.16.146.99",
+            "label": "FusolabNAS",
+            "properties": {
+                "hostname": "NAS.nnx",
+                "gateway": false
+            }
+        },
+        {
             "id": "172.16.146.6",
             "label": "Fusolab",
             "properties": {
@@ -100,6 +108,17 @@
                 "nlq": 1.0,
                 "bitrate": "35 mbit/s",
                 "type": "wireless"
+            }
+        },
+        {
+            "source": "172.16.146.99",
+            "target": "172.16.146.6",
+            "cost": 1.0,
+            "properties": {
+                "lq": 1.0,
+                "nlq": 1.0,
+                "bitrate": "1000 mbit/s",
+                "type": "ethernet"
             }
         },
         {
