@@ -199,10 +199,6 @@
                 // set "open" class to current node
                 removeOpenClass();
                 d3.select(this).classed("njg-open", true);
-                // Open Metadata panel
-                if(!opts.metadata) {
-                    metadata.attr("class", "njg-metadata").attr("style", "display: block");
-                }
             },
             /**
              * @function
@@ -228,10 +224,6 @@
                 // set "open" class to current link
                 removeOpenClass();
                 d3.select(this).classed("njg-open", true);
-                // Open Metadata panel
-                if(!opts.metadata) {
-                    metadata.attr("class", "njg-metadata").attr("style", "display: block");
-                }
             }
         }, opts);
         if(!opts.animationAtStart) {
@@ -461,7 +453,7 @@
                 }
                 // Metadata style
                 if(opts.metadata) {
-                    metadata.attr("class", "njg-metadata").attr("style", "display: block");
+                    metadata.attr("class", "njg-metadata").style("display", "block");
                 }
 
                 var attrs = ["protocol",
