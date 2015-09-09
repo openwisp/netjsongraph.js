@@ -17,6 +17,7 @@ Examples:
 * `light green example <https://nodeshot.org/netjsongraph/examples/green.html>`__
 * `custom attributes example <https://nodeshot.org/netjsongraph/examples/custom-attributes.html>`__
 * `NetJSON NetworkCollection example <https://nodeshot.org/netjsongraph/examples/network-collection.html>`__
+* `callbacks example <https://nodeshot.org/netjsongraph/examples/callbacks.html>`__
 
 Arguments
 ---------
@@ -40,6 +41,9 @@ Arguments
     * ``nodeClassProperty``: if specified, nodes will have an additional CSS class that depends on the value of a specific NetJSON node property
     * ``linkClassProperty``: if specified, links will have an additional CSS class that depends on the value of a specific NetJSON link property
     * ``circleRadius``: radius of circles (nodes) in pixel, defalts to ``8``
+    * ``onInit``: callback function executed on initialization, params: ``url`` and ``options``
+    * ``onLoad``: callback function executed after data has been loaded, params: ``url`` and ``options``
+    * ``onEnd``: callback function executed when initial animation is complete, params: ``url`` and ``options``
     * ``linkDistanceFunc``: by default high density areas have longer links, you can tweak this behaviour if you need
     * ``redraw``: function called when panning and zooming, you can tweak it if you need
     * ``prepareData``: function used to convert NetJSON NetworkGraph to the javascript data structured used internally, you won't need to modify it in most cases
@@ -63,7 +67,7 @@ Very basic:
         <body>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
             <script src="src/netjsongraph.js"></script>
-            <script>d3.netJsonGraph("./resources/netjson.json");</script>
+            <script>d3.netJsonGraph("netjson.json");</script>
         </body>
     </html>
 
@@ -109,7 +113,7 @@ Manipulate the graph as you prefer:
     .. code-block:: javascript
 
         // initialize with custom options
-        force = d3.netJsonGraph("./resources/netjson.json", {
+        force = d3.netJsonGraph("netjson.json", {
             scaleExtent: [1, 8],
             charge: -200,
             linkDistance: 50,

@@ -91,6 +91,9 @@
          * @param  {float}      theta               0.8         The Barnes–Hut approximation criterion to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#theta}
          * @param  {float}      gravity             0.1         The gravitational strength to the specified numerical value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#gravity}
          * @param  {int}        circleRadius        8           The radius of circles (nodes) in pixel
+         * @param  {function}   onInit                          Callback function executed on initialization
+         * @param  {function}   onLoad                          Callback function executed after data has been loaded
+         * @param  {function}   onEnd                           Callback function executed when initial animation is complete
          * @param  {function}   linkDistanceFunc                By default high density areas have longer links
          * @param  {function}   redraw                          Called when panning and zooming
          * @param  {function}   prepareData                     Used to convert NetJSON NetworkGraph to the javascript data
@@ -114,6 +117,36 @@
             circleRadius: 8,
             nodeClassProperty: null,
             linkClassProperty: null,
+            /**
+             * @function
+             * @name onInit
+             *
+             * Callback function executed on initialization
+             * @param  {string|object}  url     The netJson remote url or object
+             * @param  {object}         opts    The object of passed arguments
+             * @return {function}
+             */
+            onInit: function(url, opts) {},
+            /**
+             * @function
+             * @name onLoad
+             *
+             * Callback function executed after data has been loaded
+             * @param  {string|object}  url     The netJson remote url or object
+             * @param  {object}         opts    The object of passed arguments
+             * @return {function}
+             */
+            onLoad: function(url, opts) {},
+            /**
+             * @function
+             * @name onEnd
+             *
+             * Callback function executed when initial animation is complete
+             * @param  {string|object}  url     The netJson remote url or object
+             * @param  {object}         opts    The object of passed arguments
+             * @return {function}
+             */
+            onEnd: function(url, opts) {},
             /**
              * @function
              * @name linkDistanceFunc
@@ -226,6 +259,10 @@
                 d3.select(this).classed("njg-open", true);
             }
         }, opts);
+
+        // init callback
+        opts.onInit(url, opts);
+
         if(!opts.animationAtStart) {
             opts.linkStrength = 2;
             opts.friction = 0.3;
@@ -478,6 +515,9 @@
                 metadataInner.html(html);
                 metadata.classed("njg-hidden", false);
 
+                // onLoad callback
+                opts.onLoad(url, opts);
+
                 force.on("tick", function() {
                     link.attr("x1", function(d) {
                         return d.source.x;
@@ -501,6 +541,8 @@
                 })
                 .on("end", function(){
                     force.stop();
+                    // onEnd callback
+                    opts.onEnd(url, opts);
                 });
 
                 return force;

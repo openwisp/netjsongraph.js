@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>netjsongraph.js: callbacks example</title>
+    <meta charset="utf-8">
+    <link href="../src/netjsongraph.css" rel="stylesheet">
+    <link href="../src/netjsongraph-theme.css" rel="stylesheet">
+    <style>body {overflow: hidden}</style>
+</head>
+<body>
+    <script src="../lib/d3.min.js"></script>
+    <script src="../src/netjsongraph.js"></script>
+    <script>
+        d3.netJsonGraph("./data/netjson.json", {
+            onInit: function(url, opts) {
+                console.log('initialized');
+            },
+            onLoad: function(url, opts) {
+                console.log('data loaded');
+            },
+            onEnd: function(url, opts) {
+                console.log('animation completed');
+            }
+        });
+    </script>
+</body>
+</html>
