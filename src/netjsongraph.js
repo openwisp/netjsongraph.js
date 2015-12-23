@@ -80,7 +80,6 @@
          * @param  {string}     el                  "body"      The container element                                  el: "body" [description]
          * @param  {bool}       metadata            true        Display NetJSON metadata at startup?
          * @param  {bool}       defaultStyle        true        Use css style?
-         * @param  {int}        tooltipDelay        0           The delay before showing tooltip
          * @param  {bool}       animationAtStart    false       Animate nodes or not on load
          * @param  {array}      scaleExtent         [0.25, 5]   The zoom scale's allowed range. @see {@link https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent}
          * @param  {int}        charge              -130        The charge strength to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#charge}
@@ -104,7 +103,6 @@
             el: "body",
             metadata: true,
             defaultStyle: true,
-            tooltipDelay: 300,
             animationAtStart: true,
             scaleExtent: [0.25, 5],
             charge: -130,
@@ -171,7 +169,6 @@
                     "translate(" + d3.event.translate + ") " +
                     "scale(" + d3.event.scale + ")"
                 );
-                tooltip.style("visibility", "hidden");
             },
             /**
              * @function
@@ -298,8 +295,6 @@
                        .style("position", "absolute"),
             svg = d3.select(opts.el + " svg"),
             drag = force.drag(),
-            // create tooltip div
-            tooltip = d3.select(opts.el).append("div").attr("class", "njg-tooltip"),
             overlay = d3.select(opts.el).append("div").attr("class", "njg-overlay"),
             closeOverlay = overlay.append("a").attr("class", "njg-close"),
             overlayInner = overlay.append("div").attr("class", "njg-inner"),
@@ -309,43 +304,6 @@
             // container of ungrouped networks
             str = [],
             selected = [],
-            /**
-             * @function
-             * @name onMouseOverNode
-             */
-             onMouseOverNode = function(n) {
-                 var self = this;
-                 tooltip.text(n.label || n.id);
-                 // use css "display" property to
-                 // control wether mouse has moved out
-                 // before the delayTooltip time has passed
-                 // (mouseout event sets "display" back to "none")
-                 tooltip.style("display", "block");
-                 setTimeout(function () {
-                     if (tooltip.style("display") != "block") {
-                         return;
-                     }
-                     // position of current element relative to svg container
-                     var pos = d3._getPosition(d3.select(self), svg),
-                     // find horizontal and vertical offsets
-                         xOffset = (tooltip.node().getBoundingClientRect().width/2) - pos.width/2,
-                         yOffset = 1 + zoom.scale() / 5;
-                     // position tooltip accordingly
-                     return tooltip.style("left", pos.left - xOffset + "px")
-                                   .style("top", pos.top - 25 * yOffset + "px")
-                                   .style("visibility", "visible");
-                 }, opts.tooltipDelay);
-             },
-            /**
-             * @function
-             * @name onMouseOutNode
-             */
-            onMouseOutNode = function(){
-                tooltip.style({
-                    "visibility": "hidden",
-                    "display": "none"
-                });
-            },
             /**
              * @function
              * @name removeOpenClass
@@ -368,7 +326,6 @@
                 destroy = function() {
                     force.stop();
                     d3.select("#selectGroup").remove();
-                    d3.select(".njg-tooltip").remove();
                     d3.select(".njg-overlay").remove();
                     d3.select(".njg-metadata").remove();
                     overlay.remove();
@@ -396,12 +353,10 @@
                 // disable some transitions while dragging
                 drag.on('dragstart', function(n){
                     d3.event.sourceEvent.stopPropagation();
-                    d3.select(this).on("mouseover", null);
                     zoom.on('zoom', null);
                 })
                 // re-enable transitions when dragging stops
                 .on('dragend', function(n){
-                    d3.select(this).on("mouseover", onMouseOverNode);
                     zoom.on('zoom', opts.redraw);
                 })
                 .on("drag", function(d) {
@@ -434,9 +389,11 @@
                                      return baseClass;
                                  })
                                  .on("click", opts.onClickLink),
-                    node = panner.selectAll(".node")
-                                 .data(nodes)
-                                 .enter().append("circle")
+                    groups = panner.selectAll(".node")
+                                   .data(nodes)
+                                   .enter()
+                                   .append("g");
+                    node = groups.append("circle")
                                  .attr("class", function (node) {
                                      var baseClass = "njg-node",
                                          addClass = null;
@@ -457,10 +414,14 @@
                                      return baseClass;
                                  })
                                  .attr("r", opts.circleRadius)
-                                 .on("mouseover", onMouseOverNode)
-                                 .on("mouseout", onMouseOutNode)
                                  .on("click", opts.onClickNode)
                                  .call(drag);
+
+                    var labels = groups.append('text')
+                                       .text(function(n){ return n.label || n.id })
+                                       .attr('dy', '-' + opts.circleRadius * 0.165 + 'em')
+                                       .style("text-anchor", "middle")
+                                       .attr('class', 'njg-tooltip');
 
                 // Close overlay
                 closeOverlay.on("click", function() {
@@ -537,6 +498,10 @@
                     })
                     .attr("cy", function(d) {
                         return d.y;
+                    });
+
+                    labels.attr("transform", function(d) {
+                        return "translate(" + d.x + "," + d.y + ")";
                     });
                 })
                 .on("end", function(){

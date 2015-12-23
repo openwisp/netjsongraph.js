@@ -29,7 +29,6 @@ Arguments
     * ``el``: container element, defaults to ``"body"``
     * ``metadata``: whether to show `NetJSON <http://netjson.org>`__ ``NetworkGraph`` metadata or not, defaults to ``true``
     * ``defaultStyle``: whether to use the default style or not, defaults to ``true``
-    * ``tooltipDelay``: milliseconds to wait before displaying tooltip when passing mouse over nodes, defaults to ``300``
     * ``scaleExtent``: see `d3 Zoom scaleExtent <https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent>`__, defaults to ``[0.25, 5]``
     * ``charge``: see `d3 Zoom charge <https://github.com/mbostock/d3/wiki/Force-Layout#charge>`__, defaults to ``-130``
     * ``linkDistance``: see `d3 Zoom linkDistance <https://github.com/mbostock/d3/wiki/Force-Layout#linkDistance>`__, defaults to ``50``,
@@ -184,17 +183,10 @@ Here's a fulle example of how to show green links and dark green nodes:
                 stroke-width: 3;
                 stroke-opacity: 1
             }
-
-            .njg-tooltip {
-                background: rgba(0, 0, 0, 0.6);
-                color: #fff;
-                padding: 5px 10px;
-                border-radius: 3px;
-            }
         </style>
     </head>
     <body>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js"></script>
         <script src="src/netjsongraph.js"></script>
         <script>d3.netJsonGraph("netjson.json", { defaultStyle: false });</script>
     </body>

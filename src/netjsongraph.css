@@ -4,12 +4,10 @@
 }
 
 .njg-tooltip{
-    left: 0;
-    top: 0;
-    visibility: hidden;
-    position: absolute;
-    z-index: 10;
-    display: none;
+    font-family: sans-serif;
+    font-size: 10px;
+    fill: #000;
+    opacity: 0.5;
 }
 
 .njg-overlay{
