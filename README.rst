@@ -32,7 +32,7 @@ Arguments
     * ``tooltipDelay``: milliseconds to wait before displaying tooltip when passing mouse over nodes, defaults to ``300``
     * ``scaleExtent``: see `d3 Zoom scaleExtent <https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent>`__, defaults to ``[0.25, 5]``
     * ``charge``: see `d3 Zoom charge <https://github.com/mbostock/d3/wiki/Force-Layout#charge>`__, defaults to ``-130``
-    * ``linkDistance``: see `d3 Zoom linkDistance <https://github.com/mbostock/d3/wiki/Force-Layout#linkDistance>`__, defaults to ``40``,
+    * ``linkDistance``: see `d3 Zoom linkDistance <https://github.com/mbostock/d3/wiki/Force-Layout#linkDistance>`__, defaults to ``50``,
     * ``linkStrength``: see `d3 Zoom linkStrength <https://github.com/mbostock/d3/wiki/Force-Layout#linkStrength>`__, defaults to ``0.2``,
     * ``friction``: see `d3 Zoom friction <https://github.com/mbostock/d3/wiki/Force-Layout#friction>`__, defaults to ``0.9``
     * ``chargeDistance``: see `d3 Zoom chargeDistance <https://github.com/mbostock/d3/wiki/Force-Layout#chargeDistance>`__, defaults to ``Infinity``
