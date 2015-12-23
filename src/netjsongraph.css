@@ -8,6 +8,7 @@
     font-size: 10px;
     fill: #000;
     opacity: 0.5;
+    text-anchor: middle;
 }
 
 .njg-overlay{

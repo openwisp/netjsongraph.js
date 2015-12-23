@@ -90,6 +90,8 @@
          * @param  {float}      theta               0.8         The Barnes–Hut approximation criterion to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#theta}
          * @param  {float}      gravity             0.1         The gravitational strength to the specified numerical value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#gravity}
          * @param  {int}        circleRadius        8           The radius of circles (nodes) in pixel
+         * @param  {string}     labelDx             "0"         SVG dx (distance on x axis) attribute of node labels in graph
+         * @param  {string}     labelDy             "-1.3em"    SVG dy (distance on y axis) attribute of node labels in graph
          * @param  {function}   onInit                          Callback function executed on initialization
          * @param  {function}   onLoad                          Callback function executed after data has been loaded
          * @param  {function}   onEnd                           Callback function executed when initial animation is complete
@@ -113,6 +115,8 @@
             theta: 0.8,  // d3 default
             gravity: 0.1,
             circleRadius: 8,
+            labelDx: "0",
+            labelDy: "-1.3em",
             nodeClassProperty: null,
             linkClassProperty: null,
             /**
@@ -421,8 +425,8 @@
 
                     var labels = groups.append('text')
                                        .text(function(n){ return n.label || n.id })
-                                       .attr('dy', '-' + opts.circleRadius * 0.165 + 'em')
-                                       .style("text-anchor", "middle")
+                                       .attr('dx', opts.labelDx)
+                                       .attr('dy', opts.labelDy)
                                        .attr('class', 'njg-tooltip');
 
                 // Close overlay

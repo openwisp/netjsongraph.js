@@ -40,6 +40,8 @@ Arguments
     * ``nodeClassProperty``: if specified, nodes will have an additional CSS class that depends on the value of a specific NetJSON node property
     * ``linkClassProperty``: if specified, links will have an additional CSS class that depends on the value of a specific NetJSON link property
     * ``circleRadius``: radius of circles (nodes) in pixel, defalts to ``8``
+    * ``labelDx``: SVG dx (distance on x axis) attribute of node labels in graph ``0``
+    * ``labelDy``: SVG dy (distance on y axis) attribute of node labels in graph ``-1.3em``
     * ``onInit``: callback function executed on initialization, params: ``url`` and ``options``
     * ``onLoad``: callback function executed after data has been loaded, params: ``url`` and ``options``
     * ``onEnd``: callback function executed when initial animation is complete, params: ``url`` and ``options``
