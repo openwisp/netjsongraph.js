@@ -49,6 +49,11 @@
         {
             "id": "172.16.146.7",
             "label": "Nemesis",
+            "local_addresses": [
+                "10.40.0.129",
+                "10.40.0.130",
+                "10.40.0.131"
+            ],
             "properties": {
                 "hostname": "nemesis.nnx"
             }
