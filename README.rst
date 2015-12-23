@@ -107,20 +107,6 @@ Show graph in a container:
     </body>
     </html>
 
-Manipulate the graph as you prefer:
-
-    .. code-block:: javascript
-
-        // initialize with custom options
-        force = d3.netJsonGraph("netjson.json", {
-            scaleExtent: [1, 8],
-            charge: -200,
-            linkDistance: 50,
-            linkStrength: 1
-        });
-        // control graph
-        force.stop()
-
 Styling
 -------
 
