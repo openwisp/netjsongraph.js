@@ -55,7 +55,8 @@
                 "10.40.0.131"
             ],
             "properties": {
-                "hostname": "nemesis.nnx"
+                "hostname": "nemesis.nnx",
+                "ssh_pub_key": "ba1aed089f9a513cc8e4ae081b935eb6"
             }
         }
     ],

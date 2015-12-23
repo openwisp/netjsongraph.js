@@ -218,8 +218,7 @@
                     if(n.properties) {
                         for(var key in n.properties) {
                             if(!n.properties.hasOwnProperty(key)) { continue; }
-                            key = key.replace("_", " ");
-                            html += "<p><b>"+key+"</b>: " + n.properties[key] + "</p>";
+                            html += "<p><b>"+key.replace(/_/g, " ")+"</b>: " + n.properties[key] + "</p>";
                     }
                 }
                 if(n.linkCount) { html += "<p><b>links</b>: " + n.linkCount + "</p>"; }
