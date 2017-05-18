@@ -1,0 +1,9 @@
+{
+  "name": "netjsongraph.js",
+  "version": "0.1.0",
+  "description": "NetJson format data visualization",
+  "main": "index.js",
+  "repository": "https://github.com/geekplux/netjsongraph.js.git",
+  "author": "geekplux <geekplux@gmail.com>",
+  "license": "BSD 3-clause"
+}
