@@ -10,6 +10,12 @@
   "repository": "https://github.com/geekplux/netjsongraph.js.git",
   "author": "geekplux <geekplux@gmail.com>",
   "license": "BSD 3-clause",
+  "keywords": [
+    "netjson",
+    "network",
+    "data",
+    "visualization"
+  ],
   "devDependencies": {
     "autoprefixer": "^6.5.1",
     "babel-core": "^6.14.0",
