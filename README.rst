@@ -24,9 +24,9 @@ Install
 
 .. code-block:: bash
 
-    yarn add markdown-it-fence --save
+    yarn add netjsongraph.js --save
     or
-    npm install markdown-it-fence --save
+    npm install netjsongraph.js --save
 
 
 Arguments
@@ -192,7 +192,7 @@ Here's a fulle example of how to show green links and dark green nodes:
 
 
 Contributing
--------
+------------
 
 1. Fork it!
 2. Create your feature branch: git checkout -b my-new-feature
