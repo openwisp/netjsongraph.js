@@ -20,14 +20,15 @@ Examples:
 * `callbacks example <https://nodeshot.org/netjsongraph/examples/callbacks.html>`__
 
 Install
----------
+-------
 
 .. code-block:: bash
 
+    # install via yarn
     yarn add netjsongraph.js --save
-    or
+    
+    # or install via npm
     npm install netjsongraph.js --save
-
 
 Arguments
 ---------
