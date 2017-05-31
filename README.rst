@@ -191,7 +191,6 @@ Here's a fulle example of how to show green links and dark green nodes:
     </body>
     </html>
 
-
 Contributing
 ------------
 
