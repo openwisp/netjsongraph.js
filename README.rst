@@ -26,7 +26,7 @@ Install
 
     # install via yarn
     yarn add netjsongraph.js --save
-    
+
     # or install via npm
     npm install netjsongraph.js --save
 

@@ -1,14 +1,15 @@
+const webpack = require('webpack');
 const path = require('path');
 const SRC = path.join(__dirname, 'src');
-const BUILD = path.join(__dirname, 'build');
+const DIST = path.join(__dirname, 'dist');
 
 module.exports = {
   entry: {
     js: path.join(SRC, 'netjsongraph.js')
   },
   output: {
-    path: BUILD,
-    filename: 'bundle.js'
+    path: DIST,
+    filename: 'netjsongraph.min.js'
   },
   module: {
     loaders: [{
@@ -18,8 +19,7 @@ module.exports = {
       test: /\.js$/,
       exclude: /node_modules/,
       loaders: [
-        'babel-loader',
-        'eslint-loader'
+        'babel-loader'
       ]
     }, {
       test: /\.css$/,
@@ -36,14 +36,6 @@ module.exports = {
       loader: 'url?limit=80000'
     }]
   },
-  devtool: 'evil-source-map',
-  devServer: {
-    contentBase: SRC,
-    inline: true,
-    progress: true,
-    stats: { color: true },
-    port: 3000
-  },
   resolve: {
     extensions: ['', '.js']
   },
@@ -52,5 +44,10 @@ module.exports = {
       require('precss'),
       require('autoprefixer')
     ];
-  }
+  },
+  plugins: [
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.UglifyJsPlugin(),
+    new webpack.optimize.AggressiveMergingPlugin()
+  ]
 };

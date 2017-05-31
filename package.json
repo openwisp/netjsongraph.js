@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server  --config webpack.config.js",
-    "test": "test"
+    "build": "webpack --config webpack.config.prod.js",
+    "test": "test",
+    "postinstall": "npm run build"
   },
   "repository": "https://github.com/geekplux/netjsongraph.js.git",
   "author": "geekplux <geekplux@gmail.com>",
@@ -36,5 +38,9 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2",
     "webpack-dev-server": "^1.15.1"
+  },
+  "dependencies": {
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.3.0"
   }
 }
