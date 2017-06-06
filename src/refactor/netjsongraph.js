@@ -2,12 +2,17 @@ import { sigma as Sigma } from 'sigma';
 import netjsonData from '../../examples/data/netjson.json';
 import './netjsongraph.css';
 
+const N = 100;
 const s = new Sigma('container');
 
 netjsonData.nodes.forEach((n, i) => {
   s.graph.addNode({
     id: n.id,
-    label: n.id
+    label: n.id,
+    size: 1,
+    color: 'red',
+    x: 100 * Math.cos(2 * i * Math.PI / N),
+    y: 100 * Math.sin(2 * i * Math.PI / N)
   });
 });
 
