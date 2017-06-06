@@ -4,10 +4,10 @@
   "description": "NetJson format data visualization",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server  --config webpack.config.js",
-    "build": "webpack --config webpack.config.prod.js",
+    "start": "./node_modules/.bin/webpack-dev-server  --config webpack.config.js",
+    "build": "./node_modules/.bin/webpack --config webpack.config.prod.js",
     "test": "test",
-    "postinstall": "npm run build"
+    "prepublish": "npm run build"
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
   "author": "Federico Capoano <federico.capoano@gmail.com> (http://nemesisdesign.net/)",
