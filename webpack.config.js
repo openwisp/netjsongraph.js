@@ -1,13 +1,13 @@
 const path = require('path');
 const SRC = path.join(__dirname, 'src');
-const BUILD = path.join(__dirname, 'build');
+const EXAMPLE = path.join(__dirname, 'examples');
 
 module.exports = {
   entry: {
-    js: path.join(SRC, 'netjsongraph.js')
+    html: path.join(EXAMPLE, 'index_refactor.html'),
+    js: path.join(SRC, 'netjsongraph_refactor.js')
   },
   output: {
-    path: BUILD,
     filename: 'bundle.js'
   },
   module: {
@@ -38,7 +38,7 @@ module.exports = {
   },
   devtool: 'evil-source-map',
   devServer: {
-    contentBase: SRC,
+    contentBase: EXAMPLE,
     inline: true,
     progress: true,
     stats: { color: true },
