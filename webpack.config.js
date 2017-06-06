@@ -1,11 +1,11 @@
 const path = require('path');
-const SRC = path.join(__dirname, 'src');
-const EXAMPLE = path.join(__dirname, 'examples');
+const SRC = path.join(__dirname, 'src', 'refactor');
+const EXAMPLE = path.join(__dirname, 'examples', 'refactor');
 
 module.exports = {
   entry: {
-    html: path.join(EXAMPLE, 'index_refactor.html'),
-    js: path.join(SRC, 'netjsongraph_refactor.js')
+    html: path.join(EXAMPLE, 'index.html'),
+    js: path.join(SRC, 'netjsongraph.js')
   },
   output: {
     filename: 'bundle.js'
