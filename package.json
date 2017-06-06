@@ -45,6 +45,7 @@
     "webpack-dev-server": "^1.15.1"
   },
   "dependencies": {
-    "d3": "^4.9.1"
+    "d3": "^4.9.1",
+    "sigma": "^1.2.0"
   }
 }
