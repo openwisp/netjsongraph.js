@@ -1,5 +1,7 @@
 import { sigma as Sigma } from 'sigma';
 import netjsonData from '../../examples/data/netjson.json';
+import 'forceLayoutWorker';
+import 'forceLayoutSupervisor';
 import './netjsongraph.css';
 
 const N = 100;
@@ -24,4 +26,5 @@ netjsonData.links.forEach((l, i) => {
   });
 });
 
+// s.startForceAtlas2({worker: true, barnesHutOptimize: false});  // force layout
 s.refresh();

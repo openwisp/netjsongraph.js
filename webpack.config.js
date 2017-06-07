@@ -29,12 +29,22 @@ module.exports = {
         'postcss-loader'
       ]
     }, {
-      test: /\.json/,
+      test: /\.json$/,
       loader: 'json-loader'
     }, {
       test: /\.(png|jpg|svg)$/,
       loader: 'url?limit=80000'
+    }, {
+      test: require.resolve('sigma'),
+      loader: 'imports?this=>window'
     }]
+  },
+  resolve: {
+    extensions: ['', '.js'],
+    alias: {
+      forceLayoutWorker: 'sigma/plugins/sigma.layout.forceAtlas2/worker.js',
+      forceLayoutSupervisor: 'sigma/plugins/sigma.layout.forceAtlas2/supervisor.js'
+    }
   },
   devtool: 'evil-source-map',
   devServer: {
@@ -43,9 +53,6 @@ module.exports = {
     progress: true,
     stats: { color: true },
     port: 3000
-  },
-  resolve: {
-    extensions: ['', '.js']
   },
   postcss: function () {
     return [
