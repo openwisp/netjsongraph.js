@@ -5,7 +5,7 @@ const EXAMPLE = path.join(__dirname, 'examples', 'refactor');
 module.exports = {
   entry: {
     html: path.join(EXAMPLE, 'index.html'),
-    js: path.join(SRC, 'netjsongraph.js')
+    js: path.join(SRC, 'netjsongraph.pixi.js')
   },
   output: {
     filename: 'bundle.js'

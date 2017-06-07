@@ -26,5 +26,5 @@ netjsonData.links.forEach((l, i) => {
   });
 });
 
-// s.startForceAtlas2({worker: true, barnesHutOptimize: false});  // force layout
+s.startForceAtlas2({ worker: true, barnesHutOptimize: false }); // force layout
 s.refresh();
