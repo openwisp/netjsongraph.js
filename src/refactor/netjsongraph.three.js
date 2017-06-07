@@ -6,27 +6,35 @@ const width = 960;
 const height = 600;
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
+const camera = new THREE.OrthographicCamera(0, width, height, 0, 1, 1000);
 const renderer = new THREE.WebGLRenderer({alpha: true});
 renderer.setSize(width, height);
 document.body.appendChild(renderer.domElement);
+camera.position.z = 5;
 
 const colour = (function () {
   const scale = d3.scaleOrdinal(d3.schemeCategory20);
   return (num) => parseInt(scale(num).slice(1), 16);
 })();
 
+netjsonData.nodes.forEach((node) => {
+  node.geometry = new THREE.CircleBufferGeometry(10, 32);
+  node.material = new THREE.MeshBasicMaterial({ color: colour(node.id) });
+  node.circle = new THREE.Mesh(node.geometry, node.material);
+  scene.add(node.circle);
+});
+
+netjsonData.links.forEach((link) => {
+  link.material = new THREE.LineBasicMaterial({ color: 0xAAAAAA });
+  link.geometry = new THREE.Geometry();
+  link.line = new THREE.Line(link.geometry, link.material);
+  scene.add(link.line);
+});
+
 const simulation = d3.forceSimulation()
       .force('link', d3.forceLink().id((d) => d.id))
       .force('charge', d3.forceManyBody().distanceMax(60))  // custom distance max value
       .force('center', d3.forceCenter(width / 2, height / 2));
-
-netjsonData.nodes.forEach((node) => {
-  const geometry = new THREE.CircleBufferGeometry(5, 32);
-  const material = new THREE.MeshBasicMaterial({ color: colour(node.id) });
-  node.circle = new THREE.Mesh(geometry, material);
-  scene.add(node.circle);
-});
 
 simulation
   .nodes(netjsonData.nodes)
@@ -42,13 +50,9 @@ function ticked () {
   });
 
   netjsonData.links.forEach((link) => {
-    const { source, target } = link;
-    const material = new THREE.LineBasicMaterial({ color: 0x000000 });
-    const geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(source.x, source.y, 0));
-    geometry.vertices.push(new THREE.Vector3(target.x, target.y, 0));
-    const line = new THREE.Line(geometry, material);
-    scene.add(line);
+    const { source, target, line } = link;
+    line.geometry.vertices.push(new THREE.Vector3(source.x, source.y, 0));
+    line.geometry.vertices.push(new THREE.Vector3(target.x, target.y, 0));
   });
 
   render(scene, camera);
