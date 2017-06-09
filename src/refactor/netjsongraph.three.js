@@ -33,7 +33,7 @@ netjsonData.links.forEach((link) => {
 
 const simulation = d3.forceSimulation()
       .force('link', d3.forceLink().id((d) => d.id))
-      .force('charge', d3.forceManyBody().distanceMax(60))  // custom distance max value
+      .force('charge', d3.forceManyBody().distanceMax(100))  // custom distance max value
       .force('center', d3.forceCenter(width / 2, height / 2));
 
 simulation
@@ -51,8 +51,9 @@ function ticked () {
 
   netjsonData.links.forEach((link) => {
     const { source, target, line } = link;
-    line.geometry.vertices.push(new THREE.Vector3(source.x, source.y, 0));
-    line.geometry.vertices.push(new THREE.Vector3(target.x, target.y, 0));
+    line.geometry.verticesNeedUpdate = true;
+    line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, 0);
+    line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, 0);
   });
 
   render(scene, camera);
