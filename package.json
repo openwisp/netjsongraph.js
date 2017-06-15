@@ -6,7 +6,7 @@
   "scripts": {
     "start": "./node_modules/.bin/webpack-dev-server  --config webpack.config.js",
     "build": "./node_modules/.bin/webpack --config webpack.config.prod.js",
-    "test": "test",
+    "test": "jest --watch",
     "prepublish": "npm run build"
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
@@ -37,6 +37,7 @@
     "eslint-plugin-standard": "^2.0.1",
     "file-loader": "^0.9.0",
     "imports-loader": "^0.7.1",
+    "jest": "^20.0.4",
     "json-loader": "^0.5.4",
     "postcss-loader": "^0.13.0",
     "precss": "^1.4.0",
@@ -50,5 +51,9 @@
     "pixi.js": "^4.5.2",
     "sigma": "^1.2.0",
     "three": "^0.85.2"
+  },
+  "jest": {
+    "verbose": true,
+    "roots": ["<rootDir>/tests/"]
   }
 }

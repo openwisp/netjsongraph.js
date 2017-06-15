@@ -40,11 +40,7 @@ module.exports = {
     }]
   },
   resolve: {
-    extensions: ['', '.js'],
-    alias: {
-      forceLayoutWorker: 'sigma/plugins/sigma.layout.forceAtlas2/worker.js',
-      forceLayoutSupervisor: 'sigma/plugins/sigma.layout.forceAtlas2/supervisor.js'
-    }
+    extensions: ['', '.js']
   },
   devtool: 'evil-source-map',
   devServer: {

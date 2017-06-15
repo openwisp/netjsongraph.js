@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import * as THREE from 'three';
-import netjsonData from '../../examples/data/netjson.json';
+import netjsonData from '../examples/data/netjson.json';
 
 const width = 960;
 const height = 600;
