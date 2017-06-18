@@ -1,6 +1,12 @@
 netjsongraph.js
 ===============
 
+.. image:: https://coveralls.io/repos/github/netjson/netjsongraph.js/badge.svg
+:target: https://coveralls.io/github/netjson/netjsongraph.js
+.. image:: https://travis-ci.org/netjson/netjsongraph.js.svg?branch=dev
+:target: https://travis-ci.org/netjson/netjsongraph.js
+
+
 .. image:: https://raw.githubusercontent.com/interop-dev/netjsongraph.js/master/docs/netjsongraph-default.png
 
 Leverage the power of `d3.js <http://d3js.org/>`__ to visualize network topology using the
