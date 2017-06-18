@@ -8,6 +8,7 @@
     "build": "./node_modules/.bin/webpack --config webpack.config.prod.js",
     "test": "./node_modules/.bin/jest",
     "test:cover": "npm test --coverage",
+    "test:cover:travis": "npm run test:cover && cat ./coverage/lcov.info | node_modules/coveralls/bin/coveralls.js",
     "prepublish": "npm run build"
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
@@ -28,6 +29,7 @@
     "babel-eslint": "^7.0.0",
     "babel-loader": "^6.2.5",
     "babel-preset-es2015": "^6.14.0",
+    "coveralls": "^2.13.1",
     "css-loader": "^0.25.0",
     "eslint": "^3.8.1",
     "eslint-config-airbnb-base": "^11.2.0",
@@ -56,8 +58,15 @@
   "jest": {
     "verbose": true,
     "collectCoverage": true,
-    "roots": ["<rootDir>/tests/"],
-    "moduleDirectories": ["node_modules", "src"],
-    "testPathIgnorePatterns": ["/node_modules/"]
+    "roots": [
+      "<rootDir>/tests/"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
   }
 }
