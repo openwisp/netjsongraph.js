@@ -3,5 +3,4 @@ import netjsonData from '../data/netjson.json';
 
 new Netjsongraph()
   .load(netjsonData)
-  .forceLayout()
   .render();
