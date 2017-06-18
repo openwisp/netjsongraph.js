@@ -35,6 +35,7 @@ class Netjsongraph {
    */
   set (config) {
     Object.assign(this, defaults, config);
+    return this;
   }
 
   /**
@@ -54,26 +55,6 @@ class Netjsongraph {
    */
   load (data) {
     this.data = data;
-    return this;
-  }
-
-  /**
-   * Set canvas width
-   * @param {Number} w
-   * @returns {}
-   */
-  width (w) {
-    this.width = w;
-    return this;
-  }
-
-  /**
-   * Set canvas height
-   * @param {Number} h
-   * @returns {}
-   */
-  height (h) {
-    this.height = h;
     return this;
   }
 
