@@ -7,6 +7,7 @@
     "start": "./node_modules/.bin/webpack-dev-server  --config webpack.config.js",
     "build": "./node_modules/.bin/webpack --config webpack.config.prod.js",
     "test": "./node_modules/.bin/jest",
+    "test:cover": "npm test --coverage",
     "prepublish": "npm run build"
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
@@ -54,6 +55,9 @@
   },
   "jest": {
     "verbose": true,
-    "roots": ["<rootDir>/tests/"]
+    "collectCoverage": true,
+    "roots": ["<rootDir>/tests/"],
+    "moduleDirectories": ["node_modules", "src"],
+    "testPathIgnorePatterns": ["/node_modules/"]
   }
 }
