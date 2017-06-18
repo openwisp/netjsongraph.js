@@ -1,43 +1,85 @@
+/**
+ * @fileOverview
+ * @name netjsongraph.three.js<src>
+ * @author GeekPlux
+ * @license BSD 3-clause
+ * @version 0.1.2
+ */
 import * as d3 from 'd3';
 import * as THREE from 'three';
 import { colour } from './utils.js';
 
+/**
+ * Default options
+ */
 const defaults = {
   width: 960,
   height: 600,
-  container: document.body,
+  container: document.body,  // container element
   data: {}
 };
 
 class Netjsongraph {
+
+  /**
+   * Construct function
+   * @param {Object} config
+   */
   constructor (config) {
     this.set(config);
   }
 
+  /**
+   * Set properties of instance
+   * @param {Object} config
+   */
   set (config) {
     Object.assign(this, defaults, config);
   }
 
+  /**
+   * Set container
+   * @param {Object} container The container element
+   * @returns {}
+   */
+  el (container) {
+    this.container = container;
+    return this;
+  }
+
+  /**
+   * Load NetJSON data
+   * @param {Object} data
+   * @returns {}
+   */
   load (data) {
     this.data = data;
     return this;
   }
 
+  /**
+   * Set canvas width
+   * @param {Number} w
+   * @returns {}
+   */
   width (w) {
     this.width = w;
     return this;
   }
 
+  /**
+   * Set canvas height
+   * @param {Number} h
+   * @returns {}
+   */
   height (h) {
     this.height = h;
     return this;
   }
 
-  container (c) {
-    this.container = c;
-    return this;
-  }
-
+  /**
+   * Render force layout
+   */
   render () {
     const { width, height, data } = this;
     const scene = new THREE.Scene();
