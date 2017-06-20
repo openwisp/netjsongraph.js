@@ -1,3 +1,3 @@
 import Netjsongraph from '../../src/netjsongraph.three.js';
 
-new Netjsongraph('data/netjson.json');
+const ng = new Netjsongraph('data/netjson.json');

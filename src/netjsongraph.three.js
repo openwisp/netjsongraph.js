@@ -7,7 +7,7 @@
  */
 import * as d3 from 'd3';
 import * as THREE from 'three';
-import { colour } from './utils.js';
+import { colour, promisify } from './utils.js';
 
 /**
  * Default options
@@ -70,8 +70,7 @@ class Netjsongraph {
    * Init graph
    */
   init () {
-    this.fetch(this.url);
-    this.render();
+    this.fetch(this.url).then(() => this.render());
   }
 
   /**
@@ -80,10 +79,10 @@ class Netjsongraph {
    */
   fetch (url) {
     if (this.url !== url) this.url = url;
-    return d3.json(this.url, (error, data) => {
-      if (error) console.error(error);
-      this.data = data;
-    });
+    const fetchJson = promisify(d3, d3.json);
+    return fetchJson(this.url)
+      .then((data) => { this.data = data; },
+            (err) => { if (err) throw err; });
   }
 
   /**
