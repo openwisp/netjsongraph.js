@@ -1,6 +1,3 @@
 import Netjsongraph from '../../src/netjsongraph.three.js';
-import netjsonData from '../data/netjson.json';
 
-new Netjsongraph()
-  .load(netjsonData)
-  .render();
+new Netjsongraph('data/netjson.json');

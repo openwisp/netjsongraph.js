@@ -1,16 +1,19 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const SRC = path.join(__dirname, 'src');
-const EXAMPLE = path.join(__dirname, 'examples', 'refactor');
+const BUILD = path.join(__dirname, 'build');
+const EXAMPLE = path.join(__dirname, 'examples');
 
 module.exports = {
   entry: {
-    html: path.join(EXAMPLE, 'index.html'),
+    html: path.join(EXAMPLE, 'refactor', 'index.html'),
     js: [
       path.join(SRC, 'netjsongraph.three.js'),
-      path.join(EXAMPLE, 'index.js')
+      path.join(EXAMPLE, 'refactor', 'index.js')
     ]
   },
   output: {
+    path: BUILD,
     filename: 'bundle.js'
   },
   module: {
@@ -48,11 +51,16 @@ module.exports = {
   devtool: 'evil-source-map',
   devServer: {
     contentBase: EXAMPLE,
-    inline: true,
+    // inline: true,
     progress: true,
     stats: { color: true },
     port: 3000
   },
+  plugins: [
+    new CopyWebpackPlugin([
+      { from: path.join(EXAMPLE, 'data/netjson.json'), to: 'data/netjson.json' },
+    ])
+  ],
   postcss: function () {
     return [
       require('precss'),

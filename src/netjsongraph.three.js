@@ -11,22 +11,30 @@ import { colour } from './utils.js';
 
 /**
  * Default options
+ * @param  {string}     el                  "body"      The container element
+ * @param  {bool}       metadata            true        Display NetJSON metadata at startup?
  */
 const defaults = {
-  width: 960,
-  height: 600,
-  container: document.body,  // container element
-  data: {}
+  width: window.innerWidth,
+  height: window.innerHeight,
+  url: '',            // The NetJSON file url
+  el: document.body,  // container element
+  data: {},
+  metadata: true,
+  defaultStyle: true
 };
 
 class Netjsongraph {
 
   /**
    * Construct function
+   * @param {string} url The NetJSON file url
    * @param {Object} config
    */
-  constructor (config) {
+  constructor (url, config) {
     this.set(config);
+    this.url = url;
+    this.init();
   }
 
   /**
@@ -40,11 +48,11 @@ class Netjsongraph {
 
   /**
    * Set container
-   * @param {Object} container The container element
+   * @param {Object} el The container element
    * @returns {}
    */
-  el (container) {
-    this.container = container;
+  container (el) {
+    this.el = el;
     return this;
   }
 
@@ -59,15 +67,38 @@ class Netjsongraph {
   }
 
   /**
+   * Init graph
+   */
+  init () {
+    this.fetch(this.url);
+    this.render();
+  }
+
+  /**
+   *
+   * @param {string} url The NetJSON file url
+   */
+  fetch (url) {
+    if (this.url !== url) this.url = url;
+    return d3.json(this.url, (error, data) => {
+      if (error) console.error(error);
+      this.data = data;
+    });
+  }
+
+  /**
    * Render force layout
    */
   render () {
     const { width, height, data } = this;
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(0, width, height, 0, 1, 1000);
-    const renderer = new THREE.WebGLRenderer({alpha: true});
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true   // perform antialiasing
+    });
     renderer.setSize(width, height);
-    document.body.appendChild(renderer.domElement);
+    this.el.appendChild(renderer.domElement);
     camera.position.z = 5;
 
     data.nodes.forEach((node) => {

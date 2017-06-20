@@ -8,9 +8,9 @@ test('Module importing', () => {
 describe('API', () => {
   test('constructor', () => {
     const ng = new Netjsongraph();
-    expect(ng).toHaveProperty('width', 960);
-    expect(ng).toHaveProperty('height', 600);
-    expect(ng).toHaveProperty('container', document.body);
+    expect(ng).toHaveProperty('width', window.innerWidth);
+    expect(ng).toHaveProperty('height', window.innerHeight);
+    expect(ng).toHaveProperty('el', document.body);
     expect(ng).toHaveProperty('data');
   });
 
@@ -20,18 +20,18 @@ describe('API', () => {
     expect(ng).toHaveProperty('width', 1000);
   });
 
-  test('el', () => {
+  test('set container element', () => {
     const ng = new Netjsongraph();
     const _div = document.createElement('div');
     _div.id = 'testDiv';
     document.body.appendChild(_div);
 
-    ng.el(_div);
+    ng.container(_div);
     const div = document.getElementById('testDiv');
-    expect(ng).toHaveProperty('container', div);
+    expect(ng).toHaveProperty('el', div);
   });
 
-  test('load', () => {
+  test('load data', () => {
     const d = {
       nodes: [],
       links: []
