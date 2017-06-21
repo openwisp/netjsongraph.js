@@ -70,11 +70,14 @@ class Netjsongraph {
    * Init graph
    */
   init () {
-    this.fetch(this.url).then(() => this.render());
+    this.fetch(this.url).then(() => {
+      this.toggleMetadata();
+      this.render();
+    });
   }
 
   /**
-   *
+   * Fetch data from url
    * @param {string} url The NetJSON file url
    */
   fetch (url) {
@@ -83,6 +86,38 @@ class Netjsongraph {
     return fetchJson(this.url)
       .then((data) => { this.data = data; },
             (err) => { if (err) throw err; });
+  }
+
+  /**
+   * Toggle metadata information panel
+   */
+  toggleMetadata () {
+    const metaDom = d3.select('#metadata');
+
+    /**
+     * Check whether it is showed on canvas
+     */
+    if (document.getElementById('metadata')) {
+      if (metaDom.style('display') === 'none') {
+        metaDom.style('display', 'block');
+      } else metaDom.style('display', 'none');
+    }
+
+    const metaDomStr = `
+      <div class="metadata" id="metadata">
+        <ul class="meta-list">
+          <li class="meta-item label">Label: ${this.data.label}</li>
+          <li class="meta-item metric">Metric: ${this.data.metric}</li>
+          <li class="meta-item protocol">Procotol: ${this.data.procotol}</li>
+          <li class="meta-item type">Type: ${this.data.type}</li>
+          <li class="meta-item version">Version: ${this.data.version}</li>
+          <li class="meta-item nodes">Nodes: ${this.data.nodes.length}</li>
+          <li class="meta-item links">Links: ${this.data.links.length}</li>
+        </ul>
+        <button class="close">x</button>
+      </div>
+    `;
+    d3.select('body').html(metaDomStr);
   }
 
   /**

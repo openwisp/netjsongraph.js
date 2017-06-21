@@ -1,10 +1,20 @@
 import { scaleOrdinal, schemeCategory20 } from 'd3';
 
-export const colour = (function () {
+/**
+ * Color scale generator
+ * @returns {function} color generator
+ */
+export const colour = (() => {
   const scale = scaleOrdinal(schemeCategory20);
   return (num) => parseInt(scale(num).slice(1), 16);
 })();
 
+/**
+ * Make functions return promise
+ * @param {object} caller function caller
+ * @param {function} fn function wanna improve
+ * @returns {function} function which return promise
+ */
 export const promisify = (caller, fn) => (...args) =>
   new Promise((resolve, reject) => {
     const callback = (error, data) => {
