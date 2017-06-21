@@ -7,12 +7,15 @@
  */
 import * as d3 from 'd3';
 import * as THREE from 'three';
+import 'normalize.css';  /* eslint-disable */
+import './netjsongraph.three.css';
 import { colour, promisify } from './utils.js';
 
 /**
  * Default options
  * @param  {string}     el                  "body"      The container element
- * @param  {bool}       metadata            true        Display NetJSON metadata at startup?
+ * @param  {boolean}    metadata            true        Display NetJSON metadata at startup?
+ * @param  {boolean}    defaultStyle        true        Use default css style?
  */
 const defaults = {
   width: window.innerWidth,
@@ -72,6 +75,7 @@ class Netjsongraph {
   init () {
     this.fetch(this.url).then(() => {
       this.toggleMetadata();
+      this.switchTheme();
       this.render();
     });
   }
@@ -106,18 +110,35 @@ class Netjsongraph {
     const metaDomStr = `
       <div class="metadata" id="metadata">
         <ul class="meta-list">
-          <li class="meta-item label">Label: ${this.data.label}</li>
-          <li class="meta-item metric">Metric: ${this.data.metric}</li>
-          <li class="meta-item protocol">Procotol: ${this.data.procotol}</li>
-          <li class="meta-item type">Type: ${this.data.type}</li>
-          <li class="meta-item version">Version: ${this.data.version}</li>
-          <li class="meta-item nodes">Nodes: ${this.data.nodes.length}</li>
-          <li class="meta-item links">Links: ${this.data.links.length}</li>
+          <li class="meta-item label"><strong>Label</strong>: ${this.data.label}</li>
+          <li class="meta-item metric"><strong>Metric</strong>: ${this.data.metric}</li>
+          <li class="meta-item protocol"><strong>Protocol</strong>: ${this.data.protocol}</li>
+          <li class="meta-item type"><strong>Type</strong>: ${this.data.type}</li>
+          <li class="meta-item version"><strong>Version</strong>: ${this.data.version}</li>
+          <li class="meta-item nodes"><strong>Nodes</strong>: ${this.data.nodes.length}</li>
+          <li class="meta-item links"><strong>Links</strong>: ${this.data.links.length}</li>
         </ul>
         <button class="close">x</button>
       </div>
     `;
     d3.select('body').html(metaDomStr);
+
+    /**
+     * Get metadata Dom element again when it added into <body>
+     */
+    const _metaDom = d3.select('#metadata');
+    _metaDom.select('.close')
+      .on('click', () => _metaDom.style('display', 'none'));
+  }
+
+  /**
+   * Change theme
+   * @param {string} theme
+   */
+  switchTheme (theme) {
+    const body = d3.select('body');
+    body.classed('default', this.defaultStyle);
+    body.classed(theme, !!theme);
   }
 
   /**

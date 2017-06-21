@@ -51,7 +51,7 @@ module.exports = {
   devtool: 'evil-source-map',
   devServer: {
     contentBase: EXAMPLE,
-    // inline: true,
+    inline: true,
     progress: true,
     stats: { color: true },
     port: 3000
