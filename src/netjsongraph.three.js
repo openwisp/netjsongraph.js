@@ -32,11 +32,7 @@ const defaults = {
   scaleExtent: [0.25, 5],
 
   scene: new THREE.Scene(),
-  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
-  renderer: new THREE.WebGLRenderer({
-    alpha: true,
-    antialias: true   // perform antialiasing
-  })
+  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000)
 };
 
 class Netjsongraph {
@@ -164,25 +160,21 @@ class Netjsongraph {
           .scaleExtent(_this.scaleExtent)
           .on('zoom', function () {
             const transform = d3.zoomTransform(this);
-            console.log(transform.k);
             _this.camera.zoom = transform.k;
-            _this.camera.left += transform.k * 10000;
-            // _this.camera.z += transform.k * 100;
-            render();
+            _this.camera.updateProjectionMatrix();
           });
     d3.select(_this.el).call(zoom);
-
-    function render () {
-      requestAnimationFrame(render);
-      renderer.render(scene, camera);
-    };
   }
 
   /**
    * Render force layout
    */
   render () {
-    const { width, height, data, scene, camera, renderer } = this;
+    const { width, height, data, scene, camera } = this;
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true   // perform antialiasing
+    });
     renderer.setSize(width, height);
     this.el.appendChild(renderer.domElement);
     camera.position.z = 5;
