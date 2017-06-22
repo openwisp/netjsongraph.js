@@ -11,20 +11,32 @@ import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
 import { colour, promisify } from './utils.js';
 
+const defaultWidth = window.innerWidth;
+const defaultHeight = window.innerHeight;
+
 /**
  * Default options
  * @param  {string}     el                  "body"      The container element
  * @param  {boolean}    metadata            true        Display NetJSON metadata at startup?
  * @param  {boolean}    defaultStyle        true        Use default css style?
+ * @param  {array}      scaleExtent         [0.25, 5]   The zoom scale's allowed range. @see {@link https://github.com/d3/d3-zoom#zoom_scaleExtent}
  */
 const defaults = {
-  width: window.innerWidth,
-  height: window.innerHeight,
+  width: defaultWidth,
+  height: defaultHeight,
   url: '',            // The NetJSON file url
   el: document.body,  // container element
   data: {},
   metadata: true,
-  defaultStyle: true
+  defaultStyle: true,
+  scaleExtent: [0.25, 5],
+
+  scene: new THREE.Scene(),
+  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
+  renderer: new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true   // perform antialiasing
+  })
 };
 
 class Netjsongraph {
@@ -77,6 +89,7 @@ class Netjsongraph {
       this.toggleMetadata();
       this.switchTheme();
       this.render();
+      this.enableZoom();
     });
   }
 
@@ -142,16 +155,34 @@ class Netjsongraph {
   }
 
   /**
+   * Enable zoom behavior
+   */
+  enableZoom () {
+    const _this = this;
+    const { scene, camera, renderer } = this;
+    const zoom = d3.zoom()
+          .scaleExtent(_this.scaleExtent)
+          .on('zoom', function () {
+            const transform = d3.zoomTransform(this);
+            console.log(transform.k);
+            _this.camera.zoom = transform.k;
+            _this.camera.left += transform.k * 10000;
+            // _this.camera.z += transform.k * 100;
+            render();
+          });
+    d3.select(_this.el).call(zoom);
+
+    function render () {
+      requestAnimationFrame(render);
+      renderer.render(scene, camera);
+    };
+  }
+
+  /**
    * Render force layout
    */
   render () {
-    const { width, height, data } = this;
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(0, width, height, 0, 1, 1000);
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true   // perform antialiasing
-    });
+    const { width, height, data, scene, camera, renderer } = this;
     renderer.setSize(width, height);
     this.el.appendChild(renderer.domElement);
     camera.position.z = 5;
@@ -195,7 +226,7 @@ class Netjsongraph {
         line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, 0);
       });
 
-      render(scene, camera);
+      render();
     }
 
     function render () {
