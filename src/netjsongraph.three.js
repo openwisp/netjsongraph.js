@@ -9,6 +9,7 @@ import * as d3 from 'd3';
 import * as THREE from 'three';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
+import EventsController from './events_controller.js';
 import { colour, promisify } from './utils.js';
 
 const defaultWidth = window.innerWidth;
@@ -30,6 +31,7 @@ const defaults = {
   metadata: true,
   defaultStyle: true,
   scaleExtent: [0.25, 5],
+  controller: new EventsController(),
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
@@ -85,6 +87,9 @@ class Netjsongraph {
    * Init graph
    */
   init () {
+    this.controller.set({
+      dom: this.renderer.domElement
+    });
     this.fetch(this.url).then(() => {
       this.toggleMetadata();
       this.switchTheme();
@@ -234,10 +239,11 @@ class Netjsongraph {
    */
   onWindowResize () {
     const _this = this;
-    const { scene, camera, renderer } = _this;
+    const { scene, camera, renderer, controller } = _this;
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
 		renderer.setSize(window.innerWidth, window.innerHeight);
+    controller.handleResize();
 		render();
 
     function render () {
