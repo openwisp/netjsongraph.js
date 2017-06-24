@@ -214,8 +214,9 @@ class Netjsongraph {
       data.links.forEach((link) => {
         const { source, target, line } = link;
         line.geometry.verticesNeedUpdate = true;
-        line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, 0);
-        line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, 0);
+        line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
+        line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
+        // set z axis value -1 is to make line behind the node
       });
 
       render();
