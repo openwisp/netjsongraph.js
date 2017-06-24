@@ -32,7 +32,11 @@ const defaults = {
   scaleExtent: [0.25, 5],
 
   scene: new THREE.Scene(),
-  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000)
+  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
+  renderer: new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true   // perform antialiasing
+  })
 };
 
 class Netjsongraph {
@@ -86,6 +90,7 @@ class Netjsongraph {
       this.switchTheme();
       this.render();
       this.enableZoom();
+      window.addEventListener('resize', this.onWindowResize.bind(this), false);
     });
   }
 
@@ -170,11 +175,7 @@ class Netjsongraph {
    * Render force layout
    */
   render () {
-    const { width, height, data, scene, camera } = this;
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true   // perform antialiasing
-    });
+    const { width, height, data, scene, camera, renderer } = this;
     renderer.setSize(width, height);
     this.el.appendChild(renderer.domElement);
     camera.position.z = 5;
@@ -221,6 +222,23 @@ class Netjsongraph {
 
       render();
     }
+
+    function render () {
+      requestAnimationFrame(render);
+      renderer.render(scene, camera);
+    };
+  }
+
+  /**
+   * Callback of window resize event
+   */
+  onWindowResize () {
+    const _this = this;
+    const { scene, camera, renderer } = _this;
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		render();
 
     function render () {
       requestAnimationFrame(render);
