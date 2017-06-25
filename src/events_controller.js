@@ -1,6 +1,6 @@
 /**
  * @fileOverview Camera events binding
- * @name events.js
+ * @name events_controller.js
  * @author GeekPlux
  * @license BSD 3-clause
  * @version 0.0.1
@@ -18,7 +18,7 @@ const STATE = {
 };
 
 const getMouseOnScreen = (function () {
-  var vector = new THREE.Vector2();
+  const vector = new THREE.Vector2();
   return function getMouseOnScreen (ctx, pageX, pageY) {
     vector.set(
       (pageX - ctx.screen.left) / ctx.screen.width,
@@ -29,7 +29,7 @@ const getMouseOnScreen = (function () {
 }());
 
 const getMouseOnCircle = (function () {
-  var vector = new THREE.Vector2();
+  const vector = new THREE.Vector2();
   return function getMouseOnCircle (ctx, pageX, pageY) {
     vector.set(
       ((pageX - ctx.screen.width * 0.5 - ctx.screen.left) / (ctx.screen.width * 0.5)),
@@ -42,6 +42,7 @@ const getMouseOnCircle = (function () {
 const defaults = {
   dom: document,
   state: STATE.NONE,
+  noContextMenu: true,
   screen: { left: 0, top: 0, width: 0, height: 0 }
 };
 
@@ -62,7 +63,15 @@ export default class EventsController {
   }
 
   init () {
+    if (this.noContextMenu) this.disableContextMenu();
     this.bindMouseDown();
+  }
+
+  disableContextMenu () {
+    this.dom.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
   }
 
   bindMouseDown () {
