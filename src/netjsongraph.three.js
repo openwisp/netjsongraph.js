@@ -31,7 +31,6 @@ const defaults = {
   metadata: true,
   defaultStyle: true,
   scaleExtent: [0.25, 5],
-  controller: new EventsController(),
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
@@ -87,9 +86,6 @@ class Netjsongraph {
    * Init graph
    */
   init () {
-    this.controller.set({
-      dom: this.renderer.domElement
-    });
     this.fetch(this.url).then(() => {
       this.toggleMetadata();
       this.switchTheme();
@@ -165,13 +161,18 @@ class Netjsongraph {
    */
   enableZoom () {
     const _this = this;
-    const { scene, camera, renderer } = this;
+    const { camera, width, height } = this;
+    const { aspect } = camera;
     const zoom = d3.zoom()
           .scaleExtent(_this.scaleExtent)
           .on('zoom', function () {
-            const transform = d3.zoomTransform(this);
-            _this.camera.zoom = transform.k;
-            _this.camera.updateProjectionMatrix();
+            let { x, y, k } = d3.zoomTransform(this);
+            // camera.left = camera.left / k - x;
+            // camera.right = camera.right / k - x;
+            // camera.top = camera.top / k + y;
+            // camera.bottom = camera.bottom / k + y;
+            camera.zoom = k;
+            camera.updateProjectionMatrix();
           });
     d3.select(_this.el).call(zoom);
   }
@@ -184,16 +185,29 @@ class Netjsongraph {
     renderer.setSize(width, height);
     this.el.appendChild(renderer.domElement);
     camera.position.z = 5;
+    this.controller = new EventsController({
+      dom: renderer.domElement,
+      scene: scene,
+      camera: camera
+    });
 
     data.nodes.forEach((node) => {
       node.geometry = new THREE.CircleBufferGeometry(5, 32);
       node.material = new THREE.MeshBasicMaterial({ color: colour(node.id) });
       node.circle = new THREE.Mesh(node.geometry, node.material);
+      node.circle.on('click', (m) => {
+        console.log('node clicked');
+      });
+      node.circle.on('hover', (m) => {
+        m.scale.set(2, 2, 2);
+      }, (m) => {
+        m.scale.set(1, 1, 1);
+      });
       scene.add(node.circle);
     });
 
     data.links.forEach((link) => {
-      link.material = new THREE.LineBasicMaterial({ color: 0xAAAAAA });
+      link.material = new THREE.LineBasicMaterial({ color: 0xAAAAAA, linewidth: 2 });
       link.geometry = new THREE.Geometry();
       link.line = new THREE.Line(link.geometry, link.material);
       scene.add(link.line);
@@ -239,11 +253,11 @@ class Netjsongraph {
    */
   onWindowResize () {
     const _this = this;
-    const { scene, camera, renderer, controller } = _this;
+    const { scene, camera, renderer } = _this;
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
 		renderer.setSize(window.innerWidth, window.innerHeight);
-    controller.handleResize();
+    // controller.handleResize();
 		render();
 
     function render () {
