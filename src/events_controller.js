@@ -39,7 +39,6 @@ const getMouseOnCircle = (function () {
   };
 }());
 
-
 const defaults = {
   state: STATE.NONE,
   noContextMenu: true,
@@ -173,7 +172,7 @@ export default class EventsController {
           Hover = true;
           targetObject = intersects[0].object;
           obj = getEventObj(targetList, targetObject);
-          if (!!obj.callback[0]) obj.callback[0](targetObject);
+          if (obj.callback[0]) obj.callback[0](targetObject);
         } else {
           if (Hover && !!obj.callback[1]) {
             obj.callback[1](targetObject);
@@ -200,7 +199,7 @@ export default class EventsController {
         }
       },
       off: function (method) {
-        if (!!method) {
+        if (method) {
           if (EventListeners.hasOwnProperty(method)) {
             delete TargetList[method][this.id];
           } else {

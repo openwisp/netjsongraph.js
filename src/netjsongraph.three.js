@@ -120,6 +120,7 @@ class Netjsongraph {
       if (metaDom.style('display') === 'none') {
         metaDom.style('display', 'block');
       } else metaDom.style('display', 'none');
+      return;
     }
 
     const metaDomStr = `
@@ -147,6 +148,49 @@ class Netjsongraph {
   }
 
   /**
+   * Toggle node information panel
+   */
+  toggleNodeInfo (node) {
+    const nodeInfoDom = d3.select('#nodeinfo');
+    console.log(nodeInfoDom);
+
+    /**
+     * Check whether it is showed on canvas
+     */
+    if (document.getElementById('nodeinfo')) {
+      if (nodeInfoDom.select('#node-id').text() !== node.id) {
+        nodeInfoDom.select('#node-id').text(node.id);
+        nodeInfoDom.style('display', 'block');
+      } else {
+        if (nodeInfoDom.style('display') === 'none') {
+          nodeInfoDom.style('display', 'block');
+        } else nodeInfoDom.style('display', 'none');
+      }
+      return;
+    }
+
+    const nodeInfoDomStr = `
+      <div class="nodeinfo" id="nodeinfo">
+        <ul class="node-info-list">
+          <li class="node-info-item id"><strong>Id</strong>: <span id="node-id">${node.id}</span></li>
+        </ul>
+        <button class="close">x</button>
+      </div>
+    `;
+
+    const _div = document.createElement('div');
+    _div.innerHTML = nodeInfoDomStr;
+    document.querySelector('body').appendChild(_div.children[0]);
+
+    /**
+     * Get metadata Dom element again when it added into <body>
+     */
+    const _nodeInfoDom = d3.select('#nodeinfo');
+    _nodeInfoDom.select('.close')
+      .on('click', () => _nodeInfoDom.style('display', 'none'));
+  }
+
+  /**
    * Change theme
    * @param {string} theme
    */
@@ -162,25 +206,45 @@ class Netjsongraph {
   enableZoom () {
     const _this = this;
     const { camera, width, height } = this;
-    const { aspect } = camera;
+    // const { left, right, top, bottom } = camera;
+    // let oldK = 1;
+    // let oldX = 0;
+    // let oldY = 0;
+    // let xMouse = 0;
+    // let yMouse = 0;
+    // _this.el.addEventListener('mousedown', function (event) {
+    //   console.log(event);
+    //   console.log(event.pageX, event.pageY);
+    //   xMouse = event.pageX;
+    //   yMouse = event.pageY;
+    // }, false);
     const zoom = d3.zoom()
           .scaleExtent(_this.scaleExtent)
           .on('zoom', function () {
             let { x, y, k } = d3.zoomTransform(this);
-            // camera.left = camera.left / k - x;
-            // camera.right = camera.right / k - x;
-            // camera.top = camera.top / k + y;
-            // camera.bottom = camera.bottom / k + y;
+            // console.log(x, y, k);
+            // console.log(camera.left, camera.right, camera.top, camera.bottom);
+            // const _x = xMouse + k * (oldX - xMouse) / oldK;
+            // const _y = yMouse + k * (oldY - yMouse) / oldK;
+            // camera.left = left / k - _x;
+            // camera.right = right / k - _x;
+            // camera.top = top / k + _y;
+            // camera.bottom = bottom / k + _y;
+            // console.log(camera.left, camera.right, camera.top, camera.bottom);
             camera.zoom = k;
             camera.updateProjectionMatrix();
+            // oldK = k;
+            // oldX = x;
+            // oldY = y;
           });
-    d3.select(_this.el).call(zoom);
+    d3.select(_this.el).call(zoom).on('dblclick.zoom', null);
   }
 
   /**
    * Render force layout
    */
   render () {
+    const _this = this;
     const { width, height, data, scene, camera, renderer } = this;
     renderer.setSize(width, height);
     this.el.appendChild(renderer.domElement);
@@ -196,7 +260,7 @@ class Netjsongraph {
       node.material = new THREE.MeshBasicMaterial({ color: colour(node.id) });
       node.circle = new THREE.Mesh(node.geometry, node.material);
       node.circle.on('click', (m) => {
-        console.log('node clicked');
+        _this.toggleNodeInfo(node);
       });
       node.circle.on('hover', (m) => {
         m.scale.set(2, 2, 2);
