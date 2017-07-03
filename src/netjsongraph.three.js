@@ -23,6 +23,8 @@ const defaultHeight = window.innerHeight;
  * @param  {array}      scaleExtent         [0.25, 5]   The zoom scale's allowed range. @see {@link https://github.com/d3/d3-zoom#zoom_scaleExtent}
  * @param  {int}        linkDistance        50          The target distance between linked nodes to the specified value. @see {@link https://github.com/d3/d3-force/#link_distance}
  * @param  {float}      linkStrength        0.2         The strength (rigidity) of links to the specified value in the range. @see {@link https://github.com/d3/d3-force/#link_strength}
+ * @param  {float}      theta               0.8         The Barnes–Hut approximation criterion to the specified value. @see {@link https://github.com/d3/d3-force/#manyBody_theta}
+ * @param  {float}      distanceMax         100         Maximum distance between nodes over which this force is considered. @see {@link https://github.com/d3/d3-force/#manyBody_distanceMax}
  */
 const defaults = {
   width: defaultWidth,
@@ -35,6 +37,8 @@ const defaults = {
   scaleExtent: [0.25, 5],
   linkDistance: 50,
   linkStrength: 0.2,
+  theta: 0.8,
+  distanceMax: 100,
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
@@ -290,12 +294,18 @@ class Netjsongraph {
         .strength(_this.linkStrength);
     }
 
+    function forceManyBody () {
+      return d3.forceManyBody()
+        .theta(_this.theta)
+        .distanceMax(_this.distanceMax);
+    }
+
     /**
      * set nodes positions and velocities
      */
     const simulation = d3.forceSimulation()
           .force('link', forceLink())
-          .force('charge', d3.forceManyBody().distanceMax(100))  // custom distance max value
+          .force('charge', forceManyBody())  // custom distance max value
           .force('center', d3.forceCenter(width / 2, height / 2));
 
     simulation
