@@ -21,6 +21,8 @@ const defaultHeight = window.innerHeight;
  * @param  {boolean}    metadata            true        Display NetJSON metadata at startup?
  * @param  {boolean}    defaultStyle        true        Use default css style?
  * @param  {array}      scaleExtent         [0.25, 5]   The zoom scale's allowed range. @see {@link https://github.com/d3/d3-zoom#zoom_scaleExtent}
+ * @param  {int}        linkDistance        50          The target distance between linked nodes to the specified value. @see {@link https://github.com/d3/d3-force/#link_distance}
+ * @param  {float}      linkStrength        0.2         The strength (rigidity) of links to the specified value in the range. @see {@link https://github.com/d3/d3-force/#link_strength}
  */
 const defaults = {
   width: defaultWidth,
@@ -31,6 +33,8 @@ const defaults = {
   metadata: true,
   defaultStyle: true,
   scaleExtent: [0.25, 5],
+  linkDistance: 50,
+  linkStrength: 0.2,
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
@@ -152,7 +156,6 @@ class Netjsongraph {
    */
   toggleNodeInfo (node) {
     const nodeInfoDom = d3.select('#nodeinfo');
-    console.log(nodeInfoDom);
 
     /**
      * Check whether it is showed on canvas
@@ -277,8 +280,21 @@ class Netjsongraph {
       scene.add(link.line);
     });
 
+    /**
+     * set link force options
+     */
+    function forceLink () {
+      return d3.forceLink()
+        .id(d => d.id)
+        .distance(_this.linkDistance)
+        .strength(_this.linkStrength);
+    }
+
+    /**
+     * set nodes positions and velocities
+     */
     const simulation = d3.forceSimulation()
-          .force('link', d3.forceLink().id((d) => d.id))
+          .force('link', forceLink())
           .force('charge', d3.forceManyBody().distanceMax(100))  // custom distance max value
           .force('center', d3.forceCenter(width / 2, height / 2));
 
