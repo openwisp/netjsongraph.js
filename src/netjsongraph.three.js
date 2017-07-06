@@ -10,7 +10,7 @@ import * as THREE from 'three';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
 import EventsController from './events_controller.js';
-import { colour, promisify } from './utils.js';
+import { colour, promisify, isFunc } from './utils.js';
 
 const defaultWidth = window.innerWidth;
 const defaultHeight = window.innerHeight;
@@ -26,6 +26,9 @@ const defaultHeight = window.innerHeight;
  * @param  {float}      theta               0.8         The Barnes–Hut approximation criterion to the specified value. @see {@link https://github.com/d3/d3-force/#manyBody_theta}
  * @param  {float}      distanceMax         100         Maximum distance between nodes over which this force is considered. @see {@link https://github.com/d3/d3-force/#manyBody_distanceMax}
  * @param  {int}        circleRadius        8           The radius of circles (nodes) in pixel
+ * @param  {function}   onInit                          Callback function executed on initialization
+ * @param  {function}   onLoad                          Callback function executed after data has been loaded
+ * @param  {function}   onEnd                           Callback function executed when initial animation is complete
  */
 const defaults = {
   width: defaultWidth,
@@ -41,6 +44,9 @@ const defaults = {
   theta: 0.8,
   distanceMax: 100,
   circleRadius: 8,
+  onInit: null,
+  onLoad: null,
+  onEnd: null,
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
@@ -96,7 +102,9 @@ class Netjsongraph {
    * Init graph
    */
   init () {
+    if (isFunc(this.onInit)) this.onInit();
     this.fetch(this.url).then(() => {
+      if (isFunc(this.onLoad)) this.onLoad();
       this.toggleMetadata();
       this.switchTheme();
       this.render();
@@ -338,6 +346,8 @@ class Netjsongraph {
       requestAnimationFrame(render);
       renderer.render(scene, camera);
     };
+
+    if (isFunc(_this.onEnd)) _this.onEnd();
   }
 
   /**

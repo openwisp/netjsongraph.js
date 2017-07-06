@@ -1,4 +1,8 @@
-import { colour, promisify } from '../src/utils.js';
+import {
+  colour,
+  promisify,
+  isFunc
+} from '../src/utils.js';
 
 test('color generator', () => {
   expect(colour).toBeDefined();
@@ -17,4 +21,12 @@ test('promisify', () => {
   };
   expect(promisify).toBeDefined();
   expect(promisify(d, d.f)).toBeTruthy();
+});
+
+test('isFunc', () => {
+  const f = null;
+  const fn = () => null;
+  expect(isFunc).toBeDefined();
+  expect(isFunc(f)).toBeFalsy();
+  expect(isFunc(fn)).toBeTruthy();
 });

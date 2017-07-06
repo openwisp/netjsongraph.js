@@ -24,3 +24,10 @@ export const promisify = (caller, fn) => (...args) =>
     };
     fn.apply(caller, args.concat(callback));
   });
+
+/**
+ * Check it whether is a function
+ * @param {object}
+ * @returns {boolean}
+ */
+export const isFunc = obj => typeof obj === 'function' || false;
