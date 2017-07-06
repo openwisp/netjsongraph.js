@@ -29,6 +29,8 @@ const defaultHeight = window.innerHeight;
  * @param  {function}   onInit                          Callback function executed on initialization
  * @param  {function}   onLoad                          Callback function executed after data has been loaded
  * @param  {function}   onEnd                           Callback function executed when initial animation is complete
+ * @param  {function}   onClickNode                     Called when a node is clicked
+ * @param  {function}   onClickLink                     Called when a link is clicked
  */
 const defaults = {
   width: defaultWidth,
@@ -47,6 +49,8 @@ const defaults = {
   onInit: null,
   onLoad: null,
   onEnd: null,
+  onClickNode: null,
+  onClickLink: null,
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
@@ -273,24 +277,39 @@ class Netjsongraph {
     });
 
     data.nodes.forEach((node) => {
+      // Primitive creation
       node.geometry = new THREE.CircleBufferGeometry(_this.circleRadius, 32);
       node.material = new THREE.MeshBasicMaterial({ color: colour(node.id) });
       node.circle = new THREE.Mesh(node.geometry, node.material);
-      node.circle.on('click', (m) => {
-        _this.toggleNodeInfo(node);
+
+      // Click event binding
+      if (isFunc(_this.onClickNode)) {
+        node.circle.on('click', _this.onClickNode(mesh));
+      } else {
+        node.circle.on('click', () => _this.toggleNodeInfo(node));
+      }
+
+      // Zoom nodes when hoverd
+      node.circle.on('hover', (mesh) => {
+        mesh.scale.set(2, 2, 2);
+      }, (mesh) => {
+        mesh.scale.set(1, 1, 1);
       });
-      node.circle.on('hover', (m) => {
-        m.scale.set(2, 2, 2);
-      }, (m) => {
-        m.scale.set(1, 1, 1);
-      });
+
       scene.add(node.circle);
     });
 
     data.links.forEach((link) => {
-      link.material = new THREE.LineBasicMaterial({ color: 0xAAAAAA, linewidth: 2 });
+      // Primitive creation
+      link.material = new THREE.LineBasicMaterial({ color: 0xAAAAAA, linewidth: 2 }); // the linewidth property in Chrome is invalid
       link.geometry = new THREE.Geometry();
       link.line = new THREE.Line(link.geometry, link.material);
+
+      // Click event binding
+      if (isFunc(_this.onClickLink)) {
+        link.line.on('click', _this.onClickLink(mesh));
+      }
+
       scene.add(link.line);
     });
 
