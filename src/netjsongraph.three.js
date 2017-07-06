@@ -25,6 +25,7 @@ const defaultHeight = window.innerHeight;
  * @param  {float}      linkStrength        0.2         The strength (rigidity) of links to the specified value in the range. @see {@link https://github.com/d3/d3-force/#link_strength}
  * @param  {float}      theta               0.8         The Barnes–Hut approximation criterion to the specified value. @see {@link https://github.com/d3/d3-force/#manyBody_theta}
  * @param  {float}      distanceMax         100         Maximum distance between nodes over which this force is considered. @see {@link https://github.com/d3/d3-force/#manyBody_distanceMax}
+ * @param  {int}        circleRadius        8           The radius of circles (nodes) in pixel
  */
 const defaults = {
   width: defaultWidth,
@@ -39,6 +40,7 @@ const defaults = {
   linkStrength: 0.2,
   theta: 0.8,
   distanceMax: 100,
+  circleRadius: 8,
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
@@ -263,7 +265,7 @@ class Netjsongraph {
     });
 
     data.nodes.forEach((node) => {
-      node.geometry = new THREE.CircleBufferGeometry(5, 32);
+      node.geometry = new THREE.CircleBufferGeometry(_this.circleRadius, 32);
       node.material = new THREE.MeshBasicMaterial({ color: colour(node.id) });
       node.circle = new THREE.Mesh(node.geometry, node.material);
       node.circle.on('click', (m) => {
