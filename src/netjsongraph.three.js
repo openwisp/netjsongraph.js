@@ -31,7 +31,7 @@ const defaultHeight = window.innerHeight;
  * @param  {function}   onEnd                           Callback function executed when initial animation is complete
  * @param  {function}   onClickNode                     Called when a node is clicked
  * @param  {function}   onClickLink                     Called when a link is clicked
- * @param  {boolean}    initialAnimation    false        A flag to disable initial animation
+ * @param  {boolean}    initialAnimation    false       A flag to disable initial animation
  */
 const defaults = {
   width: defaultWidth,
@@ -55,11 +55,7 @@ const defaults = {
   initialAnimation: false,
 
   scene: new THREE.Scene(),
-  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
-  renderer: new THREE.WebGLRenderer({
-    alpha: true,
-    antialias: true   // perform antialiasing
-  })
+  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000)
 };
 
 class Netjsongraph {
@@ -268,6 +264,10 @@ class Netjsongraph {
    */
   render () {
     const _this = this;
+    this.renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true   // perform antialiasing
+    });
     const { width, height, data, scene, camera, renderer } = this;
     renderer.setSize(width, height);
     this.el.appendChild(renderer.domElement);
