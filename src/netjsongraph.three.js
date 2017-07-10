@@ -31,6 +31,7 @@ const defaultHeight = window.innerHeight;
  * @param  {function}   onEnd                           Callback function executed when initial animation is complete
  * @param  {function}   onClickNode                     Called when a node is clicked
  * @param  {function}   onClickLink                     Called when a link is clicked
+ * @param  {boolean}    initialAnimation    false        A flag to disable initial animation
  */
 const defaults = {
   width: defaultWidth,
@@ -51,6 +52,7 @@ const defaults = {
   onEnd: null,
   onClickNode: null,
   onClickLink: null,
+  initialAnimation: false,
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000),
@@ -337,12 +339,17 @@ class Netjsongraph {
           .force('charge', forceManyBody())  // custom distance max value
           .force('center', d3.forceCenter(width / 2, height / 2));
 
-    simulation
-      .nodes(data.nodes)
-      .on('tick', ticked);
-
+    simulation.nodes(data.nodes);
     simulation.force('link')
       .links(data.links);
+
+    if (!_this.initialAnimation) {
+      for (let i = 0; i < 100; ++i) {
+        simulation.tick();
+      }
+    }
+
+    simulation.on('tick', ticked);
 
     function ticked () {
       data.nodes.forEach((node) => {
