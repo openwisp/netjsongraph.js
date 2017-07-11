@@ -32,7 +32,7 @@ const defaultHeight = window.innerHeight;
  * @param  {function}   onClickNode                     Called when a node is clicked
  * @param  {function}   onClickLink                     Called when a link is clicked
  * @param  {boolean}    initialAnimation    false       A flag to disable initial animation
- * @param  {boolean}    static              false       Is static force layout? @see {@link https://bl.ocks.org/mbostock/1667139}
+ * @param  {boolean}    static              true        Is static force layout? @see {@link https://bl.ocks.org/mbostock/1667139}
  */
 const defaults = {
   width: defaultWidth,
@@ -54,7 +54,7 @@ const defaults = {
   onClickNode: null,
   onClickLink: null,
   initialAnimation: false,
-  // static: false,
+  static: true,
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000)
@@ -357,7 +357,7 @@ class Netjsongraph {
     /**
      * set many-body force options
      */
-   function forceManyBody () {
+    function forceManyBody () {
       return d3.forceManyBody()
         .theta(_this.theta)
         .distanceMax(_this.distanceMax);
@@ -378,23 +378,37 @@ class Netjsongraph {
     simulation.force('link')
       .links(data.links);
 
-    /**
-     * Running the simulation manually to disable initial animation
-     */
-    if (!_this.initialAnimation) {
-      for (let i = 0; i < 100; ++i) {
+    if (_this.static) staticRender();
+    else dynamicRender();
+
+    function staticRender () {
+      // See https://github.com/d3/d3-force/blob/master/README.md#simulation_tick
+      for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
         simulation.tick();
       }
-    }
-
-    /**
-     * Bind the tick event
-     */
-    simulation.on('tick', ticked);
-
-    function ticked () {
       _this.calculateElementsPosition();
       render();
+    }
+
+    function dynamicRender () {
+      /**
+       * Running the simulation manually to disable initial animation
+       */
+      if (!_this.initialAnimation) {
+        for (let i = 0; i < 100; ++i) {
+          simulation.tick();
+        }
+      }
+
+      /**
+       * Bind the tick event
+       */
+      simulation.on('tick', ticked);
+
+      function ticked () {
+        _this.calculateElementsPosition();
+        render();
+      }
     }
 
     function render () {
@@ -414,11 +428,11 @@ class Netjsongraph {
   onWindowResize () {
     const _this = this;
     const { scene, camera, renderer } = _this;
-		camera.aspect = window.innerWidth / window.innerHeight;
-		camera.updateProjectionMatrix();
-		renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
     // controller.handleResize();
-		render();
+    render();
 
     function render () {
       requestAnimationFrame(render);
