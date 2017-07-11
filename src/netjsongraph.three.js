@@ -32,6 +32,7 @@ const defaultHeight = window.innerHeight;
  * @param  {function}   onClickNode                     Called when a node is clicked
  * @param  {function}   onClickLink                     Called when a link is clicked
  * @param  {boolean}    initialAnimation    false       A flag to disable initial animation
+ * @param  {boolean}    static              false       Is static force layout? @see {@link https://bl.ocks.org/mbostock/1667139}
  */
 const defaults = {
   width: defaultWidth,
@@ -53,6 +54,7 @@ const defaults = {
   onClickNode: null,
   onClickLink: null,
   initialAnimation: false,
+  // static: false,
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000)
@@ -260,24 +262,11 @@ class Netjsongraph {
   }
 
   /**
-   * Render force layout
+   * Create elements in canvas
    */
-  render () {
+  createElements () {
     const _this = this;
-    this.renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true   // perform antialiasing
-    });
-    const { width, height, data, scene, camera, renderer } = this;
-    renderer.setSize(width, height);
-    this.el.appendChild(renderer.domElement);
-    camera.position.z = 5;
-    this.controller = new EventsController({
-      dom: renderer.domElement,
-      scene: scene,
-      camera: camera
-    });
-
+    const { data, scene } = this;
     data.nodes.forEach((node) => {
       // Primitive creation
       node.geometry = new THREE.CircleBufferGeometry(_this.circleRadius, 32);
@@ -314,6 +303,46 @@ class Netjsongraph {
 
       scene.add(link.line);
     });
+  }
+
+  /**
+   * Elements position calculation
+   */
+  calculateElementsPosition () {
+    const { data } = this;
+    data.nodes.forEach((node) => {
+      const { x, y, circle } = node;
+      circle.position.set(x, y, 0);
+    });
+
+    data.links.forEach((link) => {
+      const { source, target, line } = link;
+      line.geometry.verticesNeedUpdate = true;
+      line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
+      line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
+      // set z axis value -1 is to make line behind the node
+    });
+  }
+
+  /**
+   * Render force layout
+   */
+  render () {
+    const _this = this;
+    this.renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true   // perform antialiasing
+    });
+    const { width, height, data, scene, camera, renderer } = this;
+    renderer.setSize(width, height);
+    this.el.appendChild(renderer.domElement);
+    camera.position.z = 5;
+    this.controller = new EventsController({
+      dom: renderer.domElement,
+      scene: scene,
+      camera: camera
+    });
+    this.createElements();
 
     /**
      * set link force options
@@ -325,7 +354,10 @@ class Netjsongraph {
         .strength(_this.linkStrength);
     }
 
-    function forceManyBody () {
+    /**
+     * set many-body force options
+     */
+   function forceManyBody () {
       return d3.forceManyBody()
         .theta(_this.theta)
         .distanceMax(_this.distanceMax);
@@ -339,32 +371,29 @@ class Netjsongraph {
           .force('charge', forceManyBody())  // custom distance max value
           .force('center', d3.forceCenter(width / 2, height / 2));
 
+    /**
+     * Start to calculate force
+     */
     simulation.nodes(data.nodes);
     simulation.force('link')
       .links(data.links);
 
+    /**
+     * Running the simulation manually to disable initial animation
+     */
     if (!_this.initialAnimation) {
       for (let i = 0; i < 100; ++i) {
         simulation.tick();
       }
     }
 
+    /**
+     * Bind the tick event
+     */
     simulation.on('tick', ticked);
 
     function ticked () {
-      data.nodes.forEach((node) => {
-        const { x, y, circle } = node;
-        circle.position.set(x, y, 0);
-      });
-
-      data.links.forEach((link) => {
-        const { source, target, line } = link;
-        line.geometry.verticesNeedUpdate = true;
-        line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
-        line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
-        // set z axis value -1 is to make line behind the node
-      });
-
+      _this.calculateElementsPosition();
       render();
     }
 
@@ -373,6 +402,9 @@ class Netjsongraph {
       renderer.render(scene, camera);
     };
 
+    /**
+     * onEnd callback
+     */
     if (isFunc(_this.onEnd)) _this.onEnd();
   }
 
