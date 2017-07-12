@@ -1,5 +1,7 @@
+// import * as THREE from 'three';
 import Netjsongraph from '../src/netjsongraph.three.js';
 import netjsonData from '../examples/data/netjson.json';
+// import EventsController from '../src/events_controller.js';
 
 test('Module importing', () => {
   expect(Netjsongraph).toBeDefined();
@@ -85,5 +87,21 @@ describe('API', () => {
     expect(ng.data).toHaveProperty('metric', netjsonData.metric);
     expect(ng.data.nodes).toHaveLength(netjsonData.nodes.length);
     expect(ng.data.links).toHaveLength(netjsonData.links.length);
+  });
+
+  test('fetch data', () => {
+    const ng = new Netjsongraph();
+
+    expect(ng.fetch()).rejects.toBeDefined();
+  });
+
+  test('elements creation', () => {
+    // const ng = new Netjsongraph();
+    // ng.load(netjsonData);
+    // ng.controller = new EventsController({
+    //   scene: THREE.Scene(),
+    //   camera: THREE.OrthographicCamera()
+    // });
+    // ng.createElements();
   });
 });

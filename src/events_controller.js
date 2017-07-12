@@ -69,7 +69,6 @@ export default class EventsController {
   }
 
   init () {
-    console.log(this);
     if (this.noContextMenu) this.disableContextMenu();
     // this.bindMouseDown();
     const { TargetList, EventListeners, listenerList, camera } = this;
