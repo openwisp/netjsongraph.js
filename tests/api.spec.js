@@ -7,9 +7,28 @@ test('Module importing', () => {
 });
 
 describe('API', () => {
+  test('API exists', () => {
+    const ng = new Netjsongraph();
+
+    expect(ng.set).toBeInstanceOf(Function);
+    expect(ng.container).toBeInstanceOf(Function);
+    expect(ng.load).toBeInstanceOf(Function);
+    expect(ng.init).toBeInstanceOf(Function);
+    expect(ng.fetch).toBeInstanceOf(Function);
+    expect(ng.toggleMetadata).toBeInstanceOf(Function);
+    expect(ng.toggleNodeInfo).toBeInstanceOf(Function);
+    expect(ng.switchTheme).toBeInstanceOf(Function);
+    expect(ng.enableZoom).toBeInstanceOf(Function);
+    expect(ng.createElements).toBeInstanceOf(Function);
+    expect(ng.calculateElementsPosition).toBeInstanceOf(Function);
+    expect(ng.render).toBeInstanceOf(Function);
+    expect(ng.onWindowResize).toBeInstanceOf(Function);
+  });
+
   test('constructor', () => {
     const testUrl = 'testUrl';
     const ng = new Netjsongraph(testUrl);
+
     expect(ng).toHaveProperty('width', window.innerWidth);
     expect(ng).toHaveProperty('height', window.innerHeight);
     expect(ng).toHaveProperty('url', testUrl);
@@ -36,6 +55,7 @@ describe('API', () => {
 
   test('set', () => {
     const ng = new Netjsongraph();
+
     ng.set({ width: 1000 });
     expect(ng).toHaveProperty('width', 1000);
 
