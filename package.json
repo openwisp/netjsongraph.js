@@ -8,7 +8,7 @@
     "build": "./node_modules/.bin/webpack --config webpack.config.prod.js",
     "test": "./node_modules/.bin/jest",
     "test:cover": "npm test --coverage",
-    "test:cover:travis": "npm run test:cover && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls",
+    "test:cover:travis": "npm run test:cover && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "prepublish": "npm run build"
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
