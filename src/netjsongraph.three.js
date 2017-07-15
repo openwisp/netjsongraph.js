@@ -151,7 +151,6 @@ class Netjsongraph {
           <li class="meta-item label"><strong>Label</strong>: ${this.data.label}</li>
           <li class="meta-item metric"><strong>Metric</strong>: ${this.data.metric}</li>
           <li class="meta-item protocol"><strong>Protocol</strong>: ${this.data.protocol}</li>
-          <li class="meta-item type"><strong>Type</strong>: ${this.data.type}</li>
           <li class="meta-item version"><strong>Version</strong>: ${this.data.version}</li>
           <li class="meta-item nodes"><strong>Nodes</strong>: ${this.data.nodes.length}</li>
           <li class="meta-item links"><strong>Links</strong>: ${this.data.links.length}</li>
