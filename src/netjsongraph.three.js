@@ -70,6 +70,7 @@ class Netjsongraph {
   constructor (url, config) {
     this.set(config);
     this.url = url;
+    this.ratio = this.width / this.height;
     this.init();
   }
 
@@ -466,13 +467,17 @@ class Netjsongraph {
   /**
    * Callback of window resize event
    */
-  onWindowResize () {
+  onWindowResize (event) {
+    console.log(event);
     const _this = this;
     const { scene, camera, renderer } = _this;
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    // controller.handleResize();
+
+    if (window.innerWidth / _this.width < window.innerHeight / _this.height) {
+      renderer.setSize(window.innerWidth, window.innerWidth / _this.ratio);
+    } else {
+      renderer.setSize(window.innerHeight * _this.ratio, window.innerHeight);
+    }
+
     render();
 
     function render () {
