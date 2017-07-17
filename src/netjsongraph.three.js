@@ -176,43 +176,79 @@ class Netjsongraph {
   /**
    * Toggle node information panel
    */
-  toggleNodeInfo (node) {
-    const nodeInfoDom = d3.select('#nodeinfo');
+  toggleInfoPanel (node, link) {
+    const infoDom = d3.select('#info-panel');
 
     /**
      * Check whether it is showed on canvas
      */
-    if (document.getElementById('nodeinfo')) {
-      if (nodeInfoDom.select('#node-id').text() !== node.id) {
-        nodeInfoDom.select('#node-id').text(node.id);
-        nodeInfoDom.style('display', 'block');
-      } else {
-        if (nodeInfoDom.style('display') === 'none') {
-          nodeInfoDom.style('display', 'block');
-        } else nodeInfoDom.style('display', 'none');
+    if (document.getElementById('info-panel')) {
+      if (infoDom.style('display') === 'none') {
+        infoDom.style('display', 'block');
       }
+
+      if (node) {
+        infoDom.select('#node-info').style('display', 'block');
+        infoDom.select('#link-info').style('display', 'none');
+        if (infoDom.select('#node-id').text() !== node.id) {
+          infoDom.select('#node-id').text(node.id);
+          infoDom.style('display', 'block');
+          return;
+        }
+      }
+
+      if (link) {
+        infoDom.select('#link-info').style('display', 'block');
+        infoDom.select('#node-info').style('display', 'none');
+        if (infoDom.select('#link-source').text() !== link.source.id ||
+            infoDom.select('#link-target').text() !== link.target.id) {
+          infoDom.select('#link-source').text(link.source.id);
+          infoDom.select('#link-target').text(link.target.id);
+          return;
+        }
+      }
+
       return;
     }
 
-    const nodeInfoDomStr = `
-      <div class="nodeinfo" id="nodeinfo">
-        <ul class="node-info-list">
-          <li class="node-info-item id"><strong>Id</strong>: <span id="node-id">${node.id}</span></li>
-        </ul>
+    const infoDomStr = `
+      <div class="info-panel" id="info-panel">
+        <div class="node-info" id="node-info">
+          <h3>Node Info:</h3>
+          <ul class="node-info-list">
+            <li class="node-info-item id"><strong>Id</strong>: <span id="node-id">${node ? node.id : null}</span></li>
+          </ul>
+        </div>
+        <div class="link-info" id="link-info">
+          <h3>Link Info:</h3>
+          <ul class="link-info-list">
+            <li class="link-info-item source"><strong>source</strong>: <span id="link-source">${link ? link.source.id : null}</span></li>
+            <li class="link-info-item target"><strong>target</strong>: <span id="link-target">${link ? link.target.id : null}</span></li>
+          </ul>
+        </div>
         <button class="close">x</button>
       </div>
     `;
 
     const _div = document.createElement('div');
-    _div.innerHTML = nodeInfoDomStr;
+    _div.innerHTML = infoDomStr;
     document.querySelector('body').appendChild(_div.children[0]);
 
     /**
      * Get metadata Dom element again when it added into <body>
      */
-    const _nodeInfoDom = d3.select('#nodeinfo');
-    _nodeInfoDom.select('.close')
-      .on('click', () => _nodeInfoDom.style('display', 'none'));
+    const _infoDom = d3.select('#info-panel');
+    _infoDom.select('.close')
+      .on('click', () => _infoDom.style('display', 'none'));
+
+    if (node) {
+      _infoDom.select('#node-info').style('display', 'block');
+      _infoDom.select('#link-info').style('display', 'none');
+    }
+    if (link) {
+      _infoDom.select('#link-info').style('display', 'block');
+      _infoDom.select('#node-info').style('display', 'none');
+    }
   }
 
   initNodeTooltip () {
@@ -249,51 +285,6 @@ class Netjsongraph {
       } else nodeTooltip.style('display', 'none');
       return;
     }
-  }
-
-  /**
-   * Toggle link information panel
-   */
-  toggleLinkInfo (link) {
-    const linkInfoDom = d3.select('#linkinfo');
-
-    /**
-     * Check whether it is showed on canvas
-     */
-    if (document.getElementById('linkinfo')) {
-      if (linkInfoDom.select('#link-source').text() === link.source.id
-          && linkInfoDom.select('#link-target').text() === link.target.id) {
-        if (linkInfoDom.style('display') === 'none') {
-          linkInfoDom.style('display', 'block');
-        } else linkInfoDom.style('display', 'none');
-      } else {
-        linkInfoDom.select('#link-source').text(link.source.id);
-        linkInfoDom.select('#link-target').text(link.target.id);
-        linkInfoDom.style('display', 'block');
-      }
-      return;
-    }
-
-    const linkInfoDomStr = `
-      <div class="linkinfo" id="linkinfo">
-        <ul class="link-info-list">
-          <li class="link-info-item source"><strong>Id</strong>: <span id="link-source">${link.source.id}</span></li>
-          <li class="link-info-item target"><strong>Id</strong>: <span id="link-target">${link.target.id}</span></li>
-        </ul>
-        <button class="close">x</button>
-      </div>
-    `;
-
-    const _div = document.createElement('div');
-    _div.innerHTML = linkInfoDomStr;
-    document.querySelector('body').appendChild(_div.children[0]);
-
-    /**
-     * Get metadata Dom element again when it added into <body>
-     */
-    const _linkInfoDom = d3.select('#linkinfo');
-    _linkInfoDom.select('.close')
-      .on('click', () => _linkInfoDom.style('display', 'none'));
   }
 
   /**
@@ -353,6 +344,8 @@ class Netjsongraph {
     const _this = this;
     const { data, scene } = this;
     data.nodes.forEach((node) => {
+      node.type = 'node';
+
       // Primitive creation
       node.geometry = new THREE.CircleBufferGeometry(_this.circleRadius, 32);
       node.material = new THREE.MeshBasicMaterial({ color: colour(node.id) });
@@ -362,7 +355,7 @@ class Netjsongraph {
       if (isFunc(_this.onClickNode)) {
         node.circle.on('click', _this.onClickNode(mesh));
       } else {
-        node.circle.on('click', () => _this.toggleNodeInfo(node));
+        node.circle.on('click', () => _this.toggleInfoPanel(node, null));
       }
 
       // Zoom nodes when hoverd
@@ -378,6 +371,8 @@ class Netjsongraph {
     });
 
     data.links.forEach((link) => {
+      link.type = 'link';
+
       // Primitive creation
       link.material = new THREE.LineBasicMaterial({ color: 0xAAAAAA, linewidth: 2 }); // the linewidth property in Chrome is invalid
       link.geometry = new THREE.Geometry();
@@ -387,7 +382,7 @@ class Netjsongraph {
       if (isFunc(_this.onClickLink)) {
         link.line.on('click', _this.onClickLink(mesh));
       } else {
-        link.line.on('click', () => _this.toggleLinkInfo(link));
+        link.line.on('click', () => _this.toggleInfoPanel(null, link));
       }
 
       // Zoom nodes when hoverd
