@@ -252,6 +252,51 @@ class Netjsongraph {
   }
 
   /**
+   * Toggle link information panel
+   */
+  toggleLinkInfo (link) {
+    const linkInfoDom = d3.select('#linkinfo');
+
+    /**
+     * Check whether it is showed on canvas
+     */
+    if (document.getElementById('linkinfo')) {
+      if (linkInfoDom.select('#link-source').text() === link.source.id
+          && linkInfoDom.select('#link-target').text() === link.target.id) {
+        if (linkInfoDom.style('display') === 'none') {
+          linkInfoDom.style('display', 'block');
+        } else linkInfoDom.style('display', 'none');
+      } else {
+        linkInfoDom.select('#link-source').text(link.source.id);
+        linkInfoDom.select('#link-target').text(link.target.id);
+        linkInfoDom.style('display', 'block');
+      }
+      return;
+    }
+
+    const linkInfoDomStr = `
+      <div class="linkinfo" id="linkinfo">
+        <ul class="link-info-list">
+          <li class="link-info-item source"><strong>Id</strong>: <span id="link-source">${link.source.id}</span></li>
+          <li class="link-info-item target"><strong>Id</strong>: <span id="link-target">${link.target.id}</span></li>
+        </ul>
+        <button class="close">x</button>
+      </div>
+    `;
+
+    const _div = document.createElement('div');
+    _div.innerHTML = linkInfoDomStr;
+    document.querySelector('body').appendChild(_div.children[0]);
+
+    /**
+     * Get metadata Dom element again when it added into <body>
+     */
+    const _linkInfoDom = d3.select('#linkinfo');
+    _linkInfoDom.select('.close')
+      .on('click', () => _linkInfoDom.style('display', 'none'));
+  }
+
+  /**
    * Change theme
    * @param {string} theme
    */
@@ -341,7 +386,16 @@ class Netjsongraph {
       // Click event binding
       if (isFunc(_this.onClickLink)) {
         link.line.on('click', _this.onClickLink(mesh));
+      } else {
+        link.line.on('click', () => _this.toggleLinkInfo(link));
       }
+
+      // Zoom nodes when hoverd
+      link.line.on('hover', mesh => {
+        link.line.linewidth += 1;
+      }, mesh => {
+        link.line.linewidth -= 1;
+      });
 
       scene.add(link.line);
     });

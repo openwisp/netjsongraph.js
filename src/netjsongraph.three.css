@@ -57,4 +57,11 @@ li {
     border: 1px solid #ddd;
     border-radius: 5px;
   }
+
+  .linkinfo {
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    @mixin info-panel;
+  }
 }
