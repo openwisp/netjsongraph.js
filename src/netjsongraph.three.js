@@ -179,6 +179,17 @@ class Netjsongraph {
   toggleInfoPanel (node, link) {
     const infoDom = d3.select('#info-panel');
 
+    function toggleNodeOrLink (dom) {
+      if (node) {
+        dom.select('#node-info').style('display', 'block');
+        dom.select('#link-info').style('display', 'none');
+      }
+      if (link) {
+        dom.select('#link-info').style('display', 'block');
+        dom.select('#node-info').style('display', 'none');
+      }
+    }
+
     /**
      * Check whether it is showed on canvas
      */
@@ -187,25 +198,19 @@ class Netjsongraph {
         infoDom.style('display', 'block');
       }
 
-      if (node) {
-        infoDom.select('#node-info').style('display', 'block');
-        infoDom.select('#link-info').style('display', 'none');
-        if (infoDom.select('#node-id').text() !== node.id) {
-          infoDom.select('#node-id').text(node.id);
-          infoDom.style('display', 'block');
-          return;
-        }
+      toggleNodeOrLink(infoDom);
+
+      if (node && infoDom.select('#node-id').text() !== node.id) {
+        infoDom.select('#node-id').text(node.id);
+        infoDom.style('display', 'block');
+        return;
       }
 
-      if (link) {
-        infoDom.select('#link-info').style('display', 'block');
-        infoDom.select('#node-info').style('display', 'none');
-        if (infoDom.select('#link-source').text() !== link.source.id ||
-            infoDom.select('#link-target').text() !== link.target.id) {
-          infoDom.select('#link-source').text(link.source.id);
-          infoDom.select('#link-target').text(link.target.id);
-          return;
-        }
+      if (link && infoDom.select('#link-source').text() !== link.source.id ||
+          infoDom.select('#link-target').text() !== link.target.id) {
+        infoDom.select('#link-source').text(link.source.id);
+        infoDom.select('#link-target').text(link.target.id);
+        return;
       }
 
       return;
@@ -241,14 +246,7 @@ class Netjsongraph {
     _infoDom.select('.close')
       .on('click', () => _infoDom.style('display', 'none'));
 
-    if (node) {
-      _infoDom.select('#node-info').style('display', 'block');
-      _infoDom.select('#link-info').style('display', 'none');
-    }
-    if (link) {
-      _infoDom.select('#link-info').style('display', 'block');
-      _infoDom.select('#node-info').style('display', 'none');
-    }
+    toggleNodeOrLink(_infoDom);
   }
 
   initNodeTooltip () {
