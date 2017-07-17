@@ -110,6 +110,7 @@ class Netjsongraph {
     this.fetch(this.url).then(() => {
       if (isFunc(this.onLoad)) this.onLoad();
       this.toggleMetadata();
+      this.initNodeTooltip();
       this.switchTheme();
       this.render();
       this.enableZoom();
@@ -158,7 +159,10 @@ class Netjsongraph {
         <button class="close">x</button>
       </div>
     `;
-    d3.select('body').html(metaDomStr);
+
+    const _div = document.createElement('div');
+    _div.innerHTML = metaDomStr;
+    document.querySelector('body').appendChild(_div.children[0]);
 
     /**
      * Get metadata Dom element again when it added into <body>
@@ -208,6 +212,42 @@ class Netjsongraph {
     const _nodeInfoDom = d3.select('#nodeinfo');
     _nodeInfoDom.select('.close')
       .on('click', () => _nodeInfoDom.style('display', 'none'));
+  }
+
+  initNodeTooltip () {
+    const nodeTooltipDomStr = `
+      <div class="node-tooltip" id="node-tooltip">
+        <span class="node-info-item id"><strong>Id</strong>: <span id="node-id"></span></span>
+      </div>
+    `;
+
+    const _div = document.createElement('div');
+    _div.innerHTML = nodeTooltipDomStr;
+    document.querySelector('body').appendChild(_div.children[0]);
+    d3.select('#node-tooltip')
+      .style('position', 'absolute')
+      .style('display', 'none');
+  }
+
+  /**
+   * Toggle node tooltips
+   */
+  toggleNodeTooltip (node) {
+    const nodeTooltip = d3.select('#node-tooltip');
+
+    /**
+     * Check whether it is showed on canvas
+     */
+    if (document.getElementById('node-tooltip')) {
+      if (nodeTooltip.style('display') === 'none') {
+        nodeTooltip
+          .style('display', 'block')
+          .style('left', `${node.x}px`)
+          .style('top', `${this.height - node.y}px`);
+        nodeTooltip.select('#node-id').text(node.id);
+      } else nodeTooltip.style('display', 'none');
+      return;
+    }
   }
 
   /**
@@ -280,10 +320,12 @@ class Netjsongraph {
       }
 
       // Zoom nodes when hoverd
-      node.circle.on('hover', (mesh) => {
+      node.circle.on('hover', mesh => {
         mesh.scale.set(2, 2, 2);
-      }, (mesh) => {
+        _this.toggleNodeTooltip(node);
+      }, mesh => {
         mesh.scale.set(1, 1, 1);
+        _this.toggleNodeTooltip(node);
       });
 
       scene.add(node.circle);
