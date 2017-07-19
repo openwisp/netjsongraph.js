@@ -206,8 +206,8 @@ class Netjsongraph {
         return;
       }
 
-      if (link && infoDom.select('#link-source').text() !== link.source.id ||
-          infoDom.select('#link-target').text() !== link.target.id) {
+      if (link && (infoDom.select('#link-source').text() !== link.source.id ||
+                   infoDom.select('#link-target').text() !== link.target.id)) {
         infoDom.select('#link-source').text(link.source.id);
         infoDom.select('#link-target').text(link.target.id);
         return;
@@ -301,38 +301,6 @@ class Netjsongraph {
   enableZoom () {
     const _this = this;
     const { camera, width, height } = this;
-    // const { left, right, top, bottom } = camera;
-    // let oldK = 1;
-    // let oldX = 0;
-    // let oldY = 0;
-    // let xMouse = 0;
-    // let yMouse = 0;
-    // _this.el.addEventListener('mousedown', function (event) {
-    //   console.log(event);
-    //   console.log(event.pageX, event.pageY);
-    //   xMouse = event.pageX;
-    //   yMouse = event.pageY;
-    // }, false);
-    const zoom = d3.zoom()
-          .scaleExtent(_this.scaleExtent)
-          .on('zoom', function () {
-            let { x, y, k } = d3.zoomTransform(this);
-            // console.log(x, y, k);
-            // console.log(camera.left, camera.right, camera.top, camera.bottom);
-            // const _x = xMouse + k * (oldX - xMouse) / oldK;
-            // const _y = yMouse + k * (oldY - yMouse) / oldK;
-            // camera.left = left / k - _x;
-            // camera.right = right / k - _x;
-            // camera.top = top / k + _y;
-            // camera.bottom = bottom / k + _y;
-            // console.log(camera.left, camera.right, camera.top, camera.bottom);
-            camera.zoom = k;
-            camera.updateProjectionMatrix();
-            // oldK = k;
-            // oldX = x;
-            // oldY = y;
-          });
-    d3.select(_this.el).call(zoom).on('dblclick.zoom', null);
   }
 
   /**
@@ -515,7 +483,6 @@ class Netjsongraph {
    * Callback of window resize event
    */
   onWindowResize (event) {
-    console.log(event);
     const _this = this;
     const { scene, camera, renderer } = _this;
 
