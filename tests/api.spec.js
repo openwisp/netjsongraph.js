@@ -18,7 +18,7 @@ describe('API', () => {
     expect(ng.init).toBeInstanceOf(Function);
     expect(ng.fetch).toBeInstanceOf(Function);
     expect(ng.toggleMetadata).toBeInstanceOf(Function);
-    expect(ng.toggleNodeInfo).toBeInstanceOf(Function);
+    expect(ng.toggleInfoPanel).toBeInstanceOf(Function);
     expect(ng.switchTheme).toBeInstanceOf(Function);
     expect(ng.enableZoom).toBeInstanceOf(Function);
     expect(ng.createElements).toBeInstanceOf(Function);
