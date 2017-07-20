@@ -353,9 +353,10 @@ class Netjsongraph {
 
       // Zoom nodes when hoverd
       link.line.on('hover', mesh => {
-        link.line.linewidth += 1;
+        console.log(mesh);
+        mesh.material.color = new THREE.Color(0x666666);
       }, mesh => {
-        link.line.linewidth -= 1;
+        mesh.material.color = new THREE.Color(0xAAAAAA);
       });
 
       scene.add(link.line);
