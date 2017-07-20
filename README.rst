@@ -191,6 +191,44 @@ Here's a fulle example of how to show green links and dark green nodes:
     </body>
     </html>
 
+
+API
+---
+
+set (config)
+>>>>>>>>>>>>
+
+* config: ``Object``
+
+Set properties of instance.
+
+container (el)
+>>>>>>>>>>>>>>
+
+* el: ``Object``
+
+Set container.
+
+load (data)
+>>>>>>>>>>>
+
+* data: ``Object``
+
+Load NetJSON data.
+
+switchTheme (theme)
+>>>>>>>>>>>>>>>>>>>
+
+* theme: ``String``
+
+Change theme.
+
+render ()
+>>>>>>>>>
+
+Render the force layout.
+
+
 Contributing
 ------------
 
