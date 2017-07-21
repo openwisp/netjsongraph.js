@@ -14,7 +14,7 @@ const defaults = {
   dom: document,
   scene: {},
   camera: {},
-  TargetList: { click: {}, hover: {} },
+  TargetList: { click: {}, hover: {} }, // Event type
   updateCallbackList: [],
   EventListeners: {},
   listenerList: {}
@@ -40,34 +40,37 @@ export default class EventsController {
     if (this.noContextMenu) this.disableContextMenu();
     const { TargetList, EventListeners, listenerList, camera } = this;
 
-    Object.keys(TargetList).forEach((v, i) => {
-      EventListeners[v] = {
+    /**
+     * Travel the TargetList and add listener to listenerList
+     */
+    for (let t in TargetList) {
+      EventListeners[t] = {
         flag: false,
         listener: function (targetList) {
-          listenerList[v](targetList, camera);
+          listenerList[t](targetList, camera);
         }
       };
-    });
-
-    function getObjList (targetList) {
-      var list = [];
-      for (var key in targetList) {
-        var target = targetList[key].object3d;
-        list.push(target);
-      }
-      return group2meshlist(list);
     }
 
-    function group2meshlist (list) {
-      var l = [];
-      for (var i in list) {
-        if (list[i].type === 'Group') {
-          l = l.concat(group2meshlist(list[i].children));
+    // Get target Object list
+    function getObjList (targetList) {
+      const objList = [];
+      for (let t in targetList) {
+        objList.push(targetList[t].object3d);
+      }
+      return group2meshlist(objList);
+    }
+
+    function group2meshlist (objList) {
+      let list = [];
+      for (let o in objList) {
+        if (objList[o].type === 'Group') {
+          list = list.concat(group2meshlist(objList[o].children));
         } else {
-          l.push(list[i]);
+          list.push(objList[o]);
         }
       }
-      return l;
+      return list;
     }
 
     function getEventObj (targetList, object3d) {
@@ -75,44 +78,43 @@ export default class EventsController {
     }
 
     function object2group (targetList, object3d) {
-      if (targetList[object3d.id]) {
-        return targetList[object3d.id];
-      } else {
-        return object2group(targetList, object3d.parent);
-      }
+      return targetList[object3d.id] ? targetList[object3d.id]
+        : object2group(targetList, object3d.parent);
+    }
+
+    function Mouse (event) {
+      return new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1,
+                           -(event.clientY / window.innerHeight) * 2 + 1);
     }
 
     listenerList.click = function (targetList, camera) {
       let targetObject;
       let obj;
-      let Click = false;
-      const Mouse = new THREE.Raycaster();
+      let isClicked = false;
+      const ray = new THREE.Raycaster();
       function down (event) {
-        event.preventDefault();
         if (!targetList) return;
         let list = [];
-        Mouse.setFromCamera(new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1), camera);
+        ray.setFromCamera(Mouse(event), camera);
         list = getObjList(targetList);
-        const intersects = Mouse.intersectObjects(list);
+        const intersects = ray.intersectObjects(list);
 
         if (intersects.length > 0) {
-          if (Click) return;
-          Click = true;
+          if (isClicked) return;
+          isClicked = true;
           targetObject = intersects[0].object;
           obj = getEventObj(targetList, targetObject);
         } else {
-          Click = false;
+          isClicked = false;
         }
       }
       function move (event) {
-        event.preventDefault();
         // disable click trigger when mouse moving
-        if (Click) Click = false;
+        if (isClicked) isClicked = false;
       }
       function up (event) {
-        event.preventDefault();
-        if (Click && !!obj.callback[0]) obj.callback[0](targetObject);
-        Click = false;
+        if (isClicked && !!obj.callback[0]) obj.callback[0](targetObject);
+        isClicked = false;
       }
       window.addEventListener('mousedown', down, false);
       window.addEventListener('mousemove', move, false);
@@ -122,28 +124,27 @@ export default class EventsController {
     listenerList.hover = function (targetList, camera) {
       let targetObject;
       let obj;
-      let Hover = false;
-      const Mouse = new THREE.Raycaster();
+      let isHovered = false;
+      const ray = new THREE.Raycaster();
       window.addEventListener('mousemove', function (event) {
-        event.preventDefault();
         if (!targetList) return;
         let list = [];
-        Mouse.setFromCamera(new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1), camera);
+        ray.setFromCamera(Mouse(event), camera);
 
         list = getObjList(targetList);
-        const intersects = Mouse.intersectObjects(list);
+        const intersects = ray.intersectObjects(list);
 
         if (intersects.length > 0) {
-          if (Hover) return;
-          Hover = true;
+          if (isHovered) return;
+          isHovered = true;
           targetObject = intersects[0].object;
           obj = getEventObj(targetList, targetObject);
           if (obj.callback[0]) obj.callback[0](targetObject);
         } else {
-          if (Hover && !!obj.callback[1]) {
+          if (isHovered && !!obj.callback[1]) {
             obj.callback[1](targetObject);
           }
-          Hover = false;
+          isHovered = false;
         }
       }, false);
     };
@@ -172,7 +173,7 @@ export default class EventsController {
             console.warn("There is no method called '" + method + "';");
           }
         } else {
-          for (var key in TargetList) {
+          for (let key in TargetList) {
             delete TargetList[key][this.id];
           }
         }
