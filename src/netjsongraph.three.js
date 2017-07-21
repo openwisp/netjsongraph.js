@@ -319,7 +319,7 @@ class Netjsongraph {
 
       // Click event binding
       if (isFunc(_this.onClickNode)) {
-        node.circle.on('click', _this.onClickNode(mesh));
+        node.circle.on('click', () => _this.onClickNode(node));
       } else {
         node.circle.on('click', () => _this.toggleInfoPanel(node, null));
       }
@@ -346,7 +346,7 @@ class Netjsongraph {
 
       // Click event binding
       if (isFunc(_this.onClickLink)) {
-        link.line.on('click', _this.onClickLink(mesh));
+        link.line.on('click', () => _this.onClickLink(link));
       } else {
         link.line.on('click', () => _this.toggleInfoPanel(null, link));
       }
@@ -395,6 +395,8 @@ class Netjsongraph {
     this.el.appendChild(renderer.domElement);
     camera.position.z = 5;
     this.controller = new EventsController({
+      width: _this.width,
+      height: _this.height,
       dom: renderer.domElement,
       scene: scene,
       camera: camera
@@ -487,11 +489,14 @@ class Netjsongraph {
     const { scene, camera, renderer } = _this;
 
     if (window.innerWidth / _this.width < window.innerHeight / _this.height) {
-      renderer.setSize(window.innerWidth, window.innerWidth / _this.ratio);
+      _this.width = window.innerWidth;
+      _this.height = window.innerWidth / _this.ratio;
     } else {
-      renderer.setSize(window.innerHeight * _this.ratio, window.innerHeight);
+      _this.width = window.innerHeight * _this.ratio;
+      _this.height = window.innerHeight;
     }
 
+    renderer.setSize(_this.width, _this.height);
     render();
 
     function render () {

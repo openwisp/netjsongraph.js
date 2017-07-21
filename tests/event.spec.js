@@ -8,6 +8,5 @@ describe('EventController API', () => {
     expect(ec.init).toBeInstanceOf(Function);
     expect(ec.disableContextMenu).toBeInstanceOf(Function);
     expect(ec.removeAll).toBeInstanceOf(Function);
-    expect(ec.update).toBeInstanceOf(Function);
   });
 });
