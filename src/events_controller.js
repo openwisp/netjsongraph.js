@@ -195,29 +195,34 @@ export default class EventsController {
     });
   }
 
-  pan () {
+  pan (callback) {
     const { camera } = this;
     let isPanning = false;
-    let start = {};
+    let startPosition = {};
+    let currentPosition = {};
+    let lastCameraPosition = { x: 0, y: 0 };
 
     function down (event) {
       isPanning = true;
-      start.x = event.clientX;
-      start.y = event.clientY;
+      startPosition.x = event.clientX;
+      startPosition.y = event.clientY;
     }
 
     function move (event) {
       if (!isPanning) return;
-      const current = {
+      currentPosition = {
         x: event.clientX,
         y: event.clientY
       };
-      camera.position.x = start.x - current.x;
-      camera.position.y = current.y - start.y;
+      camera.position.x = lastCameraPosition.x + startPosition.x - currentPosition.x;
+      camera.position.y = lastCameraPosition.y + currentPosition.y - startPosition.y;
     }
 
     function up (event) {
       isPanning = false;
+      lastCameraPosition.x = camera.position.x;
+      lastCameraPosition.y = camera.position.y;
+      if (isFunc(callback)) callback();
     }
 
     this.dom.addEventListener('mousedown', down, false);
