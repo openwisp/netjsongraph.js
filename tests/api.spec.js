@@ -20,7 +20,6 @@ describe('API', () => {
     expect(ng.toggleMetadata).toBeInstanceOf(Function);
     expect(ng.toggleInfoPanel).toBeInstanceOf(Function);
     expect(ng.switchTheme).toBeInstanceOf(Function);
-    expect(ng.enableZoom).toBeInstanceOf(Function);
     expect(ng.createElements).toBeInstanceOf(Function);
     expect(ng.calculateElementsPosition).toBeInstanceOf(Function);
     expect(ng.render).toBeInstanceOf(Function);
@@ -38,7 +37,6 @@ describe('API', () => {
     expect(ng).toHaveProperty('data', {});
     expect(ng).toHaveProperty('metadata', true);
     expect(ng).toHaveProperty('defaultStyle', true);
-    expect(ng).toHaveProperty('scaleExtent', [0.25, 5]);
     expect(ng).toHaveProperty('linkDistance', 50);
     expect(ng).toHaveProperty('linkStrength', 0.2);
     expect(ng).toHaveProperty('theta', 0.8);

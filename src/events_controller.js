@@ -8,16 +8,64 @@
 
 import * as THREE from 'three';
 
+/**
+ * Get target Object list
+ * @param {Object} targetList event target list
+ */
+function getObjList (targetList) {
+  const objList = [];
+  for (let t in targetList) {
+    objList.push(targetList[t].object3d);
+  }
+  return group2meshlist(objList);
+
+  /**
+   * Group the mesh to a list
+   */
+  function group2meshlist (objList) {
+    let list = [];
+    for (let o in objList) {
+      if (objList[o].type === 'Group') {
+        list = list.concat(group2meshlist(objList[o].children));
+      } else {
+        list.push(objList[o]);
+      }
+    }
+    return list;
+  }
+}
+
+/**
+ * calculate mouse position in normalized device coordinates
+ * (-1 to +1) for both components
+ */
+function Mouse (event, ctx) {
+  return new THREE.Vector2((event.clientX / ctx.width) * 2 - 1,
+                           -(event.clientY / ctx.height) * 2 + 1);
+}
+
+/**
+ * Get current event object
+ * @param {Object} targetList event target list
+ * @param {Object} object3d
+ */
+function getEventObj (targetList, object3d) {
+  return targetList[object3d.id]
+    ? targetList[object3d.id]
+    : getEventObj(targetList, object3d.parent);
+}
+
 const defaults = {
-  noContextMenu: true,
+  dom: document.body,
   width: window.innerWidth,
   height: window.innerHeight,
-  dom: document,
   scene: {},
   camera: {},
+  renderer: {},
   EventType: { click: {}, hover: {} }, // Event type
   onEvent: {},
-  listenerList: {}
+  listenerList: {},
+  noContextMenu: true
 };
 
 export default class EventsController {
@@ -37,69 +85,45 @@ export default class EventsController {
   }
 
   init () {
-    const _this = this;
     if (this.noContextMenu) this.disableContextMenu();
-    const { EventType, onEvent, listenerList, camera } = this;
-
-    /**
-     * Travel the eventType list and add listener to listenerList
-     */
-    for (let e in EventType) {
-      onEvent[e] = {
-        flag: false,
-        listen: function (targetList) {
-          listenerList[e](targetList, camera);
-        }
-      };
-    }
-
-    /**
-     * Get target Object list
-     */
-    function getObjList (targetList) {
-      const objList = [];
-      for (let t in targetList) {
-        objList.push(targetList[t].object3d);
-      }
-      return group2meshlist(objList);
-    }
-
-    /**
-     * Group the mesh to a list
-     */
-    function group2meshlist (objList) {
-      let list = [];
-      for (let o in objList) {
-        if (objList[o].type === 'Group') {
-          list = list.concat(group2meshlist(objList[o].children));
-        } else {
-          list.push(objList[o]);
-        }
-      }
-      return list;
-    }
-
-    /**
-     * Get current event object
-     */
-    function getEventObj (targetList, object3d) {
-      return targetList[object3d.id] ? targetList[object3d.id]
-        : getEventObj(targetList, object3d.parent);
-    }
-
-    /**
-     * calculate mouse position in normalized device coordinates
-     * (-1 to +1) for both components
-     */
-    function Mouse (event) {
-      return new THREE.Vector2((event.clientX / _this.width) * 2 - 1,
-                               -(event.clientY / _this.height) * 2 + 1);
-    }
+    this.initEventType();
 
     /**
      * Binding click event to target object
      */
-    listenerList.click = function (targetList, camera) {
+    this.listenerList.click = this.click();
+
+    /**
+     * Binding hover event to target object
+     */
+    this.listenerList.hover = this.hover();
+
+    /**
+     * Binding event controller to Three.js object
+     */
+    this.assignController();
+
+    this.zoom();
+    this.pan();
+  }
+
+  /**
+   * Travel the eventType list and add listener to listenerList
+   */
+  initEventType () {
+    const { EventType, onEvent, listenerList, camera } = this;
+    for (let e in EventType) {
+      onEvent[e] = {
+        flag: false,
+        listen: targetList => listenerList[e](targetList, camera)
+      };
+    }
+  }
+
+  click () {
+    const _this = this;
+    const { camera, dom } = this;
+    return function (targetList) {
       let targetObject;
       let obj;
       let isClicked = false;
@@ -107,7 +131,7 @@ export default class EventsController {
 
       function down (event) {
         if (!targetList) return;
-        ray.setFromCamera(Mouse(event), camera);
+        ray.setFromCamera(Mouse(event, _this), camera);
         const list = getObjList(targetList) || []; // Find target objects
         const intersects = ray.intersectObjects(list);
 
@@ -131,15 +155,16 @@ export default class EventsController {
         isClicked = false;
       }
 
-      _this.dom.addEventListener('mousedown', down, false);
-      _this.dom.addEventListener('mousemove', move, false);
-      _this.dom.addEventListener('mouseup', up, false);
+      dom.addEventListener('mousedown', down, false);
+      dom.addEventListener('mousemove', move, false);
+      dom.addEventListener('mouseup', up, false);
     };
+  }
 
-    /**
-     * Binding hover event to target object
-     */
-    listenerList.hover = function (targetList, camera) {
+  hover () {
+    const _this = this;
+    const { camera, dom } = this;
+    return function (targetList) {
       let obj;
       let targetObject;
       let isHovered = false;
@@ -147,7 +172,7 @@ export default class EventsController {
 
       function move (event) {
         if (!targetList) return;
-        ray.setFromCamera(Mouse(event), camera);
+        ray.setFromCamera(Mouse(event, _this), camera);
         const list = getObjList(targetList) || [];
         const intersects = ray.intersectObjects(list);
 
@@ -165,12 +190,24 @@ export default class EventsController {
         }
       }
 
-      _this.dom.addEventListener('mousemove', move, false);
+      dom.addEventListener('mousemove', move, false);
     };
+  }
 
-    /**
-     * Binding event controller to Three.js object
-     */
+  zoom () {
+    this.dom.addEventListener('mousedown', () => {
+      console.log('zoom down');
+    });
+  }
+
+  pan () {
+    this.dom.addEventListener('mousedown', () => {
+      console.log('pan down');
+    });
+  }
+
+  assignController () {
+    const { EventType, onEvent } = this;
     Object.assign(THREE.Object3D.prototype, {
       on: function (method, callback1, callback2) {
         if (onEvent.hasOwnProperty(method)) {

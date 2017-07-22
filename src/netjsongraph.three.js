@@ -20,7 +20,6 @@ const defaultHeight = window.innerHeight;
  * @param  {string}     el                  "body"      The container element
  * @param  {boolean}    metadata            true        Display NetJSON metadata at startup?
  * @param  {boolean}    defaultStyle        true        Use default css style?
- * @param  {array}      scaleExtent         [0.25, 5]   The zoom scale's allowed range. @see {@link https://github.com/d3/d3-zoom#zoom_scaleExtent}
  * @param  {int}        linkDistance        50          The target distance between linked nodes to the specified value. @see {@link https://github.com/d3/d3-force/#link_distance}
  * @param  {float}      linkStrength        0.2         The strength (rigidity) of links to the specified value in the range. @see {@link https://github.com/d3/d3-force/#link_strength}
  * @param  {float}      theta               0.8         The Barnes–Hut approximation criterion to the specified value. @see {@link https://github.com/d3/d3-force/#manyBody_theta}
@@ -42,7 +41,6 @@ const defaults = {
   data: {},
   metadata: true,
   defaultStyle: true,
-  scaleExtent: [0.25, 5],
   linkDistance: 50,
   linkStrength: 0.2,
   theta: 0.8,
@@ -114,7 +112,6 @@ class Netjsongraph {
       this.initNodeTooltip();
       this.switchTheme();
       this.render();
-      this.enableZoom();
       window.addEventListener('resize', this.onWindowResize.bind(this), false);
     });
   }
@@ -296,14 +293,6 @@ class Netjsongraph {
   }
 
   /**
-   * Enable zoom behavior
-   */
-  enableZoom () {
-    const _this = this;
-    const { camera, width, height } = this;
-  }
-
-  /**
    * Create elements in canvas
    */
   createElements () {
@@ -351,7 +340,7 @@ class Netjsongraph {
         link.line.on('click', () => _this.toggleInfoPanel(null, link));
       }
 
-      // Zoom nodes when hoverd
+      // Hightlight links when hoverd
       link.line.on('hover', mesh => {
         mesh.material.color = new THREE.Color(0x666666);
       }, mesh => {
@@ -395,11 +384,12 @@ class Netjsongraph {
     this.el.appendChild(renderer.domElement);
     camera.position.z = 5;
     this.controller = new EventsController({
-      width: _this.width,
-      height: _this.height,
       dom: renderer.domElement,
-      scene: scene,
-      camera: camera
+      width,
+      height,
+      scene,
+      camera,
+      renderer
     });
     this.createElements();
 
