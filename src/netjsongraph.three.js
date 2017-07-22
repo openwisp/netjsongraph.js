@@ -391,6 +391,7 @@ class Netjsongraph {
       camera,
       renderer
     });
+    this.controller.zoom();
     this.createElements();
 
     /**

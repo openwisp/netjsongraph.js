@@ -7,6 +7,7 @@
  */
 
 import * as THREE from 'three';
+import { isFunc } from './utils.js';
 
 /**
  * Get target Object list
@@ -42,6 +43,14 @@ function getObjList (targetList) {
 function Mouse (event, ctx) {
   return new THREE.Vector2((event.clientX / ctx.width) * 2 - 1,
                            -(event.clientY / ctx.height) * 2 + 1);
+}
+
+function _intersects (targetList, event, ctx) {
+  const ray = new THREE.Raycaster();
+  ray.setFromCamera(Mouse(event, ctx), ctx.camera);
+  const list = getObjList(targetList) || []; // Find target objects
+
+  return ray.intersectObjects(list);
 }
 
 /**
@@ -88,22 +97,15 @@ export default class EventsController {
     if (this.noContextMenu) this.disableContextMenu();
     this.initEventType();
 
-    /**
-     * Binding click event to target object
-     */
+    // Binding click event to target object
     this.listenerList.click = this.click();
 
-    /**
-     * Binding hover event to target object
-     */
+    // Binding hover event to target object
     this.listenerList.hover = this.hover();
 
-    /**
-     * Binding event controller to Three.js object
-     */
+    // Binding event controller to Three.js object
     this.assignController();
 
-    this.zoom();
     this.pan();
   }
 
@@ -122,19 +124,14 @@ export default class EventsController {
 
   click () {
     const _this = this;
-    const { camera, dom } = this;
     return function (targetList) {
       let targetObject;
       let obj;
       let isClicked = false;
-      const ray = new THREE.Raycaster();
 
       function down (event) {
         if (!targetList) return;
-        ray.setFromCamera(Mouse(event, _this), camera);
-        const list = getObjList(targetList) || []; // Find target objects
-        const intersects = ray.intersectObjects(list);
-
+        const intersects = _intersects(targetList, event, _this);
         if (intersects.length > 0) {
           if (isClicked) return;
           isClicked = true;
@@ -155,26 +152,22 @@ export default class EventsController {
         isClicked = false;
       }
 
-      dom.addEventListener('mousedown', down, false);
-      dom.addEventListener('mousemove', move, false);
-      dom.addEventListener('mouseup', up, false);
+      _this.dom.addEventListener('mousedown', down, false);
+      _this.dom.addEventListener('mousemove', move, false);
+      _this.dom.addEventListener('mouseup', up, false);
     };
   }
 
   hover () {
     const _this = this;
-    const { camera, dom } = this;
     return function (targetList) {
       let obj;
       let targetObject;
       let isHovered = false;
-      const ray = new THREE.Raycaster();
 
       function move (event) {
         if (!targetList) return;
-        ray.setFromCamera(Mouse(event, _this), camera);
-        const list = getObjList(targetList) || [];
-        const intersects = ray.intersectObjects(list);
+        const intersects = _intersects(targetList, event, _this);
 
         if (intersects.length > 0) {
           if (isHovered) return;
@@ -190,13 +183,17 @@ export default class EventsController {
         }
       }
 
-      dom.addEventListener('mousemove', move, false);
+      _this.dom.addEventListener('mousemove', move, false);
     };
   }
 
-  zoom () {
-    this.dom.addEventListener('mousedown', () => {
-      console.log('zoom down');
+  zoom (callback) {
+    const { camera } = this;
+    this.dom.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      camera.zoom += -event.deltaY * (event.deltaMode ? 120 : 1) / 500;
+      camera.updateProjectionMatrix();
+      if (isFunc(callback)) callback();
     });
   }
 
