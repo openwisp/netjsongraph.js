@@ -274,8 +274,8 @@ class Netjsongraph {
       if (nodeTooltip.style('display') === 'none') {
         nodeTooltip
           .style('display', 'block')
-          .style('left', `${node.x}px`)
-          .style('top', `${this.height - node.y}px`);
+          .style('left', `${node.circle.position.x}px`)
+          .style('top', `${this.height - node.circle.position.y}px`);
         nodeTooltip.select('#node-id').text(node.id);
       } else nodeTooltip.style('display', 'none');
       return;
