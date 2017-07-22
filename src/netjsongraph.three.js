@@ -392,6 +392,7 @@ class Netjsongraph {
       renderer
     });
     this.controller.zoom();
+    this.controller.pan();
     this.createElements();
 
     /**

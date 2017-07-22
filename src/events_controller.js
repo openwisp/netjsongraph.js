@@ -105,19 +105,17 @@ export default class EventsController {
 
     // Binding event controller to Three.js object
     this.assignController();
-
-    this.pan();
   }
 
   /**
    * Travel the eventType list and add listener to listenerList
    */
   initEventType () {
-    const { EventType, onEvent, listenerList, camera } = this;
+    const { EventType, onEvent, listenerList } = this;
     for (let e in EventType) {
       onEvent[e] = {
         flag: false,
-        listen: targetList => listenerList[e](targetList, camera)
+        listen: targetList => listenerList[e](targetList)
       };
     }
   }
@@ -198,9 +196,33 @@ export default class EventsController {
   }
 
   pan () {
-    this.dom.addEventListener('mousedown', () => {
-      console.log('pan down');
-    });
+    const { camera } = this;
+    let isPanning = false;
+    let start = {};
+
+    function down (event) {
+      isPanning = true;
+      start.x = event.clientX;
+      start.y = event.clientY;
+    }
+
+    function move (event) {
+      if (!isPanning) return;
+      const current = {
+        x: event.clientX,
+        y: event.clientY
+      };
+      camera.position.x = start.x - current.x;
+      camera.position.y = current.y - start.y;
+    }
+
+    function up (event) {
+      isPanning = false;
+    }
+
+    this.dom.addEventListener('mousedown', down, false);
+    this.dom.addEventListener('mousemove', move, false);
+    this.dom.addEventListener('mouseup', up, false);
   }
 
   assignController () {
