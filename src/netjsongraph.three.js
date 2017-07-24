@@ -10,7 +10,7 @@ import * as THREE from 'three';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
 import EventsController from './events_controller.js';
-import { colour, promisify, isFn } from './utils.js';
+import { promisify, isFn, travelFn } from './utils.js';
 import themes from './config/themes.js';
 
 const defaultWidth = window.innerWidth;
@@ -46,7 +46,6 @@ const defaults = {
   linkStrength: 0.2,
   theta: 0.8,
   distanceMax: 100,
-  circleRadius: 8,
   onInit: null,
   onLoad: null,
   onEnd: null,
@@ -92,7 +91,7 @@ class Netjsongraph {
   setTheme (t) {
     if (!t) return this;
     if (t && typeof t === 'string') {
-      this.theme = themes[t];
+      this.theme = travelFn(themes[t]);
       const body = d3.select('body');
       body.classed('default', this.defaultStyle);
       body.classed(t, !!t);
@@ -129,7 +128,6 @@ class Netjsongraph {
       if (isFn(this.onLoad)) this.onLoad();
       this.toggleMetadata();
       this.initNodeTooltip();
-      this.switchTheme();
       this.render();
       window.addEventListener('resize', this.onWindowResize.bind(this), false);
     });
@@ -320,8 +318,8 @@ class Netjsongraph {
       node.type = 'node';
 
       // Primitive creation
-      node.geometry = new THREE.CircleBufferGeometry(_this.circleRadius, 32);
-      node.material = new THREE.MeshBasicMaterial({ color: colour(node) });
+      node.geometry = new THREE.CircleBufferGeometry(theme.circleRadius, 32);
+      node.material = new THREE.MeshBasicMaterial({ color: theme.nodeColor(node) });
       node.circle = new THREE.Mesh(node.geometry, node.material);
 
       // Click event binding
@@ -347,7 +345,7 @@ class Netjsongraph {
       link.type = 'link';
 
       // Primitive creation
-      link.material = new THREE.LineBasicMaterial({ color: 0xAAAAAA, linewidth: 2 }); // the linewidth property in Chrome is invalid
+      link.material = new THREE.LineBasicMaterial({ color: theme.linkColor, linewidth: theme.linkWidth }); // the linewidth property in Chrome is invalid
       link.geometry = new THREE.Geometry();
       link.line = new THREE.Line(link.geometry, link.material);
 
@@ -360,9 +358,9 @@ class Netjsongraph {
 
       // Hightlight links when hoverd
       link.line.on('hover', mesh => {
-        mesh.material.color = new THREE.Color(0x666666);
+        mesh.material.color = new THREE.Color(theme.linkHoveredColor);
       }, mesh => {
-        mesh.material.color = new THREE.Color(0xAAAAAA);
+        mesh.material.color = new THREE.Color(theme.linkColor);
       });
 
       scene.add(link.line);

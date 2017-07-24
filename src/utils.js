@@ -38,3 +38,16 @@ export const isFn = obj => typeof obj === 'function' || false;
  * @returns {functin}
  */
 export const returnFn = f => isFn(f) ? f : () => f;
+
+/**
+ * Travel a Object and make its every properties return a function
+ * @param {object} obj
+ * @returns {object}
+ */
+export const travelFn = obj => {
+  const newObj = {};
+  for (let k in obj) {
+    newObj[k] = returnFn(obj[k]);
+  }
+  return newObj;
+};

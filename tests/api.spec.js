@@ -41,7 +41,6 @@ describe('API', () => {
     expect(ng).toHaveProperty('linkStrength', 0.2);
     expect(ng).toHaveProperty('theta', 0.8);
     expect(ng).toHaveProperty('distanceMax', 100);
-    expect(ng).toHaveProperty('circleRadius', 8);
     expect(ng).toHaveProperty('onInit', null);
     expect(ng).toHaveProperty('onLoad', null);
     expect(ng).toHaveProperty('onEnd', null);
