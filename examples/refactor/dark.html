@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>netjsongraph.js: Dark Colors</title>
+    <meta charset="utf-8">
+    <link href="../src/netjsongraph.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            background: #9f9fa4;
+        }
+
+        .njg-overlay, .njg-metadata{
+            width: auto;
+            height: auto;
+            min-width: 200px;
+            max-width: 400px;
+            border: 1px solid #000;
+            border-radius: 2px;
+            background: rgba(0, 0, 0, 0.5);
+            top: 10px;
+            right: 10px;
+            padding: 0 15px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #fff
+        }
+
+        .njg-metadata{
+            left: 10px;
+            right: auto;
+            max-width: 500px;
+        }
+
+        #network-graph{
+            width: 1000px;
+            height: 800px;
+            margin: 30px auto 0;
+            border: 2px solid #000;
+            background-color: #3e3e3e;
+        }
+
+        .njg-node {
+            fill: #fff5cc;
+            stroke: #f1ec14;
+            stroke-width: 1px;
+            cursor: pointer;
+        }
+        .njg-node:hover,
+        .njg-node.njg-open{
+            fill: #ffee00;
+        }
+
+        .njg-link {
+            stroke: #00ff00;
+            stroke-width: 2;
+            stroke-opacity: .5;
+            cursor: pointer;
+        }
+        .njg-link:hover,
+        .njg-link.njg-open{
+            stroke-width: 3;
+            stroke-opacity: 1
+        }
+
+        .njg-tooltip {
+            fill: #fff;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="network-graph"></div>
+    <script src="../lib/d3.min.js"></script>
+    <script src="../src/netjsongraph.js"></script>
+    <script>
+        d3.netJsonGraph("./data/netjson.json", {
+            el: "#network-graph",
+            defaultStyle: false
+        });
+    </script>
+</body>
+</html>
