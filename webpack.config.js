@@ -6,10 +6,10 @@ const EXAMPLE = path.join(__dirname, 'examples');
 
 module.exports = {
   entry: {
-    html: path.join(EXAMPLE, 'refactor', 'basic', 'index.html'),
+    html: path.join(EXAMPLE, 'refactor', 'dark', 'index.html'),
     js: [
       path.join(SRC, 'netjsongraph.three.js'),
-      path.join(EXAMPLE, 'refactor', 'basic', 'index.js')
+      path.join(EXAMPLE, 'refactor', 'dark', 'index.js')
     ]
   },
   output: {

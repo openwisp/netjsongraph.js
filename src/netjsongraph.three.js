@@ -10,7 +10,8 @@ import * as THREE from 'three';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
 import EventsController from './events_controller.js';
-import { colour, promisify, isFunc } from './utils.js';
+import { colour, promisify, isFn } from './utils.js';
+import themes from './config/themes.js';
 
 const defaultWidth = window.innerWidth;
 const defaultHeight = window.innerHeight;
@@ -53,6 +54,7 @@ const defaults = {
   onClickLink: null,
   initialAnimation: false,
   static: true,
+  theme: 'basic',
 
   scene: new THREE.Scene(),
   camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000)
@@ -78,6 +80,23 @@ class Netjsongraph {
    */
   set (config) {
     Object.assign(this, defaults, config);
+    const theme = config && config.theme ? config.theme : defaults.theme;
+    this.setTheme(theme);
+    return this;
+  }
+
+  /**
+   * Set canvas theme
+   * @param {String} t theme
+   */
+  setTheme (t) {
+    if (!t) return this;
+    if (t && typeof t === 'string') {
+      this.theme = themes[t];
+      const body = d3.select('body');
+      body.classed('default', this.defaultStyle);
+      body.classed(t, !!t);
+    }
     return this;
   }
 
@@ -105,9 +124,9 @@ class Netjsongraph {
    * Init graph
    */
   init () {
-    if (isFunc(this.onInit)) this.onInit();
+    if (isFn(this.onInit)) this.onInit();
     this.fetch(this.url).then(() => {
-      if (isFunc(this.onLoad)) this.onLoad();
+      if (isFn(this.onLoad)) this.onLoad();
       this.toggleMetadata();
       this.initNodeTooltip();
       this.switchTheme();
@@ -287,9 +306,8 @@ class Netjsongraph {
    * @param {string} theme
    */
   switchTheme (theme) {
-    const body = d3.select('body');
-    body.classed('default', this.defaultStyle);
-    body.classed(theme, !!theme);
+    this.setTheme(theme);
+    this.render();
   }
 
   /**
@@ -297,17 +315,17 @@ class Netjsongraph {
    */
   createElements () {
     const _this = this;
-    const { data, scene } = this;
+    const { data, scene, theme } = this;
     data.nodes.forEach((node) => {
       node.type = 'node';
 
       // Primitive creation
       node.geometry = new THREE.CircleBufferGeometry(_this.circleRadius, 32);
-      node.material = new THREE.MeshBasicMaterial({ color: colour(node.id) });
+      node.material = new THREE.MeshBasicMaterial({ color: colour(node) });
       node.circle = new THREE.Mesh(node.geometry, node.material);
 
       // Click event binding
-      if (isFunc(_this.onClickNode)) {
+      if (isFn(_this.onClickNode)) {
         node.circle.on('click', () => _this.onClickNode(node));
       } else {
         node.circle.on('click', () => _this.toggleInfoPanel(node, null));
@@ -334,7 +352,7 @@ class Netjsongraph {
       link.line = new THREE.Line(link.geometry, link.material);
 
       // Click event binding
-      if (isFunc(_this.onClickLink)) {
+      if (isFn(_this.onClickLink)) {
         link.line.on('click', () => _this.onClickLink(link));
       } else {
         link.line.on('click', () => _this.toggleInfoPanel(null, link));
@@ -470,7 +488,7 @@ class Netjsongraph {
     /**
      * onEnd callback
      */
-    if (isFunc(_this.onEnd)) _this.onEnd();
+    if (isFn(_this.onEnd)) _this.onEnd();
   }
 
   /**

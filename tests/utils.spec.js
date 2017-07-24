@@ -1,7 +1,7 @@
 import {
   colour,
   promisify,
-  isFunc
+  isFn
 } from '../src/utils.js';
 
 test('color generator', () => {
@@ -23,10 +23,10 @@ test('promisify', () => {
   expect(promisify(d, d.f)).toBeTruthy();
 });
 
-test('isFunc', () => {
+test('is function', () => {
   const f = null;
   const fn = () => null;
-  expect(isFunc).toBeDefined();
-  expect(isFunc(f)).toBeFalsy();
-  expect(isFunc(fn)).toBeTruthy();
+  expect(isFn).toBeDefined();
+  expect(isFn(f)).toBeFalsy();
+  expect(isFn(fn)).toBeTruthy();
 });

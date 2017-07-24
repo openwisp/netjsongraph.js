@@ -7,7 +7,7 @@
  */
 
 import * as THREE from 'three';
-import { isFunc } from './utils.js';
+import { isFn } from './utils.js';
 
 /**
  * Get target Object list
@@ -191,7 +191,7 @@ export default class EventsController {
       event.preventDefault();
       camera.zoom += -event.deltaY * (event.deltaMode ? 120 : 1) / 500;
       camera.updateProjectionMatrix();
-      if (isFunc(callback)) callback();
+      if (isFn(callback)) callback();
     });
   }
 
@@ -222,7 +222,7 @@ export default class EventsController {
       isPanning = false;
       lastCameraPosition.x = camera.position.x;
       lastCameraPosition.y = camera.position.y;
-      if (isFunc(callback)) callback();
+      if (isFn(callback)) callback();
     }
 
     this.dom.addEventListener('mousedown', down, false);

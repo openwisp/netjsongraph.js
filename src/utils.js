@@ -30,4 +30,11 @@ export const promisify = (caller, fn) => (...args) =>
  * @param {object}
  * @returns {boolean}
  */
-export const isFunc = obj => typeof obj === 'function' || false;
+export const isFn = obj => typeof obj === 'function' || false;
+
+/**
+ * Return a function
+ * @param {string} f
+ * @returns {functin}
+ */
+export const returnFn = f => isFn(f) ? f : () => f;
