@@ -1,6 +1,6 @@
 import Netjsongraph from '../../../src/netjsongraph.three.js';
 
 const ng = new Netjsongraph('../data/netjson.json', {
-  theme: 'black'
+  theme: 'dark'
 });
 console.log(ng);
