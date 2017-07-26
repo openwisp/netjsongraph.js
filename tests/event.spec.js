@@ -1,4 +1,4 @@
-import EventController from '../src/events_controller.js';
+import EventController from '../src/refactor/events_controller.js';
 
 describe('EventController API', () => {
   test('API exists', () => {

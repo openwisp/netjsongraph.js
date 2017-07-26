@@ -2,7 +2,7 @@ import {
   colour,
   promisify,
   isFn
-} from '../src/utils.js';
+} from '../src/refactor/utils.js';
 
 test('color generator', () => {
   expect(colour).toBeDefined();

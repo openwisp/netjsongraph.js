@@ -1,5 +1,5 @@
 // import * as THREE from 'three';
-import Netjsongraph from '../src/netjsongraph.three.js';
+import Netjsongraph from '../src/refactor/netjsongraph.three.js';
 import netjsonData from '../examples/data/netjson.json';
 // import EventsController from '../src/events_controller.js';
 
