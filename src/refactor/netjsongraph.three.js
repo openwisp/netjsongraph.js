@@ -7,6 +7,7 @@
  */
 import * as d3 from 'd3';
 import * as THREE from 'three';
+import debounce from 'lodash.debounce';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
 import EventsController from './events_controller.js';
@@ -347,7 +348,7 @@ class Netjsongraph {
       // Primitive creation
       link.material = new THREE.LineBasicMaterial({ color: theme.linkColor(), linewidth: theme.linkWidth() }); // the linewidth property in Chrome is invalid
       link.geometry = new THREE.Geometry();
-      link.line = new THREE.Line(link.geometry, link.material);
+      link.line = new THREE.Line(link.geometry, link.material, THREE.LinePieces);
 
       // Click event binding
       if (isFn(_this.onClickLink)) {
@@ -470,7 +471,7 @@ class Netjsongraph {
       /**
        * Bind the tick event
        */
-      simulation.on('tick', ticked);
+      simulation.on('tick', debounce(ticked));
 
       function ticked () {
         _this.calculateElementsPosition();
