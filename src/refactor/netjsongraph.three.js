@@ -348,7 +348,7 @@ class Netjsongraph {
       // Primitive creation
       link.material = new THREE.LineBasicMaterial({ color: theme.linkColor(), linewidth: theme.linkWidth() }); // the linewidth property in Chrome is invalid
       link.geometry = new THREE.Geometry();
-      link.line = new THREE.Line(link.geometry, link.material, THREE.LinePieces);
+      link.line = new THREE.Line(link.geometry, link.material);
 
       // Click event binding
       if (isFn(_this.onClickLink)) {
@@ -480,7 +480,6 @@ class Netjsongraph {
     }
 
     function render () {
-      requestAnimationFrame(render);
       renderer.render(scene, camera);
     };
 
@@ -509,7 +508,6 @@ class Netjsongraph {
     render();
 
     function render () {
-      requestAnimationFrame(render);
       renderer.render(scene, camera);
     };
   }
