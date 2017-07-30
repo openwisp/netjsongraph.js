@@ -394,10 +394,12 @@ class Netjsongraph {
     const _this = this;
     this.renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: true   // perform antialiasing
+      antialias: true,   // perform antialiasing
+      precision: 'highp'
     });
     const { width, height, data, scene, camera, renderer } = this;
     renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
     this.el.appendChild(renderer.domElement);
     camera.position.z = 5;
     this.controller = new EventsController({
