@@ -314,7 +314,7 @@ class Netjsongraph {
    */
   createElements () {
     const _this = this;
-    const { data, scene, theme } = this;
+    const { data, scene, theme, camera, renderer } = this;
     data.nodes.forEach((node) => {
       node.type = 'node';
 
@@ -334,9 +334,11 @@ class Netjsongraph {
       node.circle.on('hover', mesh => {
         mesh.scale.set(2, 2, 2);
         _this.toggleNodeTooltip(node);
+        renderer.render(scene, camera);
       }, mesh => {
         mesh.scale.set(1, 1, 1);
         _this.toggleNodeTooltip(node);
+        renderer.render(scene, camera);
       });
 
       scene.add(node.circle);
@@ -360,8 +362,10 @@ class Netjsongraph {
       // Hightlight links when hoverd
       link.line.on('hover', mesh => {
         mesh.material.color = new THREE.Color(theme.linkHoveredColor());
+        renderer.render(scene, camera);
       }, mesh => {
         mesh.material.color = new THREE.Color(theme.linkColor());
+        renderer.render(scene, camera);
       });
 
       scene.add(link.line);
@@ -457,7 +461,7 @@ class Netjsongraph {
         simulation.tick();
       }
       _this.calculateElementsPosition();
-      render();
+      renderer.render(scene, camera);
     }
 
     function dynamicRender () {
@@ -477,13 +481,9 @@ class Netjsongraph {
 
       function ticked () {
         _this.calculateElementsPosition();
-        render();
+        renderer.render(scene, camera);
       }
     }
-
-    function render () {
-      renderer.render(scene, camera);
-    };
 
     /**
      * onEnd callback
@@ -507,11 +507,7 @@ class Netjsongraph {
     }
 
     renderer.setSize(_this.width, _this.height);
-    render();
-
-    function render () {
-      renderer.render(scene, camera);
-    };
+    renderer.render(scene, camera);
   }
 }
 
