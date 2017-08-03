@@ -186,17 +186,18 @@ export default class EventsController {
   }
 
   zoom (callback) {
-    const { camera } = this;
+    const { camera, scene, renderer } = this;
     this.dom.addEventListener('wheel', (event) => {
       event.preventDefault();
       camera.zoom += -event.deltaY * (event.deltaMode ? 120 : 1) / 500;
       camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
       if (isFn(callback)) callback();
     });
   }
 
   pan (callback) {
-    const { camera } = this;
+    const { camera, scene, renderer } = this;
     let isPanning = false;
     let startPosition = {};
     let currentPosition = {};
@@ -216,12 +217,14 @@ export default class EventsController {
       };
       camera.position.x = lastCameraPosition.x + startPosition.x - currentPosition.x;
       camera.position.y = lastCameraPosition.y + currentPosition.y - startPosition.y;
+      renderer.render(scene, camera);
     }
 
     function up (event) {
       isPanning = false;
       lastCameraPosition.x = camera.position.x;
       lastCameraPosition.y = camera.position.y;
+      renderer.render(scene, camera);
       if (isFn(callback)) callback();
     }
 
