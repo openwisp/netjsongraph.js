@@ -405,7 +405,7 @@ class Netjsongraph {
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
     this.el.appendChild(renderer.domElement);
-    camera.position.z = 5;
+    camera.position.z = 500;
     this.controller = new EventsController({
       dom: renderer.domElement,
       width,

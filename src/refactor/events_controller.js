@@ -217,6 +217,7 @@ export default class EventsController {
       };
       camera.position.x = lastCameraPosition.x + startPosition.x - currentPosition.x;
       camera.position.y = lastCameraPosition.y + currentPosition.y - startPosition.y;
+      camera.updateProjectionMatrix();
       renderer.render(scene, camera);
     }
 
@@ -224,7 +225,6 @@ export default class EventsController {
       isPanning = false;
       lastCameraPosition.x = camera.position.x;
       lastCameraPosition.y = camera.position.y;
-      renderer.render(scene, camera);
       if (isFn(callback)) callback();
     }
 
