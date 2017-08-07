@@ -284,6 +284,24 @@ class Netjsongraph {
    */
   toggleNodeTooltip (node) {
     const nodeTooltip = d3.select('#node-tooltip');
+    const _this = this;
+
+    /**
+     * Converting World coordinates to Screen coordinates in Three.js using Projection
+     */
+    function calculateNodePosition () {
+      const { width, height, camera } = _this;
+      const widthHalf = width / 2;
+      const heightHalf = height / 2;
+
+      const pos = node.circle.position.clone();
+      pos.project(camera);
+      pos.x = ( pos.x * widthHalf ) + widthHalf;
+      pos.y = - ( pos.y * heightHalf ) + heightHalf;
+      return pos;
+    }
+
+    const position = calculateNodePosition();
 
     /**
      * Check whether it is showed on canvas
@@ -292,8 +310,8 @@ class Netjsongraph {
       if (nodeTooltip.style('display') === 'none') {
         nodeTooltip
           .style('display', 'block')
-          .style('left', `${node.circle.position.x}px`)
-          .style('top', `${this.height - node.circle.position.y}px`);
+          .style('left', `${position.x}px`)
+          .style('top', `${position.y}px`);
         nodeTooltip.select('#node-id').text(node.id);
       } else nodeTooltip.style('display', 'none');
       return;
