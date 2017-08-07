@@ -366,7 +366,10 @@ class Netjsongraph {
       link.type = 'link';
 
       // Primitive creation
-      link.material = new THREE.LineBasicMaterial({ color: theme.linkColor(), linewidth: theme.linkWidth() }); // the linewidth property in Chrome is invalid
+      link.material = new THREE.LineBasicMaterial({
+        color: theme.linkColor(),
+        linewidth: theme.linkWidth()
+      }); // the linewidth property in Chrome is invalid
       link.geometry = new THREE.Geometry();
       link.line = new THREE.Line(link.geometry, link.material);
 
@@ -420,10 +423,10 @@ class Netjsongraph {
       precision: 'highp'
     });
     const { width, height, data, scene, camera, renderer } = this;
+    camera.position.z = 500;
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
     this.el.appendChild(renderer.domElement);
-    camera.position.z = 500;
     this.controller = new EventsController({
       dom: renderer.domElement,
       width,
@@ -475,7 +478,9 @@ class Netjsongraph {
 
     function staticRender () {
       // See https://github.com/d3/d3-force/blob/master/README.md#simulation_tick
-      for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
+      for (var i = 0, n = Math.ceil(
+        Math.log(simulation.alphaMin()) /
+          Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
         simulation.tick();
       }
       _this.calculateElementsPosition();
