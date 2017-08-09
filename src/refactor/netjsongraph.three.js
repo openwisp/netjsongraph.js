@@ -364,27 +364,16 @@ class Netjsongraph {
       scene.add(node.circle);
     });
 
-    // geometry
-    const linkGeometry = new THREE.BufferGeometry();
-    // attributes
-    const positions = new Float32Array(_this.data.links.length * 3); // 3 vertices per point
-    linkGeometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
-    // draw range
-    const drawCount = 2; // draw the first 2 points, only
-    linkGeometry.setDrawRange(0, drawCount);
-
-    linkGeometry.attributes.position.needsUpdate = true; // required after the first render
-
+    // const linkGeometry = new THREE.Geometry();
     const linkMaterial = new THREE.LineBasicMaterial({
       color: theme.linkColor(),
       linewidth: theme.linkWidth()
     }); // the linewidth property in Chrome is invalid
-
     data.links.forEach((link) => {
       link.type = 'link';
 
       // Primitive creation
-      link.geometry = linkGeometry;
+      link.geometry = new THREE.Geometry();
       link.material = linkMaterial;
       link.line = new THREE.Line(link.geometry, link.material);
 
@@ -418,15 +407,11 @@ class Netjsongraph {
       circle.position.set(x, y, 0);
     });
 
-    data.links.forEach((link, idx) => {
+    data.links.forEach((link) => {
       const { source, target, line } = link;
-      const positions = line.geometry.attributes.position;
-      positions[idx * 3] = source.x;
-      positions[idx * 3 + 1] = source.y;
-      positions[idx * 3 + 2] = -1;
-      // line.geometry.verticesNeedUpdate = true;
-      // line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
-      // line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
+      line.geometry.verticesNeedUpdate = true;
+      line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
+      line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
       // set z axis value -1 is to make line behind the node
     });
   }
