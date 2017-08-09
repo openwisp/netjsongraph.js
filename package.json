@@ -17,7 +17,7 @@
     "GeekPlux <geekplux@gmail.com> (http://geekplux.com/)"
   ],
   "contributors": [],
-  "license": "BSD 3-Clause",
+  "license": "BSD-3-Clause",
   "keywords": [
     "netjson",
     "network",
@@ -47,6 +47,7 @@
     "lodash.debounce": "^4.0.8",
     "postcss-loader": "^0.13.0",
     "precss": "^1.4.0",
+    "stats.js": "^0.17.0",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2",
