@@ -333,12 +333,14 @@ class Netjsongraph {
   createElements () {
     const _this = this;
     const { data, scene, theme, camera, renderer } = this;
+    const nodeGeometry = new THREE.CircleBufferGeometry(8, 32);
+    const nodeMaterial = new THREE.MeshBasicMaterial({ color: theme.nodeColor() });
     data.nodes.forEach((node) => {
       node.type = 'node';
 
       // Primitive creation
-      node.geometry = new THREE.CircleBufferGeometry(8, 32);
-      node.material = new THREE.MeshBasicMaterial({ color: theme.nodeColor(node) });
+      node.geometry = nodeGeometry;
+      node.material = nodeMaterial;
       node.circle = new THREE.Mesh(node.geometry, node.material);
 
       // Click event binding
@@ -362,15 +364,17 @@ class Netjsongraph {
       scene.add(node.circle);
     });
 
+    // const linkGeometry = new THREE.Geometry();
+    const linkMaterial = new THREE.LineBasicMaterial({
+      color: theme.linkColor(),
+      linewidth: theme.linkWidth()
+    }); // the linewidth property in Chrome is invalid
     data.links.forEach((link) => {
       link.type = 'link';
 
       // Primitive creation
-      link.material = new THREE.LineBasicMaterial({
-        color: theme.linkColor(),
-        linewidth: theme.linkWidth()
-      }); // the linewidth property in Chrome is invalid
-      link.geometry = new THREE.Geometry();
+      link.geometry = new THREE.Geometry;
+      link.material = linkMaterial;
       link.line = new THREE.Line(link.geometry, link.material);
 
       // Click event binding

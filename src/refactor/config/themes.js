@@ -1,8 +1,9 @@
-import { colour } from '../utils.js';
+// import { colour } from '../utils.js';
 
 export default {
   basic: {
-    nodeColor: node => colour(node.id),
+    // nodeColor: node => colour(node.id),
+    nodeColor: 0xEC5148,
     circleRadius: 8,
     linkColor: 0xAAAAAA,
     linkWidth: 2,
