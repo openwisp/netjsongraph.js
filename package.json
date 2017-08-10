@@ -51,7 +51,8 @@
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.15.1"
+    "webpack-dev-server": "^1.15.1",
+    "worker-loader": "^0.8.1"
   },
   "dependencies": {
     "d3": "^4.9.1",
