@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { scaleOrdinal, schemeCategory20 } from 'd3';
 
 /**
@@ -50,4 +51,39 @@ export const travelFn = obj => {
     newObj[k] = returnFn(obj[k]);
   }
   return newObj;
+};
+
+const getPoints = (start, end, size) => {
+  const vec3 = start.clone();
+  const res = [];
+  for (let i = 0; i < size; i++) {
+    vec3.set(start.x, start.y, start.z);
+    vec3.lerp(end, i / size);
+    res.push(vec3.x, vec3.y, vec3.z);
+  }
+  return res;
+};
+
+export const getPositions = (points, count, alpha) => {
+  let positions = [];
+  if (!points) return positions;
+
+  let l = count;
+  const vec3s = new THREE.Vector3();
+  const vec3e = vec3s.clone();
+  const vec3n = vec3s.clone();
+
+  while (l--) {
+    vec3s.set(points.getX(l), points.getY(l), points.getZ(l));
+    vec3n.set(vec3s.x, vec3s.y, vec3s.z);
+    if (l < 1) {
+      positions.push(vec3n.x, vec3n.y, vec3n.z);
+      break;
+    }
+    vec3e.set(points.getX(l - 1), points.getY(l - 1), points.getZ(l - 1));
+    const items = getPoints(vec3s, vec3e);
+    positions.push.apply(positions, items);
+  }
+
+  return positions;
 };

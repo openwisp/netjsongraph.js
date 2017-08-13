@@ -11,7 +11,12 @@ import debounce from 'lodash.debounce';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
 import EventsController from './events_controller.js';
-import { promisify, isFn, travelFn } from './utils.js';
+import {
+  promisify,
+  isFn,
+  travelFn,
+  getPositions
+} from './utils.js';
 import themes from './config/themes.js';
 
 const defaultWidth = window.innerWidth;
