@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const SRC = path.join(__dirname, 'src');
 const BUILD = path.join(__dirname, 'build');
@@ -40,9 +41,6 @@ module.exports = {
     }, {
       test: /\.(png|jpg|svg)$/,
       loader: 'url?limit=80000'
-    }, {
-      test: require.resolve('sigma'),
-      loader: 'imports?this=>window'
     }]
   },
   resolve: {
@@ -59,7 +57,10 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin([
       { from: path.join(EXAMPLE, 'data/netjson.json'), to: 'data/netjson.json' },
-    ])
+    ]),
+    new webpack.ProvidePlugin({
+      THREE: 'three'
+    })
   ],
   postcss: function () {
     return [

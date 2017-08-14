@@ -7,6 +7,7 @@
  */
 import * as d3 from 'd3';
 import * as THREE from 'three';
+import PathGeometry from 'three-path-geometry';
 import debounce from 'lodash.debounce';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
@@ -338,6 +339,7 @@ class Netjsongraph {
   createElements () {
     const _this = this;
     const { data, scene, theme, camera, renderer } = this;
+
     const nodeGeometry = new THREE.CircleBufferGeometry(8, 32);
     const nodeMaterial = new THREE.MeshBasicMaterial({ color: theme.nodeColor() });
     data.nodes.forEach((node) => {
@@ -369,18 +371,18 @@ class Netjsongraph {
       scene.add(node.circle);
     });
 
-    // const linkGeometry = new THREE.Geometry();
-    const linkMaterial = new THREE.LineBasicMaterial({
-      color: theme.linkColor(),
-      linewidth: theme.linkWidth()
-    }); // the linewidth property in Chrome is invalid
+    const linkMaterial = new THREE.MeshBasicMaterial({
+      color: 'black',
+      side: THREE.DoubleSide // needed for this geometry
+    });
     data.links.forEach((link) => {
       link.type = 'link';
 
+      const linkGeometry = new PathGeometry({ thickness: 1 });
       // Primitive creation
-      link.geometry = new THREE.Geometry();
+      link.geometry = linkGeometry;
       link.material = linkMaterial;
-      link.line = new THREE.Line(link.geometry, link.material);
+      link.line = new THREE.Mesh(link.geometry, link.material);
 
       // Click event binding
       if (isFn(_this.onClickLink)) {
@@ -414,9 +416,15 @@ class Netjsongraph {
 
     data.links.forEach((link) => {
       const { source, target, line } = link;
-      line.geometry.verticesNeedUpdate = true;
-      line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
-      line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
+      line.geometry.update([
+        { type: 'M', position: [ source.x, source.y ] },
+        { type: 'L', position: [ target.x, target.y ] },
+        // { type: 'L', position: [ 50, 25 ] }
+      ]);
+
+      // line.geometry.verticesNeedUpdate = true;
+      // line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
+      // line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
       // set z axis value -1 is to make line behind the node
     });
   }
