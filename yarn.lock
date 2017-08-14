@@ -4560,10 +4560,6 @@ shellwords@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/shellwords/-/shellwords-0.1.0.tgz#66afd47b6a12932d9071cbfd98a52e785cd0ba14"
 
-sigma@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/sigma/-/sigma-1.2.0.tgz#69140de43fc858f58a70c9821ce4423d30d04871"
-
 signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
