@@ -372,7 +372,7 @@ class Netjsongraph {
     });
 
     const linkMaterial = new THREE.MeshBasicMaterial({
-      color: 'black',
+      color: theme.linkColor(),
       side: THREE.DoubleSide // needed for this geometry
     });
     data.links.forEach((link) => {
@@ -383,6 +383,7 @@ class Netjsongraph {
       link.geometry = linkGeometry;
       link.material = linkMaterial;
       link.line = new THREE.Mesh(link.geometry, link.material);
+      link.line.frustumCulled = false; // currently needed for 2D geometries
 
       // Click event binding
       if (isFn(_this.onClickLink)) {
@@ -393,6 +394,7 @@ class Netjsongraph {
 
       // Hightlight links when hoverd
       link.line.on('hover', mesh => {
+        console.log(mesh);
         mesh.material.color = new THREE.Color(theme.linkHoveredColor());
         renderer.render(scene, camera);
       }, mesh => {
@@ -418,14 +420,8 @@ class Netjsongraph {
       const { source, target, line } = link;
       line.geometry.update([
         { type: 'M', position: [ source.x, source.y ] },
-        { type: 'L', position: [ target.x, target.y ] },
-        // { type: 'L', position: [ 50, 25 ] }
+        { type: 'L', position: [ target.x, target.y ] }
       ]);
-
-      // line.geometry.verticesNeedUpdate = true;
-      // line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
-      // line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
-      // set z axis value -1 is to make line behind the node
     });
   }
 
