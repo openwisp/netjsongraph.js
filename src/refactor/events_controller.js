@@ -10,33 +10,6 @@ import * as THREE from 'three';
 import { isFn } from './utils.js';
 
 /**
- * Get target Object list
- * @param {Object} targetList event target list
- */
-function getObjList (targetList) {
-  const objList = [];
-  for (let t in targetList) {
-    objList.push(targetList[t].object3d);
-  }
-  return group2meshlist(objList);
-
-  /**
-   * Group the mesh to a list
-   */
-  function group2meshlist (objList) {
-    let list = [];
-    for (let o in objList) {
-      if (objList[o].type === 'Group') {
-        list = list.concat(group2meshlist(objList[o].children));
-      } else {
-        list.push(objList[o]);
-      }
-    }
-    return list;
-  }
-}
-
-/**
  * calculate mouse position in normalized device coordinates
  * (-1 to +1) for both components
  */
@@ -48,9 +21,7 @@ function Mouse (event, ctx) {
 function _intersects (targetList, event, ctx) {
   const ray = new THREE.Raycaster();
   ray.setFromCamera(Mouse(event, ctx), ctx.camera);
-  const list = getObjList(targetList) || []; // Find target objects
-
-  return ray.intersectObjects(list);
+  return ray.intersectObjects(ctx.scene.children);
 }
 
 /**
@@ -166,6 +137,7 @@ export default class EventsController {
       function move (event) {
         if (!targetList) return;
         const intersects = _intersects(targetList, event, _this);
+        console.log(intersects);
 
         if (intersects.length > 0) {
           if (isHovered) return;
