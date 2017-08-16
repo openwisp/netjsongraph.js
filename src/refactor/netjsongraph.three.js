@@ -7,7 +7,6 @@
  */
 import * as d3 from 'd3';
 import * as THREE from 'three';
-import PathGeometry from 'three-path-geometry';
 import debounce from 'lodash.debounce';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
@@ -371,19 +370,16 @@ class Netjsongraph {
       scene.add(node.circle);
     });
 
-    const linkMaterial = new THREE.MeshBasicMaterial({
-      color: theme.linkColor(),
-      side: THREE.DoubleSide // needed for this geometry
-    });
     data.links.forEach((link) => {
       link.type = 'link';
 
-      const linkGeometry = new PathGeometry({ thickness: 1 });
       // Primitive creation
-      link.geometry = linkGeometry;
-      link.material = linkMaterial;
-      link.line = new THREE.Mesh(link.geometry, link.material);
-      link.line.frustumCulled = false; // currently needed for 2D geometries
+      link.geometry = new THREE.Geometry();
+      link.material = new THREE.MeshBasicMaterial({
+        color: theme.linkColor(),
+        side: THREE.DoubleSide // needed for this geometry
+      });
+      link.line = new THREE.Line(link.geometry, link.material);
 
       // Click event binding
       if (isFn(_this.onClickLink)) {
@@ -394,7 +390,6 @@ class Netjsongraph {
 
       // Hightlight links when hoverd
       link.line.on('hover', mesh => {
-        console.log(mesh);
         mesh.material.color = new THREE.Color(theme.linkHoveredColor());
         renderer.render(scene, camera);
       }, mesh => {
@@ -418,10 +413,10 @@ class Netjsongraph {
 
     data.links.forEach((link) => {
       const { source, target, line } = link;
-      line.geometry.update([
-        { type: 'M', position: [ source.x, source.y ] },
-        { type: 'L', position: [ target.x, target.y ] }
-      ]);
+      line.geometry.verticesNeedUpdate = true;
+      line.geometry.vertices[0] = new THREE.Vector3(source.x, source.y, -1);
+      line.geometry.vertices[1] = new THREE.Vector3(target.x, target.y, -1);
+      // set z axis value -1 is to make line behind the node
     });
   }
 
@@ -518,6 +513,8 @@ class Netjsongraph {
       function ticked () {
         _this.calculateElementsPosition();
         renderer.render(scene, camera);
+       console.log(renderer.info.render);
+        console.log(renderer.info.memory);
       }
     }
 
