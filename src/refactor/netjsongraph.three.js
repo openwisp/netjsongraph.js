@@ -62,7 +62,7 @@ const defaults = {
   theme: 'basic',
 
   scene: new THREE.Scene(),
-  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, 1, 1000)
+  camera: new THREE.OrthographicCamera(0, defaultWidth, defaultHeight, 0, -500, 1000)
 };
 
 class Netjsongraph {
@@ -370,6 +370,34 @@ class Netjsongraph {
       scene.add(node.circle);
     });
 
+    const linkMaterial = new THREE.MeshBasicMaterial({ color: theme.linkColor()});
+    data.links.forEach((link) => {
+      link.type = 'link';
+
+      // Primitive creation
+      link.geometry = lineGeometry(1);
+      link.material = linkMaterial;
+      link.line = new THREE.Mesh(link.geometry, link.material);
+
+      // Click event binding
+      if (isFn(_this.onClickLink)) {
+        link.line.on('click', () => _this.onClickLink(link));
+      } else {
+        link.line.on('click', () => _this.toggleInfoPanel(null, link));
+      }
+
+      // Hightlight links when hoverd
+      link.line.on('hover', mesh => {
+        mesh.material.color = new THREE.Color(theme.linkHoveredColor());
+        renderer.render(scene, camera);
+      }, mesh => {
+        mesh.material.color = new THREE.Color(theme.linkColor());
+        renderer.render(scene, camera);
+      });
+
+      scene.add(link.line);
+    });
+
     function setLinePosition (source, target) {
       const line = this;
       const w = line.lineWidth;
@@ -401,15 +429,15 @@ class Netjsongraph {
       }
 
       if (down) {
-        line.vertices[0].set(left.x + w * Math.sin(t), left.y - w * Math.cos(t), -1);
-        line.vertices[1].set(right.x + w * Math.sin(t), right.y - w * Math.cos(t), -1);
-        line.vertices[2].set(right.x - w * Math.sin(t), right.y + w * Math.cos(t), -1);
-        line.vertices[3].set(left.x - w * Math.sin(t), left.y + w * Math.cos(t), -1);
+        line.vertices[0].set(left.x + w * Math.sin(t), left.y - w * Math.cos(t), 1);
+        line.vertices[1].set(right.x + w * Math.sin(t), right.y - w * Math.cos(t), 1);
+        line.vertices[2].set(right.x - w * Math.sin(t), right.y + w * Math.cos(t), 1);
+        line.vertices[3].set(left.x - w * Math.sin(t), left.y + w * Math.cos(t), 1);
       } else {
-        line.vertices[0].set(left.x - w * Math.sin(t), left.y - w * Math.cos(t), -1);
-        line.vertices[1].set(right.x - w * Math.sin(t), right.y - w * Math.cos(t), -1);
-        line.vertices[2].set(right.x + w * Math.sin(t), right.y + w * Math.cos(t), -1);
-        line.vertices[3].set(left.x + w * Math.sin(t), left.y + w * Math.cos(t), -1);
+        line.vertices[0].set(left.x - w * Math.sin(t), left.y - w * Math.cos(t), 1);
+        line.vertices[1].set(right.x - w * Math.sin(t), right.y - w * Math.cos(t), 1);
+        line.vertices[2].set(right.x + w * Math.sin(t), right.y + w * Math.cos(t), 1);
+        line.vertices[3].set(left.x + w * Math.sin(t), left.y + w * Math.cos(t), 1);
       }
     }
 
@@ -419,7 +447,7 @@ class Netjsongraph {
 
       for (let i = 0; i < VERTICES_COUNT; ++i) {
         // set z axis value -1 is to make line behind the node
-        geometry.vertices.push(new THREE.Vector3(0, 0, -1));
+        geometry.vertices.push(new THREE.Vector3(0, 0, 1));
       }
 
       geometry.faces.push(new THREE.Face3(0, 1, 2));
@@ -429,33 +457,6 @@ class Netjsongraph {
       geometry.setPosition = setLinePosition;
       return geometry;
     }
-
-    data.links.forEach((link) => {
-      link.type = 'link';
-
-      // Primitive creation
-      link.geometry = lineGeometry(1);
-      link.material = new THREE.MeshBasicMaterial({ color: theme.linkColor()});
-      link.line = new THREE.Mesh(link.geometry, link.material);
-
-      // Click event binding
-      if (isFn(_this.onClickLink)) {
-        link.line.on('click', () => _this.onClickLink(link));
-      } else {
-        link.line.on('click', () => _this.toggleInfoPanel(null, link));
-      }
-
-      // Hightlight links when hoverd
-      link.line.on('hover', mesh => {
-        mesh.material.color = new THREE.Color(theme.linkHoveredColor());
-        renderer.render(scene, camera);
-      }, mesh => {
-        mesh.material.color = new THREE.Color(theme.linkColor());
-        renderer.render(scene, camera);
-      });
-
-      scene.add(link.line);
-    });
   }
 
   /**
@@ -465,7 +466,7 @@ class Netjsongraph {
     const { data } = this;
     data.nodes.forEach((node) => {
       const { x, y, circle } = node;
-      circle.position.set(x, y, 0);
+      circle.position.set(x, y, 2);
     });
 
     data.links.forEach((link) => {
@@ -486,7 +487,7 @@ class Netjsongraph {
       precision: 'highp'
     });
     const { width, height, data, scene, camera, renderer } = this;
-    camera.position.z = 500;
+    camera.position.z = 5;
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
     this.el.appendChild(renderer.domElement);
