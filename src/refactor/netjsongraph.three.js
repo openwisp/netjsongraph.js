@@ -452,7 +452,7 @@ class Netjsongraph {
 
       geometry.faces.push(new THREE.Face3(0, 1, 2));
       geometry.faces.push(new THREE.Face3(0, 2, 3));
-      geometry.computeBoundingBox();
+      geometry.computeBoundingSphere();
       geometry.lineWidth = lineWidth;
       geometry.setPosition = setLinePosition;
       return geometry;
@@ -473,6 +473,7 @@ class Netjsongraph {
       const { source, target, line } = link;
       line.geometry.verticesNeedUpdate = true;
       line.geometry.setPosition(source, target);
+      line.geometry.computeBoundingSphere();
     });
   }
 
