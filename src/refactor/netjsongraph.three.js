@@ -370,13 +370,13 @@ class Netjsongraph {
       scene.add(node.circle);
     });
 
-    const linkMaterial = new THREE.MeshBasicMaterial({ color: theme.linkColor()});
+    // const linkMaterial = new THREE.MeshBasicMaterial({ color: theme.linkColor()});
     data.links.forEach((link) => {
       link.type = 'link';
 
       // Primitive creation
       link.geometry = lineGeometry(1);
-      link.material = linkMaterial;
+      link.material = new THREE.MeshBasicMaterial({ color: theme.linkColor()});
       link.line = new THREE.Mesh(link.geometry, link.material);
 
       // Click event binding
