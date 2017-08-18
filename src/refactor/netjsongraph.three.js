@@ -529,7 +529,8 @@ class Netjsongraph {
     const simulation = d3.forceSimulation()
           .force('link', forceLink())
           .force('charge', forceManyBody())  // custom distance max value
-          .force('center', d3.forceCenter(width / 2, height / 2));
+          .force('center', d3.forceCenter(width / 2, height / 2))
+          .alpha(.5);
 
     /**
      * Start to calculate force
@@ -557,7 +558,7 @@ class Netjsongraph {
        * Running the simulation manually to disable initial animation
        */
       if (!_this.initialAnimation) {
-        for (let i = 0; i < 100; ++i) {
+        for (let i = 0; i < 200; ++i) {
           simulation.tick();
         }
       }

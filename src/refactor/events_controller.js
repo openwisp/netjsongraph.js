@@ -137,7 +137,6 @@ export default class EventsController {
       function move (event) {
         if (!targetList) return;
         const intersects = _intersects(targetList, event, _this);
-        console.log(intersects);
 
         if (intersects.length > 0) {
           if (isHovered) return;
