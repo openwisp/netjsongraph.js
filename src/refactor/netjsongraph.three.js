@@ -471,7 +471,8 @@ class Netjsongraph {
           .force('link', forceLink())
           .force('charge', forceManyBody())  // custom distance max value
           .force('center', d3.forceCenter(width / 2, height / 2))
-          .alpha(.5);
+          .alpha(.5)
+          .stop();
 
     /**
      * Start to calculate force
@@ -508,6 +509,7 @@ class Netjsongraph {
        * Bind the tick event
        */
       simulation.on('tick', debounce(ticked));
+      simulation.restart();
 
       function ticked () {
         _this.calculateElementsPosition();
