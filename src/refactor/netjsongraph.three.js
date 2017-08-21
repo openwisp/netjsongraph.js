@@ -7,7 +7,6 @@
  */
 import * as d3 from 'd3';
 import * as THREE from 'three';
-import debounce from 'lodash.debounce';
 import 'normalize.css';  /* eslint-disable */
 import './netjsongraph.three.css';
 import EventsController from './events_controller.js';
@@ -508,14 +507,18 @@ class Netjsongraph {
       /**
        * Bind the tick event
        */
-      simulation.on('tick', debounce(ticked));
+      simulation.on('tick', ticked);
       simulation.restart();
 
       function ticked () {
         _this.calculateElementsPosition();
-        renderer.render(scene, camera);
+        requestAnimationFrame(render);
         // console.log(renderer.info.render);
         // console.log(renderer.info.memory);
+      }
+
+      function render () {
+        renderer.render(scene, camera);
       }
     }
 
