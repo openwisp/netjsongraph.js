@@ -1,16 +1,18 @@
 const webpack = require('webpack');
 const path = require('path');
-const SRC = path.join(__dirname, 'src');
+const SRC = path.join(__dirname, 'src', 'refactor');
 const DIST = path.join(__dirname, 'dist');
 
 module.exports = {
   entry: {
-    js: path.join(SRC, 'netjsongraph.js')
+    js: path.join(SRC, 'netjsongraph.three.js')
   },
   output: {
     path: DIST,
-    filename: 'netjsongraph.min.js',
-    library: 'Netjsongraph'
+    filename: 'netjsongraph.refactor.min.js',
+    library: 'Netjsongraph',
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
   module: {
     loaders: [{
