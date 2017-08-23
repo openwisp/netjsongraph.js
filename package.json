@@ -6,6 +6,7 @@
   "scripts": {
     "start": "./node_modules/.bin/webpack-dev-server  --config webpack.config.js",
     "build": "./node_modules/.bin/webpack --config webpack.config.prod.js",
+    "build:refactor": "./node_modules/.bin/webpack --config webpack.config.refactor.prod.js",
     "test": "./node_modules/.bin/jest",
     "test:cover": "npm test --coverage",
     "test:cover:travis": "npm run test:cover && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
@@ -29,6 +30,7 @@
     "babel-core": "^6.14.0",
     "babel-eslint": "^7.0.0",
     "babel-loader": "^6.2.5",
+    "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-es2015": "^6.14.0",
     "copy-webpack-plugin": "^4.0.1",
     "coveralls": "^2.13.1",
