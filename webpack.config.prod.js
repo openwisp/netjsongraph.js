@@ -9,7 +9,8 @@ module.exports = {
   },
   output: {
     path: DIST,
-    filename: 'netjsongraph.min.js'
+    filename: 'netjsongraph.min.js',
+    library: 'Netjsongraph'
   },
   module: {
     loaders: [{
