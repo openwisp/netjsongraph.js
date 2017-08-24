@@ -14,16 +14,17 @@ Leverage the power of `d3.js <http://d3js.org/>`__ and `three.js <https://threej
 
 Build powerful and interoperable visualizations without losing flexibility!
 
-**This library is still in early stages, feedback and contributions are very welcome**.
+* **The 0.1 version is implemented by d3.js using SVG, and the next version 1.0 will implemented by Three.js using WebGL which under the folder `src/refactor`. some `online demo<http://>`_ you can preview. Feedback and contributions are very welcome**.
 
 Examples:
 
-* `default style <https://nodeshot.org/netjsongraph/examples/index.html>`__
-* `dark green example <https://nodeshot.org/netjsongraph/examples/dark.html>`__
-* `light green example <https://nodeshot.org/netjsongraph/examples/green.html>`__
-* `custom attributes example <https://nodeshot.org/netjsongraph/examples/custom-attributes.html>`__
-* `NetJSON NetworkCollection example <https://nodeshot.org/netjsongraph/examples/network-collection.html>`__
-* `callbacks example <https://nodeshot.org/netjsongraph/examples/callbacks.html>`__
+* default style `old version <https://netjson.github.io/netjsongraph.js/examples/index.html>`__  `refactor version <https://netjson.github.io/netjsongraph.js/examples/refactor/basic>`__
+* dark green example `old version <https://netjson.github.io/netjsongraph.js/examples/dark.html>`__  `refactor version <https://netjson.github.io/netjsongraph.js/examples/refactor/dark>`__
+* light green example `old version <https://netjson.github.io/netjsongraph.js/examples/green.html>`__
+* custom attributes example `old version <https://netjson.github.io/netjsongraph.js/examples/custom-attributes.html>`__
+* NetJSON NetworkCollection example `old version <https://netjson.github.io/netjsongraph.js/examples/network-collection.html>`__
+* callbacks example `old version <https://netjson.github.io/netjsongraph.js/examples/callbacks.html>`__
+* performance example `refactor version <https://netjson.github.io/netjsongraph.js/examples/refactor/performance>`__
 
 Install
 -------
