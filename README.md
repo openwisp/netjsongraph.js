@@ -11,13 +11,13 @@ Build powerful and interoperable visualizations without losing flexibility!
 
 Examples:
 
-- default style [old version](./example/index.html) [refactor version](./example/refactor/basic)
-- dark green example [old version](./example/dark.html) [refactor version](./example/refactor/dark)
-- light green example [old version](./example/green.html)
-- custom attributes example [old version](./example/custom-attributes.html)
-- NetJSON NetworkCollection example [old version](./example/network-collection.html)
-- callbacks example [old version](./example/callbacks.html) [refactor version](./example/refactor/callbacks)
-- performance example [refactor version](./example/refactor/performance)
+- default style [old version](./examples/index.html) [refactor version](./examples/refactor/basic)
+- dark green example [old version](./examples/dark.html) [refactor version](./examples/refactor/dark)
+- light green example [old version](./examples/green.html)
+- custom attributes example [old version](./examples/custom-attributes.html)
+- NetJSON NetworkCollection example [old version](./examples/network-collection.html)
+- callbacks example [old version](./examples/callbacks.html) [refactor version](./examples/refactor/callbacks)
+- performance example [refactor version](./examples/refactor/performance)
 
 ## License
 
