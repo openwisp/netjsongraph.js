@@ -1,0 +1,1583 @@
+{
+    "type": "NetworkGraph", 
+    "protocol": "OLSR", 
+    "version": "0.6.6.2", 
+    "revision": null, 
+    "metric": "ETX", 
+    "nodes": [
+        {
+            "id": "172.16.167.1", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 29", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.135.10", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.151.1", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.135.15", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "192.168.176.10", 
+            "properties": {
+                "radius": 10, 
+                "style": "cutpoint_3", 
+                "robustness": 3, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.185.13", 
+            "properties": {
+                "radius": 10, 
+                "style": "cutpoint_3", 
+                "robustness": 3, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.155.5", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.186.254", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.183.1.11", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 18", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 19", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 16", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 17", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 14", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "172.16.132.8 172.16.132.14", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 15", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "10.183.1.1 10.183.1.2", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 12", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c064b0>", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 13", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 10", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 11", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.133.10", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.141.2", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.6", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 28", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.159.50", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.155.20", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.7", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.12", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.11", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 23", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.139.8", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.40.62", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 22", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.139.4", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 21", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "10.176.0.2", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 4", 
+            "properties": {
+                "nodes in block": 4, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 22, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 5", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 16, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 6", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 16, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 20", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 0", 
+            "properties": {
+                "nodes in block": 11, 
+                "nodes": "172.16.155.10 172.16.155.12 172.16.155.13 172.16.155.6 172.16.155.4 172.16.177.17 172.16.177.30 172.16.43.2 172.16.177.31 10.177.0.10 172.16.177.22", 
+                "radius": 61, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 1", 
+            "properties": {
+                "nodes in block": 5, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 27, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 2", 
+            "properties": {
+                "nodes in block": 5, 
+                "nodes": "10.162.0.14 10.162.0.7 172.16.200.67 172.16.200.33 172.16.162.1", 
+                "radius": 27, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 3", 
+            "properties": {
+                "nodes in block": 4, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 22, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 27", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "10.176.0.135", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 8", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "172.16.185.12 10.185.1.11 10.185.1.1", 
+                "radius": 16, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 9", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 26", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "10.184.0.1", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 25", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "10.184.0.4", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 24", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.159.25", 
+            "properties": {
+                "radius": 12, 
+                "style": "cutpoint_4", 
+                "robustness": 4, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.133.11", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.49.3", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.169.2", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.169.1", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.45.0.2", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.45.0.1", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.97", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.139.254", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.10.192", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.151.32", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.146.1", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.146.6", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.146.4", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.146.5", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.200.2", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.185.1.10", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.40.23", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.40.22", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.254.254.4", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.254.254.3", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.254.254.2", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.151.2", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.40.24", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.166.1", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.12.11", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.12.12", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.186.249", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 41", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 40", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 43", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 42", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.44.10", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.44.11", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.162.0.15", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.159.187", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.172.10", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.162.0.221", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.40.11", 
+            "properties": {
+                "radius": 10, 
+                "style": "cutpoint_3", 
+                "robustness": 3, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.145.3", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.145.2", 
+            "properties": {
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 38", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 39", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 7", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 16, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 30", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 31", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 32", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 33", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 34", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 35", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 36", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 37", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "<generator object <genexpr> at 0x7f9102c06460>", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.171.1", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.133.4", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.133.1", 
+            "properties": {
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }
+    ], 
+    "links": [
+        {
+            "source": "172.16.167.1", 
+            "target": "10.184.0.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.167.1", 
+            "target": "172.16.166.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 29", 
+            "target": "172.16.139.254", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "172.16.135.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "172.16.139.254", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "172.16.139.8", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "Block 16", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "172.16.159.25", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.151.1", 
+            "target": "172.16.151.32", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.151.1", 
+            "target": "172.16.151.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.15", 
+            "target": "Block 9", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "10.254.254.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "172.16.40.23", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "Block 17", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "172.16.159.25", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "172.16.133.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.185.13", 
+            "target": "Block 8", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.185.13", 
+            "target": "10.185.1.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.185.13", 
+            "target": "172.16.40.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.5", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.5", 
+            "target": "172.16.133.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.5", 
+            "target": "172.16.44.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.5", 
+            "target": "Block 18", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.186.254", 
+            "target": "Block 2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.186.254", 
+            "target": "Block 19", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.186.254", 
+            "target": "172.16.159.25", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.183.1.11", 
+            "target": "Block 15", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.183.1.11", 
+            "target": "172.16.145.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 14", 
+            "target": "172.16.132.7", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 14", 
+            "target": "172.16.132.6", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 12", 
+            "target": "10.162.0.221", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 13", 
+            "target": "172.16.133.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 10", 
+            "target": "172.16.146.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 11", 
+            "target": "172.16.151.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.133.10", 
+            "target": "10.254.254.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.133.10", 
+            "target": "Block 20", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.141.2", 
+            "target": "Block 1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.141.2", 
+            "target": "172.16.159.50", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.6", 
+            "target": "172.16.132.7", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.6", 
+            "target": "172.16.40.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 28", 
+            "target": "172.16.132.97", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.50", 
+            "target": "172.16.159.187", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.50", 
+            "target": "172.16.186.249", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.20", 
+            "target": "Block 21", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.20", 
+            "target": "172.16.186.249", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.20", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.7", 
+            "target": "172.16.10.192", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.12", 
+            "target": "Block 22", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.12", 
+            "target": "172.16.132.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.11", 
+            "target": "Block 23", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.11", 
+            "target": "172.16.172.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.139.8", 
+            "target": "172.16.139.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.62", 
+            "target": "172.16.49.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.62", 
+            "target": "Block 3", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.62", 
+            "target": "10.45.0.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.62", 
+            "target": "172.16.40.24", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.139.4", 
+            "target": "Block 5", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.176.0.2", 
+            "target": "10.176.0.135", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.176.0.2", 
+            "target": "172.16.159.25", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 4", 
+            "target": "172.16.159.25", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 6", 
+            "target": "172.16.49.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "172.16.151.32", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "172.16.171.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "172.16.40.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 2", 
+            "target": "10.162.0.221", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 2", 
+            "target": "10.162.0.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 2", 
+            "target": "172.16.172.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 2", 
+            "target": "172.16.200.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 27", 
+            "target": "10.45.0.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.176.0.135", 
+            "target": "Block 24", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 8", 
+            "target": "10.185.1.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 26", 
+            "target": "172.16.169.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.184.0.1", 
+            "target": "10.184.0.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 25", 
+            "target": "172.16.133.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.184.0.4", 
+            "target": "172.16.145.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.25", 
+            "target": "172.16.151.32", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.25", 
+            "target": "172.16.172.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.169.2", 
+            "target": "172.16.169.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.169.1", 
+            "target": "172.16.171.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.45.0.2", 
+            "target": "10.45.0.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.97", 
+            "target": "172.16.12.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.139.254", 
+            "target": "172.16.172.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.10.192", 
+            "target": "Block 30", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.151.32", 
+            "target": "Block 31", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.1", 
+            "target": "10.185.1.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.1", 
+            "target": "172.16.146.6", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.1", 
+            "target": "172.16.146.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.1", 
+            "target": "172.16.146.5", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.6", 
+            "target": "172.16.145.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.6", 
+            "target": "172.16.146.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.6", 
+            "target": "172.16.146.5", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.4", 
+            "target": "Block 7", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.4", 
+            "target": "172.16.146.5", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.5", 
+            "target": "Block 32", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.200.2", 
+            "target": "10.162.0.221", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.200.2", 
+            "target": "10.162.0.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.200.2", 
+            "target": "Block 33", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.23", 
+            "target": "172.16.40.22", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.22", 
+            "target": "172.16.40.24", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.254.254.4", 
+            "target": "10.254.254.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.254.254.4", 
+            "target": "10.254.254.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.254.254.4", 
+            "target": "Block 34", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.254.254.3", 
+            "target": "10.254.254.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.254.254.2", 
+            "target": "Block 35", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.166.1", 
+            "target": "Block 36", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.12.11", 
+            "target": "Block 37", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.12.11", 
+            "target": "172.16.12.12", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.12.12", 
+            "target": "Block 38", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.186.249", 
+            "target": "172.16.159.187", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 41", 
+            "target": "172.16.159.187", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 40", 
+            "target": "10.162.0.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 43", 
+            "target": "172.16.40.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 42", 
+            "target": "172.16.172.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.44.10", 
+            "target": "172.16.44.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.44.11", 
+            "target": "Block 39", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.162.0.15", 
+            "target": "10.162.0.221", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.11", 
+            "target": "172.16.171.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.145.3", 
+            "target": "172.16.145.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.133.4", 
+            "target": "172.16.133.1", 
+            "cost": 1
+        }
+    ]
+}
