@@ -1,0 +1,4145 @@
+{
+    "type": "NetworkGraph", 
+    "protocol": "BGP", 
+    "version": "", 
+    "revision": null, 
+    "metric": "eBGP", 
+    "nodes": [
+        {
+            "id": "geioa", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "gvaf-home", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Afoi_Georgiopouloi", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "spef", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Tenorism", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 18", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "sinotna B52", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 19", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "TheMaxx namaste", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 16", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "goggo sv1eih", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 17", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "surfer maverick", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 14", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "AGIOI_APOSTOLOI_2 Agioi_Apostoloi", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 15", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "dimitris vaggelis", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 12", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "dios2 linkshop", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 13", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "SupperQuagga radiodays", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 10", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "oddy-amp kk", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 11", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "thepat_Nea_Penteli Fotis80", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "alexan", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "NetTraptor", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "giannis1", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "wizzycom", 
+            "properties": {
+                "Potential disconnected nodes": 6, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "mike_paneio", 
+            "properties": {
+                "Potential disconnected nodes": 17, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Amazon", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "indian", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "pipinos", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "tzavil", 
+            "properties": {
+                "Potential disconnected nodes": 8, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "keyman", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "DA-MEC", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "nikolasc", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Warlock", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "sv1gyk", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "dnt", 
+            "properties": {
+                "Potential disconnected nodes": 7, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 58", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "5089", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 59", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "gvaf2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "djk604", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 52", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "tazmania", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "papaki63", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 50", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "smarag-support", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 51", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "22649", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 56", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "aggelou", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 57", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "gpa", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 54", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "pipinos-1", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 55", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "zaxduke", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "nikos_palm", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "ANKA", 
+            "properties": {
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "TOP", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "anman2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "12051", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "VLelectronics", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "gas1", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "SV1EGD", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "CyberAngel", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "7bpm", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Danimoth", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Cha0s", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "jimgal", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 96", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "maro", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 97", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "ALTAiR", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 94", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "grspider", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 95", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "clickdelivery", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 92", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "iNDEFiX2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 93", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "SV1JCZ-1", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 90", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "bobolezos", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 91", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "sv1hfq-2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "iNDEFiX", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 98", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "VOR", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 99", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "DA-KP", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "nvak", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "anman", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "AnavissosLab", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "TSDreamer", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "MerNion-2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Aderes-1-b", 
+            "properties": {
+                "Potential disconnected nodes": 25, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Winner", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "dimbe2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Pasas", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "nasos765", 
+            "properties": {
+                "Potential disconnected nodes": 14, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "marius", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "downlots3", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 109", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "bill-sar", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 108", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "TOYLOYPAKIS_KALLONI", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 103", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Agios_Georgios", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 102", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Sxoleio_Kallonis", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 101", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "DA-GYM", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 100", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "DEM-IIT", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 107", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Taktikoupoli", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 106", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "19574", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 105", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Marina_Kaloni", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 104", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Maiden2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "cookie", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "raditz", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Wolfpack", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "speedy", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "virtual2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "sv1gyk-fokaia", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "GFan2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "GFan1", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Sv1gyk-Sofiko", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "MAKARAS", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "aggelos", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "seimaz-koridallos", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "mikemtb", 
+            "properties": {
+                "Potential disconnected nodes": 11, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "agelos", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "akakios1", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "dti", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "blueice", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "john70-6-prn2", 
+            "properties": {
+                "Potential disconnected nodes": 8, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "ag_kostantinos", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "makofo", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 49", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "KASTOR_NS", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 48", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "John70-4-prn", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 45", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "sv1gzv", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 44", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Fencer_2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 47", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "netsailor", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 46", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "HtPC-Aigaleo", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 41", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "nektariosko", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 40", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "P.A.O.Kamaterou", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 43", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "sv1gsd_2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 42", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "andreas", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "POWER-NET", 
+            "properties": {
+                "Potential disconnected nodes": 6, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "bliz", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Ekklisia_Kalonis", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Predator", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "hellascom", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 38", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "12voltos", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 39", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "SV1CHE", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 30", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "fred", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 31", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "ACasaDiLisa", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 32", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "panosv", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 33", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "trizonia", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 34", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "panosigr", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 35", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "john70-2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 36", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "MKPD2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 37", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Winner-ng", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "TheLaz", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "gmes-smarag2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "sbolis", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "MAuVE_sv1iyf", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "smarag-2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "PrekasHome", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 113", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "22706", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "sv1fzz", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "john70", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "vassilis1", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "ngia", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "miskis-st", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "iapetos", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "PanoramiX", 
+            "properties": {
+                "Potential disconnected nodes": 7, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Benz_Kalloni", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "tsatasos", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "tryfonas_WANA", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 12, 
+                "style": "cutpoint_4", 
+                "robustness": 4, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Eagle_Halkoutsi", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Nysaefe_WANA", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 10, 
+                "style": "cutpoint_3", 
+                "robustness": 3, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "NIKOS-IVU", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 74", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "12716", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 75", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "dti-21", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 76", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "SV1MNF-2nd_QTH", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 77", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Repair", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 70", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "teo_gl", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 71", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "ssbk23", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 72", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Pantak__Dilesi", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 73", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "trazor_Kypselh", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 78", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "agelos-porto_3", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 79", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "tsouf", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 89", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Modulus", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 88", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "22600", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 118", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Diasnet-Artemida", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 119", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "KaspaRoV", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "PirAnka", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 81", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "aangelis", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 115", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "tompap1", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 83", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "jtiger", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 82", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "samge", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 85", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "xaridimos", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 84", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "FC", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 87", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "DUNE", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 86", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Ntoulapi", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Metamorfosi", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "OZOnet", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Nikiforos", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Agios_Dimitrios", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "SV8EUT-SV1MNF_BOUNO", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Kronos", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "BDMG", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "kakalos", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "beachiozos", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 12, 
+                "style": "cutpoint_4", 
+                "robustness": 4, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "gvaf", 
+            "properties": {
+                "Potential disconnected nodes": 8, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Paralia_Kaloni", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "dalex2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "dimis7", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "antonisst", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "ampatzis", 
+            "properties": {
+                "Potential disconnected nodes": 6, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 121", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Nys.KRT.WANA_WANA", 
+                "radius": 50, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 120", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Barber_WANA", 
+                "radius": 50, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 122", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "22485", 
+                "radius": 50, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "dgi", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 114", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "KostasPopi", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 80", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "mew_moschato", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "kxrist", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 116", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "katerina", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "spirosco", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 117", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "ani", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 110", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Liltman", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 111", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "sv1mnf-2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "spidercode", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 112", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "VLAHOS11", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Trackman", 
+            "properties": {
+                "Potential disconnected nodes": 18, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "MKPD", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "john70-5-prn1", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 29", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "nasos765-pallini", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 28", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "niknif", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 23", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "Skai-Parnitha john70-A", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 22", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "panste seimaz", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 21", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "sv1her cdigital", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 20", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "leonidas_xatz idnet", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 27", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "chrismarine2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 26", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "awmn-Teo", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 25", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "myname2", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 24", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "VLAHOS10", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Nikos_palm2", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "JB172", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "kastor2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "gmes-smarag", 
+            "properties": {
+                "Potential disconnected nodes": 11, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "lalas2", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "lalas1", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "trendy", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Convict", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 4", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "DEKADITES Automation_ sv1gft", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 5", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "Acropolis zaxar Metallica", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 6", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "dam1 demi-fokaia akis", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 7", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "Cha0s-G Cha0s-srv Cha0s-U", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 0", 
+            "properties": {
+                "nodes in block": 145, 
+                "nodes": "nasos765-galatsi romias tansdevil ampatzis2 bonovas geosia sweet2 sweet3 ysam Predator2 virtual beretas20 berdux Geolos SV1AMR apalex SV1MNF Ithaca-1 dalex selinios foobar Patissia Jordan madmax Johnitsiol sv1bds NovemberQ konkoul Gounara SV1EOD agelos-iatreio sv1bdo chrisporto Kinglyr-Selinia kosmas godim Dait-2 Dait 7net a45-3 olympic a45-1 MiCkOf-Selinia jchr GJP devilman AIVAnet2 karsudan MiCkOf PriestRunner Myth NeoPapaG Kostas_Aek senius chrismarine basilis_a Stranger lsalpeas GMarkos myname geomanous vabiris IRIKAT1 gmavro jimis123 mkar JollyRoger ydin ianeira balco31-2 trazor dalex2b Pantak WaRhAwK aderes commando k8k beretas20@spata sweet litrotis Genius blucky gkarad RadioWiFi nikous ncksm Maiden stevemad metalab darengrROU ovelix saverb arroto hurricane80 ipduh alexa papachri nipsa klarabel junior darengr malwnakos2 apollonas nkar dmk Diasnet digenis C_Iathe sv1bgm Gounara-2 Firelord acd_ex neuron ESMA GSD-QRL gas2 sv1hfq kostasoyk vagpol akritas8812 Juan_Verdera Fencer vabiris-nikaia bwoolf aggel UNIVERSAL_ELECTRONICS Eagle ymdim 2ilion litrotis#2 kmd soleo Megathirios Downlots Doukas argi PETROS Spidy Dynamic DIM-QRL manos1 simfun djbill JB172-2 ttel", 
+                "radius": 64, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "nios", 
+            "properties": {
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 2", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "m0rales trellos NauarxosWork", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 3", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "HomeLab3 21801 NauarxosHome", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 8", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "22715 lalas3", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 9", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "vector DEM-CHEM", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "darengrPR", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "schia", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Trimitsos2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 67", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "vmanolis", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 66", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "ysam5", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 65", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "vassilis3", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 64", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "sinonick", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 63", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Dks", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 62", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Anubis", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 61", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "MiAp", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 60", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "gvaf3", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "thepat2", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 69", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "glyfada", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 68", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "Kinglyr", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "SV1CIM-SOFIKO-SV1GSD", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "john70-7-ymt", 
+            "properties": {
+                "Potential disconnected nodes": 15, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "loukas", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "DA-TH", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "sv1cim", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "nikakiiiii_WANA", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 10, 
+                "style": "cutpoint_3", 
+                "robustness": 3, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Benz_Kalloni_2", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "MDicon", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "HomeLab", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Space", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "axrst_VPN", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 14, 
+                "style": "cutpoint_7", 
+                "robustness": 7, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "JNSilv", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 53", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "LanCom_ATH_VPN", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "SV1JCZ-2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "beretas20@vravrwna", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 1", 
+            "properties": {
+                "nodes in block": 4, 
+                "nodes": "Galatas Driopi Kampos Galatas_P", 
+                "radius": 2, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "lagonisi", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "8484", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "ANKA2", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }
+    ], 
+    "links": [
+        {
+            "source": "Block 18", 
+            "target": "spirosco", 
+            "cost": 1
+        }, 
+        {
+            "source": "Metamorfosi", 
+            "target": "Agios_Dimitrios", 
+            "cost": 1
+        }, 
+        {
+            "source": "Metamorfosi", 
+            "target": "Benz_Kalloni", 
+            "cost": 1
+        }, 
+        {
+            "source": "Metamorfosi", 
+            "target": "Block 105", 
+            "cost": 1
+        }, 
+        {
+            "source": "Metamorfosi", 
+            "target": "Paralia_Kaloni", 
+            "cost": 1
+        }, 
+        {
+            "source": "geioa", 
+            "target": "Block 45", 
+            "cost": 1
+        }, 
+        {
+            "source": "geioa", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Pasas", 
+            "target": "Block 106", 
+            "cost": 1
+        }, 
+        {
+            "source": "Pasas", 
+            "target": "ag_kostantinos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Pasas", 
+            "target": "Block 1", 
+            "cost": 1
+        }, 
+        {
+            "source": "sv1fzz", 
+            "target": "Block 39", 
+            "cost": 1
+        }, 
+        {
+            "source": "sv1fzz", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "gmes-smarag2", 
+            "target": "Block 51", 
+            "cost": 1
+        }, 
+        {
+            "source": "gmes-smarag2", 
+            "target": "pipinos", 
+            "cost": 1
+        }, 
+        {
+            "source": "gmes-smarag2", 
+            "target": "gmes-smarag", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 28", 
+            "target": "CyberAngel", 
+            "cost": 1
+        }, 
+        {
+            "source": "sbolis", 
+            "target": "TheLaz", 
+            "cost": 1
+        }, 
+        {
+            "source": "sbolis", 
+            "target": "gvaf", 
+            "cost": 1
+        }, 
+        {
+            "source": "sbolis", 
+            "target": "8484", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 23", 
+            "target": "john70-5-prn1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 22", 
+            "target": "TheLaz", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 21", 
+            "target": "gas1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 20", 
+            "target": "POWER-NET", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 27", 
+            "target": "iapetos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 26", 
+            "target": "djk604", 
+            "cost": 1
+        }, 
+        {
+            "source": "jimgal", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "jimgal", 
+            "target": "Block 70", 
+            "cost": 1
+        }, 
+        {
+            "source": "jimgal", 
+            "target": "Cha0s", 
+            "cost": 1
+        }, 
+        {
+            "source": "jimgal", 
+            "target": "tsatasos", 
+            "cost": 1
+        }, 
+        {
+            "source": "MAuVE_sv1iyf", 
+            "target": "Block 74", 
+            "cost": 1
+        }, 
+        {
+            "source": "MAuVE_sv1iyf", 
+            "target": "CyberAngel", 
+            "cost": 1
+        }, 
+        {
+            "source": "MAuVE_sv1iyf", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Nikos_palm2", 
+            "target": "nikos_palm", 
+            "cost": 1
+        }, 
+        {
+            "source": "Nikos_palm2", 
+            "target": "Aderes-1-b", 
+            "cost": 1
+        }, 
+        {
+            "source": "Nikos_palm2", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Nikos_palm2", 
+            "target": "lalas2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Nikos_palm2", 
+            "target": "sv1cim", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 109", 
+            "target": "Aderes-1-b", 
+            "cost": 1
+        }, 
+        {
+            "source": "gvaf-home", 
+            "target": "gvaf", 
+            "cost": 1
+        }, 
+        {
+            "source": "gvaf-home", 
+            "target": "dimbe2", 
+            "cost": 1
+        }, 
+        {
+            "source": "gvaf-home", 
+            "target": "Block 60", 
+            "cost": 1
+        }, 
+        {
+            "source": "Afoi_Georgiopouloi", 
+            "target": "TSDreamer", 
+            "cost": 1
+        }, 
+        {
+            "source": "Afoi_Georgiopouloi", 
+            "target": "Block 87", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 10", 
+            "target": "Winner", 
+            "cost": 1
+        }, 
+        {
+            "source": "spef", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "spef", 
+            "target": "Block 34", 
+            "cost": 1
+        }, 
+        {
+            "source": "JNSilv", 
+            "target": "Block 4", 
+            "cost": 1
+        }, 
+        {
+            "source": "JNSilv", 
+            "target": "downlots3", 
+            "cost": 1
+        }, 
+        {
+            "source": "JNSilv", 
+            "target": "seimaz-koridallos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 25", 
+            "target": "downlots3", 
+            "cost": 1
+        }, 
+        {
+            "source": "JB172", 
+            "target": "john70", 
+            "cost": 1
+        }, 
+        {
+            "source": "JB172", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "JB172", 
+            "target": "Block 98", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 96", 
+            "target": "marius", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 97", 
+            "target": "Amazon", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 94", 
+            "target": "MAKARAS", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 95", 
+            "target": "kxrist", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 92", 
+            "target": "iNDEFiX", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 93", 
+            "target": "SV1JCZ-2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 90", 
+            "target": "makofo", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 91", 
+            "target": "Warlock", 
+            "cost": 1
+        }, 
+        {
+            "source": "iNDEFiX", 
+            "target": "Cha0s", 
+            "cost": 1
+        }, 
+        {
+            "source": "iNDEFiX", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "kastor2", 
+            "target": "nasos765", 
+            "cost": 1
+        }, 
+        {
+            "source": "kastor2", 
+            "target": "Block 49", 
+            "cost": 1
+        }, 
+        {
+            "source": "BDMG", 
+            "target": "alexan", 
+            "cost": 1
+        }, 
+        {
+            "source": "BDMG", 
+            "target": "Block 71", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 99", 
+            "target": "DA-MEC", 
+            "cost": 1
+        }, 
+        {
+            "source": "nvak", 
+            "target": "trendy", 
+            "cost": 1
+        }, 
+        {
+            "source": "nvak", 
+            "target": "Wolfpack", 
+            "cost": 1
+        }, 
+        {
+            "source": "nvak", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "nvak", 
+            "target": "Block 112", 
+            "cost": 1
+        }, 
+        {
+            "source": "nvak", 
+            "target": "Trackman", 
+            "cost": 1
+        }, 
+        {
+            "source": "anman", 
+            "target": "CyberAngel", 
+            "cost": 1
+        }, 
+        {
+            "source": "anman", 
+            "target": "spirosco", 
+            "cost": 1
+        }, 
+        {
+            "source": "anman", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "anman", 
+            "target": "Danimoth", 
+            "cost": 1
+        }, 
+        {
+            "source": "anman", 
+            "target": "gvaf", 
+            "cost": 1
+        }, 
+        {
+            "source": "anman", 
+            "target": "Block 111", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 19", 
+            "target": "blueice", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 16", 
+            "target": "sv1gyk", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 17", 
+            "target": "seimaz-koridallos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 14", 
+            "target": "Agios_Dimitrios", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 15", 
+            "target": "mikemtb", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 12", 
+            "target": "hellascom", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 13", 
+            "target": "OZOnet", 
+            "cost": 1
+        }, 
+        {
+            "source": "AnavissosLab", 
+            "target": "Block 114", 
+            "cost": 1
+        }, 
+        {
+            "source": "AnavissosLab", 
+            "target": "mike_paneio", 
+            "cost": 1
+        }, 
+        {
+            "source": "AnavissosLab", 
+            "target": "PrekasHome", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 11", 
+            "target": "thepat2", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70", 
+            "target": "Danimoth", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70", 
+            "target": "ngia", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70", 
+            "target": "HomeLab", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70", 
+            "target": "john70-7-ymt", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70", 
+            "target": "gvaf", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70", 
+            "target": "Block 35", 
+            "cost": 1
+        }, 
+        {
+            "source": "alexan", 
+            "target": "Eagle_Halkoutsi", 
+            "cost": 1
+        }, 
+        {
+            "source": "alexan", 
+            "target": "Block 72", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 29", 
+            "target": "wizzycom", 
+            "cost": 1
+        }, 
+        {
+            "source": "vassilis1", 
+            "target": "Block 65", 
+            "cost": 1
+        }, 
+        {
+            "source": "vassilis1", 
+            "target": "speedy", 
+            "cost": 1
+        }, 
+        {
+            "source": "ngia", 
+            "target": "TheLaz", 
+            "cost": 1
+        }, 
+        {
+            "source": "ngia", 
+            "target": "bliz", 
+            "cost": 1
+        }, 
+        {
+            "source": "ngia", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "ngia", 
+            "target": "Trackman", 
+            "cost": 1
+        }, 
+        {
+            "source": "TSDreamer", 
+            "target": "Block 80", 
+            "cost": 1
+        }, 
+        {
+            "source": "TSDreamer", 
+            "target": "TOP", 
+            "cost": 1
+        }, 
+        {
+            "source": "schia", 
+            "target": "antonisst", 
+            "cost": 1
+        }, 
+        {
+            "source": "schia", 
+            "target": "Block 5", 
+            "cost": 1
+        }, 
+        {
+            "source": "schia", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "MerNion-2", 
+            "target": "Danimoth", 
+            "cost": 1
+        }, 
+        {
+            "source": "MerNion-2", 
+            "target": "Block 37", 
+            "cost": 1
+        }, 
+        {
+            "source": "miskis-st", 
+            "target": "ANKA2", 
+            "cost": 1
+        }, 
+        {
+            "source": "miskis-st", 
+            "target": "Block 86", 
+            "cost": 1
+        }, 
+        {
+            "source": "NetTraptor", 
+            "target": "trendy", 
+            "cost": 1
+        }, 
+        {
+            "source": "NetTraptor", 
+            "target": "Wolfpack", 
+            "cost": 1
+        }, 
+        {
+            "source": "NetTraptor", 
+            "target": "Block 9", 
+            "cost": 1
+        }, 
+        {
+            "source": "SV1JCZ-2", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "SV1JCZ-2", 
+            "target": "makofo", 
+            "cost": 1
+        }, 
+        {
+            "source": "giannis1", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "giannis1", 
+            "target": "Block 56", 
+            "cost": 1
+        }, 
+        {
+            "source": "giannis1", 
+            "target": "Kronos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Aderes-1-b", 
+            "target": "sv1gyk-fokaia", 
+            "cost": 1
+        }, 
+        {
+            "source": "Aderes-1-b", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Aderes-1-b", 
+            "target": "Block 1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Aderes-1-b", 
+            "target": "sv1gyk", 
+            "cost": 1
+        }, 
+        {
+            "source": "iapetos", 
+            "target": "gas1", 
+            "cost": 1
+        }, 
+        {
+            "source": "iapetos", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "PanoramiX", 
+            "target": "DA-MEC", 
+            "cost": 1
+        }, 
+        {
+            "source": "PanoramiX", 
+            "target": "Trackman", 
+            "cost": 1
+        }, 
+        {
+            "source": "PanoramiX", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "PanoramiX", 
+            "target": "Block 53", 
+            "cost": 1
+        }, 
+        {
+            "source": "Winner", 
+            "target": "bliz", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 81", 
+            "target": "kakalos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Benz_Kalloni", 
+            "target": "Block 107", 
+            "cost": 1
+        }, 
+        {
+            "source": "Benz_Kalloni", 
+            "target": "Block 1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Benz_Kalloni", 
+            "target": "Benz_Kalloni_2", 
+            "cost": 1
+        }, 
+        {
+            "source": "dimbe2", 
+            "target": "Block 59", 
+            "cost": 1
+        }, 
+        {
+            "source": "HomeLab", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "HomeLab", 
+            "target": "Block 2", 
+            "cost": 1
+        }, 
+        {
+            "source": "tsatasos", 
+            "target": "Block 64", 
+            "cost": 1
+        }, 
+        {
+            "source": "tsatasos", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "thepat2", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "trendy", 
+            "target": "Block 47", 
+            "cost": 1
+        }, 
+        {
+            "source": "Convict", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Convict", 
+            "target": "akakios1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Convict", 
+            "target": "nikolasc", 
+            "cost": 1
+        }, 
+        {
+            "source": "gmes-smarag", 
+            "target": "hellascom", 
+            "cost": 1
+        }, 
+        {
+            "source": "gmes-smarag", 
+            "target": "Block 46", 
+            "cost": 1
+        }, 
+        {
+            "source": "gmes-smarag", 
+            "target": "nasos765", 
+            "cost": 1
+        }, 
+        {
+            "source": "nasos765", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "nasos765", 
+            "target": "speedy", 
+            "cost": 1
+        }, 
+        {
+            "source": "marius", 
+            "target": "Warlock", 
+            "cost": 1
+        }, 
+        {
+            "source": "marius", 
+            "target": "Amazon", 
+            "cost": 1
+        }, 
+        {
+            "source": "marius", 
+            "target": "antonisst", 
+            "cost": 1
+        }, 
+        {
+            "source": "marius", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "wizzycom", 
+            "target": "dnt", 
+            "cost": 1
+        }, 
+        {
+            "source": "wizzycom", 
+            "target": "VLelectronics", 
+            "cost": 1
+        }, 
+        {
+            "source": "wizzycom", 
+            "target": "djk604", 
+            "cost": 1
+        }, 
+        {
+            "source": "downlots3", 
+            "target": "SV1CIM-SOFIKO-SV1GSD", 
+            "cost": 1
+        }, 
+        {
+            "source": "downlots3", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 7", 
+            "target": "Cha0s", 
+            "cost": 1
+        }, 
+        {
+            "source": "mike_paneio", 
+            "target": "Trackman", 
+            "cost": 1
+        }, 
+        {
+            "source": "mike_paneio", 
+            "target": "mikemtb", 
+            "cost": 1
+        }, 
+        {
+            "source": "mike_paneio", 
+            "target": "Block 113", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 1", 
+            "target": "Agios_Dimitrios", 
+            "cost": 1
+        }, 
+        {
+            "source": "kakalos", 
+            "target": "PirAnka", 
+            "cost": 1
+        }, 
+        {
+            "source": "kakalos", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "kakalos", 
+            "target": "sv1cim", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 8", 
+            "target": "lalas1", 
+            "cost": 1
+        }, 
+        {
+            "source": "tryfonas_WANA", 
+            "target": "axrst_VPN", 
+            "cost": 1
+        }, 
+        {
+            "source": "tryfonas_WANA", 
+            "target": "nikakiiiii_WANA", 
+            "cost": 1
+        }, 
+        {
+            "source": "Eagle_Halkoutsi", 
+            "target": "ampatzis", 
+            "cost": 1
+        }, 
+        {
+            "source": "darengrPR", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "darengrPR", 
+            "target": "Block 78", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 108", 
+            "target": "Paralia_Kaloni", 
+            "cost": 1
+        }, 
+        {
+            "source": "Nysaefe_WANA", 
+            "target": "beachiozos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Nysaefe_WANA", 
+            "target": "Block 122", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 103", 
+            "target": "ag_kostantinos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 102", 
+            "target": "Ekklisia_Kalonis", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 101", 
+            "target": "DA-TH", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 100", 
+            "target": "7bpm", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 104", 
+            "target": "Space", 
+            "cost": 1
+        }, 
+        {
+            "source": "NIKOS-IVU", 
+            "target": "keyman", 
+            "cost": 1
+        }, 
+        {
+            "source": "NIKOS-IVU", 
+            "target": "Block 42", 
+            "cost": 1
+        }, 
+        {
+            "source": "SV1CIM-SOFIKO-SV1GSD", 
+            "target": "Sv1gyk-Sofiko", 
+            "cost": 1
+        }, 
+        {
+            "source": "SV1CIM-SOFIKO-SV1GSD", 
+            "target": "SV1EGD", 
+            "cost": 1
+        }, 
+        {
+            "source": "SV1CIM-SOFIKO-SV1GSD", 
+            "target": "Block 43", 
+            "cost": 1
+        }, 
+        {
+            "source": "pipinos", 
+            "target": "Block 52", 
+            "cost": 1
+        }, 
+        {
+            "source": "pipinos", 
+            "target": "Block 54", 
+            "cost": 1
+        }, 
+        {
+            "source": "Benz_Kalloni_2", 
+            "target": "Ekklisia_Kalonis", 
+            "cost": 1
+        }, 
+        {
+            "source": "lalas1", 
+            "target": "lalas2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 115", 
+            "target": "nikolasc", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 75", 
+            "target": "ampatzis", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 76", 
+            "target": "SV8EUT-SV1MNF_BOUNO", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 77", 
+            "target": "nikos_palm", 
+            "cost": 1
+        }, 
+        {
+            "source": "cookie", 
+            "target": "Block 84", 
+            "cost": 1
+        }, 
+        {
+            "source": "cookie", 
+            "target": "SV1EGD", 
+            "cost": 1
+        }, 
+        {
+            "source": "cookie", 
+            "target": "sv1cim", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 73", 
+            "target": "Nikiforos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 79", 
+            "target": "agelos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Trimitsos2", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Trimitsos2", 
+            "target": "Block 62", 
+            "cost": 1
+        }, 
+        {
+            "source": "raditz", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "raditz", 
+            "target": "gvaf", 
+            "cost": 1
+        }, 
+        {
+            "source": "raditz", 
+            "target": "Block 41", 
+            "cost": 1
+        }, 
+        {
+            "source": "Wolfpack", 
+            "target": "Block 31", 
+            "cost": 1
+        }, 
+        {
+            "source": "Wolfpack", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Wolfpack", 
+            "target": "Kronos", 
+            "cost": 1
+        }, 
+        {
+            "source": "tzavil", 
+            "target": "dnt", 
+            "cost": 1
+        }, 
+        {
+            "source": "tzavil", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "keyman", 
+            "target": "gvaf", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 89", 
+            "target": "dalex2", 
+            "cost": 1
+        }, 
+        {
+            "source": "DA-MEC", 
+            "target": "DA-TH", 
+            "cost": 1
+        }, 
+        {
+            "source": "speedy", 
+            "target": "virtual2", 
+            "cost": 1
+        }, 
+        {
+            "source": "speedy", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "speedy", 
+            "target": "indian", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 119", 
+            "target": "beretas20@vravrwna", 
+            "cost": 1
+        }, 
+        {
+            "source": "nikolasc", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "PirAnka", 
+            "target": "ANKA2", 
+            "cost": 1
+        }, 
+        {
+            "source": "PirAnka", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 83", 
+            "target": "sv1cim", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 82", 
+            "target": "Tenorism", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 85", 
+            "target": "SV1EGD", 
+            "cost": 1
+        }, 
+        {
+            "source": "virtual2", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "virtual2", 
+            "target": "Block 68", 
+            "cost": 1
+        }, 
+        {
+            "source": "sv1gyk-fokaia", 
+            "target": "Block 6", 
+            "cost": 1
+        }, 
+        {
+            "source": "GFan2", 
+            "target": "gvaf", 
+            "cost": 1
+        }, 
+        {
+            "source": "GFan2", 
+            "target": "seimaz-koridallos", 
+            "cost": 1
+        }, 
+        {
+            "source": "GFan2", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "GFan2", 
+            "target": "Predator", 
+            "cost": 1
+        }, 
+        {
+            "source": "GFan2", 
+            "target": "Block 24", 
+            "cost": 1
+        }, 
+        {
+            "source": "GFan1", 
+            "target": "loukas", 
+            "cost": 1
+        }, 
+        {
+            "source": "GFan1", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "OZOnet", 
+            "target": "TheLaz", 
+            "cost": 1
+        }, 
+        {
+            "source": "OZOnet", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "OZOnet", 
+            "target": "nikos_palm", 
+            "cost": 1
+        }, 
+        {
+            "source": "Nikiforos", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 67", 
+            "target": "ANKA2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 66", 
+            "target": "john70-6-prn2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 63", 
+            "target": "dgi", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 61", 
+            "target": "spidercode", 
+            "cost": 1
+        }, 
+        {
+            "source": "Sv1gyk-Sofiko", 
+            "target": "Block 33", 
+            "cost": 1
+        }, 
+        {
+            "source": "Sv1gyk-Sofiko", 
+            "target": "sv1gyk", 
+            "cost": 1
+        }, 
+        {
+            "source": "MAKARAS", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "MAKARAS", 
+            "target": "kxrist", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 69", 
+            "target": "indian", 
+            "cost": 1
+        }, 
+        {
+            "source": "Warlock", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "sv1gyk", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "SV8EUT-SV1MNF_BOUNO", 
+            "target": "john70-7-ymt", 
+            "cost": 1
+        }, 
+        {
+            "source": "Kronos", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Kronos", 
+            "target": "spidercode", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70-7-ymt", 
+            "target": "john70-6-prn2", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70-7-ymt", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70-7-ymt", 
+            "target": "john70-5-prn1", 
+            "cost": 1
+        }, 
+        {
+            "source": "aggelos", 
+            "target": "Block 116", 
+            "cost": 1
+        }, 
+        {
+            "source": "aggelos", 
+            "target": "mikemtb", 
+            "cost": 1
+        }, 
+        {
+            "source": "seimaz-koridallos", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "mikemtb", 
+            "target": "POWER-NET", 
+            "cost": 1
+        }, 
+        {
+            "source": "spirosco", 
+            "target": "Tenorism", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 58", 
+            "target": "8484", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 52", 
+            "target": "hellascom", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 52", 
+            "target": "smarag-2", 
+            "cost": 1
+        }, 
+        {
+            "source": "papaki63", 
+            "target": "Block 30", 
+            "cost": 1
+        }, 
+        {
+            "source": "papaki63", 
+            "target": "VLelectronics", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 50", 
+            "target": "smarag-2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 57", 
+            "target": "Predator", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 55", 
+            "target": "dimis7", 
+            "cost": 1
+        }, 
+        {
+            "source": "DA-TH", 
+            "target": "7bpm", 
+            "cost": 1
+        }, 
+        {
+            "source": "akakios1", 
+            "target": "Block 44", 
+            "cost": 1
+        }, 
+        {
+            "source": "loukas", 
+            "target": "Block 40", 
+            "cost": 1
+        }, 
+        {
+            "source": "Trackman", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "dti", 
+            "target": "MDicon", 
+            "cost": 1
+        }, 
+        {
+            "source": "dti", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "blueice", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "beretas20@vravrwna", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "beretas20@vravrwna", 
+            "target": "anman2", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70-6-prn2", 
+            "target": "ampatzis", 
+            "cost": 1
+        }, 
+        {
+            "source": "john70-6-prn2", 
+            "target": "Block 48", 
+            "cost": 1
+        }, 
+        {
+            "source": "nikakiiiii_WANA", 
+            "target": "Block 121", 
+            "cost": 1
+        }, 
+        {
+            "source": "makofo", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "MDicon", 
+            "target": "Block 3", 
+            "cost": 1
+        }, 
+        {
+            "source": "beachiozos", 
+            "target": "axrst_VPN", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 48", 
+            "target": "john70-5-prn1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Space", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "TOP", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "anman2", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "anman2", 
+            "target": "Block 118", 
+            "cost": 1
+        }, 
+        {
+            "source": "12051", 
+            "target": "lagonisi", 
+            "cost": 1
+        }, 
+        {
+            "source": "12051", 
+            "target": "Block 117", 
+            "cost": 1
+        }, 
+        {
+            "source": "POWER-NET", 
+            "target": "lagonisi", 
+            "cost": 1
+        }, 
+        {
+            "source": "gas1", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "gas1", 
+            "target": "Predator", 
+            "cost": 1
+        }, 
+        {
+            "source": "smarag-2", 
+            "target": "hellascom", 
+            "cost": 1
+        }, 
+        {
+            "source": "gvaf", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "gvaf", 
+            "target": "Block 32", 
+            "cost": 1
+        }, 
+        {
+            "source": "axrst_VPN", 
+            "target": "Block 120", 
+            "cost": 1
+        }, 
+        {
+            "source": "PrekasHome", 
+            "target": "Block 88", 
+            "cost": 1
+        }, 
+        {
+            "source": "lagonisi", 
+            "target": "Block 110", 
+            "cost": 1
+        }, 
+        {
+            "source": "dimis7", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Predator", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "antonisst", 
+            "target": "Block 38", 
+            "cost": 1
+        }, 
+        {
+            "source": "antonisst", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "Danimoth", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "dalex2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "agelos", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "kxrist", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "SV1EGD", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "TheLaz", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "dgi", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "indian", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "Cha0s", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "Tenorism", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "MKPD", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 53", 
+            "target": "7bpm", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 36", 
+            "target": "MKPD", 
+            "cost": 1
+        }
+    ]
+}
