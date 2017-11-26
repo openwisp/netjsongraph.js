@@ -197,14 +197,35 @@
                 for(var c = 0; c < links_length; c++) {
                     var sourceIndex = nodesMap[links[c].source],
                     targetIndex = nodesMap[links[c].target];
+                    var linkSource = -1, linkTarget = -1;
                     // ensure source and target exist
-                    if(!nodes[sourceIndex]) { throw("source '" + links[c].source + "' not found"); }
-                    if(!nodes[targetIndex]) { throw("target '" + links[c].target + "' not found"); }
-                    links[c].source = nodesMap[links[c].source];
-                    links[c].target = nodesMap[links[c].target];
+                    if(!nodes[sourceIndex]) {
+                        // search for source among the local addresses
+                        for(var i = 0; i < nodes_length; i++)
+                            for(var j = 0; 'local_addresses' in nodes[i] && j < nodes[i].local_addresses.length ; j++)
+                                if("" + nodes[i].local_addresses[j] == "" + links[c].source)
+                                    linkSource = nodes[i].id;
+                        if(linkSource < 0)
+                            throw("source '" + links[c].source + "' not found");
+                    } else {
+                        linkSource = links[c].source;
+                    }
+                    if(!nodes[targetIndex]) {
+                        // search for target among the local addresses
+                        for(var i = 0; i < nodes_length; i++)
+                            for(var j = 0; 'local_addresses' in nodes[i] && j < nodes[i].local_addresses.length ; j++)
+                                if("" + nodes[i].local_addresses[j] == "" + links[c].target)
+                                    linkTarget = nodes[i].id;
+                        if(linkTarget < 0)
+                            throw("target '" + links[c].target + "' not found");
+                    } else {
+                        linkTarget = links[c].target;
+                    }
+                    links[c].source = nodesMap[linkSource];
+                    links[c].target = nodesMap[linkTarget];
                     // add link count to both ends
-                    nodes[sourceIndex].linkCount++;
-                    nodes[targetIndex].linkCount++;
+                    nodes[nodesMap[linkSource]].linkCount++;
+                    nodes[nodesMap[linkTarget]].linkCount++;
                 }
                 return { "nodes": nodes, "links": links };
             },
