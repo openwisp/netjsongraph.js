@@ -67,5 +67,8 @@ module.exports = {
       require('precss'),
       require('autoprefixer')
     ];
-  }
+  },
+  externals: [{
+   xmlhttprequest:'{XMLHttpRequest:XMLHttpRequest}'
+  }]
 };
