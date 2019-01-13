@@ -60,3 +60,41 @@
 #njg-select-group option[value=""] {
     color: #aaa;
 }
+
+.njg-inner{
+    max-height: 570px;
+}
+
+.njg-node-list{
+    overflow: auto;
+}
+
+.njg-node-list p{
+    margin: 0 0 12px 0;
+    padding-left: 15px;
+}
+.njg-adjacent-node-controller{
+    margin-bottom:12px;
+    cursor:pointer
+}
+.regular-triangle{
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 84px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 10px solid #000000;
+
+}
+.del-triangle{
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 84px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid #000000;
+}
+
+
