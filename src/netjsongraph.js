@@ -80,7 +80,7 @@
          * @param  {string}     el                  "body"      The container element                                  el: "body" [description]
          * @param  {bool}       metadata            true        Display NetJSON metadata at startup?
          * @param  {bool}       defaultStyle        true        Use css style?
-         * @param  {bool}       animationAtStart    false       Animate nodes or not on load
+         * @param  {bool}       animationAtStart    true       Animate nodes or not on load
          * @param  {array}      scaleExtent         [0.25, 5]   The zoom scale's allowed range. @see {@link https://github.com/mbostock/d3/wiki/Zoom-Behavior#scaleExtent}
          * @param  {int}        charge              -130        The charge strength to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#charge}
          * @param  {int}        linkDistance        50          The target distance between linked nodes to the specified value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#linkDistance}
@@ -101,6 +101,7 @@
          * @param  {function}   onClickNode                     Called when a node is clicked
          * @param  {function}   onClickLink                     Called when a link is clicked
          */
+        var nodesTargetMap = {};  //Record all targets of a node
         opts = d3._extend({
             el: "body",
             metadata: true,
@@ -184,8 +185,8 @@
              */
             prepareData: function(graph) {
                 var nodesMap = {},
-                    nodes = graph.nodes.slice(), // copy
-                    links = graph.links.slice(), // copy
+                    nodes = JSON.parse(JSON.stringify(graph.nodes.slice())), // deep copy
+                    links = JSON.parse(JSON.stringify(graph.links.slice())), // deep copy
                     nodes_length = graph.nodes.length,
                     links_length = graph.links.length;
 
@@ -235,6 +236,40 @@
                 // set "open" class to current node
                 removeOpenClass();
                 d3.select(this).classed("njg-open", true);
+
+                // Create the div which includes the adjacent nodes
+                /**
+                 * adjNodeDiv
+                 *     —adjNodeController //if show the list
+                 *     —adjNodeList  //all adjacent nodes
+                */
+                let adjNodeDiv = document.createElement('div'),
+                    adjNodeController = document.createElement('div'),
+                    adjNodeList = document.createElement('div'); //
+                adjNodeController.innerHTML = "<span><b>adjacent node</b></span><div class='regular-triangle'></div>";
+                adjNodeController.style = "margin-bottom:12px; cursor:pointer";
+                adjNodeController.open = true;//Record the status
+                let adjArray = nodesTargetMap[n.id],
+                    adjArrayLength = adjArray.length;
+                for(let i = 0; i < adjArrayLength; i++){
+                    adjNodeList.innerHTML += "<p>"+ adjArray[i] +"</p>";
+                }
+                adjNodeList.style.display = "block";
+                adjNodeList.className = 'njg-node-list';
+                adjNodeController.onclick = function () {
+                    if(this.open === false){
+                        adjNodeController.innerHTML = "<span><b>adjacent node</b></span><div class='regular-triangle'></div>";
+                        this.open = true;
+                        adjNodeList.style.display = "block";
+                    }else{
+                        adjNodeController.innerHTML = "<span><b>adjacent node</b></span><div class='del-triangle'></div>";
+                        this.open = false;
+                        adjNodeList.style.display = "none";
+                    }
+                };
+                adjNodeDiv.appendChild(adjNodeController);
+                adjNodeDiv.appendChild(adjNodeList);
+                document.querySelector('.njg-overlay > .njg-inner').appendChild(adjNodeDiv);
             },
             /**
              * @function
@@ -355,7 +390,25 @@
                 var data = opts.prepareData(graph),
                     links = data.links,
                     nodes = data.nodes;
-
+                // set the nodesTargetMap
+                var originLinks = graph.links,
+                    originLinksLength = originLinks.length;
+                for(let i = 0; i < originLinksLength; i++){
+                    let target = originLinks[i].target;
+                    let source = originLinks[i].source;
+                    if(!nodesTargetMap.hasOwnProperty(target)){
+                        nodesTargetMap[target] = [];
+                        nodesTargetMap[target].push(source);
+                    }else{
+                        nodesTargetMap[target].push(source);
+                    }
+                    if(!nodesTargetMap.hasOwnProperty(source)){
+                        nodesTargetMap[source] = [];
+                        nodesTargetMap[source].push(target)
+                    }else{
+                        nodesTargetMap[source].push(target);
+                    }
+                }
                 // disable some transitions while dragging
                 drag.on('dragstart', function(n){
                     d3.event.sourceEvent.stopPropagation();
