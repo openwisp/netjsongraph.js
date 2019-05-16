@@ -1,0 +1,1647 @@
+{
+    "type": "NetworkGraph", 
+    "protocol": "OLSR", 
+    "version": "0.6.6.2", 
+    "revision": null, 
+    "metric": "ETX", 
+    "nodes": [
+        {
+            "id": "172.16.167.1", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 28", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "172.16.132.8 172.16.132.14", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 22", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "172.16.151.20 172.16.151.11", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 20", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "192.168.145.1 172.16.181.10", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 26", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "172.16.133.2 172.16.132.9", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 24", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "10.0.7.2 10.192.1.1", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.135.10", 
+            "properties": {
+                "Potential disconnected nodes": 9, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.135.15", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 12", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "172.16.40.151 172.16.49.40 172.16.40.39", 
+                "radius": 16, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.185.13", 
+            "properties": {
+                "Potential disconnected nodes": 24, 
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.172.10", 
+            "properties": {
+                "Potential disconnected nodes": 5, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.162.0.221", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.183.1.11", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 18", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "10.135.11.253 10.123.10.10", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 16", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "172.16.185.12 10.185.1.11 10.185.1.1", 
+                "radius": 16, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 14", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "172.16.146.3 10.149.3.3 172.16.149.1", 
+                "radius": 16, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "192.168.176.10", 
+            "properties": {
+                "Potential disconnected nodes": 25, 
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 10", 
+            "properties": {
+                "nodes in block": 3, 
+                "nodes": "172.16.138.1 172.16.139.3 172.16.139.9", 
+                "radius": 16, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.159.25", 
+            "properties": {
+                "Potential disconnected nodes": 39, 
+                "radius": 10, 
+                "style": "cutpoint_3", 
+                "robustness": 3, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.7", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.6", 
+            "properties": {
+                "Potential disconnected nodes": 5, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.159.50", 
+            "properties": {
+                "Potential disconnected nodes": 6, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.155.20", 
+            "properties": {
+                "Potential disconnected nodes": 11, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.12", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.11", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.139.8", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.40.62", 
+            "properties": {
+                "Potential disconnected nodes": 11, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.139.4", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.176.0.2", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 4", 
+            "properties": {
+                "nodes in block": 5, 
+                "nodes": "10.162.0.14 10.162.0.7 172.16.200.67 172.16.200.33 172.16.162.1", 
+                "radius": 27, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 6", 
+            "properties": {
+                "nodes in block": 4, 
+                "nodes": "172.16.49.20 10.40.20.2 172.16.40.40 172.16.40.37", 
+                "radius": 22, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 0", 
+            "properties": {
+                "nodes in block": 11, 
+                "nodes": "172.16.155.10 172.16.155.12 172.16.155.13 172.16.155.6 172.16.155.4 172.16.177.17 172.16.177.30 172.16.43.2 172.16.177.22 10.177.0.10 172.16.177.31", 
+                "radius": 61, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 2", 
+            "properties": {
+                "nodes in block": 5, 
+                "nodes": "172.16.139.2 172.16.141.3 10.141.0.1 10.139.1.1 172.16.139.10", 
+                "radius": 27, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "10.176.0.135", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 8", 
+            "properties": {
+                "nodes in block": 4, 
+                "nodes": "172.16.177.33 172.16.171.15 172.16.159.65 10.168.177.1", 
+                "radius": 22, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "10.184.0.1", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.184.0.4", 
+            "properties": {
+                "Potential disconnected nodes": 4, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.146.5", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.133.10", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.133.11", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 58", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.154.6", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.169.2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.169.1", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 74", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "176.62.53.98", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 76", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.39.31", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 70", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.168.1", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 72", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.44.12", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 78", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.159.6", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "10.45.0.2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.45.0.1", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.132.97", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 12, 
+                "style": "cutpoint_4", 
+                "robustness": 4, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.139.254", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.10.192", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.151.32", 
+            "properties": {
+                "Potential disconnected nodes": 5, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 66", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "10.254.254.5", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 64", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.162.129", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 62", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "10.122.2.1", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 60", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.133.5", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.146.1", 
+            "properties": {
+                "Potential disconnected nodes": 19, 
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.146.6", 
+            "properties": {
+                "Potential disconnected nodes": 10, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.146.4", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 68", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "192.168.145.145", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.200.2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.185.1.10", 
+            "properties": {
+                "Potential disconnected nodes": 20, 
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 45", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.132.99", 
+                "radius": 33, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.40.22", 
+            "properties": {
+                "Potential disconnected nodes": 13, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.254.254.4", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.49.3", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 46", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "10.0.1.77", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "10.254.254.3", 
+            "properties": {
+                "Potential disconnected nodes": 6, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.254.254.2", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 52", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.45.3", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 50", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.132.132", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 56", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.11.10", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 54", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "10.139.13.1", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.151.2", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.151.1", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.166.1", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.12.11", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 14, 
+                "style": "cutpoint_5", 
+                "robustness": 5, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.12.12", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 12, 
+                "style": "cutpoint_4", 
+                "robustness": 4, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.186.249", 
+            "properties": {
+                "Potential disconnected nodes": 9, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 48", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.118.1", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.40.23", 
+            "properties": {
+                "Potential disconnected nodes": 14, 
+                "radius": 7, 
+                "style": "cutpoint_2", 
+                "robustness": 2, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 44", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "192.168.23.3", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.141.2", 
+            "properties": {
+                "Potential disconnected nodes": 5, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 41", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.12.10", 
+                "radius": 33, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 40", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "10.133.3.252", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 43", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.10.10", 
+                "radius": 33, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.40.24", 
+            "properties": {
+                "Potential disconnected nodes": 12, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.44.10", 
+            "properties": {
+                "Potential disconnected nodes": 2, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.44.11", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "10.162.0.15", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.159.187", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.155.5", 
+            "properties": {
+                "Potential disconnected nodes": 8, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.186.254", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.40.11", 
+            "properties": {
+                "Potential disconnected nodes": 32, 
+                "radius": 10, 
+                "style": "cutpoint_3", 
+                "robustness": 3, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.145.3", 
+            "properties": {
+                "Potential disconnected nodes": 8, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.145.2", 
+            "properties": {
+                "Potential disconnected nodes": 9, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 38", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.186.250", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 80", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.40.10", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 30", 
+            "properties": {
+                "nodes in block": 2, 
+                "nodes": "10.183.1.1 10.183.1.2", 
+                "radius": 11, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 32", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.138.5", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 34", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.185.11", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "Block 36", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.44.1", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.171.1", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "172.16.133.4", 
+            "properties": {
+                "Potential disconnected nodes": 1, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }, 
+        {
+            "id": "Block 42", 
+            "properties": {
+                "nodes in block": 1, 
+                "nodes": "172.16.132.10", 
+                "radius": 5, 
+                "type": "block"
+            }
+        }, 
+        {
+            "id": "172.16.133.1", 
+            "properties": {
+                "Potential disconnected nodes": 3, 
+                "radius": 5, 
+                "style": "cutpoint_1", 
+                "robustness": 1, 
+                "type": "cutpoint"
+            }
+        }
+    ], 
+    "links": [
+        {
+            "source": "172.16.167.1", 
+            "target": "10.184.0.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.167.1", 
+            "target": "172.16.166.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 28", 
+            "target": "172.16.132.7", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 28", 
+            "target": "172.16.132.6", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 22", 
+            "target": "172.16.151.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 20", 
+            "target": "172.16.146.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 26", 
+            "target": "172.16.133.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 24", 
+            "target": "10.162.0.221", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "172.16.159.25", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "Block 32", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "172.16.139.254", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "172.16.139.8", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.10", 
+            "target": "172.16.135.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.135.15", 
+            "target": "Block 18", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 12", 
+            "target": "172.16.49.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.185.13", 
+            "target": "Block 16", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.185.13", 
+            "target": "10.185.1.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.185.13", 
+            "target": "172.16.40.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.172.10", 
+            "target": "Block 4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.172.10", 
+            "target": "Block 78", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.172.10", 
+            "target": "172.16.139.254", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.172.10", 
+            "target": "172.16.159.25", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.172.10", 
+            "target": "172.16.132.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.162.0.221", 
+            "target": "Block 4", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.162.0.221", 
+            "target": "10.162.0.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.162.0.221", 
+            "target": "172.16.200.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.183.1.11", 
+            "target": "Block 30", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.183.1.11", 
+            "target": "172.16.145.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 16", 
+            "target": "10.185.1.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 14", 
+            "target": "172.16.146.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "10.254.254.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "172.16.40.23", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "172.16.159.25", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "Block 34", 
+            "cost": 1
+        }, 
+        {
+            "source": "192.168.176.10", 
+            "target": "172.16.133.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 10", 
+            "target": "172.16.139.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.25", 
+            "target": "172.16.151.32", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.25", 
+            "target": "Block 8", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.25", 
+            "target": "172.16.186.254", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.25", 
+            "target": "10.176.0.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.7", 
+            "target": "172.16.10.192", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.7", 
+            "target": "172.16.132.6", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.6", 
+            "target": "172.16.40.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.50", 
+            "target": "172.16.141.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.50", 
+            "target": "172.16.159.187", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.159.50", 
+            "target": "172.16.186.249", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.20", 
+            "target": "172.16.186.249", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.20", 
+            "target": "Block 0", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.20", 
+            "target": "Block 60", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.12", 
+            "target": "172.16.132.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.12", 
+            "target": "Block 42", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.11", 
+            "target": "Block 44", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.139.8", 
+            "target": "172.16.139.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.62", 
+            "target": "172.16.49.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.62", 
+            "target": "Block 6", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.62", 
+            "target": "10.45.0.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.62", 
+            "target": "172.16.40.24", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.176.0.2", 
+            "target": "10.176.0.135", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 4", 
+            "target": "10.162.0.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 4", 
+            "target": "172.16.186.254", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 4", 
+            "target": "172.16.200.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "172.16.151.32", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "172.16.171.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "172.16.40.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 0", 
+            "target": "172.16.155.5", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 2", 
+            "target": "172.16.141.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.176.0.135", 
+            "target": "Block 46", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.184.0.1", 
+            "target": "10.184.0.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.184.0.4", 
+            "target": "172.16.145.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.5", 
+            "target": "172.16.146.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.5", 
+            "target": "172.16.146.6", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.5", 
+            "target": "Block 62", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.5", 
+            "target": "172.16.146.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.133.10", 
+            "target": "10.254.254.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.133.10", 
+            "target": "Block 40", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.133.11", 
+            "target": "Block 48", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 58", 
+            "target": "172.16.151.32", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.169.2", 
+            "target": "Block 50", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.169.2", 
+            "target": "172.16.169.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.169.1", 
+            "target": "172.16.171.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 74", 
+            "target": "10.162.0.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 76", 
+            "target": "172.16.159.187", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 70", 
+            "target": "172.16.166.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 72", 
+            "target": "172.16.44.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.45.0.2", 
+            "target": "Block 52", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.45.0.2", 
+            "target": "10.45.0.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.97", 
+            "target": "Block 45", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.132.97", 
+            "target": "172.16.12.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.139.254", 
+            "target": "Block 54", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.10.192", 
+            "target": "Block 56", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.151.32", 
+            "target": "172.16.151.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 66", 
+            "target": "10.254.254.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 64", 
+            "target": "172.16.200.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.1", 
+            "target": "172.16.146.6", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.1", 
+            "target": "10.185.1.10", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.1", 
+            "target": "172.16.146.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.6", 
+            "target": "172.16.145.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.146.6", 
+            "target": "172.16.146.4", 
+            "cost": 1
+        }, 
+        {
+            "source": "Block 68", 
+            "target": "10.254.254.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.200.2", 
+            "target": "10.162.0.15", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.22", 
+            "target": "172.16.40.23", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.22", 
+            "target": "172.16.40.24", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.254.254.4", 
+            "target": "10.254.254.3", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.254.254.4", 
+            "target": "10.254.254.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "10.254.254.3", 
+            "target": "10.254.254.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.151.2", 
+            "target": "172.16.151.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.12.11", 
+            "target": "Block 41", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.12.11", 
+            "target": "172.16.12.12", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.12.12", 
+            "target": "Block 43", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.186.249", 
+            "target": "172.16.159.187", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.44.10", 
+            "target": "172.16.155.5", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.44.10", 
+            "target": "172.16.44.11", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.5", 
+            "target": "Block 36", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.155.5", 
+            "target": "172.16.133.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.186.254", 
+            "target": "Block 38", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.11", 
+            "target": "172.16.171.1", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.40.11", 
+            "target": "Block 80", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.145.3", 
+            "target": "172.16.145.2", 
+            "cost": 1
+        }, 
+        {
+            "source": "172.16.133.4", 
+            "target": "172.16.133.1", 
+            "cost": 1
+        }
+    ]
+}

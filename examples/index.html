@@ -11,6 +11,12 @@
 <body>
     <script src="../lib/d3.min.js"></script>
     <script src="../src/netjsongraph.js"></script>
-    <script>d3.netJsonGraph("./data/netjson.json");</script>
+    <script>
+        d3.netJsonGraph("./data/netjson.json", {
+            circleRadius: (node) => {
+                return 10;
+            }
+        });
+    </script>
 </body>
 </html>
