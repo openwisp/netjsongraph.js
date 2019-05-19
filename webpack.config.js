@@ -1,56 +1,59 @@
 const path = require('path');
-const SRC = path.join(__dirname, 'src');
-const BUILD = path.join(__dirname, 'build');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
-module.exports = {
-  entry: {
-    js: path.join(SRC, 'netjsongraph.js')
+module.exports = (env, argv) => ({
+  entry:{
+    move: './src/netjsongraph.js',
   },
   output: {
-    path: BUILD,
-    filename: 'bundle.js'
+    path: path.resolve(__dirname, './dist'),
+    filename: 'js/[name].js'
   },
-  module: {
-    loaders: [{
-      test: /\.html$/,
-      loader: 'file?name=[name].[ext]'
-    }, {
-      test: /\.js$/,
-      exclude: /node_modules/,
-      loaders: [
-        'babel-loader',
-        'eslint-loader'
-      ]
-    }, {
-      test: /\.css$/,
-      loaders: [
-        'style-loader',
-        'css-loader?importLoaders=1',
-        'postcss-loader'
-      ]
-    }, {
-      test: /\.json/,
-      loader: 'json-loader'
-    }, {
-      test: /\.(png|jpg|svg)$/,
-      loader: 'url?limit=80000'
-    }]
+  module:{
+    rules:[
+      {
+        test: /\.css$/,
+        // use: ["style-loader", "css-loader"],
+        use: ExtractTextPlugin.extract({
+          fallback: "style-loader",
+          use: "css-loader",
+          // publicPath: "../"
+        })
+      },     
+    ]
   },
-  devtool: 'evil-source-map',
+
+  plugins:[
+    new ExtractTextPlugin('css/[name].css'),
+    new OptimizeCssAssetsPlugin({
+      assetNameRegExp: /\.css$/,
+      cssProcessor: require('cssnano'),
+      cssProcessorPluginOptions: {
+        preset: ['default', { discardComments: { removeAll: true } }],
+      },
+      canPrint: true
+    }),
+
+    new HtmlWebpackPlugin({
+      template:'./examples/index.html',
+      filename:'index.html',
+      inject:true,
+      hash:false,
+      // chunks:['move'],
+    }),
+  ],
+
   devServer: {
-    contentBase: SRC,
-    inline: true,
-    progress: true,
-    stats: { color: true },
-    port: 3000
+    contentBase: "./",
+    historyApiFallback: true,
+    inline: true, 
+    open: true,
+    openPage: './examples/index.html'
   },
-  resolve: {
-    extensions: ['', '.js']
-  },
-  postcss: function () {
-    return [
-      require('precss'),
-      require('autoprefixer')
-    ];
+
+  performance: {
+    hints: false
   }
-};
+})

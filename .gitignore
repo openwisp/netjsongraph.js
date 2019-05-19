@@ -1,5 +1,7 @@
+# System / Configuration
 ._*
 .DS_*
+.vscode
 
 # Logs
 logs
@@ -11,6 +13,10 @@ yarn-error.log*
 # Dependency directories
 node_modules/
 
+# Version lock
+package-lock.json
+yarn.lock
 
-build
+# Folder
 dist
+coverage
