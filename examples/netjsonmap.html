@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>netjsongraph.js: basic example</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+    integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+    crossorigin=""/>
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+    <link href="../lib/css/leaflet-draw.css" rel="stylesheet">
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script type="text/javascript">
+        const map = new NetJSONGraph("./data/netjsonmap.json", {
+            render: mapRender,
+            // linkStyleProperty: e => {
+            //     console.log("link: ", e);
+            //     return {
+            //         color: 'blue',
+            //         opacity: 0.5,
+            //         weight: 3
+            //     }
+            // },
+            // nodeStyleProperty: e => {
+            //     console.log("node: ", e);
+            //     return {
+            //         color: 'red',
+            //         fillColor: '#f03',
+            //         fillOpacity: 0.5,
+            //         radius: 8
+            //     };
+            // },
+        });
+        map.render();
+    </script>
+</html>
