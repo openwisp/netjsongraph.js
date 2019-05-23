@@ -7,9 +7,9 @@ import "echarts/lib/component/title";
 import "echarts/lib/component/toolbox";
 import "zrender/lib/svg/svg";
 
-import "../lib/leaflet.min.js";
-import "../lib/leaflet-mapDownload.js";
-import "../lib/leaflet-draw.js";
+import "../../lib/js/leaflet.min.js";
+import "../../lib/js/leaflet-mapDownload.js";
+import "../../lib/js/leaflet-draw.js";
 
 const RenderCache = {
   netjsonmap: null,
