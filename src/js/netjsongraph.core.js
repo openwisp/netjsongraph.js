@@ -83,13 +83,15 @@ const NetJSONGraphDefaultConfig = {
    * @this {object}      The instantiated object of NetJSONGraph
    */
   onClickNode: function(node) {
-    if (!NetJSONCache.nodeLinkOverlay) {
-      NetJSONCache.nodeLinkOverlay = document.createElement("div");
-      NetJSONCache.nodeLinkOverlay.setAttribute("class", "njg-overlay");
-      this.el.appendChild(NetJSONCache.nodeLinkOverlay);
+    let nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
+
+    if (!nodeLinkOverlay) {
+      nodeLinkOverlay = document.createElement("div");
+      nodeLinkOverlay.setAttribute("class", "njg-overlay");
+      this.el.appendChild(nodeLinkOverlay);
     }
-    NetJSONCache.nodeLinkOverlay.style.display = "block";
-    NetJSONCache.nodeLinkOverlay.innerHTML = `
+    nodeLinkOverlay.style.visibility = "visible";
+    nodeLinkOverlay.innerHTML = `
             <div class="njg-inner">
                 ${this.utils.nodeInfo(node)}
             </div>
@@ -98,9 +100,9 @@ const NetJSONGraphDefaultConfig = {
     closeA.setAttribute("class", "njg-close");
     closeA.setAttribute("id", "nodeOverlay-close");
     closeA.onclick = () => {
-      NetJSONCache.nodeLinkOverlay.style.display = "none";
+      nodeLinkOverlay.style.visibility = "hidden";
     };
-    NetJSONCache.nodeLinkOverlay.appendChild(closeA);
+    nodeLinkOverlay.appendChild(closeA);
   },
   /**
    * @function
@@ -110,13 +112,15 @@ const NetJSONGraphDefaultConfig = {
    * @this {object}      The instantiated object of NetJSONGraph
    */
   onClickLink: function(link) {
-    if (!NetJSONCache.nodeLinkOverlay) {
-      NetJSONCache.nodeLinkOverlay = document.createElement("div");
-      NetJSONCache.nodeLinkOverlay.setAttribute("class", "njg-overlay");
-      this.el.appendChild(NetJSONCache.nodeLinkOverlay);
+    let nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
+
+    if (nodeLinkOverlay) {
+      nodeLinkOverlay = document.createElement("div");
+      nodeLinkOverlay.setAttribute("class", "njg-overlay");
+      this.el.appendChild(nodeLinkOverlay);
     }
-    NetJSONCache.nodeLinkOverlay.style.display = "block";
-    NetJSONCache.nodeLinkOverlay.innerHTML = `
+    nodeLinkOverlay.style.visibility = "visible";
+    nodeLinkOverlay.innerHTML = `
             <div class="njg-inner">
                 ${this.utils.linkInfo(link)}
             </div>
@@ -125,15 +129,10 @@ const NetJSONGraphDefaultConfig = {
     closeA.setAttribute("class", "njg-close");
     closeA.setAttribute("id", "linkOverlay-close");
     closeA.onclick = () => {
-      NetJSONCache.nodeLinkOverlay.style.display = "none";
+      nodeLinkOverlay.style.visibility = "hidden";
     };
-    NetJSONCache.nodeLinkOverlay.appendChild(closeA);
+    nodeLinkOverlay.appendChild(closeA);
   }
-};
-let NetJSONCache = {
-  // NetJSONCache.data store dealed JSON data, NetJSONCache.nodeLinkOverlay store informationCard DOM.
-  data: null,
-  nodeLinkOverlay: null
 };
 
 class NetJSONGraph {
@@ -203,7 +202,7 @@ class NetJSONGraph {
       if (this.config.dealDataByWorker) {
         this.utils.dealDataByWorker(JSONData, this.config.dealDataByWorker);
       } else {
-        NetJSONCache.data = Object.freeze(JSONData);
+        this.data = Object.freeze(JSONData);
         this.utils.NetJSONRender();
       }
 
@@ -466,19 +465,22 @@ class NetJSONGraph {
           console.error("Error in dealing JSONData!");
         });
         worker.addEventListener("message", e => {
-          NetJSONCache.data = Object.freeze(e.data);
+          _this.data = Object.freeze(e.data);
 
-          if (JSONData.date && JSONData.date !== NetJSONCache.data.date) {
+          if (JSONData.date && JSONData.date !== _this.data.date) {
             document.getElementsByClassName("njg-date")[0].innerHTML =
               "Incoming Time: " +
-              this.dateParse(NetJSONCache.data.date, _this.config.dateRegular);
+              this.dateParse(_this.data.date, _this.config.dateRegular);
           }
 
           if (_this.config.metadata) {
+            document.getElementsByClassName(
+              "njg-metadata"
+            )[0].style.visibility = "visible";
             document.getElementById("metadataNodesLength").innerHTML =
-              NetJSONCache.data.nodes.length;
+              _this.data.nodes.length;
             document.getElementById("metadataLinksLength").innerHTML =
-              NetJSONCache.data.links.length;
+              _this.data.links.length;
           }
 
           this.NetJSONRender();
@@ -499,12 +501,14 @@ class NetJSONGraph {
 
         _this.config.onLoad.call(_this).prepareData(JSONData);
 
-        if (JSONData.date && JSONData.date !== NetJSONCache.data.date) {
+        if (JSONData.date && JSONData.date !== _this.data.date) {
           document.getElementsByClassName("njg-date")[0].innerHTML =
             "Incoming Time: " +
             this.dateParse(JSONData.date, _this.config.dateRegular);
         }
         if (_this.config.metadata) {
+          document.getElementsByClassName("njg-metadata")[0].style.visibility =
+            "visible";
           document.getElementById("metadataNodesLength").innerHTML =
             JSONData.nodes.length;
           document.getElementById("metadataLinksLength").innerHTML =
@@ -516,7 +520,7 @@ class NetJSONGraph {
         if (_this.config.dealDataByWorker) {
           this.dealDataByWorker(JSONData, _this.config.dealDataByWorker);
         } else {
-          NetJSONCache.data = Object.freeze(JSONData);
+          _this.data = Object.freeze(JSONData);
           this.NetJSONRender();
         }
       },
@@ -541,7 +545,7 @@ class NetJSONGraph {
         graphChartContainer.setAttribute("id", "graphChartContainer");
         _this.el.appendChild(graphChartContainer);
         if (_this.config.render) {
-          _this.config.render(graphChartContainer, NetJSONCache.data, _this);
+          _this.config.render(graphChartContainer, _this.data, _this);
         } else {
           console.error("No render function!");
         }
@@ -599,7 +603,7 @@ class NetJSONGraph {
         closeA.setAttribute("id", "metadata-close");
 
         closeA.onclick = () => {
-          metadataContainer.classList.add("njg-hidden");
+          metadataContainer.style.visibility = "hidden";
           _this.config.metadata = false;
         };
         innerDiv.innerHTML = html;
