@@ -18,5 +18,4 @@ package-lock.json
 yarn.lock
 
 # Folder
-dist
 coverage
