@@ -65,7 +65,7 @@ function graphRender(graphContainer, JSONData, _this) {
     }),
     options = {
       title: {
-        text: "NetGraph Demo",
+        text: "NetJSONGraph",
         link: "",
         textStyle: {
           color: "grey",
