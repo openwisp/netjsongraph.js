@@ -1,6 +1,6 @@
 'use strict';
 
-const {operations, dealJSONData} = require('../src/netjsonWorker.js');
+const { operations, dealJSONData } = require('../src/js/netjsonWorker.js');
 const {
   addFlatNodes,
   arrayDeduplication,

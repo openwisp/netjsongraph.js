@@ -96,6 +96,7 @@ const NetJSONGraphDefaultConfig = {
         `;
     const closeA = document.createElement("a");
     closeA.setAttribute("class", "njg-close");
+    closeA.setAttribute("id", "nodeOverlay-close");
     closeA.onclick = () => {
       NetJSONCache.nodeLinkOverlay.style.display = "none";
     };
@@ -122,6 +123,7 @@ const NetJSONGraphDefaultConfig = {
         `;
     const closeA = document.createElement("a");
     closeA.setAttribute("class", "njg-close");
+    closeA.setAttribute("id", "linkOverlay-close");
     closeA.onclick = () => {
       NetJSONCache.nodeLinkOverlay.style.display = "none";
     };
@@ -207,7 +209,7 @@ class NetJSONGraph {
 
       // this.utils.addViewEye();
       this.utils.switchRenderMode();
-      this.utils.addSearchFunc();
+      // this.utils.addSearchFunc();
 
       if (this.config.listenUpdateUrl) {
         const socket = io(this.config.listenUpdateUrl);
@@ -396,9 +398,6 @@ class NetJSONGraph {
         }
         if (node.properties) {
           for (let key in node.properties) {
-            if (!node.properties.hasOwnProperty(key)) {
-              continue;
-            }
             html +=
               "<p><b>" +
               key.replace(/_/g, " ") +
@@ -435,10 +434,7 @@ class NetJSONGraph {
           link.target
         }</p>\n<p><b>cost</b>: ${link.cost}</p>\n`;
         if (link.properties) {
-          for (var key in link.properties) {
-            if (!link.properties.hasOwnProperty(key)) {
-              continue;
-            }
+          for (let key in link.properties) {
             html +=
               "<p><b>" +
               key.replace(/_/g, " ") +
@@ -600,9 +596,11 @@ class NetJSONGraph {
         metadataContainer.setAttribute("style", "display: block");
         innerDiv.setAttribute("class", "njg-inner");
         closeA.setAttribute("class", "njg-close");
+        closeA.setAttribute("id", "metadata-close");
 
         closeA.onclick = () => {
           metadataContainer.classList.add("njg-hidden");
+          _this.config.metadata = false;
         };
         innerDiv.innerHTML = html;
         metadataContainer.appendChild(innerDiv);
@@ -634,12 +632,14 @@ class NetJSONGraph {
         checkLabel.setAttribute("for", "switch");
         canvasMode.innerHTML = "Canvas";
         svgMode.innerHTML = "Svg";
-        checkInput.onchange = e => {
-          _this.config.svgRender = e.target.checked;
+        checkInput.onchange = () => {
+          _this.config.svgRender = !_this.config.svgRender;
           this.NetJSONRender();
         };
         if (_this.config.svgRender) {
           checkInput.checked = true;
+        } else {
+          checkInput.checked = false;
         }
         switchWrapper.appendChild(canvasMode);
         switchWrapper.appendChild(checkInput);
@@ -648,7 +648,7 @@ class NetJSONGraph {
         _this.el.appendChild(switchWrapper);
 
         return switchWrapper;
-      },
+      }
 
       /**
        * @function
@@ -683,57 +683,57 @@ class NetJSONGraph {
        * @return {object} searchContainer DOM
        */
 
-      addSearchFunc() {
-        let searchContainer = document.createElement("div"),
-          searchInput = document.createElement("input"),
-          searchBtn = document.createElement("button"),
-          utils = this;
+      // addSearchFunc() {
+      //   let searchContainer = document.createElement("div"),
+      //     searchInput = document.createElement("input"),
+      //     searchBtn = document.createElement("button"),
+      //     utils = this;
 
-        searchInput.setAttribute("class", "njg-searchInput");
-        searchInput.placeholder = "Input value for searching special elements.";
-        searchBtn.setAttribute("class", "njg-searchBtn");
-        searchBtn.innerHTML = "search";
-        searchContainer.setAttribute("class", "njg-searchContainer");
-        searchContainer.appendChild(searchInput);
-        searchContainer.appendChild(searchBtn);
-        _this.el.appendChild(searchContainer);
+      //   searchInput.setAttribute("class", "njg-searchInput");
+      //   searchInput.placeholder = "Input value for searching special elements.";
+      //   searchBtn.setAttribute("class", "njg-searchBtn");
+      //   searchBtn.innerHTML = "search";
+      //   searchContainer.setAttribute("class", "njg-searchContainer");
+      //   searchContainer.appendChild(searchInput);
+      //   searchContainer.appendChild(searchBtn);
+      //   _this.el.appendChild(searchContainer);
 
-        searchInput.onchange = () => {
-          // do something to deal user input value.
-        };
+      //   searchInput.onchange = () => {
+      //     // do something to deal user input value.
+      //   };
 
-        searchBtn.onclick = () => {
-          let searchValue = searchInput.value.trim();
+      //   searchBtn.onclick = () => {
+      //     let searchValue = searchInput.value.trim();
 
-          if (
-            !history.state ||
-            (history.state && history.state.searchValue !== searchValue)
-          ) {
-            history.pushState({ searchValue }, "");
-            updateSearchedElements(searchValue);
-            searchInput.value = "";
-          }
-        };
+      //     if (
+      //       !history.state ||
+      //       (history.state && history.state.searchValue !== searchValue)
+      //     ) {
+      //       history.pushState({ searchValue }, "");
+      //       updateSearchedElements(searchValue);
+      //       searchInput.value = "";
+      //     }
+      //   };
 
-        history.pushState({ searchValue: "" }, "");
+      //   history.pushState({ searchValue: "" }, "");
 
-        window.onpopstate = event => {
-          updateSearchedElements(event.state.searchValue);
-        };
+      //   window.onpopstate = event => {
+      //     updateSearchedElements(event.state.searchValue);
+      //   };
 
-        return searchContainer;
+      //   return searchContainer;
 
-        function updateSearchedElements(searchValue) {
-          fetch(
-            "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=" +
-              searchValue
-          )
-            .then(data => data.json())
-            .then(data => {
-              utils.JSONDataUpdate(data);
-            });
-        }
-      }
+      //   function updateSearchedElements(searchValue) {
+      //     fetch(
+      //       "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=" +
+      //         searchValue
+      //     )
+      //       .then(data => data.json())
+      //       .then(data => {
+      //         utils.JSONDataUpdate(data);
+      //       });
+      //   }
+      // }
     };
   }
 }
