@@ -180,34 +180,39 @@ class NetJSONGraph {
   render() {
     // Loading();
 
-    this.utils.JSONParamParse(this.JSONParam).then(JSONData => {
-      this.config.onLoad.call(this).prepareData(JSONData);
+    this.utils
+      .JSONParamParse(this.JSONParam)
+      .then(JSONData => {
+        this.config.onLoad.call(this).prepareData(JSONData);
 
-      if (this.config.metadata) {
-        this.utils.NetJSONMetadata(JSONData);
-      }
+        if (this.config.metadata) {
+          this.utils.NetJSONMetadata(JSONData);
+        }
 
-      // if (JSONData.date) {
-      //   const dateNode = document.createElement("span"),
-      //     dateResult = this.utils.dateParse(
-      //       JSONData.date,
-      //       this.config.dateRegular
-      //     );
-      //   dateNode.setAttribute("title", dateResult);
-      //   dateNode.setAttribute("class", "njg-date");
-      //   dateNode.innerHTML = "Incoming Time: " + dateResult;
-      //   this.el.appendChild(dateNode);
-      // }
+        // if (JSONData.date) {
+        //   const dateNode = document.createElement("span"),
+        //     dateResult = this.utils.dateParse(
+        //       JSONData.date,
+        //       this.config.dateRegular
+        //     );
+        //   dateNode.setAttribute("title", dateResult);
+        //   dateNode.setAttribute("class", "njg-date");
+        //   dateNode.innerHTML = "Incoming Time: " + dateResult;
+        //   this.el.appendChild(dateNode);
+        // }
 
-      // unLoading();
+        // unLoading();
 
-      if (this.config.dealDataByWorker) {
-        this.utils.dealDataByWorker(JSONData, this.config.dealDataByWorker);
-      } else {
-        this.data = Object.freeze(JSONData);
-        this.utils.NetJSONRender();
-      }
-    });
+        if (this.config.dealDataByWorker) {
+          this.utils.dealDataByWorker(JSONData, this.config.dealDataByWorker);
+        } else {
+          this.data = Object.freeze(JSONData);
+          this.utils.NetJSONRender();
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   setUtils() {
@@ -488,36 +493,41 @@ class NetJSONGraph {
       JSONDataUpdate(Data) {
         // Loading
 
-        _this.utils.JSONParamParse(Data).then(JSONData => {
-          _this.config.onLoad.call(_this).prepareData(JSONData);
+        _this.utils
+          .JSONParamParse(Data)
+          .then(JSONData => {
+            _this.config.onLoad.call(_this).prepareData(JSONData);
 
-          // if (JSONData.date && JSONData.date !== _this.data.date) {
-          //   document.getElementsByClassName("njg-date")[0].innerHTML =
-          //     "Incoming Time: " +
-          //     _this.utils.dateParse(JSONData.date, _this.config.dateRegular);
-          // }
-          if (_this.config.metadata) {
-            document.getElementsByClassName(
-              "njg-metadata"
-            )[0].style.visibility = "visible";
-            document.getElementById("metadataNodesLength").innerHTML =
-              JSONData.nodes.length;
-            document.getElementById("metadataLinksLength").innerHTML =
-              JSONData.links.length;
-          }
+            // if (JSONData.date && JSONData.date !== _this.data.date) {
+            //   document.getElementsByClassName("njg-date")[0].innerHTML =
+            //     "Incoming Time: " +
+            //     _this.utils.dateParse(JSONData.date, _this.config.dateRegular);
+            // }
+            if (_this.config.metadata) {
+              document.getElementsByClassName(
+                "njg-metadata"
+              )[0].style.visibility = "visible";
+              document.getElementById("metadataNodesLength").innerHTML =
+                JSONData.nodes.length;
+              document.getElementById("metadataLinksLength").innerHTML =
+                JSONData.links.length;
+            }
 
-          // unLoading();
+            // unLoading();
 
-          if (_this.config.dealDataByWorker) {
-            _this.utils.dealDataByWorker(
-              JSONData,
-              _this.config.dealDataByWorker
-            );
-          } else {
-            _this.data = Object.freeze(JSONData);
-            _this.utils.NetJSONRender();
-          }
-        });
+            if (_this.config.dealDataByWorker) {
+              _this.utils.dealDataByWorker(
+                JSONData,
+                _this.config.dealDataByWorker
+              );
+            } else {
+              _this.data = Object.freeze(JSONData);
+              _this.utils.NetJSONRender();
+            }
+          })
+          .catch(error => {
+            console.error(error);
+          });
       },
 
       /**
@@ -542,7 +552,7 @@ class NetJSONGraph {
         if (_this.config.render) {
           _this.config.render(graphChartContainer, _this.data, _this);
         } else {
-          console.error("No render function!");
+          throw new Error("No render function!");
         }
 
         return graphChartContainer;
@@ -635,18 +645,18 @@ class NetJSONGraph {
             (history.state && history.state.searchValue !== searchValue)
           ) {
             history.pushState({ searchValue }, "");
-            updateSearchedElements(searchValue);
+            return updateSearchedElements(searchValue);
           }
         };
 
         function updateSearchedElements(searchValue) {
-          fetch(url + searchValue)
+          return fetch(url + searchValue)
             .then(data => data.json())
             .then(data => {
               _this.utils.JSONDataUpdate(data);
             })
             .catch(error => {
-              console.error("Update elements wrong!", error);
+              throw error;
             });
         }
       }
