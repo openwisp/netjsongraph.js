@@ -187,17 +187,17 @@ class NetJSONGraph {
         this.utils.NetJSONMetadata(JSONData);
       }
 
-      if (JSONData.date) {
-        const dateNode = document.createElement("span"),
-          dateResult = this.utils.dateParse(
-            JSONData.date,
-            this.config.dateRegular
-          );
-        dateNode.setAttribute("title", dateResult);
-        dateNode.setAttribute("class", "njg-date");
-        dateNode.innerHTML = "Incoming Time: " + dateResult;
-        this.el.appendChild(dateNode);
-      }
+      // if (JSONData.date) {
+      //   const dateNode = document.createElement("span"),
+      //     dateResult = this.utils.dateParse(
+      //       JSONData.date,
+      //       this.config.dateRegular
+      //     );
+      //   dateNode.setAttribute("title", dateResult);
+      //   dateNode.setAttribute("class", "njg-date");
+      //   dateNode.innerHTML = "Incoming Time: " + dateResult;
+      //   this.el.appendChild(dateNode);
+      // }
 
       // unLoading();
 
@@ -208,8 +208,6 @@ class NetJSONGraph {
         this.utils.NetJSONRender();
       }
 
-      // this.utils.addViewEye();
-      // this.utils.switchRenderMode();
       // this.utils.addSearchFunc();
 
       if (this.config.listenUpdateUrl) {
@@ -471,11 +469,11 @@ class NetJSONGraph {
         worker.addEventListener("message", e => {
           _this.data = Object.freeze(e.data);
 
-          if (JSONData.date && JSONData.date !== _this.data.date) {
-            document.getElementsByClassName("njg-date")[0].innerHTML =
-              "Incoming Time: " +
-              _this.utils.dateParse(_this.data.date, _this.config.dateRegular);
-          }
+          // if (JSONData.date && JSONData.date !== _this.data.date) {
+          //   document.getElementsByClassName("njg-date")[0].innerHTML =
+          //     "Incoming Time: " +
+          //     _this.utils.dateParse(_this.data.date, _this.config.dateRegular);
+          // }
 
           if (_this.config.metadata) {
             document.getElementsByClassName(
@@ -506,11 +504,11 @@ class NetJSONGraph {
         _this.utils.JSONParamParse(Data).then(JSONData => {
           _this.config.onLoad.call(_this).prepareData(JSONData);
 
-          if (JSONData.date && JSONData.date !== _this.data.date) {
-            document.getElementsByClassName("njg-date")[0].innerHTML =
-              "Incoming Time: " +
-              _this.utils.dateParse(JSONData.date, _this.config.dateRegular);
-          }
+          // if (JSONData.date && JSONData.date !== _this.data.date) {
+          //   document.getElementsByClassName("njg-date")[0].innerHTML =
+          //     "Incoming Time: " +
+          //     _this.utils.dateParse(JSONData.date, _this.config.dateRegular);
+          // }
           if (_this.config.metadata) {
             document.getElementsByClassName(
               "njg-metadata"
@@ -624,70 +622,6 @@ class NetJSONGraph {
 
         return metadataContainer;
       }
-
-      /**
-       * @function
-       * @name switchRenderMode
-       * Switch rendering mode -- Canvas or Svg.
-       *
-       * @return {object} switchWrapper DOM
-       */
-
-      // switchRenderMode() {
-      //   const switchWrapper = document.createElement("div"),
-      //     checkInput = document.createElement("input"),
-      //     checkLabel = document.createElement("label"),
-      //     canvasMode = document.createElement("b"),
-      //     svgMode = document.createElement("b");
-
-      //   switchWrapper.setAttribute("class", "switch-wrap");
-      //   checkInput.setAttribute("id", "switch");
-      //   checkInput.setAttribute("type", "checkbox");
-      //   checkLabel.setAttribute("for", "switch");
-      //   canvasMode.innerHTML = "Canvas";
-      //   svgMode.innerHTML = "Svg";
-      //   checkInput.onchange = () => {
-      //     _this.config.svgRender = !_this.config.svgRender;
-      //     _this.utils.NetJSONRender();
-      //   };
-      //   if (_this.config.svgRender) {
-      //     checkInput.checked = true;
-      //   } else {
-      //     checkInput.checked = false;
-      //   }
-      //   switchWrapper.appendChild(canvasMode);
-      //   switchWrapper.appendChild(checkInput);
-      //   switchWrapper.appendChild(checkLabel);
-      //   switchWrapper.appendChild(svgMode);
-      //   _this.el.appendChild(switchWrapper);
-
-      //   return switchWrapper;
-      // }
-
-      /**
-       * @function
-       * @name addViewEye
-       * Add viewEye icon to change graph or map mode.
-       *
-       * @return {object} selectIconContainer DOM
-       */
-
-      // addViewEye(){
-      //     let selectIconContainer = document.createElement("div"),
-      //         iconEye = document.createElement("span");
-      //     iconEye.setAttribute("class", "iconfont icon-eye");
-      //     selectIconContainer.setAttribute("class", "njg-selectIcon");
-      //     selectIconContainer.appendChild(iconEye);
-      //     _this.el.appendChild(selectIconContainer);
-
-      //     iconEye.onclick = () => {
-      //         _this.config.mapModeRender = !_this.config.mapModeRender;
-      //         NetJSONCache.viewIndoormap = false;
-      //         _this.utils.NetJSONRender();
-      //     }
-
-      //     return selectIconContainer;
-      // },
 
       /**
        * @function
