@@ -153,6 +153,7 @@ class NetJSONGraph {
    * Set properties of instance
    * @param {Object} config
    *
+   * @this {object}      The instantiated object of NetJSONGraph
    * @return {object} this.config
    */
   setConfig(config) {
@@ -174,6 +175,7 @@ class NetJSONGraph {
    *
    * netjsongraph.js render function
    *
+   * @this {object}      The instantiated object of NetJSONGraph
    */
   render() {
     // Loading();
@@ -207,7 +209,7 @@ class NetJSONGraph {
       }
 
       // this.utils.addViewEye();
-      this.utils.switchRenderMode();
+      // this.utils.switchRenderMode();
       // this.utils.addSearchFunc();
 
       if (this.config.listenUpdateUrl) {
@@ -353,17 +355,19 @@ class NetJSONGraph {
         return (
           dateNumberObject["dateYear"] +
           "." +
-          this.numberMinDigit(dateNumberObject["dateMonth"]) +
+          _this.utils.numberMinDigit(dateNumberObject["dateMonth"]) +
           "." +
-          this.numberMinDigit(dateNumberObject["dateDay"]) +
+          _this.utils.numberMinDigit(dateNumberObject["dateDay"]) +
           " " +
-          this.numberMinDigit(dateNumberObject["dateHour"]) +
+          _this.utils.numberMinDigit(dateNumberObject["dateHour"]) +
           ":" +
-          this.numberMinDigit(dateParseArr[5]) +
+          _this.utils.numberMinDigit(dateParseArr[5]) +
           ":" +
-          this.numberMinDigit(dateParseArr[6]) +
+          _this.utils.numberMinDigit(dateParseArr[6]) +
           "." +
-          (dateParseArr[7] ? this.numberMinDigit(dateParseArr[7], 3) : "")
+          (dateParseArr[7]
+            ? _this.utils.numberMinDigit(dateParseArr[7], 3)
+            : "")
         );
       },
 
@@ -470,7 +474,7 @@ class NetJSONGraph {
           if (JSONData.date && JSONData.date !== _this.data.date) {
             document.getElementsByClassName("njg-date")[0].innerHTML =
               "Incoming Time: " +
-              this.dateParse(_this.data.date, _this.config.dateRegular);
+              _this.utils.dateParse(_this.data.date, _this.config.dateRegular);
           }
 
           if (_this.config.metadata) {
@@ -483,7 +487,7 @@ class NetJSONGraph {
               _this.data.links.length;
           }
 
-          this.NetJSONRender();
+          _this.utils.NetJSONRender();
         });
       },
 
@@ -492,37 +496,43 @@ class NetJSONGraph {
        * @name JSONDataUpdate
        *
        * Callback function executed when data update.Update Information and view.
-       * @param  {object}  JSONData     NetJSONData
+       * @param  {object}  Data     JSON data or url
        *
        */
 
-      JSONDataUpdate(JSONData) {
+      JSONDataUpdate(Data) {
         // Loading
 
-        _this.config.onLoad.call(_this).prepareData(JSONData);
+        _this.utils.JSONParamParse(Data).then(JSONData => {
+          _this.config.onLoad.call(_this).prepareData(JSONData);
 
-        if (JSONData.date && JSONData.date !== _this.data.date) {
-          document.getElementsByClassName("njg-date")[0].innerHTML =
-            "Incoming Time: " +
-            this.dateParse(JSONData.date, _this.config.dateRegular);
-        }
-        if (_this.config.metadata) {
-          document.getElementsByClassName("njg-metadata")[0].style.visibility =
-            "visible";
-          document.getElementById("metadataNodesLength").innerHTML =
-            JSONData.nodes.length;
-          document.getElementById("metadataLinksLength").innerHTML =
-            JSONData.links.length;
-        }
+          if (JSONData.date && JSONData.date !== _this.data.date) {
+            document.getElementsByClassName("njg-date")[0].innerHTML =
+              "Incoming Time: " +
+              _this.utils.dateParse(JSONData.date, _this.config.dateRegular);
+          }
+          if (_this.config.metadata) {
+            document.getElementsByClassName(
+              "njg-metadata"
+            )[0].style.visibility = "visible";
+            document.getElementById("metadataNodesLength").innerHTML =
+              JSONData.nodes.length;
+            document.getElementById("metadataLinksLength").innerHTML =
+              JSONData.links.length;
+          }
 
-        // unLoading();
+          // unLoading();
 
-        if (_this.config.dealDataByWorker) {
-          this.dealDataByWorker(JSONData, _this.config.dealDataByWorker);
-        } else {
-          _this.data = Object.freeze(JSONData);
-          this.NetJSONRender();
-        }
+          if (_this.config.dealDataByWorker) {
+            _this.utils.dealDataByWorker(
+              JSONData,
+              _this.config.dealDataByWorker
+            );
+          } else {
+            _this.data = Object.freeze(JSONData);
+            _this.utils.NetJSONRender();
+          }
+        });
       },
 
       /**
@@ -613,7 +623,7 @@ class NetJSONGraph {
         _this.el.appendChild(metadataContainer);
 
         return metadataContainer;
-      },
+      }
 
       /**
        * @function
@@ -623,36 +633,36 @@ class NetJSONGraph {
        * @return {object} switchWrapper DOM
        */
 
-      switchRenderMode() {
-        const switchWrapper = document.createElement("div"),
-          checkInput = document.createElement("input"),
-          checkLabel = document.createElement("label"),
-          canvasMode = document.createElement("b"),
-          svgMode = document.createElement("b");
+      // switchRenderMode() {
+      //   const switchWrapper = document.createElement("div"),
+      //     checkInput = document.createElement("input"),
+      //     checkLabel = document.createElement("label"),
+      //     canvasMode = document.createElement("b"),
+      //     svgMode = document.createElement("b");
 
-        switchWrapper.setAttribute("class", "switch-wrap");
-        checkInput.setAttribute("id", "switch");
-        checkInput.setAttribute("type", "checkbox");
-        checkLabel.setAttribute("for", "switch");
-        canvasMode.innerHTML = "Canvas";
-        svgMode.innerHTML = "Svg";
-        checkInput.onchange = () => {
-          _this.config.svgRender = !_this.config.svgRender;
-          this.NetJSONRender();
-        };
-        if (_this.config.svgRender) {
-          checkInput.checked = true;
-        } else {
-          checkInput.checked = false;
-        }
-        switchWrapper.appendChild(canvasMode);
-        switchWrapper.appendChild(checkInput);
-        switchWrapper.appendChild(checkLabel);
-        switchWrapper.appendChild(svgMode);
-        _this.el.appendChild(switchWrapper);
+      //   switchWrapper.setAttribute("class", "switch-wrap");
+      //   checkInput.setAttribute("id", "switch");
+      //   checkInput.setAttribute("type", "checkbox");
+      //   checkLabel.setAttribute("for", "switch");
+      //   canvasMode.innerHTML = "Canvas";
+      //   svgMode.innerHTML = "Svg";
+      //   checkInput.onchange = () => {
+      //     _this.config.svgRender = !_this.config.svgRender;
+      //     _this.utils.NetJSONRender();
+      //   };
+      //   if (_this.config.svgRender) {
+      //     checkInput.checked = true;
+      //   } else {
+      //     checkInput.checked = false;
+      //   }
+      //   switchWrapper.appendChild(canvasMode);
+      //   switchWrapper.appendChild(checkInput);
+      //   switchWrapper.appendChild(checkLabel);
+      //   switchWrapper.appendChild(svgMode);
+      //   _this.el.appendChild(switchWrapper);
 
-        return switchWrapper;
-      }
+      //   return switchWrapper;
+      // }
 
       /**
        * @function
@@ -673,7 +683,7 @@ class NetJSONGraph {
       //     iconEye.onclick = () => {
       //         _this.config.mapModeRender = !_this.config.mapModeRender;
       //         NetJSONCache.viewIndoormap = false;
-      //         this.NetJSONRender();
+      //         _this.utils.NetJSONRender();
       //     }
 
       //     return selectIconContainer;
@@ -690,8 +700,7 @@ class NetJSONGraph {
       // addSearchFunc() {
       //   let searchContainer = document.createElement("div"),
       //     searchInput = document.createElement("input"),
-      //     searchBtn = document.createElement("button"),
-      //     utils = this;
+      //     searchBtn = document.createElement("button");
 
       //   searchInput.setAttribute("class", "njg-searchInput");
       //   searchInput.placeholder = "Input value for searching special elements.";
@@ -734,7 +743,7 @@ class NetJSONGraph {
       //     )
       //       .then(data => data.json())
       //       .then(data => {
-      //         utils.JSONDataUpdate(data);
+      //         _this.utils.JSONDataUpdate(data);
       //       });
       //   }
       // }
