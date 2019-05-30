@@ -208,8 +208,6 @@ class NetJSONGraph {
         this.utils.NetJSONRender();
       }
 
-      // this.utils.addSearchFunc();
-
       if (this.config.listenUpdateUrl) {
         const socket = io(this.config.listenUpdateUrl);
         socket.on("connect", function() {
@@ -621,66 +619,48 @@ class NetJSONGraph {
         _this.el.appendChild(metadataContainer);
 
         return metadataContainer;
-      }
+      },
 
       /**
        * @function
-       * @name addSearchFunc
-       * Add search function for elements.
+       * @name searchElements
+       * Add search function for new elements.
        *
-       * @return {object} searchContainer DOM
+       * @param {string} url listen url
+       *
+       * @return {function} searchFunc
        */
 
-      // addSearchFunc() {
-      //   let searchContainer = document.createElement("div"),
-      //     searchInput = document.createElement("input"),
-      //     searchBtn = document.createElement("button");
+      searchElements(url) {
+        window.history.pushState({ searchValue: "" }, "");
 
-      //   searchInput.setAttribute("class", "njg-searchInput");
-      //   searchInput.placeholder = "Input value for searching special elements.";
-      //   searchBtn.setAttribute("class", "njg-searchBtn");
-      //   searchBtn.innerHTML = "search";
-      //   searchContainer.setAttribute("class", "njg-searchContainer");
-      //   searchContainer.appendChild(searchInput);
-      //   searchContainer.appendChild(searchBtn);
-      //   _this.el.appendChild(searchContainer);
+        window.onpopstate = event => {
+          updateSearchedElements(event.state.searchValue);
+        };
 
-      //   searchInput.onchange = () => {
-      //     // do something to deal user input value.
-      //   };
+        return function searchFunc(key) {
+          let searchValue = key.trim();
 
-      //   searchBtn.onclick = () => {
-      //     let searchValue = searchInput.value.trim();
+          if (
+            !history.state ||
+            (history.state && history.state.searchValue !== searchValue)
+          ) {
+            history.pushState({ searchValue }, "");
+            updateSearchedElements(searchValue);
+          }
+        };
 
-      //     if (
-      //       !history.state ||
-      //       (history.state && history.state.searchValue !== searchValue)
-      //     ) {
-      //       history.pushState({ searchValue }, "");
-      //       updateSearchedElements(searchValue);
-      //       searchInput.value = "";
-      //     }
-      //   };
-
-      //   history.pushState({ searchValue: "" }, "");
-
-      //   window.onpopstate = event => {
-      //     updateSearchedElements(event.state.searchValue);
-      //   };
-
-      //   return searchContainer;
-
-      //   function updateSearchedElements(searchValue) {
-      //     fetch(
-      //       "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=" +
-      //         searchValue
-      //     )
-      //       .then(data => data.json())
-      //       .then(data => {
-      //         _this.utils.JSONDataUpdate(data);
-      //       });
-      //   }
-      // }
+        function updateSearchedElements(searchValue) {
+          fetch(url + searchValue)
+            .then(data => data.json())
+            .then(data => {
+              _this.utils.JSONDataUpdate(data);
+            })
+            .catch(error => {
+              console.error("Update elements wrong!", error);
+            });
+        }
+      }
     };
   }
 }
