@@ -8,6 +8,7 @@
     <link href="../src/css/netjsongraph.css" rel="stylesheet">
 </head>
 <body>
+    <script type="text/javascript" src="../lib/js/socket.io.js"></script>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
         const graph = new NetJSONGraph("./data/netjsonmap.json", {
@@ -16,14 +17,14 @@
         
         graph.render();
 
-        (function addDateParse(_this){
-            const dateNode = document.createElement("span"),
-              dateResult = _this.utils.dateParse("2019-04-03T05:06:54.000Z");
-              
-            dateNode.setAttribute("title", dateResult);
-            dateNode.setAttribute("class", "njg-date");
-            dateNode.innerHTML = "Incoming Time: " + dateResult;
-            _this.el.appendChild(dateNode);
-        })(graph)   
+        const socket = io("http://localhost:8078");
+
+        socket.on("connect", function() {
+          console.log("client connect");
+        });
+        socket.on("disconnect", function() {
+          console.log("client disconnected.");
+        });
+        socket.on("netjsonChange", graph.utils.JSONDataUpdate);
     </script>
 </html>

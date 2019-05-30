@@ -8,13 +8,11 @@
     <link href="../src/css/netjsongraph.css" rel="stylesheet">
 </head>
 <body>
-    <!-- <script type="text/javascript" src="../lib/socket.io.js"></script> -->
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
         const graph = new NetJSONGraph("./data/netjsonmap.json", {
             render: graphRender,
             // svgRender: true,
-            // listenUpdateUrl: "http://localhost:8078",
             // linkStyleProperty: e => {
             //     console.log("link: ", e);
             //     return {

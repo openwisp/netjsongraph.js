@@ -207,17 +207,6 @@ class NetJSONGraph {
         this.data = Object.freeze(JSONData);
         this.utils.NetJSONRender();
       }
-
-      if (this.config.listenUpdateUrl) {
-        const socket = io(this.config.listenUpdateUrl);
-        socket.on("connect", function() {
-          console.log("client connect");
-        });
-        socket.on("disconnect", function() {
-          console.log("client disconnected.");
-        });
-        socket.on("netjsonChange", this.utils.JSONDataUpdate.bind(this.utils));
-      }
     });
   }
 
