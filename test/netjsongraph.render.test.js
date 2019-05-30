@@ -64,3 +64,10 @@ describe("Test netjsongraph JSONParamParse", () => {
     })
   })
 })
+
+describe("Test netjsongraph searchElements", () => {
+  test("Add search function for new elements.", () => {
+    let searchFunc = graph.utils.searchElements("test");
+    expect(searchFunc("test"));
+  })
+})
