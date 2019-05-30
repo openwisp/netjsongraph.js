@@ -52,7 +52,7 @@ describe("Test netjsongraph utils dom functions", () => {
     // "Deal JSONData by WebWorker and render.": ["dealDataByWorker", nodeInfoData],
     // "Callback function executed when data update.Update Information and view.": ["JSONDataUpdate", linkInfoData],
     "Display metadata of NetJSONGraph.": ["NetJSONMetadata", NetJSONMetadataData],
-    "Switch rendering mode -- Canvas or Svg.": ["switchRenderMode", switchRenderModeData],
+    // "Switch rendering mode -- Canvas or Svg.": ["switchRenderMode", switchRenderModeData],
     // "Add viewEye icon to change graph or map mode.": ["addViewEye", addViewEyeData],
     // "Add search function for elements.": ["addSearchFunc", addSearchFuncData],
   }
@@ -90,11 +90,11 @@ describe("Test netjsongraph dom operate", () => {
     closeBtn.click();
   })
 
-  test("Switch rendering mode -- Canvas or Svg.", () => {
-    const checkInput = document.getElementById('switch');
+  // test("Switch rendering mode -- Canvas or Svg.", () => {
+  //   const checkInput = document.getElementById('switch');
     
-    checkInput.onchange(checkInput);
-  })
+  //   checkInput.onchange(checkInput);
+  // })
 
   test('Close the metadata', () => {
     const metadataClose = document.getElementById('metadata-close');
