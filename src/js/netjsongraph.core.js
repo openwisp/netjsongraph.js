@@ -7,7 +7,6 @@
  * @param  {bool}              metadata            true        Display NetJSON metadata at startup?
  * @param  {bool}              defaultStyle        true        Does node use default css style? If not, you can income the style with JSON.
  * @param  {bool}              svgRender           false       Switch to Svg mode render?
- * @param  {string}            listenUpdateUrl     ""          listen the url to update JSONData.
  * @param  {object(RegExp)}    dateRegular         /(?:)/      Analyze date format.The exec result must be [date, year, month, day, hour, minute, second, millisecond?]
  * @param  {float}             gravity             0.1         The gravitational strength to the specified numerical value. @see {@link https://github.com/mbostock/d3/wiki/Force-Layout#gravity}
  * @param  {int|array}         edgeLength          [20, 60]    The distance between the two nodes on the side, this distance will also be affected by repulsion. @see {@link https://echarts.apache.org/option.html#series-graph.force.edgeLength}
