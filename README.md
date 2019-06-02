@@ -82,23 +82,23 @@ netjsongraph.js accepts two arguments.
 
 ### Different Demos
 
-[NetJSON graph base Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjsongraph.html)
+[NetJSON graph base Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph.html)
      
-[NetJSON map base Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjsonmap.html)
+[NetJSON map base Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap.html)
          
-[NetJSON bigData Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjson-bigData.html)
+[NetJSON bigData Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-bigData.html)
          
-[NetJSON multiple interfaces Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjson-multipleInterfaces.html)       
+[NetJSON multiple interfaces Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-multipleInterfaces.html)       
 
-[NetJSON dataParse Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjson-dateParse.html)
+[NetJSON dataParse Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-dateParse.html)
 
-[NetJSON updateData realtime Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjson-updateData.html)
+[NetJSON updateData realtime Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-updateData.html)
 
-[NetJSON switch render mode Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjson-switchRenderMode.html)
+[NetJSON switch render mode Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-switchRenderMode.html)
 
-[NetJSON switch graph mode Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjson-switchGraphMode.html)
+[NetJSON switch graph mode Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-switchGraphMode.html)
 
-[NetJSON search elements Demo](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjson-searchElements.html)
+[NetJSON search elements Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-searchElements.html)
 
 ### How to migrate the previous version
 
@@ -122,7 +122,7 @@ These parameters have been removed for this demo：
 If you want to update the data in real time, you have to realize realtime updated algorithm because of its customizable.
 Then you only need call `JSONDataUpdate` to update the view.
 
-For show, I write a demo [here](https://openwisp.github.io/netjsongraph.js/gsoc2019/examples/netjson-updateData.html).
+For show, I write a demo [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-updateData.html).
 I use [socket.io](https://socket.io/) to monitor data changes, which supports WebSocket or polling. 
 And I build a simple local server using the express framework and nodeJS. Before testing, you need to open it. 
 
