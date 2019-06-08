@@ -3,6 +3,31 @@
 import "../src/js/netjsongraph.core.js";
 
 describe('NetJSONGraph Specification', () => {
+  const NetJSONGraphTitle = {
+    text: "NetJSONGraph",
+    link: "",
+    textStyle: {
+      color: "grey",
+      fontWeight: "bold",
+      fontSize: 30
+    },
+    left: "center",
+    top: "5%"
+  };
+  const NetJSONGraphConfig = {
+    layout: "force",
+    cursor: "pointer",
+    label: {
+      show: true,
+      color: "#000000"
+    },
+    roam: true,
+    draggable: true,
+    focusNodeAdjacency: true,
+    hoverAnimation: true,
+    legendHoverLink: true
+  };
+
   test("APIs exist", () => {
     expect(NetJSONGraph).toBeDefined();
 
@@ -23,14 +48,16 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.setConfig).toBeInstanceOf(Function);
     expect(graph.setUtils).toBeInstanceOf(Function);
     expect(graph.render).toBeInstanceOf(Function);
-
+ 
     expect(graph.config).toHaveProperty("metadata", true);
     expect(graph.config).toHaveProperty("svgRender", false);
+    expect(graph.config.title).toEqual(NetJSONGraphTitle);
+    expect(graph.config.graphConfig).toEqual(NetJSONGraphConfig);
     expect(graph.config.scaleExtent).toBeInstanceOf(Array);
     expect(graph.config).toHaveProperty("gravity", 0.1);
     expect(graph.config.edgeLength).toBeInstanceOf(Array);
     expect(graph.config).toHaveProperty("repulsion", 120);
-    expect(graph.config.circleRadius).toBeDefined();
+    expect(graph.config.nodeSize).toBeDefined();
     expect(graph.config).toHaveProperty("labelDx", 0);
     expect(graph.config).toHaveProperty("labelDy", -10);
     expect(graph.config.nodeStyleProperty).toBeDefined();
