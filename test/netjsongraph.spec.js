@@ -25,7 +25,6 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.render).toBeInstanceOf(Function);
 
     expect(graph.config).toHaveProperty("metadata", true);
-    // expect(graph.config).toHaveProperty("defaultStyle", true);
     expect(graph.config).toHaveProperty("svgRender", false);
     expect(graph.config.scaleExtent).toBeInstanceOf(Array);
     expect(graph.config).toHaveProperty("gravity", 0.1);
@@ -43,9 +42,6 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.config.onClickLink).toBeInstanceOf(Function);
 
     expect(graph.utils.NetJSONMetadata).toBeInstanceOf(Function);
-    // expect(graph.utils.switchRenderMode).toBeInstanceOf(Function);
-    // expect(graph.utils.addViewEye).toBeInstanceOf(Function);
-    // expect(graph.utils.addSearchFunc).toBeInstanceOf(Function);
     expect(graph.utils.nodeInfo).toBeInstanceOf(Function);
     expect(graph.utils.linkInfo).toBeInstanceOf(Function);
     expect(graph.utils.numberMinDigit).toBeInstanceOf(Function);
