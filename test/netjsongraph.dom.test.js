@@ -40,9 +40,10 @@ describe("Test netjsongraph utils dom functions", () => {
 
 
 describe("Test netjsongraph dom operate", () => {
-  test("Click a node", () => {
-    const graph = new NetJSONGraph("");
+  const graph = new NetJSONGraph();
+  graph.render();
 
+  test("Click a node", () => {
     expect(graph.config.onClickNode.call(graph, {
       id: "1"
     }))
@@ -50,12 +51,8 @@ describe("Test netjsongraph dom operate", () => {
     closeBtn.click();
   })
 
-  const svgGraph = new NetJSONGraph("", {
-    svgRender: true
-  });
-
   test("Click a link", () => {
-    expect(svgGraph.config.onClickLink.call(svgGraph, {
+    expect(graph.config.onClickLink.call(graph, {
       id: "2"
     }))
     const closeBtn = document.getElementById('linkOverlay-close');

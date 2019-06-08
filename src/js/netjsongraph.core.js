@@ -99,24 +99,20 @@ const NetJSONGraphDefaultConfig = {
    */
   onClickNode: function(node) {
     let nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
-
-    if (!nodeLinkOverlay) {
-      nodeLinkOverlay = document.createElement("div");
-      nodeLinkOverlay.setAttribute("class", "njg-overlay");
-      this.el.appendChild(nodeLinkOverlay);
-    }
     nodeLinkOverlay.style.visibility = "visible";
     nodeLinkOverlay.innerHTML = `
-            <div class="njg-inner">
-                ${this.utils.nodeInfo(node)}
-            </div>
-        `;
+        <div class="njg-inner">
+            ${this.utils.nodeInfo(node)}
+        </div>
+    `;
+
     const closeA = document.createElement("a");
     closeA.setAttribute("class", "njg-close");
     closeA.setAttribute("id", "nodeOverlay-close");
     closeA.onclick = () => {
       nodeLinkOverlay.style.visibility = "hidden";
     };
+
     nodeLinkOverlay.appendChild(closeA);
   },
   /**
@@ -128,24 +124,20 @@ const NetJSONGraphDefaultConfig = {
    */
   onClickLink: function(link) {
     let nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
-
-    if (nodeLinkOverlay) {
-      nodeLinkOverlay = document.createElement("div");
-      nodeLinkOverlay.setAttribute("class", "njg-overlay");
-      this.el.appendChild(nodeLinkOverlay);
-    }
     nodeLinkOverlay.style.visibility = "visible";
     nodeLinkOverlay.innerHTML = `
-            <div class="njg-inner">
-                ${this.utils.linkInfo(link)}
-            </div>
-        `;
+        <div class="njg-inner">
+            ${this.utils.linkInfo(link)}
+        </div>
+    `;
+
     const closeA = document.createElement("a");
     closeA.setAttribute("class", "njg-close");
     closeA.setAttribute("id", "linkOverlay-close");
     closeA.onclick = () => {
       nodeLinkOverlay.style.visibility = "hidden";
     };
+
     nodeLinkOverlay.appendChild(closeA);
   }
 };
@@ -199,6 +191,12 @@ class NetJSONGraph {
       .JSONParamParse(this.JSONParam)
       .then(JSONData => {
         this.config.onLoad.call(this).prepareData(JSONData);
+
+        (function addNodeLinkOverlay(_this) {
+          let nodeLinkOverlay = document.createElement("div");
+          nodeLinkOverlay.setAttribute("class", "njg-overlay");
+          _this.el.appendChild(nodeLinkOverlay);
+        })(this);
 
         if (this.config.metadata) {
           this.utils.NetJSONMetadata(JSONData);
@@ -261,6 +259,8 @@ class NetJSONGraph {
        * @name dateParse
        *
        * Parse the time in the browser's current time zone based on the incoming matching rules.
+       * The exec result must be [date, year, month, day, hour, minute, second, millisecond?]
+       *
        * @param  {string}          dateString
        * @param  {object(RegExp)}  parseRegular
        *
