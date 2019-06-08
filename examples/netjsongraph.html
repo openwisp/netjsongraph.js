@@ -12,24 +12,6 @@
     <script type="text/javascript">
         const graph = new NetJSONGraph("./data/netjsonmap.json", {
             render: graphRender,
-            // svgRender: true,
-            // linkStyleProperty: e => {
-            //     console.log("link: ", e);
-            //     return {
-            //         color: 'blue',
-            //         opacity: 0.5,
-            //         weight: 3
-            //     }
-            // },
-            // nodeStyleProperty: e => {
-            //     console.log("node: ", e);
-            //     return {
-            //         color: 'red',
-            //         fillColor: '#f03',
-            //         fillOpacity: 0.5,
-            //         radius: 8
-            //     };
-            // },
         });
         
         graph.render();
