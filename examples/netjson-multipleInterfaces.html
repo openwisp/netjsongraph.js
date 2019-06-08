@@ -13,19 +13,8 @@
         const graph = new NetJSONGraph("./data/netjson-multipleInterfaces.json", {
             render: graphRender,
             dealDataByWorker: "../src/js/netjsonWorker.js",
-            // circleRadius: e => {
-            //     console.log("circle-node: ", e);
-            //     return 10;
-            // },
-            // nodeStyleProperty: e => {
-            //     console.log("node: ", e);
-            //     return {};
-            // },
-            // linkStyleProperty: e => {
-            //     console.log("link: ", e);
-            //     return {};
-            // },
         });
+        
         graph.render();
     </script>
 </body>
