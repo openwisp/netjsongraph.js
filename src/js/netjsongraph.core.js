@@ -24,16 +24,8 @@
  */
 const NetJSONGraphDefaultConfig = {
   metadata: true,
-  // defaultStyle: true,
-  // animationAtStart: true,
   svgRender: false,
   scaleExtent: [0.25, 18],
-  // charge: -130,
-  // linkDistance: 50,
-  // linkStrength: 0.2,
-  // friction: 0.9,  // d3 default
-  // chargeDistance: Infinity,  // d3 default
-  // theta: 0.8,  // d3 default
   gravity: 0.1,
   edgeLength: [20, 60],
   repulsion: 120,
@@ -187,18 +179,6 @@ class NetJSONGraph {
         if (this.config.metadata) {
           this.utils.NetJSONMetadata(JSONData);
         }
-
-        // if (JSONData.date) {
-        //   const dateNode = document.createElement("span"),
-        //     dateResult = this.utils.dateParse(
-        //       JSONData.date,
-        //       this.config.dateRegular
-        //     );
-        //   dateNode.setAttribute("title", dateResult);
-        //   dateNode.setAttribute("class", "njg-date");
-        //   dateNode.innerHTML = "Incoming Time: " + dateResult;
-        //   this.el.appendChild(dateNode);
-        // }
 
         // unLoading();
 
@@ -460,12 +440,6 @@ class NetJSONGraph {
         worker.addEventListener("message", e => {
           _this.data = Object.freeze(e.data);
 
-          // if (JSONData.date && JSONData.date !== _this.data.date) {
-          //   document.getElementsByClassName("njg-date")[0].innerHTML =
-          //     "Incoming Time: " +
-          //     _this.utils.dateParse(_this.data.date, _this.config.dateRegular);
-          // }
-
           if (_this.config.metadata) {
             document.getElementsByClassName(
               "njg-metadata"
@@ -497,11 +471,6 @@ class NetJSONGraph {
           .then(JSONData => {
             _this.config.onLoad.call(_this).prepareData(JSONData);
 
-            // if (JSONData.date && JSONData.date !== _this.data.date) {
-            //   document.getElementsByClassName("njg-date")[0].innerHTML =
-            //     "Incoming Time: " +
-            //     _this.utils.dateParse(JSONData.date, _this.config.dateRegular);
-            // }
             if (_this.config.metadata) {
               document.getElementsByClassName(
                 "njg-metadata"
