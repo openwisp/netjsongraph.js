@@ -8,9 +8,9 @@
        
 [![NPM](https://nodei.co/npm/netjsongraph.js.png)](https://nodei.co/npm/netjsongraph.js/)
          
-![img](/src/data/netjsongraph.png)
-![img](/src/data/netjsonmap.png)
-![img](/src/data/netjsonindoormap.png)
+![img](/examples/data/netjsongraph.png)
+![img](/examples/data/netjsonmap.png)
+![img](/examples/data/netjsonindoormap.png)
 
 Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) and [LeafletJS](https://github.com/Leaflet/Leaflet) to visualize network topology using the
 [NetJSON](http://netjson.org) ``NetworkGraph`` format.
@@ -37,21 +37,20 @@ netjsongraph.js accepts two arguments.
 - options (optional, object): custom options described below
     - el: container element, defaults to "body"
     - metadata: whether to show NetJSON NetworkGraph metadata or not, defaults to true
-    - defaultStyle: whether to use the default style or not, defaults to true
-    - svgRender: switch to Svg mode render?
+    - svgRender: use SVG render?
+    - title: Custom graph title in echarts.
+    - graphConfig: Custom graph config in echarts. Customize your colorful style.
     - scaleExtent: see d3 Zoom scaleExtent, defaults to [0.25, 5]
-    - dateRegular: analyze date format.The exec result must be [date, year, month, day, hour, minute, second, millisecond?]
     - gravity: see d3 Zoom gravity, defaults to 0.1
     - edgeLength: the distance between the two nodes on the side, this distance will also be affected by repulsion
     - repulsion: the repulsion factor between nodes.
-    - circleRadius: the radius of circles (nodes) in pixel
+    - nodeSize: the size of nodes in pixel
     - labelDx: node labels offsetX(distance on x axis) in graph.
     - labelDy: node labels offsetY(distance on y axis) in graph.
-    - nodeClassProperty: if specified, nodes will have an additional CSS class that depends on the value of a specific NetJSON node property
-    - linkClassProperty: if specified, links will have an additional CSS class that depends on the value of a specific NetJSON link property
     - onInit: callback function executed on initialization, params: url and options
     - onLoad: callback function executed after data has been loaded, params: url and options
-    - onEnd: callback function executed when initial animation is complete, params: url and options
+    - nodeStyleProperty: Used to custom node style. 
+    - linkStyleProperty: Used to custom link style.
     - prepareData: function used to convert NetJSON NetworkGraph to the javascript data structured used internally, you won't need to modify it in most cases
     - onClickNode: function called when a node is clicked, you can customize it if you need
     - onClickLink: function called when a link is clicked, you can customize it if you need
