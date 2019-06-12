@@ -1,6 +1,5 @@
 const path = require('path');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = (env, argv) => ({
@@ -13,11 +12,9 @@ module.exports = (env, argv) => ({
     rules:[
       {
         test: /\.css$/,
-        // use: ["style-loader", "css-loader"],
         use: ExtractTextPlugin.extract({
           fallback: "style-loader",
           use: "css-loader",
-          // publicPath: "../"
         })
       },     
     ]
@@ -33,14 +30,6 @@ module.exports = (env, argv) => ({
       },
       canPrint: true
     }),
-
-    // new HtmlWebpackPlugin({
-    //   template:'./examples/netjsongraph.html',
-    //   filename:'index.html',
-    //   inject:true,
-    //   hash:false,
-    //   // chunks:['move'],
-    // }),
   ],
 
   devServer: {
