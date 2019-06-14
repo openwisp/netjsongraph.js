@@ -31,7 +31,7 @@ describe("Test netjsongraph utils dom functions", () => {
   for(let operationText in utilsDOMObj){
     test(operationText, () => {
       let [operationFunc, operationDataMap] = utilsDOMObj[operationText];
-      for(let [key, value] of operationDataMap){  
+      for(let [key, value] of operationDataMap){   
         expect(graph.utils[operationFunc](...key)).toBeInstanceOf(value);
       }
     });
@@ -40,7 +40,11 @@ describe("Test netjsongraph utils dom functions", () => {
 
 
 describe("Test netjsongraph dom operate", () => {
-  const graph = new NetJSONGraph();
+  const graph = new NetJSONGraph({
+    metadata: {},
+    nodes: [],
+    links: []
+  });
   graph.render();
 
   test("Click a node", () => {
