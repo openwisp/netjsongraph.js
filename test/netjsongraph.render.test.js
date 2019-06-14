@@ -36,11 +36,11 @@ describe("Modify netjsongraph configs", () => {
 
 describe("Test netjsongraph JSONDataUpdate", () => {
   test("Callback function executed when data update.Update Information and view.", () => {
-    expect(graph.utils.JSONDataUpdate({
+    expect(graph.utils.JSONDataUpdate.call(graph, {
       date: "2019-04-03T09:06:54.000Z",
       nodes: [{id: "1"}],
       links: [{id: "2"}],
-    }, graph))
+    }))
   })
 })
 
