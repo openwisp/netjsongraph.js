@@ -40,7 +40,7 @@ describe("Test netjsongraph JSONDataUpdate", () => {
       date: "2019-04-03T09:06:54.000Z",
       nodes: [{id: "1"}],
       links: [{id: "2"}],
-    }))
+    }, graph))
   })
 })
 

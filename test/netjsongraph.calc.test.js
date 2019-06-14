@@ -62,19 +62,44 @@ describe("Test netjsongraph function utils", () => {
     ],
   ]);
   const dateParseData = new Map([
-    // dateParse value depands on time zone! So there isn't a only answer.
     [
       // key
-      ["2019-02-28T23:59:59.999Z"],
+      [{
+        dateString: "2019-02-28T23:59:59.999Z",
+        hourDiffer: -1,
+      }],
+      "2019.03.01 00:59:59.999"
     ],
     [
       ["23:59:59.999Z"],
     ],
     [
-      ["2020-02-29T23:59:59Z"],
+      [{
+        dateString: "2020-02-29T23:59:59Z",
+        hourDiffer: -1,
+      }],
+      "2020.03.01 00:59:59"
     ],
     [
-      ["2000-12-31T23:59:59Z"],
+      [{
+        dateString: "2000-12-31T23:59:59Z",
+        hourDiffer: -1,
+      }],
+      "2001.01.01 00:59:59"
+    ],
+    [
+      [{
+        dateString: "2000-12-31T23:59:59Z",
+        hourDiffer: 1,
+      }],
+      "2000.12.31 22:59:59"
+    ],
+    [
+      [{
+        dateString: "1000-01-01T00:59:59Z",
+        hourDiffer: 1,
+      }],
+      "999.12.31 23:59:59"
     ],
   ]);
   
