@@ -37,7 +37,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
       return fetch(url + searchValue)
         .then(data => data.json())
         .then(data => {
-          _this.util.JSONDataUpdate.call(_this, data);
+          _this.utils.JSONDataUpdate.call(_this, data);
         })
         .catch(error => {
           throw error;
@@ -86,12 +86,14 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    *
    * Callback function executed when data update. Update Information and view.
    * @param  {object}  Data     JSON data or url
-   * @param  {object}  _this    NetJSONGraph object
+   *
+   * @this  {object}   NetJSONGraph object
    *
    */
 
-  JSONDataUpdate(Data, _this) {
+  JSONDataUpdate(Data) {
     // Loading
+    const _this = this;
 
     _this.utils
       .JSONParamParse(Data)
