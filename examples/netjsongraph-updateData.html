@@ -25,6 +25,6 @@
         socket.on("disconnect", function() {
           console.log("client disconnected.");
         });
-        socket.on("netjsonChange", graph.utils.JSONDataUpdate);
+        socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
     </script>
 </html>

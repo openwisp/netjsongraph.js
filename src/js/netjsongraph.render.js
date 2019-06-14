@@ -40,9 +40,9 @@ function graphRender(graphContainer, JSONData, _this) {
           ? configs.nodeStyleProperty(node)
           : configs.nodeStyleProperty;
       nodeResult.symbolSize =
-        typeof configs.circleRadius === "function"
-          ? configs.circleRadius(node)
-          : configs.circleRadius;
+        typeof configs.nodeSize === "function"
+          ? configs.nodeSize(node)
+          : configs.nodeSize;
       nodeResult.name = node.name || node.id;
       nodeResult.value = node.value || node.name;
       if (node.category) {
@@ -263,9 +263,9 @@ function mapRender(mapContainer, JSONData, _this) {
             Object.assign(
               {
                 radius:
-                  typeof configs.circleRadius === "function"
-                    ? configs.circleRadius(flatNodes[node_id])
-                    : configs.circleRadius
+                  typeof configs.nodeSize === "function"
+                    ? configs.nodeSize(flatNodes[node_id])
+                    : configs.nodeSize
               },
               typeof configs.nodeStyleProperty === "function"
                 ? configs.nodeStyleProperty(flatNodes[node_id])
