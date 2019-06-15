@@ -23,7 +23,7 @@ describe("Test netjsongraph function utils", () => {
         },
       ],
       // value
-      "<p><b>id</b>: 0</p>\n<p><b>label</b>: test</p>\n<p><b>name</b>: Node</p>\n<p><b>color</b>: red</p>\n<p><b>update time</b>: 2019.5.20 14:21:07</p>\n<p><b>links</b>: 1</p>\n<p><b>local addresses</b>:<br/>192.168.0.01<br/>192.168.0.02<br/>192.168.0.03</p>\n"
+      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br/>192.168.0.01<br/>192.168.0.02<br/>192.168.0.03</p>"
     ],
   ]);
   const linkInfoData = new Map([
@@ -43,7 +43,7 @@ describe("Test netjsongraph function utils", () => {
         },
       ],
       // value
-      `<p><b>source</b>: 192.168.0.01</p>\n<p><b>target</b>: 192.168.1.01</p>\n<p><b>cost</b>: 1.000</p>\n<p><b>name</b>: Link</p>\n<p><b>color</b>: blue</p>\n<p><b>update time</b>: 2019.5.20 14:21:07</p>\n`
+      `<p><b>source</b>: 192.168.0.01</p><p><b>target</b>: 192.168.1.01</p><p><b>cost</b>: 1.000</p><p><b>name</b>: Link</p><p><b>color</b>: blue</p><p><b>update time</b>: 2019.5.20 14:21:07</p>`
     ],
   ]);
   const numberMinDigitData = new Map([
