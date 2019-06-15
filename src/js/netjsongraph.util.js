@@ -167,23 +167,21 @@ class NetJSONGraphUtil {
     let html = "";
 
     if (metadata.label) {
-      html += "<h3>" + metadata.label + "</h3>";
+      html += `<h3>${metadata.label}</h3>`;
     }
-    for (var i in attrs) {
-      var attr = attrs[i];
+    for (let attr of attrs) {
       if (metadata[attr]) {
-        html +=
-          "<p><b>" + attr + "</b>: <span>" + metadata[attr] + "</span></p>";
+        html += `<p><b>${attr}</b>: <span>${metadata[attr]}</span></p>`;
       }
     }
-    html +=
-      "<p><b>nodes</b>: <span id='metadataNodesLength'>" +
-      metadata.nodes.length +
-      "</span></p>";
-    html +=
-      "<p><b>links</b>: <span id='metadataLinksLength'>" +
-      metadata.links.length +
-      "</span></p>";
+    html += `
+      <p><b>nodes</b>: <span id='metadataNodesLength'>${
+        metadata.nodes.length
+      }</span></p>
+      <p><b>links</b>: <span id='metadataLinksLength'>${
+        metadata.links.length
+      }</span></p>
+    `;
 
     const metadataContainer = document.createElement("div"),
       innerDiv = document.createElement("div"),
@@ -215,28 +213,24 @@ class NetJSONGraphUtil {
    */
 
   nodeInfo(node) {
-    let html = `<p><b>id</b>: ${node.id}</p>\n`;
+    let html = `<p><b>id</b>: ${node.id}</p>`;
     if (node.label) {
-      html += "<p><b>label</b>: " + node.label + "</p>\n";
+      html += `<p><b>label</b>: ${node.label}</p>`;
     }
     if (node.properties) {
       for (let key in node.properties) {
-        html +=
-          "<p><b>" +
-          key.replace(/_/g, " ") +
-          "</b>: " +
-          node.properties[key] +
-          "</p>\n";
+        html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
+          node.properties[key]
+        }</p>`;
       }
     }
     if (node.linkCount) {
-      html += "<p><b>links</b>: " + node.linkCount + "</p>\n";
+      html += `<p><b>links</b>: ${node.linkCount}</p>`;
     }
     if (node.local_addresses) {
-      html +=
-        "<p><b>local addresses</b>:<br/>" +
-        node.local_addresses.join("<br/>") +
-        "</p>\n";
+      html += `<p><b>local addresses</b>:<br/>${node.local_addresses.join(
+        "<br/>"
+      )}</p>`;
     }
 
     return html;
@@ -253,17 +247,14 @@ class NetJSONGraphUtil {
    */
 
   linkInfo(link) {
-    let html = `<p><b>source</b>: ${link.source}</p>\n<p><b>target</b>: ${
+    let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${
       link.target
-    }</p>\n<p><b>cost</b>: ${link.cost}</p>\n`;
+    }</p><p><b>cost</b>: ${link.cost}</p>`;
     if (link.properties) {
       for (let key in link.properties) {
-        html +=
-          "<p><b>" +
-          key.replace(/_/g, " ") +
-          "</b>: " +
-          link.properties[key] +
-          "</p>\n";
+        html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
+          link.properties[key]
+        }</p>`;
       }
     }
 
