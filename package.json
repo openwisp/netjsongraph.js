@@ -54,6 +54,8 @@
     "webpack-dev-server": "^3.1.7"
   },
   "dependencies": {
-    "echarts": "^4.2.1"
+    "echarts": "^4.2.1",
+    "echarts-leaflet": "^1.0.2",
+    "leaflet": "^1.5.1"
   }
 }
