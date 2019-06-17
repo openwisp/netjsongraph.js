@@ -60,7 +60,7 @@ class NetJSONGraphUtil {
       console.error("Date doesn't meet the specifications.");
       return "";
     }
-    const dateNumerFields = ["dateYear", "dateMonth", "dateDay", "dateHour"],
+    const dateNumberFields = ["dateYear", "dateMonth", "dateDay", "dateHour"],
       dateNumberObject = {},
       leapYear =
         (dateParseArr[1] % 4 === 0 && dateParseArr[1] % 100 !== 0) ||
@@ -74,27 +74,27 @@ class NetJSONGraphUtil {
         ["dateHour", 24]
       ]);
 
-    for (let i = dateNumerFields.length; i > 0; i--) {
-      dateNumberObject[dateNumerFields[i - 1]] = parseInt(dateParseArr[i], 10);
+    for (let i = dateNumberFields.length; i > 0; i--) {
+      dateNumberObject[dateNumberFields[i - 1]] = parseInt(dateParseArr[i], 10);
     }
 
     let carry = -hourDiffer,
       limitBoundary;
-    for (let i = dateNumerFields.length; i > 0; i--) {
-      if (dateNumerFields[i - 1] === "dateYear") {
-        dateNumberObject[dateNumerFields[i - 1]] += carry;
+    for (let i = dateNumberFields.length; i > 0; i--) {
+      if (dateNumberFields[i - 1] === "dateYear") {
+        dateNumberObject[dateNumberFields[i - 1]] += carry;
         break;
-      } else if (dateNumerFields[i - 1] === "dateDay") {
+      } else if (dateNumberFields[i - 1] === "dateDay") {
         limitBoundary = limitBoundaries.get("dateDay")[
           dateNumberObject["dateMonth"] - 1
         ];
       } else {
-        limitBoundary = limitBoundaries.get(dateNumerFields[i - 1]);
+        limitBoundary = limitBoundaries.get(dateNumberFields[i - 1]);
       }
 
-      let calculateResult = dateNumberObject[dateNumerFields[i - 1]] + carry;
+      let calculateResult = dateNumberObject[dateNumberFields[i - 1]] + carry;
 
-      if (dateNumerFields[i - 1] === "dateHour") {
+      if (dateNumberFields[i - 1] === "dateHour") {
         carry =
           calculateResult < 0 ? -1 : calculateResult >= limitBoundary ? 1 : 0;
       } else {
@@ -105,15 +105,15 @@ class NetJSONGraphUtil {
       if (carry === 1) {
         calculateResult -= limitBoundary;
       } else if (carry < 0) {
-        if (dateNumerFields[i - 1] === "dateDay") {
+        if (dateNumberFields[i - 1] === "dateDay") {
           limitBoundary = limitBoundaries.get("dateDay")[
-            (dateNumberObject[dateNumerFields[i - 1]] + 10) % 11
+            (dateNumberObject[dateNumberFields[i - 1]] + 10) % 11
           ];
         }
         calculateResult += limitBoundary;
       }
 
-      dateNumberObject[dateNumerFields[i - 1]] = calculateResult;
+      dateNumberObject[dateNumberFields[i - 1]] = calculateResult;
     }
 
     return (
