@@ -41,7 +41,14 @@ const operations = {
     JSONData.links.map(function(link) {
       let sourceNode = JSONData.flatNodes[link.source],
         targetNode = JSONData.flatNodes[link.target];
-      if (sourceNode && targetNode && sourceNode.id !== targetNode.id) {
+      if (sourceNode && targetNode) {
+        if (sourceNode.id === targetNode.id) {
+          console.error(
+            `Link source and target (${sourceNode.id}) are duplicated!`
+          );
+          return;
+        }
+
         if (!nodeLinks[sourceNode.id]) {
           nodeLinks[sourceNode.id] = 0;
         }
@@ -50,6 +57,10 @@ const operations = {
         }
         nodeLinks[sourceNode.id]++;
         nodeLinks[targetNode.id]++;
+      } else if (!sourceNode) {
+        console.error(`Node ${link.source} is not exist!`);
+      } else {
+        console.error(`Node ${link.target} is not exist!`);
       }
     });
     for (let nodeID in JSONData.flatNodes) {
@@ -110,6 +121,7 @@ const operations = {
         flag = 0;
       for (let key of eigenvalues) {
         if (!copyArr[i][key]) {
+          console.error(`The array doesn't have "${key}"`);
           flag = 1;
           break;
         }
