@@ -129,6 +129,23 @@ const arrayDeduplicationJSONData = new Map([
   [
     // key
     [
+      // nodes
+      [
+        {
+          "id": "172.31.0.5",
+        }
+      ],
+    ],
+    // value
+    [
+      {
+        "id": "172.31.0.5",
+      },
+    ],
+  ],
+  [
+    // key
+    [
       // links
       [
         {
@@ -242,6 +259,11 @@ const changeInterfaceIDJSONData = new Map([
             "cost": 1,
             "cost_text": "1.000"
           },
+          {
+            "source": "172.31.2.2",
+            "cost": 1,
+            "cost_text": "1.000"
+          },
         ]
       }
     ],
@@ -258,6 +280,11 @@ const changeInterfaceIDJSONData = new Map([
         "cost": 1,
         "cost_text": "1.000"
       },
+      {
+        "cost": 1,
+        "cost_text": "1.000",
+        "source": "172.31.2.2",
+      }
     ]
   ],
 ]);
@@ -282,11 +309,20 @@ const addNodeLinksJSONData = new Map([
               "172.31.2.2"
             ]
           },
+          "172.31.2.500": {
+            "id": "172.31.2.500",
+          }
         }, 
         links: [
           {
             "source": "172.31.2.1",
             "target": "172.31.0.1",
+            "cost": 1,
+            "cost_text": "1.000"
+          },
+          {
+            "source": "172.31.0.5",
+            "target": "172.31.2.100",
             "cost": 1,
             "cost_text": "1.000"
           },
@@ -302,6 +338,12 @@ const addNodeLinksJSONData = new Map([
             "cost": 1,
             "cost_text": "1.000"
           },
+          {
+            "source": "172.31.2.100",
+            "target": "172.31.2.100",
+            "cost": 0,
+            "cost_text": "0.000"
+          },
         ]
       }
     ],
@@ -311,7 +353,7 @@ const addNodeLinksJSONData = new Map([
         "local_addresses": [
           "172.31.0.2",
         ],
-        "linkCount": 1
+        "linkCount": 2
       },
       {
         "id": "172.31.1.100",
@@ -323,7 +365,11 @@ const addNodeLinksJSONData = new Map([
           "172.31.2.1",
           "172.31.2.2"
         ],
-        "linkCount": 1
+        "linkCount": 2
+      },
+      {
+        "id": "172.31.2.500",
+        "linkCount": 0,
       }
     ]
   ],
