@@ -98,7 +98,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
     _this.utils
       .JSONParamParse(Data)
       .then(JSONData => {
-        _this.config.onLoad.call(_this).prepareData(JSONData);
+        _this.config.prepareData.call(_this, JSONData);
 
         if (_this.config.metadata) {
           document.getElementsByClassName("njg-metadata")[0].style.visibility =
