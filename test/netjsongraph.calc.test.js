@@ -102,12 +102,58 @@ describe("Test netjsongraph function utils", () => {
       "999.12.31 23:59:59"
     ],
   ]);
+  const isObjectData = new Map([
+    [
+      [[]],
+      false
+    ],
+    [
+      [{}],
+      true
+    ],
+  ]);
+  const deepMergeObjData = new Map([
+    [
+      [{a: 1}, {b: 2}],
+      {a: 1, b: 2}
+    ],
+    [
+      [{a: 1}],
+      {a: 1}
+    ],
+    [
+      [, {a: 1}],
+      {a: 1}
+    ],
+    [
+      [{a: 1}, {a: 2}],
+      {a: 2}
+    ],
+    [
+      [{a: [1,]}, {a: [2,]}],
+      {a: [2,]}
+    ],
+    [
+      [{a: {b: 1}}, {a: {c: 2}}],
+      {a: {b: 1, c: 2}}
+    ],
+    [
+      [{a: 1}, {b: 2}, {c: 3}],
+      {a: 1, b: 2, c: 3}
+    ],
+    [
+      [{a: 1}, {c: 3}, , ,],
+      {a: 1, c: 3}
+    ],
+  ]);
   
   const utilsObj = {
     "Parse the infomation of incoming node data.": ["nodeInfo", nodeInfoData],
     "Parse the infomation of incoming link data.": ["linkInfo", linkInfoData],
     "Guaranteed minimum number of digits": ["numberMinDigit", numberMinDigitData],
     "Parse the time in the browser's current time zone based on the incoming matching rules.": ["dateParse", dateParseData],
+    "Judge parameter type is object": ["isObject", isObjectData],
+    "Merge two object deeply": ["deepMergeObj", deepMergeObjData],
   }
 
   for(let operationText in utilsObj){

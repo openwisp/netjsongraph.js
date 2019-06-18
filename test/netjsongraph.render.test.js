@@ -15,7 +15,10 @@ window.fetch = jest.fn(url => url === JSONFILE ?
 );
 
 const graph = new NetJSONGraph(JSONFILE, {
-  circleRadius: 5,
+  el: document.getElementsByTagName("body")[0],
+  metadata: false,
+  nodeSize: 5,
+  render: () => {}
 });
 
 describe("Test netjsongraph render", () => {
@@ -23,23 +26,36 @@ describe("Test netjsongraph render", () => {
     expect(graph.render());
 
     // re render
-    expect(() => {graph.utils.NetJSONRender()}).toThrow();
+    expect(graph.utils.NetJSONRender());
   })
 })
 
 describe("Modify netjsongraph configs", () => {
   test("NetJSONGraph support dynamic modification of config parameters", () => {
-    graph.setConfig({circleRadius: 1});
-    expect(graph.config.circleRadius).toBe(1);
+    graph.setConfig({nodeSize: 1});
+    graph.setConfig();
+    expect(graph.config.nodeSize).toBe(1);
   });
 })
 
 describe("Test netjsongraph JSONDataUpdate", () => {
+  const graph = new NetJSONGraph(JSONFILE);
+  graph.render();
+
   test("Callback function executed when data update.Update Information and view.", () => {
     expect(graph.utils.JSONDataUpdate.call(graph, {
+      metadata: {},
       date: "2019-04-03T09:06:54.000Z",
       nodes: [{id: "1"}],
       links: [{id: "2"}],
+    }))
+  })
+  test("Update metadata test.", () => {
+    graph.config.metadata = false;
+    expect(graph.utils.JSONDataUpdate.call(graph, {
+      metadata: {},
+      nodes: [],
+      links: [],
     }))
   })
 })
