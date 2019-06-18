@@ -11,7 +11,6 @@ class NetJSONGraph {
    * @param {Object} config
    */
   constructor(JSONParam, config) {
-    this.config = NetJSONGraphDefaultConfig;
     this.JSONParam = JSONParam;
 
     this.setConfig(config).onInit.call(this);
@@ -22,17 +21,31 @@ class NetJSONGraph {
    * @param {Object} config
    *
    * @this {object}      The instantiated object of NetJSONGraph
-   * @return {object} this.config
+   *
+   * @return {object}    this.config
    */
   setConfig(config) {
-    Object.assign(this.config, config);
     if (!this.utils) {
       this.utils = this.setUtils();
     }
 
-    this.el =
-      document.getElementById(this.config.el) ||
-      document.getElementsByTagName("body")[0];
+    if (!this.config) {
+      this.config = this.utils.deepMergeObj(
+        Object.assign({}, NetJSONGraphDefaultConfig),
+        config || {}
+      );
+    } else {
+      this.utils.deepMergeObj(this.config, config || {});
+    }
+
+    if (typeof this.config.el === "object") {
+      this.el = this.config.el;
+    } else {
+      this.el =
+        document.getElementById(this.config.el) ||
+        document.getElementsByTagName("body")[0];
+    }
+    this.el.classList.add("njg-relativePosition");
 
     return this.config;
   }
@@ -51,11 +64,11 @@ class NetJSONGraph {
     this.utils
       .JSONParamParse(this.JSONParam)
       .then(JSONData => {
-        this.config.onLoad.call(this).prepareData(JSONData);
+        this.config.prepareData.call(this, JSONData);
 
         (function addNodeLinkOverlay(_this) {
           let nodeLinkOverlay = document.createElement("div");
-          nodeLinkOverlay.setAttribute("class", "njg-overlay");
+          nodeLinkOverlay.setAttribute("class", "njg-overlay njg-container");
           _this.el.appendChild(nodeLinkOverlay);
         })(this);
 
@@ -89,8 +102,6 @@ class NetJSONGraph {
        * @function
        * @name NetJSONRender
        * Perform different renderings according to different types.
-       *
-       * @return {object} render object
        */
 
       NetJSONRender() {
@@ -109,8 +120,6 @@ class NetJSONGraph {
         } else {
           throw new Error("No render function!");
         }
-
-        return graphChartContainer;
       }
     });
   }
