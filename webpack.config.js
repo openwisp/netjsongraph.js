@@ -1,25 +1,20 @@
 const path = require('path');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = (env, argv) => ({
-  entry:{
-    move: './src/netjsongraph.js',
-  },
+  entry: ['./src/js/netjsongraph.render.js', './src/js/netjsongraph.core.js'],
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: 'js/[name].js'
+    filename: 'netjsongraph.min.js'
   },
   module:{
     rules:[
       {
         test: /\.css$/,
-        // use: ["style-loader", "css-loader"],
         use: ExtractTextPlugin.extract({
           fallback: "style-loader",
           use: "css-loader",
-          // publicPath: "../"
         })
       },     
     ]
@@ -35,14 +30,6 @@ module.exports = (env, argv) => ({
       },
       canPrint: true
     }),
-
-    new HtmlWebpackPlugin({
-      template:'./examples/index.html',
-      filename:'index.html',
-      inject:true,
-      hash:false,
-      // chunks:['move'],
-    }),
   ],
 
   devServer: {
@@ -50,7 +37,7 @@ module.exports = (env, argv) => ({
     historyApiFallback: true,
     inline: true, 
     open: true,
-    openPage: './examples/index.html'
+    openPage: './examples/netjsongraph.html'
   },
 
   performance: {
