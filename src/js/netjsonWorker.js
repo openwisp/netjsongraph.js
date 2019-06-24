@@ -13,7 +13,7 @@ const operations = {
     let nodeInterfaces = {};
 
     nodes.map(function(node) {
-      flatNodes[node.id] = JSON.parse(JSON.stringify(node));
+      flatNodes[node.id] = node;
 
       if (node.local_addresses) {
         node.local_addresses.map(address => {
@@ -64,7 +64,7 @@ const operations = {
       }
     });
     for (let nodeID in JSONData.flatNodes) {
-      let copyNode = JSON.parse(JSON.stringify(JSONData.flatNodes[nodeID]));
+      let copyNode = JSONData.flatNodes[nodeID];
       copyNode.linkCount = nodeLinks[nodeID] || 0;
       resultNodes.push(copyNode);
     }
