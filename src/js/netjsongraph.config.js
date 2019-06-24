@@ -27,7 +27,7 @@
  * @param  {function}          prepareData                     Callback function executed after data has been loaded. Used to convert data to NetJSON Data.
  * @param  {function}          onClickElement                  Called when a node or link is clicked.
  */
-const NetJSONGraphDefaultConfig = {
+const NetJSONGraphDefaultConfig = Object.freeze({
   metadata: true,
   svgRender: false,
   echartsOption: {
@@ -59,7 +59,8 @@ const NetJSONGraphDefaultConfig = {
           title: "Save image"
         }
       }
-    }
+    },
+    color: ["#d66b30", "#a3c7dd", "#5c9660", "#d66b30"]
   },
 
   graphConfig: {
@@ -96,115 +97,118 @@ const NetJSONGraphDefaultConfig = {
   },
 
   nodeSize: 25,
-  nodeStyleProperty: () => {
+  nodeStyleProperty: (() => {
     let styles = [
-      {
-        color: {
-          type: "radial",
-          x: 0.5,
-          y: 0.5,
-          r: 0.5,
-          colorStops: [
-            {
-              offset: 0,
-              color: "#d66b30"
-            },
-            {
-              offset: 0.7,
-              color: "#d66b30"
-            },
-            {
-              offset: 0.71,
-              color: "#ebb598"
-            },
-            {
-              offset: 1,
-              color: "#ebb598"
-            }
-          ]
+        {
+          color: {
+            type: "radial",
+            x: 0.5,
+            y: 0.5,
+            r: 0.5,
+            colorStops: [
+              {
+                offset: 0,
+                color: "#d66b30"
+              },
+              {
+                offset: 0.7,
+                color: "#d66b30"
+              },
+              {
+                offset: 0.71,
+                color: "#ebb598"
+              },
+              {
+                offset: 1,
+                color: "#ebb598"
+              }
+            ]
+          }
+        },
+        {
+          color: {
+            type: "radial",
+            x: 0.5,
+            y: 0.5,
+            r: 0.5,
+            colorStops: [
+              {
+                offset: 0,
+                color: "#a3c7dd"
+              },
+              {
+                offset: 0.7,
+                color: "#a3c7dd"
+              },
+              {
+                offset: 0.71,
+                color: "#e3edf6"
+              },
+              {
+                offset: 1,
+                color: "#e3edf6"
+              }
+            ]
+          }
+        },
+        {
+          color: {
+            type: "radial",
+            x: 0.5,
+            y: 0.5,
+            r: 0.5,
+            colorStops: [
+              {
+                offset: 0,
+                color: "#5c9660"
+              },
+              {
+                offset: 0.7,
+                color: "#5c9660"
+              },
+              {
+                offset: 0.71,
+                color: "#aecbb0"
+              },
+              {
+                offset: 1,
+                color: "#aecbb0"
+              }
+            ]
+          }
+        },
+        {
+          color: {
+            type: "radial",
+            x: 0.5,
+            y: 0.5,
+            r: 0.5,
+            colorStops: [
+              {
+                offset: 0,
+                color: "#d66b30"
+              },
+              {
+                offset: 0.7,
+                color: "#d66b30"
+              },
+              {
+                offset: 0.71,
+                color: "#ebb598"
+              },
+              {
+                offset: 1,
+                color: "#ebb598"
+              }
+            ]
+          }
         }
-      },
-      {
-        color: {
-          type: "radial",
-          x: 0.5,
-          y: 0.5,
-          r: 0.5,
-          colorStops: [
-            {
-              offset: 0,
-              color: "#a3c7dd"
-            },
-            {
-              offset: 0.7,
-              color: "#a3c7dd"
-            },
-            {
-              offset: 0.71,
-              color: "#e3edf6"
-            },
-            {
-              offset: 1,
-              color: "#e3edf6"
-            }
-          ]
-        }
-      },
-      {
-        color: {
-          type: "radial",
-          x: 0.5,
-          y: 0.5,
-          r: 0.5,
-          colorStops: [
-            {
-              offset: 0,
-              color: "#5c9660"
-            },
-            {
-              offset: 0.7,
-              color: "#5c9660"
-            },
-            {
-              offset: 0.71,
-              color: "#aecbb0"
-            },
-            {
-              offset: 1,
-              color: "#aecbb0"
-            }
-          ]
-        }
-      },
-      {
-        color: {
-          type: "radial",
-          x: 0.5,
-          y: 0.5,
-          r: 0.5,
-          colorStops: [
-            {
-              offset: 0,
-              color: "#d66b30"
-            },
-            {
-              offset: 0.7,
-              color: "#d66b30"
-            },
-            {
-              offset: 0.71,
-              color: "#ebb598"
-            },
-            {
-              offset: 1,
-              color: "#ebb598"
-            }
-          ]
-        }
-      }
-    ];
-    return styles[parseInt(Math.random() * styles.length)];
-  },
+      ],
+      i = 0;
+    return () => {
+      return styles[i++ % styles.length];
+    };
+  })(),
   linkStyleProperty: () => ({
     width: 5,
     color: "#999",
@@ -279,6 +283,6 @@ const NetJSONGraphDefaultConfig = {
 
     nodeLinkOverlay.appendChild(closeA);
   }
-};
+});
 
 export default NetJSONGraphDefaultConfig;
