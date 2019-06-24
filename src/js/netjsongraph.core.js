@@ -1,7 +1,6 @@
 "use strict";
 
 import NetJSONGraphDefaultConfig from "./netjsongraph.config.js";
-import NetJSONGraphUpdate from "./netjsongraph.update.js";
 
 class NetJSONGraph {
   /**
@@ -12,7 +11,9 @@ class NetJSONGraph {
    */
   constructor(JSONParam, config) {
     this.JSONParam = JSONParam;
+    this.config = { ...NetJSONGraphDefaultConfig };
 
+    this.setUtils();
     this.setConfig(config).onInit.call(this);
   }
 
@@ -25,27 +26,18 @@ class NetJSONGraph {
    * @return {object}    this.config
    */
   setConfig(config) {
-    if (!this.utils) {
-      this.utils = this.setUtils();
-    }
+    if (config) {
+      this.utils.deepMergeObj(this.config, config);
 
-    if (!this.config) {
-      this.config = this.utils.deepMergeObj(
-        Object.assign({}, NetJSONGraphDefaultConfig),
-        config || {}
-      );
-    } else {
-      this.utils.deepMergeObj(this.config, config || {});
+      if (typeof this.config.el === "object") {
+        this.el = this.config.el;
+      } else {
+        this.el =
+          document.getElementById(this.config.el) ||
+          document.getElementsByTagName("body")[0];
+      }
+      this.el.classList.add("njg-relativePosition");
     }
-
-    if (typeof this.config.el === "object") {
-      this.el = this.config.el;
-    } else {
-      this.el =
-        document.getElementById(this.config.el) ||
-        document.getElementsByTagName("body")[0];
-    }
-    this.el.classList.add("njg-relativePosition");
 
     return this.config;
   }
@@ -85,7 +77,7 @@ class NetJSONGraph {
             this
           );
         } else {
-          this.data = Object.freeze(JSONData);
+          this.data = JSONData;
           this.utils.NetJSONRender();
         }
       })
@@ -94,10 +86,20 @@ class NetJSONGraph {
       });
   }
 
-  setUtils() {
+  /**
+   * @function
+   * @name setUtils
+   *
+   * set netjsongraph utils
+   *
+   * @param {object}  util  The object of functions
+   *
+   * @this {object}         The instantiated object of NetJSONGraph
+   */
+  setUtils(util) {
     const _this = this;
 
-    return Object.assign(Object.create(new NetJSONGraphUpdate()), {
+    _this.utils = Object.assign(_this.utils || {}, util || {}, {
       /**
        * @function
        * @name NetJSONRender
@@ -122,7 +124,9 @@ class NetJSONGraph {
         }
       }
     });
+
+    return _this.utils;
   }
 }
 
-window.NetJSONGraph = NetJSONGraph;
+export default NetJSONGraph;
