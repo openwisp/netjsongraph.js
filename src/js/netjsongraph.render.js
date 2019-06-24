@@ -14,223 +14,223 @@ import "leaflet/dist/leaflet.js";
 
 import "echarts-leaflet/dist/echarts-leaflet.js";
 
-/**
- * @function
- * @name graphSetOption
- *
- * set option in echarts and render.
- *
- * @param  {object}  customOption    custom option determined by different render.
- * @param  {object}  _this           NetJSONGraph object
- *
- * @return {object}  graph object
- *
- */
-function graphSetOption(customOption, echartsLayer, _this) {
-  const configs = _this.config,
-    commonOption = _this.utils.deepMergeObj(
-      {
-        tooltip: {
-          confine: true,
-          formatter: params => {
-            if (params.componentSubType === "graph") {
-              return params.dataType === "edge"
-                ? _this.utils.linkInfo(params.data)
-                : _this.utils.nodeInfo(params.data);
-            } else {
-              return params.componentSubType === "lines"
-                ? _this.utils.linkInfo(params.data.link)
-                : _this.utils.nodeInfo(params.data.node);
+class NetJSONGraphRender {
+  /**
+   * @function
+   * @name graphSetOption
+   *
+   * set option in echarts and render.
+   *
+   * @param  {object}  customOption    custom option determined by different render.
+   * @param  {object}  _this           NetJSONGraph object
+   *
+   * @return {object}  graph object
+   *
+   */
+  graphSetOption(customOption, echartsLayer, _this) {
+    const configs = _this.config,
+      commonOption = _this.utils.deepMergeObj(
+        {
+          tooltip: {
+            confine: true,
+            formatter: params => {
+              if (params.componentSubType === "graph") {
+                return params.dataType === "edge"
+                  ? _this.utils.linkInfo(params.data)
+                  : _this.utils.nodeInfo(params.data);
+              } else {
+                return params.componentSubType === "lines"
+                  ? _this.utils.linkInfo(params.data.link)
+                  : _this.utils.nodeInfo(params.data.node);
+              }
             }
           }
+        },
+        configs.echartsOption
+      );
+
+    echartsLayer.setOption(
+      _this.utils.deepMergeObj(commonOption, customOption)
+    );
+    echartsLayer.on(
+      "click",
+      function(params) {
+        let clickElement = configs.onClickElement.bind(_this);
+
+        if (params.componentSubType === "graph") {
+          clickElement(
+            params.dataType === "edge" ? "link" : "node",
+            params.data
+          );
+        } else {
+          return params.componentSubType === "lines"
+            ? clickElement("link", params.data.link)
+            : clickElement("node", params.data.node);
         }
       },
-      configs.echartsOption
+      { passive: true }
     );
 
-  echartsLayer.setOption(_this.utils.deepMergeObj(commonOption, customOption));
-  echartsLayer.on(
-    "click",
-    function(params) {
-      let clickElement = configs.onClickElement.bind(_this);
+    window.onresize = () => {
+      echartsLayer.resize();
+    };
 
-      if (params.componentSubType === "graph") {
-        clickElement(params.dataType === "edge" ? "link" : "node", params.data);
-      } else {
-        return params.componentSubType === "lines"
-          ? clickElement("link", params.data.link)
-          : clickElement("node", params.data.node);
-      }
-    },
-    { passive: true }
-  );
+    return echartsLayer;
+  }
 
-  window.onresize = () => {
-    echartsLayer.resize();
-  };
+  /**
+   * @function
+   * @name generateGraphOption
+   *
+   * generate graph option in echarts by JSONData.
+   *
+   * @param  {object}  JSONData        Render data
+   * @param  {object}  _this           NetJSONGraph object
+   *
+   * @return {object}  graph option
+   *
+   */
+  generateGraphOption(JSONData, _this) {
+    let categories = JSONData.categories || [],
+      configs = _this.config,
+      nodes = JSONData.nodes.map(function(node) {
+        let nodeResult = JSON.parse(JSON.stringify(node));
 
-  return echartsLayer;
-}
-
-/**
- * @function
- * @name graphRender
- *
- * Render the final graph result based on JSONData.
- * @param  {object}  graphContainer  DOM
- * @param  {object}  JSONData        Render dependent configuration
- * @param  {object}  _this           NetJSONGraph object
- *
- */
-function graphRender(graphContainer, JSONData, _this) {
-  let categories = JSONData.categories || [],
-    configs = _this.config,
-    nodes = JSONData.nodes.map(function(node) {
-      let nodeResult = JSON.parse(JSON.stringify(node));
-
-      nodeResult.itemStyle =
-        typeof configs.nodeStyleProperty === "function"
-          ? configs.nodeStyleProperty(node)
-          : configs.nodeStyleProperty;
-      nodeResult.symbolSize =
-        typeof configs.nodeSize === "function"
-          ? configs.nodeSize(node)
-          : configs.nodeSize;
-      nodeResult.name = node.name || node.id;
-      nodeResult.value = node.value || node.name;
-      if (node.category) {
-        nodeResult.category = String(node.category);
-      }
-      if (node.category && categories.indexOf(node.category) === -1) {
-        categories.push(node.category);
-      }
-
-      return nodeResult;
-    }),
-    links = JSONData.links.map(function(link) {
-      let linkResult = JSON.parse(JSON.stringify(link));
-
-      linkResult.lineStyle =
-        typeof configs.linkStyleProperty === "function"
-          ? configs.linkStyleProperty(link)
-          : configs.linkStyleProperty;
-
-      return linkResult;
-    }),
-    series = [
-      Object.assign(configs.graphConfig, {
-        type: "graph",
-        nodes,
-        links,
-        categories: categories.map(category => ({ name: category }))
-      })
-    ],
-    graph = echarts.init(graphContainer, null, {
-      renderer: configs.svgRender ? "svg" : "canvas"
-    }),
-    legend = categories.length
-      ? {
-          data: categories
-        }
-      : undefined;
-
-  _this.echarts = graphSetOption(
-    {
-      legend,
-      series
-    },
-    graph,
-    _this
-  );
-
-  configs.onLoad.call(_this);
-}
-
-/**
- * @function
- * @name mapRender
- *
- * Render the final map result based on JSONData.
- * @param  {object}  mapContainer   DOM
- * @param  {object}  JSONData       Render dependent configuration
- * @param  {object}  _this          NetJSONGraph object
- *
- */
-function mapRender(mapContainer, JSONData, _this) {
-  let configs = _this.config,
-    { nodes, links } = JSONData,
-    flatNodes = JSONData.flatNodes || {},
-    linesData = [],
-    nodesData = [];
-
-  nodes.map(node => {
-    if (!node.location || !node.location.lng || !node.location.lat) {
-      console.error(`Node ${node.id} position is undefined!`);
-    } else {
-      nodesData.push({
-        name: node.name,
-        value: [node.location.lng, node.location.lat],
-        symbolSize:
-          typeof configs.nodeSize === "function"
-            ? configs.nodeSize(node)
-            : configs.nodeSize,
-        itemStyle:
+        nodeResult.itemStyle =
           typeof configs.nodeStyleProperty === "function"
             ? configs.nodeStyleProperty(node)
-            : configs.nodeStyleProperty,
-        node
-      });
-      if (!JSONData.flatNodes) {
-        flatNodes[node.id] = JSON.parse(JSON.stringify(node));
-      }
-    }
-  });
-  links.map(link => {
-    if (!flatNodes[link.source]) {
-      console.error(`Node ${link.source} is not exist!`);
-    } else if (!flatNodes[link.target]) {
-      console.error(`Node ${link.target} is not exist!`);
-    } else {
-      linesData.push({
-        coords: [
-          [
-            flatNodes[link.source].location.lng,
-            flatNodes[link.source].location.lat
-          ],
-          [
-            flatNodes[link.target].location.lng,
-            flatNodes[link.target].location.lat
-          ]
-        ],
-        lineStyle:
+            : configs.nodeStyleProperty;
+        nodeResult.symbolSize =
+          typeof configs.nodeSize === "function"
+            ? configs.nodeSize(node)
+            : configs.nodeSize;
+        nodeResult.name = node.name || node.id;
+        nodeResult.value = node.value || node.name;
+        if (node.category) {
+          nodeResult.category = String(node.category);
+        }
+        if (
+          nodeResult.category &&
+          categories.indexOf(nodeResult.category) === -1
+        ) {
+          categories.push(nodeResult.category);
+        }
+
+        return nodeResult;
+      }),
+      links = JSONData.links.map(function(link) {
+        let linkResult = JSON.parse(JSON.stringify(link));
+
+        linkResult.lineStyle =
           typeof configs.linkStyleProperty === "function"
             ? configs.linkStyleProperty(link)
-            : configs.linkStyleProperty,
-        link: link
-      });
-    }
-  });
+            : configs.linkStyleProperty;
 
-  let series = [
-    ...configs.mapLineConfig.map(lineConfig =>
-      Object.assign(lineConfig, {
-        type: "lines",
+        return linkResult;
+      }),
+      series = [
+        Object.assign(configs.graphConfig, {
+          type: "graph",
+          nodes,
+          links,
+          categories: categories.map(category => ({ name: category }))
+        })
+      ],
+      legend = categories.length
+        ? {
+            data: categories
+          }
+        : undefined;
+
+    return {
+      legend,
+      series
+    };
+  }
+
+  /**
+   * @function
+   * @name generateMapOption
+   *
+   * generate map option in echarts by JSONData.
+   *
+   * @param  {object}  JSONData        Render data
+   * @param  {object}  _this           NetJSONGraph object
+   *
+   * @return {object}  map option
+   *
+   */
+  generateMapOption(JSONData, _this) {
+    let configs = _this.config,
+      { nodes, links } = JSONData,
+      flatNodes = JSONData.flatNodes || {},
+      linesData = [],
+      nodesData = [];
+
+    nodes.map(node => {
+      if (!node.location || !node.location.lng || !node.location.lat) {
+        console.error(`Node ${node.id} position is undefined!`);
+      } else {
+        nodesData.push({
+          name: node.name,
+          value: [node.location.lng, node.location.lat],
+          symbolSize:
+            typeof configs.nodeSize === "function"
+              ? configs.nodeSize(node)
+              : configs.nodeSize,
+          itemStyle:
+            typeof configs.nodeStyleProperty === "function"
+              ? configs.nodeStyleProperty(node)
+              : configs.nodeStyleProperty,
+          node
+        });
+        if (!JSONData.flatNodes) {
+          flatNodes[node.id] = JSON.parse(JSON.stringify(node));
+        }
+      }
+    });
+    links.map(link => {
+      if (!flatNodes[link.source]) {
+        console.error(`Node ${link.source} is not exist!`);
+      } else if (!flatNodes[link.target]) {
+        console.error(`Node ${link.target} is not exist!`);
+      } else {
+        linesData.push({
+          coords: [
+            [
+              flatNodes[link.source].location.lng,
+              flatNodes[link.source].location.lat
+            ],
+            [
+              flatNodes[link.target].location.lng,
+              flatNodes[link.target].location.lat
+            ]
+          ],
+          lineStyle:
+            typeof configs.linkStyleProperty === "function"
+              ? configs.linkStyleProperty(link)
+              : configs.linkStyleProperty,
+          link: link
+        });
+      }
+    });
+
+    let series = [
+      ...configs.mapLineConfig.map(lineConfig =>
+        Object.assign(lineConfig, {
+          type: "lines",
+          coordinateSystem: "leaflet",
+          data: linesData
+        })
+      ),
+      Object.assign(configs.mapNodeConfig, {
+        type: "effectScatter",
         coordinateSystem: "leaflet",
-        data: linesData
+        data: nodesData
       })
-    ),
-    Object.assign(configs.mapNodeConfig, {
-      type: "effectScatter",
-      coordinateSystem: "leaflet",
-      data: nodesData
-    })
-  ];
+    ];
 
-  const graph = echarts.init(mapContainer, null, {
-    renderer: configs.svgRender ? "svg" : "canvas"
-  });
-  _this.echarts = graphSetOption(
-    {
+    return {
       leaflet: {
         tiles: [
           {
@@ -246,87 +246,134 @@ function mapRender(mapContainer, JSONData, _this) {
         show: false
       },
       series
-    },
-    graph,
-    _this
-  );
-  _this.leaflet = graph._api.getCoordinateSystems()[0].getLeaflet();
+    };
+  }
 
-  configs.onLoad.call(_this);
-}
+  /**
+   * @function
+   * @name graphRender
+   *
+   * Render the final graph result based on JSONData.
+   * @param  {object}  graphContainer  DOM
+   * @param  {object}  JSONData        Render data
+   * @param  {object}  _this           NetJSONGraph object
+   *
+   */
+  graphRender(graphContainer, JSONData, _this) {
+    let graph = echarts.init(graphContainer, null, {
+      renderer: _this.config.svgRender ? "svg" : "canvas"
+    });
 
-/**
- * @function
- * @name viewInputImage
- *
- * Add Input to upload indoormap image.
- *
- * @param  {string}   img             Indoor img src
- * @param  {object}   _this           NetJSONMap object
- *
- * @return {object}   input DOM
- */
+    _this.echarts = _this.utils.graphSetOption(
+      _this.utils.generateGraphOption(JSONData, _this),
+      graph,
+      _this
+    );
 
-function presentIndoormap(img, _this) {
-  let netjsonmap = _this.leaflet,
-    tempImage = new Image();
+    _this.config.onLoad.call(_this);
+  }
 
-  tempImage.src = img;
-  tempImage.onload = () => {
-    let southWest, northEast, bounds;
-    if (
-      tempImage.width / tempImage.height >
-      window.innerWidth / window.innerHeight
-    ) {
-      (southWest = netjsonmap.layerPointToLatLng(
-        L.point(
-          0,
-          window.innerHeight -
-            (window.innerHeight -
-              (window.innerWidth * tempImage.height) / tempImage.width) /
-              2 +
-            60
-        )
-      )),
-        (northEast = netjsonmap.layerPointToLatLng(
+  /**
+   * @function
+   * @name mapRender
+   *
+   * Render the final map result based on JSONData.
+   * @param  {object}  mapContainer   DOM
+   * @param  {object}  JSONData       Render data
+   * @param  {object}  _this          NetJSONGraph object
+   *
+   */
+  mapRender(mapContainer, JSONData, _this) {
+    if (!_this.config.mapTileConfig[0]) {
+      console.error(`You must add the tiles via the "mapTileConfig" param!`);
+      return;
+    }
+
+    const graph = echarts.init(mapContainer, null, {
+      renderer: _this.config.svgRender ? "svg" : "canvas"
+    });
+
+    _this.echarts = _this.utils.graphSetOption(
+      _this.utils.generateMapOption(JSONData, _this),
+      graph,
+      _this
+    );
+    _this.leaflet = graph._api.getCoordinateSystems()[0].getLeaflet();
+
+    _this.config.onLoad.call(_this);
+  }
+
+  /**
+   * @function
+   * @name viewInputImage
+   *
+   * Add Input to upload indoormap image.
+   *
+   * @param  {string}   img             Indoor img src
+   * @param  {object}   _this           NetJSONMap object
+   *
+   * @return {object}   input DOM
+   */
+
+  presentIndoormap(img, _this) {
+    let netjsonmap = _this.leaflet,
+      tempImage = new Image();
+
+    tempImage.src = img;
+    tempImage.onload = () => {
+      let southWest, northEast, bounds;
+      if (
+        tempImage.width / tempImage.height >
+        window.innerWidth / window.innerHeight
+      ) {
+        (southWest = netjsonmap.layerPointToLatLng(
           L.point(
-            window.innerWidth,
-            (window.innerHeight -
-              (window.innerWidth * tempImage.height) / tempImage.width) /
-              2 +
+            0,
+            window.innerHeight -
+              (window.innerHeight -
+                (window.innerWidth * tempImage.height) / tempImage.width) /
+                2 +
               60
           )
-        ));
-      bounds = new L.LatLngBounds(southWest, northEast);
-    } else {
-      (southWest = netjsonmap.layerPointToLatLng(
-        L.point(
-          (window.innerWidth -
-            (window.innerHeight * tempImage.width) / tempImage.height) /
-            2,
-          window.innerHeight + 60
-        )
-      )),
-        (northEast = netjsonmap.layerPointToLatLng(
+        )),
+          (northEast = netjsonmap.layerPointToLatLng(
+            L.point(
+              window.innerWidth,
+              (window.innerHeight -
+                (window.innerWidth * tempImage.height) / tempImage.width) /
+                2 +
+                60
+            )
+          ));
+        bounds = new L.LatLngBounds(southWest, northEast);
+      } else {
+        (southWest = netjsonmap.layerPointToLatLng(
           L.point(
-            window.innerWidth -
-              (window.innerWidth -
-                (window.innerHeight * tempImage.width) / tempImage.height) /
-                2,
-            60
+            (window.innerWidth -
+              (window.innerHeight * tempImage.width) / tempImage.height) /
+              2,
+            window.innerHeight + 60
           )
-        ));
-      bounds = new L.LatLngBounds(southWest, northEast);
-    }
-    netjsonmap.eachLayer(layer => {
-      if (layer._url) {
-        netjsonmap.removeLayer(layer);
+        )),
+          (northEast = netjsonmap.layerPointToLatLng(
+            L.point(
+              window.innerWidth -
+                (window.innerWidth -
+                  (window.innerHeight * tempImage.width) / tempImage.height) /
+                  2,
+              60
+            )
+          ));
+        bounds = new L.LatLngBounds(southWest, northEast);
       }
-    });
-    L.imageOverlay(tempImage.src, bounds).addTo(netjsonmap);
-  };
+      netjsonmap.eachLayer(layer => {
+        if (layer._url) {
+          netjsonmap.removeLayer(layer);
+        }
+      });
+      L.imageOverlay(tempImage.src, bounds).addTo(netjsonmap);
+    };
+  }
 }
 
-window.graphRender = graphRender;
-window.mapRender = mapRender;
-window.presentIndoormap = presentIndoormap;
+export default NetJSONGraphRender;
