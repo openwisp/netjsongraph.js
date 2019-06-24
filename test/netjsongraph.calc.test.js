@@ -1,9 +1,9 @@
 'use strict';
 
-import "../src/js/netjsongraph.core.js";
+import NetJSONGraphUtil from "../src/js/netjsongraph.util.js";
 
 describe("Test netjsongraph function utils", () => {
-  const graph = new NetJSONGraph("", {});
+  const util = new NetJSONGraphUtil("", {});
 
   const nodeInfoData = new Map([
     [
@@ -161,10 +161,10 @@ describe("Test netjsongraph function utils", () => {
       let [operationFunc, operationDataMap] = utilsObj[operationText];
       for(let [key, value] of operationDataMap){  
         if(value){
-          expect(graph.utils[operationFunc](...key)).toEqual(value);
+          expect(util[operationFunc](...key)).toEqual(value);
         }
         else{
-          expect(graph.utils[operationFunc](...key))
+          expect(util[operationFunc](...key))
         }
       }
     });

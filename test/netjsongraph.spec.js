@@ -1,6 +1,7 @@
 'use strict';
 
-import "../src/js/netjsongraph.core.js";
+import NetJSONGraph from "../src/js/netjsongraph.core.js";
+import NetJSONGraphUpdate from "../src/js/netjsongraph.update.js";
 
 describe('NetJSONGraph Specification', () => {
   const NetJSONGraphOption = {
@@ -32,7 +33,10 @@ describe('NetJSONGraph Specification', () => {
           title: "Save image"
         }
       }
-    }
+    },
+    color: [
+      "#d66b30", "#a3c7dd", "#5c9660", "#d66b30"
+    ],
   };
   const NetJSONGraphConfig = {
     layout: "force",
@@ -69,6 +73,8 @@ describe('NetJSONGraph Specification', () => {
   test('NetJSONGraph object attribute fields exist', () => {
     let JSONFILE = "test";
     const graph = new NetJSONGraph(JSONFILE);
+    graph.utils = Object.assign(new NetJSONGraphUpdate(), graph.utils);
+    graph.setConfig({});
 
     expect(graph).toBeInstanceOf(NetJSONGraph);
 
