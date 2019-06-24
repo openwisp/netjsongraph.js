@@ -65,7 +65,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
       console.error("Error in dealing JSONData!");
     });
     worker.addEventListener("message", e => {
-      _this.data = Object.freeze(e.data);
+      _this.data = e.data;
 
       if (_this.config.metadata) {
         document.getElementsByClassName("njg-metadata")[0].style.visibility =
@@ -118,7 +118,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
             _this
           );
         } else {
-          _this.data = Object.freeze(JSONData);
+          _this.data = JSONData;
           _this.utils.NetJSONRender();
         }
       })
