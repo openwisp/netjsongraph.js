@@ -1,0 +1,26 @@
+language: node_js
+
+node_js:
+  - "node"
+
+cache:
+  directories:
+    - "node_modules"
+
+install:
+  - npm install
+  
+script:
+  - npm run test
+  - npm run build
+
+after_success:
+  - npm run cover
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: dist
+  skip_cleanup: true
+  on:
+    tags: true
