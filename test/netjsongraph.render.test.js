@@ -1,6 +1,7 @@
 'use strict';
 
-import "../src/js/netjsongraph.core.js";
+import NetJSONGraph from "../src/js/netjsongraph.core.js";
+import NetJSONGraphUpdate from "../src/js/netjsongraph.update.js";
 
 const JSONFILE = "test",
       JSONData = {
@@ -14,12 +15,13 @@ window.fetch = jest.fn(url => url === JSONFILE ?
   Promise.reject("Fetch json file wrong!")
 );
 
-const graph = new NetJSONGraph(JSONFILE, {
+const graph = new NetJSONGraph(JSONFILE);
+graph.utils = Object.assign(new NetJSONGraphUpdate(), graph.utils);
+graph.setConfig({
   el: document.getElementsByTagName("body")[0],
-  metadata: false,
   nodeSize: 5,
   render: () => {}
-});
+})
 
 describe("Test netjsongraph render", () => {
   test("netjsongraph.js render function", () => {
@@ -39,7 +41,6 @@ describe("Modify netjsongraph configs", () => {
 })
 
 describe("Test netjsongraph JSONDataUpdate", () => {
-  const graph = new NetJSONGraph(JSONFILE);
   graph.render();
 
   test("Callback function executed when data update.Update Information and view.", () => {
@@ -51,7 +52,16 @@ describe("Test netjsongraph JSONDataUpdate", () => {
     }))
   })
   test("Update metadata test.", () => {
-    graph.config.metadata = false;
+    expect(graph.utils.JSONDataUpdate.call(graph, {
+      metadata: {},
+      nodes: [],
+      links: [],
+    }))
+  })
+  test("Update metadata test.", () => {
+    graph.setConfig({
+      metadata: false
+    })
     expect(graph.utils.JSONDataUpdate.call(graph, {
       metadata: {},
       nodes: [],
