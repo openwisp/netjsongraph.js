@@ -105,6 +105,8 @@ netjsongraph.js accepts two arguments.
 
 [NetJSON search elements Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-searchElements.html)
 
+[NetJSON nodes expand or fold Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-nodeExpand.html)
+
 [NetJSON map animation lines Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-animation.html)
 
 [NetJSON indoormap Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-indoormap.html)
