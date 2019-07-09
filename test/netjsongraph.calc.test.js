@@ -23,7 +23,30 @@ describe("Test netjsongraph function utils", () => {
         },
       ],
       // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br/>192.168.0.01<br/>192.168.0.02<br/>192.168.0.03</p>"
+      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
+    ],
+    [
+      // key
+      [
+        // nodeInfo
+        {
+          id: 0,
+          label: "test",
+          properties: {
+            name: "Node",
+            color: "red",
+            update_time: "2019.5.20 14:21:07",
+            location: {
+              lng: 0,
+              lat: 0
+            },
+          },
+          linkCount: 1,
+          local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
+        },
+      ],
+      // value
+      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>location</b>:<br />lat: 0<br />lng: 0<br /></p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
     ],
   ]);
   const linkInfoData = new Map([
