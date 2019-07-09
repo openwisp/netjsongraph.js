@@ -266,17 +266,23 @@ class NetJSONGraphUtil {
     }
     if (node.properties) {
       for (let key in node.properties) {
-        html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-          node.properties[key]
-        }</p>`;
+        if (key === "location") {
+          html += `<p><b>location</b>:<br />lat: ${
+            node.properties.location.lat
+          }<br />lng: ${node.properties.location.lng}<br /></p>`;
+        } else {
+          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
+            node.properties[key]
+          }</p>`;
+        }
       }
     }
     if (node.linkCount) {
       html += `<p><b>links</b>: ${node.linkCount}</p>`;
     }
     if (node.local_addresses) {
-      html += `<p><b>local addresses</b>:<br/>${node.local_addresses.join(
-        "<br/>"
+      html += `<p><b>local addresses</b>:<br />${node.local_addresses.join(
+        "<br />"
       )}</p>`;
     }
 
