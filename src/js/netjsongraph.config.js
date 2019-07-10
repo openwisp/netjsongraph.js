@@ -77,7 +77,7 @@ const NetJSONGraphDefaultConfig = Object.freeze({
     },
     roam: true,
     draggable: true,
-    focusNodeAdjacency: true,
+    focusNodeAdjacency: false,
     hoverAnimation: true,
     legendHoverLink: true
   },
