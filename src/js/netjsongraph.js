@@ -1,6 +1,7 @@
 import NetJSONGraphCore from "./netjsongraph.core.js";
-import NetJSONGraphRender from "./netjsongraph.render.js";
+import { NetJSONGraphRender, echarts, L } from "./netjsongraph.render.js";
 import NetJSONGraphUpdate from "./netjsongraph.update.js";
+import registerLeafletSystem from "echarts-leaflet/dist/echarts-leaflet.js";
 
 class NetJSONGraph {
   /**
@@ -29,4 +30,8 @@ class NetJSONGraph {
   }
 }
 
+registerLeafletSystem(echarts, L);
+
 window.NetJSONGraph = NetJSONGraph;
+window.echarts = echarts;
+window.L = L;
