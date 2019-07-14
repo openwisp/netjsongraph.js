@@ -10,9 +10,7 @@ import "echarts/lib/component/toolbox";
 import "echarts/lib/component/legend";
 import "zrender/lib/svg/svg";
 
-import "leaflet/dist/leaflet.js";
-
-import "echarts-leaflet/dist/echarts-leaflet.js";
+import L from "leaflet/dist/leaflet.js";
 
 class NetJSONGraphRender {
   /**
@@ -176,7 +174,7 @@ class NetJSONGraphRender {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
           nodesData.push({
-            name: node.label,
+            name: node.label || node.id,
             value: [location.lng, location.lat],
             symbolSize:
               typeof configs.nodeSize === "function"
@@ -243,7 +241,7 @@ class NetJSONGraphRender {
             options: configs.mapTileConfig[1]
           }
         ],
-        center: configs.mapCenter.reverse(),
+        center: [...configs.mapCenter].reverse(),
         zoom: configs.mapZoom,
         roam: configs.mapRoam
       },
@@ -309,4 +307,4 @@ class NetJSONGraphRender {
   }
 }
 
-export default NetJSONGraphRender;
+export { NetJSONGraphRender, echarts, L };
