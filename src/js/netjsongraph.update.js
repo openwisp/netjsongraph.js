@@ -92,8 +92,8 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
 
   JSONDataUpdate(Data) {
-    // Loading
     const _this = this;
+    _this.config.onRender.call(_this);
 
     _this.utils
       .JSONParamParse(Data)
@@ -108,8 +108,6 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
           document.getElementById("metadataLinksLength").innerHTML =
             JSONData.links.length;
         }
-
-        // unLoading();
 
         if (_this.config.dealDataByWorker) {
           _this.utils.dealDataByWorker(
