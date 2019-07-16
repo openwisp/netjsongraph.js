@@ -74,7 +74,17 @@ describe('NetJSONGraph Specification', () => {
     let JSONFILE = "test";
     const graph = new NetJSONGraph(JSONFILE);
     graph.utils = Object.assign(new NetJSONGraphUpdate(), graph.utils);
-    graph.setConfig({});
+    graph.setConfig({
+      onInit: function() {
+        return this.config;
+      },
+      onRender: function() {
+        return this.config;
+      },
+      onLoad: function() {
+        return this.config;
+      },
+    });
 
     expect(graph).toBeInstanceOf(NetJSONGraph);
 
@@ -108,6 +118,8 @@ describe('NetJSONGraph Specification', () => {
 
     expect(graph.config.onInit).toBeInstanceOf(Function);
     expect(graph.config.onInit.call(graph)).toBe(graph.config);
+    expect(graph.config.onRender).toBeInstanceOf(Function);
+    expect(graph.config.onRender.call(graph)).toBe(graph.config);
     expect(graph.config.onLoad).toBeInstanceOf(Function);
     expect(graph.config.onLoad.call(graph)).toBe(graph.config);
     expect(graph.config.prepareData).toBeInstanceOf(Function);
@@ -129,6 +141,3 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.utils.JSONParamParse).toBeInstanceOf(Function);
   });
 })
-
-
-

@@ -13,7 +13,17 @@ const graph = new NetJSONGraph({
   "links": [],
 });
 graph.utils = Object.assign(new NetJSONGraphUtil(), graph.utils);
-graph.setConfig({});
+graph.setConfig({
+  onInit: function() {
+    return this.config;
+  },
+  onRender: function() {
+    return this.config;
+  },
+  onLoad: function() {
+    return this.config;
+  },
+});
 
 describe("Test netjsongraph utils dom functions", () => {
   const NetJSONMetadataData = new Map([
