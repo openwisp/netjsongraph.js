@@ -25,8 +25,9 @@ class NetJSONGraphRender {
    * @return {object}  graph object
    *
    */
-  graphSetOption(customOption, echartsLayer, _this) {
+  graphSetOption(customOption, _this) {
     const configs = _this.config,
+      echartsLayer = _this.echarts,
       commonOption = _this.utils.deepMergeObj(
         {
           tooltip: {
@@ -257,19 +258,13 @@ class NetJSONGraphRender {
    * @name graphRender
    *
    * Render the final graph result based on JSONData.
-   * @param  {object}  graphContainer  DOM
    * @param  {object}  JSONData        Render data
    * @param  {object}  _this           NetJSONGraph object
    *
    */
-  graphRender(graphContainer, JSONData, _this) {
-    let graph = echarts.init(graphContainer, null, {
-      renderer: _this.config.svgRender ? "svg" : "canvas"
-    });
-
-    _this.echarts = _this.utils.graphSetOption(
+  graphRender(JSONData, _this) {
+    _this.utils.graphSetOption(
       _this.utils.generateGraphOption(JSONData, _this),
-      graph,
       _this
     );
 
@@ -281,27 +276,21 @@ class NetJSONGraphRender {
    * @name mapRender
    *
    * Render the final map result based on JSONData.
-   * @param  {object}  mapContainer   DOM
    * @param  {object}  JSONData       Render data
    * @param  {object}  _this          NetJSONGraph object
    *
    */
-  mapRender(mapContainer, JSONData, _this) {
+  mapRender(JSONData, _this) {
     if (!_this.config.mapTileConfig[0]) {
       console.error(`You must add the tiles via the "mapTileConfig" param!`);
       return;
     }
 
-    const graph = echarts.init(mapContainer, null, {
-      renderer: _this.config.svgRender ? "svg" : "canvas"
-    });
-
-    _this.echarts = _this.utils.graphSetOption(
+    _this.utils.graphSetOption(
       _this.utils.generateMapOption(JSONData, _this),
-      graph,
       _this
     );
-    _this.leaflet = graph._api.getCoordinateSystems()[0].getLeaflet();
+    _this.leaflet = _this.echarts._api.getCoordinateSystems()[0].getLeaflet();
 
     _this.config.onLoad.call(_this);
   }
