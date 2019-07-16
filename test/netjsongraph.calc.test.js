@@ -193,5 +193,3 @@ describe("Test netjsongraph function utils", () => {
     });
   }
 })
-
-

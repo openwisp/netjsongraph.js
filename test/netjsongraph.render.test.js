@@ -20,6 +20,15 @@ graph.utils = Object.assign(new NetJSONGraphUpdate(), graph.utils);
 graph.setConfig({
   el: document.getElementsByTagName("body")[0],
   nodeSize: 5,
+  onInit: function() {
+    return this.config;
+  },
+  onRender: function() {
+    return this.config;
+  },
+  onLoad: function() {
+    return this.config;
+  },
   render: () => {}
 })
 
