@@ -14,7 +14,7 @@ class NetJSONGraph {
     this.config = { ...NetJSONGraphDefaultConfig };
 
     this.setUtils();
-    this.setConfig(config).onInit.call(this);
+    this.setConfig(config);
   }
 
   /**
@@ -37,6 +37,7 @@ class NetJSONGraph {
           document.getElementsByTagName("body")[0];
       }
       this.el.classList.add("njg-relativePosition");
+      this.el.setAttribute("id", "graphChartContainer");
     }
 
     return this.config;
@@ -51,7 +52,7 @@ class NetJSONGraph {
    * @this {object}      The instantiated object of NetJSONGraph
    */
   render() {
-    // Loading();
+    this.config.onRender.call(this);
 
     this.utils
       .JSONParamParse(this.JSONParam)
@@ -67,8 +68,6 @@ class NetJSONGraph {
         if (this.config.metadata) {
           this.el.appendChild(this.utils.NetJSONMetadata(JSONData));
         }
-
-        // unLoading();
 
         if (this.config.dealDataByWorker) {
           this.utils.dealDataByWorker(
@@ -107,18 +106,8 @@ class NetJSONGraph {
        */
 
       NetJSONRender() {
-        let graphChartContainer = document.getElementById(
-          "graphChartContainer"
-        );
-
-        if (graphChartContainer) {
-          _this.el.removeChild(graphChartContainer);
-        }
-        graphChartContainer = document.createElement("div");
-        graphChartContainer.setAttribute("id", "graphChartContainer");
-        _this.el.appendChild(graphChartContainer);
         if (_this.config.render) {
-          _this.config.render(graphChartContainer, _this.data, _this);
+          _this.config.render(_this.data, _this);
         } else {
           throw new Error("No render function!");
         }
