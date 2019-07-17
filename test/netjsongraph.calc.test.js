@@ -1,9 +1,9 @@
 'use strict';
 
-import "../src/js/netjsongraph.core.js";
+import NetJSONGraphUtil from "../src/js/netjsongraph.util.js";
 
 describe("Test netjsongraph function utils", () => {
-  const graph = new NetJSONGraph("", {});
+  const util = new NetJSONGraphUtil("", {});
 
   const nodeInfoData = new Map([
     [
@@ -23,7 +23,30 @@ describe("Test netjsongraph function utils", () => {
         },
       ],
       // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br/>192.168.0.01<br/>192.168.0.02<br/>192.168.0.03</p>"
+      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
+    ],
+    [
+      // key
+      [
+        // nodeInfo
+        {
+          id: 0,
+          label: "test",
+          properties: {
+            name: "Node",
+            color: "red",
+            update_time: "2019.5.20 14:21:07",
+            location: {
+              lng: 0,
+              lat: 0
+            },
+          },
+          linkCount: 1,
+          local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
+        },
+      ],
+      // value
+      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>location</b>:<br />lat: 0<br />lng: 0<br /></p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
     ],
   ]);
   const linkInfoData = new Map([
@@ -102,12 +125,58 @@ describe("Test netjsongraph function utils", () => {
       "999.12.31 23:59:59"
     ],
   ]);
+  const isObjectData = new Map([
+    [
+      [[]],
+      false
+    ],
+    [
+      [{}],
+      true
+    ],
+  ]);
+  const deepMergeObjData = new Map([
+    [
+      [{a: 1}, {b: 2}],
+      {a: 1, b: 2}
+    ],
+    [
+      [{a: 1}],
+      {a: 1}
+    ],
+    [
+      [, {a: 1}],
+      {a: 1}
+    ],
+    [
+      [{a: 1}, {a: 2}],
+      {a: 2}
+    ],
+    [
+      [{a: [1,]}, {a: [2,]}],
+      {a: [2,]}
+    ],
+    [
+      [{a: {b: 1}}, {a: {c: 2}}],
+      {a: {b: 1, c: 2}}
+    ],
+    [
+      [{a: 1}, {b: 2}, {c: 3}],
+      {a: 1, b: 2, c: 3}
+    ],
+    [
+      [{a: 1}, {c: 3}, , ,],
+      {a: 1, c: 3}
+    ],
+  ]);
   
   const utilsObj = {
     "Parse the infomation of incoming node data.": ["nodeInfo", nodeInfoData],
     "Parse the infomation of incoming link data.": ["linkInfo", linkInfoData],
     "Guaranteed minimum number of digits": ["numberMinDigit", numberMinDigitData],
     "Parse the time in the browser's current time zone based on the incoming matching rules.": ["dateParse", dateParseData],
+    "Judge parameter type is object": ["isObject", isObjectData],
+    "Merge two object deeply": ["deepMergeObj", deepMergeObjData],
   }
 
   for(let operationText in utilsObj){
@@ -115,14 +184,12 @@ describe("Test netjsongraph function utils", () => {
       let [operationFunc, operationDataMap] = utilsObj[operationText];
       for(let [key, value] of operationDataMap){  
         if(value){
-          expect(graph.utils[operationFunc](...key)).toEqual(value);
+          expect(util[operationFunc](...key)).toEqual(value);
         }
         else{
-          expect(graph.utils[operationFunc](...key))
+          expect(util[operationFunc](...key))
         }
       }
     });
   }
 })
-
-

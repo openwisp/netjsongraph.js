@@ -146,6 +146,53 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * Judge parameter type
+   *
+   * @return {bool}
+   */
+  isObject(x) {
+    return Object.prototype.toString.call(x).slice(8, 14) === "Object";
+  }
+
+  /**
+   * merge two object deeply
+   *
+   * @param  {object}
+   *
+   * @return {object}      targetObj
+   */
+  deepMergeObj() {
+    let objs = [...arguments].reverse(),
+      len = objs.length;
+
+    for (let i = 0; i < len - 1; i++) {
+      let originObj = objs[i],
+        targetObj = objs[i + 1];
+      if (
+        originObj &&
+        targetObj &&
+        this.isObject(targetObj) &&
+        this.isObject(originObj)
+      ) {
+        for (let attr in originObj) {
+          if (
+            !targetObj[attr] ||
+            !(this.isObject(targetObj[attr]) && this.isObject(originObj[attr]))
+          ) {
+            targetObj[attr] = originObj[attr];
+          } else {
+            this.deepMergeObj(targetObj[attr], originObj[attr]);
+          }
+        }
+      } else if (!targetObj) {
+        objs[i + 1] = originObj;
+      }
+    }
+
+    return objs[len - 1];
+  }
+
+  /**
    * @function
    * @name NetJSONMetadata
    * Display metadata of NetJSONGraph.
@@ -186,7 +233,7 @@ class NetJSONGraphUtil {
     const metadataContainer = document.createElement("div"),
       innerDiv = document.createElement("div"),
       closeA = document.createElement("a");
-    metadataContainer.setAttribute("class", "njg-metadata");
+    metadataContainer.setAttribute("class", "njg-metadata njg-container");
     metadataContainer.setAttribute("style", "display: block");
     innerDiv.setAttribute("class", "njg-inner");
     closeA.setAttribute("class", "njg-close");
@@ -219,17 +266,23 @@ class NetJSONGraphUtil {
     }
     if (node.properties) {
       for (let key in node.properties) {
-        html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-          node.properties[key]
-        }</p>`;
+        if (key === "location") {
+          html += `<p><b>location</b>:<br />lat: ${
+            node.properties.location.lat
+          }<br />lng: ${node.properties.location.lng}<br /></p>`;
+        } else {
+          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
+            node.properties[key]
+          }</p>`;
+        }
       }
     }
     if (node.linkCount) {
       html += `<p><b>links</b>: ${node.linkCount}</p>`;
     }
     if (node.local_addresses) {
-      html += `<p><b>local addresses</b>:<br/>${node.local_addresses.join(
-        "<br/>"
+      html += `<p><b>local addresses</b>:<br />${node.local_addresses.join(
+        "<br />"
       )}</p>`;
     }
 

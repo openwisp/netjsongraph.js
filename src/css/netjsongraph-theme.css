@@ -1,27 +1,3 @@
-.njg-node{
-    stroke-opacity: 0.5;
-    stroke-width: 7px;
-    stroke: #fff;
-}
-
-.njg-node:hover,
-.njg-node.njg-open {
-    stroke: rgba(0, 0, 0, 0.2);
-}
-
-.njg-link{
-    cursor: pointer;
-    stroke: #999;
-    stroke-width: 2;
-    stroke-opacity: 0.25;
-}
-
-.njg-link:hover,
-.njg-link.njg-open{
-    stroke-width: 4 !important;
-    stroke-opacity: 0.5;
-}
-
 h3{
     display: block;
     font-size: 1.17em;

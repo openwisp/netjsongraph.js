@@ -65,7 +65,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
       console.error("Error in dealing JSONData!");
     });
     worker.addEventListener("message", e => {
-      _this.data = Object.freeze(e.data);
+      _this.data = e.data;
 
       if (_this.config.metadata) {
         document.getElementsByClassName("njg-metadata")[0].style.visibility =
@@ -92,13 +92,13 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
 
   JSONDataUpdate(Data) {
-    // Loading
     const _this = this;
+    _this.config.onRender.call(_this);
 
     _this.utils
       .JSONParamParse(Data)
       .then(JSONData => {
-        _this.config.onLoad.call(_this).prepareData(JSONData);
+        _this.config.prepareData.call(_this, JSONData);
 
         if (_this.config.metadata) {
           document.getElementsByClassName("njg-metadata")[0].style.visibility =
@@ -109,8 +109,6 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
             JSONData.links.length;
         }
 
-        // unLoading();
-
         if (_this.config.dealDataByWorker) {
           _this.utils.dealDataByWorker(
             JSONData,
@@ -118,7 +116,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
             _this
           );
         } else {
-          _this.data = Object.freeze(JSONData);
+          _this.data = JSONData;
           _this.utils.NetJSONRender();
         }
       })

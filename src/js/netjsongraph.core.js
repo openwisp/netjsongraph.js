@@ -1,7 +1,6 @@
 "use strict";
 
 import NetJSONGraphDefaultConfig from "./netjsongraph.config.js";
-import NetJSONGraphUpdate from "./netjsongraph.update.js";
 
 class NetJSONGraph {
   /**
@@ -11,10 +10,11 @@ class NetJSONGraph {
    * @param {Object} config
    */
   constructor(JSONParam, config) {
-    this.config = NetJSONGraphDefaultConfig;
     this.JSONParam = JSONParam;
+    this.config = { ...NetJSONGraphDefaultConfig };
 
-    this.setConfig(config).onInit.call(this);
+    this.setUtils();
+    this.setConfig(config);
   }
 
   /**
@@ -22,17 +22,23 @@ class NetJSONGraph {
    * @param {Object} config
    *
    * @this {object}      The instantiated object of NetJSONGraph
-   * @return {object} this.config
+   *
+   * @return {object}    this.config
    */
   setConfig(config) {
-    Object.assign(this.config, config);
-    if (!this.utils) {
-      this.utils = this.setUtils();
-    }
+    if (config) {
+      this.utils.deepMergeObj(this.config, config);
 
-    this.el =
-      document.getElementById(this.config.el) ||
-      document.getElementsByTagName("body")[0];
+      if (typeof this.config.el === "object") {
+        this.el = this.config.el;
+      } else {
+        this.el =
+          document.getElementById(this.config.el) ||
+          document.getElementsByTagName("body")[0];
+      }
+      this.el.classList.add("njg-relativePosition");
+      this.el.setAttribute("id", "graphChartContainer");
+    }
 
     return this.config;
   }
@@ -46,24 +52,22 @@ class NetJSONGraph {
    * @this {object}      The instantiated object of NetJSONGraph
    */
   render() {
-    // Loading();
+    this.config.onRender.call(this);
 
     this.utils
       .JSONParamParse(this.JSONParam)
       .then(JSONData => {
-        this.config.onLoad.call(this).prepareData(JSONData);
+        this.config.prepareData.call(this, JSONData);
 
         (function addNodeLinkOverlay(_this) {
           let nodeLinkOverlay = document.createElement("div");
-          nodeLinkOverlay.setAttribute("class", "njg-overlay");
+          nodeLinkOverlay.setAttribute("class", "njg-overlay njg-container");
           _this.el.appendChild(nodeLinkOverlay);
         })(this);
 
         if (this.config.metadata) {
           this.el.appendChild(this.utils.NetJSONMetadata(JSONData));
         }
-
-        // unLoading();
 
         if (this.config.dealDataByWorker) {
           this.utils.dealDataByWorker(
@@ -72,7 +76,7 @@ class NetJSONGraph {
             this
           );
         } else {
-          this.data = Object.freeze(JSONData);
+          this.data = JSONData;
           this.utils.NetJSONRender();
         }
       })
@@ -81,39 +85,37 @@ class NetJSONGraph {
       });
   }
 
-  setUtils() {
+  /**
+   * @function
+   * @name setUtils
+   *
+   * set netjsongraph utils
+   *
+   * @param {object}  util  The object of functions
+   *
+   * @this {object}         The instantiated object of NetJSONGraph
+   */
+  setUtils(util) {
     const _this = this;
 
-    return Object.assign(Object.create(new NetJSONGraphUpdate()), {
+    _this.utils = Object.assign(_this.utils || {}, util || {}, {
       /**
        * @function
        * @name NetJSONRender
        * Perform different renderings according to different types.
-       *
-       * @return {object} render object
        */
 
       NetJSONRender() {
-        let graphChartContainer = document.getElementById(
-          "graphChartContainer"
-        );
-
-        if (graphChartContainer) {
-          _this.el.removeChild(graphChartContainer);
-        }
-        graphChartContainer = document.createElement("div");
-        graphChartContainer.setAttribute("id", "graphChartContainer");
-        _this.el.appendChild(graphChartContainer);
         if (_this.config.render) {
-          _this.config.render(graphChartContainer, _this.data, _this);
+          _this.config.render(_this.data, _this);
         } else {
           throw new Error("No render function!");
         }
-
-        return graphChartContainer;
       }
     });
+
+    return _this.utils;
   }
 }
 
-window.NetJSONGraph = NetJSONGraph;
+export default NetJSONGraph;

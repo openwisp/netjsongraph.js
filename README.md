@@ -33,27 +33,56 @@ npm run build
 
 netjsongraph.js accepts two arguments.
 
-- url (required, string): URL to fetch the JSON data from
+- url (required, string): URL to fetch the JSON data from. 
+               
+	JSON format used internally based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4), but a little different: more occupied names as follows：
+```JS
+{
+    nodes: [{
+        properties ? : {
+            // Define node category
+            category ? : String,
+            
+            /* 
+                Define the geographic coordinates of the node.
+                Required when rendering a map.
+            */
+            location ? : {
+                lng: Float,
+                lat: Float,
+            }
+        }
+    }],
+    flatNodes ? : {
+        <node id>: node Object
+    }  
+}
+```
+
 - options (optional, object): custom options described below
-    - el: container element, defaults to "body"
-    - metadata: whether to show NetJSON NetworkGraph metadata or not, defaults to true
-    - svgRender: use SVG render?
-    - title: Custom graph title in echarts.
-    - graphConfig: Custom graph config in echarts. Customize your colorful style.
-    - scaleExtent: see d3 Zoom scaleExtent, defaults to [0.25, 5]
-    - gravity: see d3 Zoom gravity, defaults to 0.1
-    - edgeLength: the distance between the two nodes on the side, this distance will also be affected by repulsion
-    - repulsion: the repulsion factor between nodes.
-    - nodeSize: the size of nodes in pixel
-    - labelDx: node labels offsetX(distance on x axis) in graph.
-    - labelDy: node labels offsetY(distance on y axis) in graph.
-    - onInit: callback function executed on initialization, params: url and options
-    - onLoad: callback function executed after data has been loaded, params: url and options
-    - nodeStyleProperty: Used to custom node style. 
+    - el: Container element. "body" defaultly.
+    - metadata: Whether to show NetJSON NetworkGraph metadata or not, defaults to true
+    - svgRender: Use SVG render?
+
+    - echartsOption: A global configuration of Echarts.
+
+    - graphConfig: Configuration of graph series(graphRender).
+
+    - mapCenter: Map init center.
+    - mapZoom: Map init zoom.
+    - mapRoam: Is Map can zoom or move?
+    - mapTileConfig: Map tiles config array, whose format is [url, option].
+    - mapLineConfig: Support multiple lines superimposed style.
+    - mapNodeConfig: Map node style.      
+    
+    - nodeSize: The size of nodes in pixel.
+    - nodeStyleProperty: Used to custom node style.
     - linkStyleProperty: Used to custom link style.
-    - prepareData: function used to convert NetJSON NetworkGraph to the javascript data structured used internally, you won't need to modify it in most cases
-    - onClickNode: function called when a node is clicked, you can customize it if you need
-    - onClickLink: function called when a link is clicked, you can customize it if you need
+
+    - onInit: Callback function executed on initialization.
+    - onLoad: Callback function executed when rendered.
+    - prepareData: Callback function executed after data has been loaded. Used to convert data to NetJSON Data normally.
+    - onClickElement: Called when a node or link is clicked.
 
 ### Example Usage
 
@@ -82,6 +111,8 @@ netjsongraph.js accepts two arguments.
 ### Different Demos
 
 [NetJSON graph base Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph.html)
+
+[NetJSON graph elements legend Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-elementsLegend.html)
      
 [NetJSON map base Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap.html)
          
@@ -98,6 +129,14 @@ netjsongraph.js accepts two arguments.
 [NetJSON switch graph mode Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-switchGraphMode.html)
 
 [NetJSON search elements Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-searchElements.html)
+
+[NetJSON nodes expand or fold Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-nodeExpand.html)
+
+[NetJSON map animation lines Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-animation.html)
+
+[NetJSON indoormap Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-indoormap.html)
+
+[NetJSON map plugins Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-plugins.html)
 
 ### How to migrate the previous version
 
