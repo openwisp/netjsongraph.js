@@ -115,7 +115,7 @@ p {
     position: absolute;
     right: 20px;
     top: 20px;
-    z-index: 1;
+    z-index: 999;
     width: 35px;
     height: 35px; 
     line-height: 35px;
