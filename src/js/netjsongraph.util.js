@@ -261,7 +261,7 @@ class NetJSONGraphUtil {
 
   nodeInfo(node) {
     let html = `<p><b>id</b>: ${node.id}</p>`;
-    if (node.label) {
+    if (node.label && typeof node.label === "string") {
       html += `<p><b>label</b>: ${node.label}</p>`;
     }
     if (node.properties) {
