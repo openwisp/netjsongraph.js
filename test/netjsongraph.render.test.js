@@ -29,7 +29,7 @@ graph.setConfig({
   onLoad: function() {
     return this.config;
   },
-  render: () => {}
+  render: () => {},
 })
 
 describe("Test netjsongraph render", () => {

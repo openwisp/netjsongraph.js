@@ -60,7 +60,8 @@ describe('NetJSONGraph Specification', () => {
     width: 5,
     color: "#999",
     shadowColor: "rgba(0, 0, 0, 0.5)",
-    shadowBlur: 10
+    shadowBlur: 10,
+    curveness: 0.2,
   }
 
   test("APIs exist", () => {
@@ -103,9 +104,9 @@ describe('NetJSONGraph Specification', () => {
 
     expect(graph.config.graphConfig).toEqual(NetJSONGraphConfig);
 
-    expect(graph.config).toHaveProperty("mapCenter", [0, 0]);
-    expect(graph.config).toHaveProperty("mapZoom", 4);
-    expect(graph.config).toHaveProperty("mapRoam", true);
+    expect(graph.config.mapOptions).toEqual({
+      roam: true,
+    });
     expect(graph.config.mapTileConfig).toEqual([]);
     expect(graph.config.mapLineConfig).toEqual([{}]);
     expect(graph.config.mapNodeConfig).toBeInstanceOf(Object);
@@ -141,3 +142,6 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.utils.JSONParamParse).toBeInstanceOf(Function);
   });
 })
+
+
+
