@@ -8,7 +8,10 @@ import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";
 import "echarts/lib/component/toolbox";
 import "echarts/lib/component/legend";
+
 import "zrender/lib/svg/svg";
+
+import "../../lib/js/echarts-gl";
 
 import L from "leaflet/dist/leaflet.js";
 
@@ -37,6 +40,8 @@ class NetJSONGraphRender {
                 return params.dataType === "edge"
                   ? _this.utils.linkInfo(params.data)
                   : _this.utils.nodeInfo(params.data);
+              } else if (params.componentSubType === "graphGL") {
+                return _this.utils.nodeInfo(params.data);
               } else {
                 return params.componentSubType === "lines"
                   ? _this.utils.linkInfo(params.data.link)
@@ -61,6 +66,8 @@ class NetJSONGraphRender {
             params.dataType === "edge" ? "link" : "node",
             params.data
           );
+        } else if (params.componentSubType === "graphGL") {
+          clickElement("node", params.data);
         } else {
           return params.componentSubType === "lines"
             ? clickElement("link", params.data.link)
@@ -69,10 +76,6 @@ class NetJSONGraphRender {
       },
       { passive: true }
     );
-
-    window.onresize = () => {
-      echartsLayer.resize();
-    };
 
     return echartsLayer;
   }
@@ -103,7 +106,7 @@ class NetJSONGraphRender {
           typeof configs.nodeSize === "function"
             ? configs.nodeSize(node)
             : configs.nodeSize;
-        nodeResult.name = node.label || node.id;
+        nodeResult.name = typeof node.label === "string" ? node.label : node.id;
         if (node.properties && node.properties.category) {
           nodeResult.category = String(node.properties.category);
         }
@@ -128,7 +131,7 @@ class NetJSONGraphRender {
       }),
       series = [
         Object.assign(configs.graphConfig, {
-          type: "graph",
+          type: configs.graphConfig.type === "graphGL" ? "graphGL" : "graph",
           nodes,
           links,
           categories: categories.map(category => ({ name: category }))
@@ -242,9 +245,7 @@ class NetJSONGraphRender {
             options: configs.mapTileConfig[1]
           }
         ],
-        center: [...configs.mapCenter].reverse(),
-        zoom: configs.mapZoom,
-        roam: configs.mapRoam
+        mapOptions: configs.mapOptions
       },
       toolbox: {
         show: false
@@ -290,6 +291,7 @@ class NetJSONGraphRender {
       _this.utils.generateMapOption(JSONData, _this),
       _this
     );
+
     _this.leaflet = _this.echarts._api.getCoordinateSystems()[0].getLeaflet();
 
     _this.config.onLoad.call(_this);
