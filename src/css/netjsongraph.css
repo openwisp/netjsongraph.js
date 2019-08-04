@@ -33,8 +33,9 @@ html, body{
     position: absolute;
     right: 10px;
     top: 10px;
-    z-index: 1;
+    z-index: 999;
     visibility: hidden;
+    user-select: text;
 }
 
 .njg-metadata{
@@ -43,7 +44,8 @@ html, body{
     top: 10px;
     width: 200px;
     word-break: break-all;
-    z-index: 1;
+    z-index: 999;
+    user-select: text;
 }
 
 .njg-close{
