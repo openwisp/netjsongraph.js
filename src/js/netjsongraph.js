@@ -1,7 +1,7 @@
 import NetJSONGraphCore from "./netjsongraph.core.js";
 import { NetJSONGraphRender, echarts, L } from "./netjsongraph.render.js";
 import NetJSONGraphUpdate from "./netjsongraph.update.js";
-import registerLeafletSystem from "echarts-leaflet/dist/echarts-leaflet.js";
+import registerLeafletSystem from "../../lib/js/echarts-leaflet/index.js";
 
 class NetJSONGraph {
   /**
