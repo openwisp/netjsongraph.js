@@ -5,12 +5,10 @@
 ![Download](https://img.shields.io/npm/dt/netjsongraph.js.svg)
 ![NPM](https://img.shields.io/npm/v/netjsongraph.js.svg)
 ![Language](https://img.shields.io/badge/language-javascript-orange.svg)
-       
-[![NPM](https://nodei.co/npm/netjsongraph.js.png)](https://nodei.co/npm/netjsongraph.js/)
          
-![img](/examples/data/netjsongraph.png)
-![img](/examples/data/netjsonmap.png)
-![img](/examples/data/netjsonindoormap.png)
+![img](/docs/netjsongraph.png)
+![img](/docs/netjsonmap.png)
+![img](/docs/netjsonmap-indoormap.png)
 
 Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) and [LeafletJS](https://github.com/Leaflet/Leaflet) to visualize network topology using the
 [NetJSON](http://netjson.org) ``NetworkGraph`` format.
@@ -111,12 +109,12 @@ netjsongraph.js accepts two arguments.
 ### Different Demos
 
 [NetJSON graph base Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph.html)
-
-[NetJSON graph elements legend Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-elementsLegend.html)
      
 [NetJSON map base Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap.html)
          
-[NetJSON bigData Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-bigData.html)
+[NetJSON graphGL(bigData) Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-graphGL.html)
+
+[NetJSON graph elements legend Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-elementsLegend.html)
          
 [NetJSON multiple interfaces Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-multipleInterfaces.html)       
 
@@ -132,33 +130,38 @@ netjsongraph.js accepts two arguments.
 
 [NetJSON nodes expand or fold Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-nodeExpand.html)
 
+[NetJSON map nodes zoom tiles Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-nodeTiles.html)
+
 [NetJSON map animation lines Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-animation.html)
 
 [NetJSON indoormap Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-indoormap.html)
 
 [NetJSON map plugins Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-plugins.html)
 
-### How to migrate the previous version
+### New features added
 
-#### Parameters deleted
-
-Because of the different libraries used, some of the parameters of the previous version may disappear, especially some of the parameters of the Force map algorithm.But you don't have to delete them, it doesn't have a negative impact.
-
-These parameters have been removed for this demo：
-
-- animationAtStart: true
-- charge: -130,                                
-- linkStrength: 0.2,
-- friction: 0.9,  // d3 default
-- chargeDistance: Infinity,  // d3 default
-- theta: 0.8,  // d3 default
-
-#### New features added
-
-##### Realtime Update
+#### Realtime Update
 
 If you want to update the data in real time, you have to realize realtime updated algorithm because of its customizable.
 Then you only need call `JSONDataUpdate` to update the view.
+
+```JS
+const graph = new NetJSONGraph("./data/netjsonmap.json", {
+    render: "graph",
+});
+
+graph.render();
+
+const socket = io("http://localhost:8078");
+socket.on("connect", function() {
+    console.log("client connect");
+});
+socket.on("disconnect", function() {
+    console.log("client disconnected.");
+});
+// Self-monitoring server， re-render when the data changes.
+socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
+```
 
 For show, I write a demo [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-updateData.html).
 I use [socket.io](https://socket.io/) to monitor data changes, which supports WebSocket or polling. 
@@ -176,14 +179,54 @@ node index.js
 
 Then open the demo page, you will find that the nodes and links in the view change after 5 seconds.
 
-##### Search elements
+#### Search elements
 
 If you want to add search elements function, you just need to pass the url as param to `searchElements`, which will return a function `searchFunc`.
 Then you just need to obtain the value input, and pass it to the `searchFunc`.
 
+```JS
+const graph = new NetJSONGraph("./data/netjsonmap.json", {
+    render: "graph",
+});
+
+graph.render();
+
+(function addSearchDOM(_this) {
+    let searchContainer = document.createElement("div"),
+        searchInput = document.createElement("input"),
+        searchBtn = document.createElement("button"),
+        /*
+            Pass in the url to listen to, and save the returned function.
+            Please ensure that the return value of the api is the specified json format.
+        */
+        searchFunc = _this.utils.searchElements("https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=", _this);
+    searchInput.setAttribute("class", "njg-searchInput");
+    searchInput.placeholder = "Input value for searching special elements.";
+    searchBtn.setAttribute("class", "njg-searchBtn");
+    searchBtn.innerHTML = "search";
+    searchContainer.setAttribute("class", "njg-searchContainer");
+    searchContainer.appendChild(searchInput);
+    searchContainer.appendChild(searchBtn);
+    _this.el.appendChild(searchContainer);
+    searchInput.onchange = () => {
+        // do something to deal user input value.
+    };
+    searchBtn.onclick = () => {
+        let inputValue = searchInput.value.trim();
+        
+        /*
+            Pass in the relevant search value, 
+            which will re-render automatically according to the request result within the function.
+        */
+        searchFunc(inputValue);
+        searchInput.value = "";
+    }
+})(graph)
+```
+
 The view will change if the value is valid, and you can also click the back button of browser to go back.
 
-##### DateParse
+#### DateParse
           
 ### Contributing
 
