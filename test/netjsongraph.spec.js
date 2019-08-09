@@ -108,7 +108,7 @@ describe('NetJSONGraph Specification', () => {
       roam: true,
     });
     expect(graph.config.mapTileConfig).toEqual([]);
-    expect(graph.config.mapLineConfig).toEqual([{}]);
+    expect(graph.config.mapLinkConfig).toEqual([{}]);
     expect(graph.config.mapNodeConfig).toBeInstanceOf(Object);
 
     expect(graph.config.nodeSize).toBeDefined();
