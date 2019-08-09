@@ -12,8 +12,8 @@
  * @param  {object}            graphConfig         {}          Configuration of graph series(graphRender). @see {@link https://echarts.apache.org/en/option.html#series-graph}
  *
  * @param  {string|bool}       mapOptions          {}          Map init config. @see {@link https://leafletjs.com/reference-1.5.0.html#map-option}
- * @param  {array}             mapTileConfig       []          Map tiles config array, whose format is [url, option]. @see {@link https://leafletjs.com/reference-1.5.0.html#tilelayer}
- * @param  {array}             mapLineConfig       []          Support multiple lines superimposed style. @see {@link https://echarts.apache.org/en/option.html#series-lines}
+ * @param  {array}             mapTileConfig       []          Map tiles config array, whose format is [{label, urlTemplate, options}]. @see {@link https://leafletjs.com/reference-1.5.0.html#tilelayer-option}
+ * @param  {array}             mapLinkConfig       []          Support multiple lines superimposed style. @see {@link https://echarts.apache.org/en/option.html#series-lines}
  * @param  {object}            mapNodeConfig       {}          Map node style. @see {@link https://echarts.apache.org/en/option.html#series-effectScatter}
  *
  * @param {int|Array|function} nodeSize            node => 10  The size of nodes in pixel. @see {@link https://echarts.apache.org/en/option.html#series-graph.symbolSize}
@@ -85,7 +85,7 @@ const NetJSONGraphDefaultConfig = Object.freeze({
     roam: true
   },
   mapTileConfig: [],
-  mapLineConfig: [{}],
+  mapLinkConfig: [{}],
   mapNodeConfig: {
     label: {
       show: true,
