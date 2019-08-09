@@ -33,7 +33,7 @@ netjsongraph.js accepts two arguments.
 
 - url (required, string): URL to fetch the JSON data from. 
                
-	JSON format used internally based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4), but a little different: more occupied names as follows：
+	JSON format used internally based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4), but a little different: more occupied property names internally as follows：
 ```JS
 {
     nodes: [{
@@ -66,11 +66,9 @@ netjsongraph.js accepts two arguments.
 
     - graphConfig: Configuration of graph series(graphRender).
 
-    - mapCenter: Map init center.
-    - mapZoom: Map init zoom.
-    - mapRoam: Is Map can zoom or move?
-    - mapTileConfig: Map tiles config array, whose format is [url, option].
-    - mapLineConfig: Support multiple lines superimposed style.
+    - mapOption: Map init option.
+    - mapTileConfig: Map tiles config array, whose format is [{label, urlTemplate, options}].
+    - mapLinkConfig: Support multiple lines superimposed style.
     - mapNodeConfig: Map node style.      
     
     - nodeSize: The size of nodes in pixel.
@@ -82,9 +80,28 @@ netjsongraph.js accepts two arguments.
     - prepareData: Callback function executed after data has been loaded. Used to convert data to NetJSON Data normally.
     - onClickElement: Called when a node or link is clicked.
 
+### Configuration instructions
+
+`NetJSONGraph.js` mainly relies on the `Echarts` for rendering, so the related configuration is mainly inherited from [echarts](https://echarts.apache.org/en/option.html).
+
+`NetJSONGraph.js` mainly support two rendering modes -- `graph` or `map`, you must set it as the `render` property of `options`.
+In extreme cases, you can also pass your own render function if you don't need `echarts` to render.We will pass in the processed `netjson` data and `netjsongraph` object.
+
+For `graph`, you need to configure `graphConfig` property mainly.
+We only support [`graph`](https://echarts.apache.org/en/option.html#series-graph) or [`graphGL`](https://echarts.apache.org/zh/option-gl.html#series-graphGL)(Sorry for no english document yet, the biggest difference from graph is the [`forceAtlas2`](https://echarts.apache.org/zh/option-gl.html#series-graphGL.forceAtlas2) param) series in `echarts`.
+The latter is mainly used for big data rendering.You can select them by `graphConfig.type` property.
+We use `graph` series and `force` layout by default.You can modify them freely according to the documentation.
+
+For `map`, you need to configure map related options.
+The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer)(note：It's an array) are needed when map render.
+You can customize the nodes and links with [`mapLinkConfig`](https://echarts.apache.org/en/option.html#series-lines)(note：It's an array) and [`mapNodeConfig`](https://echarts.apache.org/en/option.html#series-scatter) optionally.For `map node`, you can also change the `type` to [`effectScatter`](https://echarts.apache.org/en/option.html#series-effectScatter) series.
+The difference between them and `nodeStyleProperty`、`linkStyleProperty` is that the latter two are just the style properties of the former.
+
+You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
+
 ### Example Usage
 
-```
+```HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,7 +115,7 @@ netjsongraph.js accepts two arguments.
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
         const graph = new NetJSONGraph("../src/data/netjson.json", {
-            render: graphRender,
+            render: "graph",
         });
         graph.render();
     </script>
