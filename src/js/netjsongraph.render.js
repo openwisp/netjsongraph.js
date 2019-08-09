@@ -178,7 +178,7 @@ class NetJSONGraphRender {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
           nodesData.push({
-            name: node.label || node.id,
+            name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
             symbolSize:
               typeof configs.nodeSize === "function"
@@ -231,7 +231,10 @@ class NetJSONGraphRender {
         })
       ),
       Object.assign(configs.mapNodeConfig, {
-        type: "effectScatter",
+        type:
+          configs.mapNodeConfig.type === "effectScatter"
+            ? "effectScatter"
+            : "scatter",
         coordinateSystem: "leaflet",
         data: nodesData
       })
@@ -270,6 +273,9 @@ class NetJSONGraphRender {
     );
 
     _this.config.onLoad.call(_this);
+    window.addEventListener("resize", () => {
+      requestAnimationFrame(_this.echarts.resize);
+    });
   }
 
   /**
