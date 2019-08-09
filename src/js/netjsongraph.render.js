@@ -132,6 +132,10 @@ class NetJSONGraphRender {
       series = [
         Object.assign(configs.graphConfig, {
           type: configs.graphConfig.type === "graphGL" ? "graphGL" : "graph",
+          layout:
+            configs.graphConfig.type === "graphGL"
+              ? "forceAtlas2"
+              : configs.graphConfig.layout,
           nodes,
           links,
           categories: categories.map(category => ({ name: category }))
@@ -223,7 +227,7 @@ class NetJSONGraphRender {
     });
 
     let series = [
-      ...configs.mapLineConfig.map(lineConfig =>
+      ...configs.mapLinkConfig.map(lineConfig =>
         Object.assign(lineConfig, {
           type: "lines",
           coordinateSystem: "leaflet",
@@ -242,12 +246,7 @@ class NetJSONGraphRender {
 
     return {
       leaflet: {
-        tiles: [
-          {
-            urlTemplate: configs.mapTileConfig[0],
-            options: configs.mapTileConfig[1]
-          }
-        ],
+        tiles: configs.mapTileConfig,
         mapOptions: configs.mapOptions
       },
       toolbox: {
