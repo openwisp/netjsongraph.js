@@ -55,7 +55,7 @@ class NetJSONGraph {
            * @return {object}         this.config
            */
           onRender: function() {
-            this.echarts.showLoading();
+            this.utils.showLoading.call(this);
 
             return this.config;
           },
@@ -69,7 +69,7 @@ class NetJSONGraph {
            * @return {object}         this.config
            */
           onLoad: function() {
-            this.echarts.hideLoading();
+            this.utils.hideLoading.call(this);
 
             return this.config;
           }
