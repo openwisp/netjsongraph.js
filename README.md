@@ -98,8 +98,8 @@ In extreme cases, you can also pass your own render function if you don't need `
 
 For `graph`, you need to configure `graphConfig` property mainly.
 We only support [`graph`](https://echarts.apache.org/en/option.html#series-graph) or [`graphGL`](https://echarts.apache.org/zh/option-gl.html#series-graphGL)(Sorry for no english document yet, the biggest difference from graph is the [`forceAtlas2`](https://echarts.apache.org/zh/option-gl.html#series-graphGL.forceAtlas2) param) series in `echarts`.
-The latter is mainly used for big data rendering.You can select them by `graphConfig.type` property.
-We use `graph` series and `force` layout by default.You can modify them freely according to the documentation.
+The latter is mainly used for big data rendering. You can select them by `graphConfig.type` property.
+We use `graph` series and `force` layout by default. You can modify them freely according to the documentation.
 
 For `map`, you need to configure map related options.
 The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer)(note：It's an array) are needed when map render.
@@ -142,7 +142,7 @@ You can also customize some global properties with [`echartsOption`](https://ech
 
 [NetJSON graph elements legend Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-elementsLegend.html)
 
-[NetJSON graph multiple links Demo] (https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-multipleLinks.html)
+[NetJSON graph multiple links Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-multipleLinks.html)
          
 [NetJSON multiple interfaces Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-multipleInterfaces.html)       
 
@@ -257,7 +257,20 @@ graph.render();
 The view will change if the value is valid, and you can also click the back button of browser to go back.
 
 #### DateParse
-          
+
+We provide a function -- `dataParse` for parsing the `time` field.
+It accepts an object parameter that can be deconstructed into three fields: 
+- dateString
+- parseRegular = /^([1-9]\d{3})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?Z$/,
+- hourDiffer = new Date().getTimezoneOffset() / 60
+
+We mainly use it to parse the time into the browser's current time zone based on the incoming matching rules.
+The exec result must be [date, year, month, day, hour, minute, second, millisecond?]  
+
+If you provide `time` field in node or link's properties, and when you click the element, it'll display the parse date in the detail info defaultly.
+
+Of course you can also use it to do other things.      
+
 ### Contributing
 
 1. Fork it!
