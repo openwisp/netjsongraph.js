@@ -56,16 +56,27 @@ describe("Test netjsongraph utils dom functions", () => {
       HTMLDivElement
     ],
   ]);
+
+  const loadingData = new Map([
+    [
+      // key
+      [],
+      // value
+      HTMLDivElement
+    ]
+  ]);
   
   const utilsDOMObj = {
     "Display metadata of NetJSONGraph.": ["NetJSONMetadata", NetJSONMetadataData],
+    "Display loading animation": ["showLoading", loadingData],
+    "Cancel loading animation": ["hideLoading", loadingData],
   }
 
   for(let operationText in utilsDOMObj){
     test(operationText, () => {
       let [operationFunc, operationDataMap] = utilsDOMObj[operationText];
       for(let [key, value] of operationDataMap){  
-        expect(graph.utils[operationFunc](...key)).toBeInstanceOf(value);
+        expect(graph.utils[operationFunc].call(graph, ...key)).toBeInstanceOf(value);
       }
     });
   }
@@ -96,3 +107,4 @@ describe("Test netjsongraph dom operate", () => {
     metadataClose.click();
   })
 })
+
