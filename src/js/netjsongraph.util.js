@@ -270,6 +270,10 @@ class NetJSONGraphUtil {
           html += `<p><b>location</b>:<br />lat: ${
             node.properties.location.lat
           }<br />lng: ${node.properties.location.lng}<br /></p>`;
+        } else if (key === "time") {
+          html += `<p><b>time</b>: ${this.dateParse({
+            dateString: node.properties[key]
+          })}</p>`;
         } else {
           html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
             node.properties[key]
@@ -305,9 +309,15 @@ class NetJSONGraphUtil {
     }</p><p><b>cost</b>: ${link.cost}</p>`;
     if (link.properties) {
       for (let key in link.properties) {
-        html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-          link.properties[key]
-        }</p>`;
+        if (key === "time") {
+          html += `<p><b>time</b>: ${this.dateParse({
+            dateString: link.properties[key]
+          })}</p>`;
+        } else {
+          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
+            link.properties[key]
+          }</p>`;
+        }
       }
     }
 

@@ -48,9 +48,18 @@ netjsongraph.js accepts two arguments.
             location ? : {
                 lng: Float,
                 lat: Float,
-            }
+            },
+
+            // Define node updated time
+            time ? : String
         }
     }],
+    links: [{
+        properties ? : {
+            // Define link updated time
+            time ? : String
+        }
+    }]
     flatNodes ? : {
         <node id>: node Object
     }  
@@ -60,7 +69,7 @@ netjsongraph.js accepts two arguments.
 - options (optional, object): custom options described below
     - el: Container element. "body" defaultly.
     - metadata: Whether to show NetJSON NetworkGraph metadata or not, defaults to true
-    - svgRender: Use SVG render?
+    - svgRender: Use SVG render? Canvas defaultly.
 
     - echartsOption: A global configuration of Echarts.
 
@@ -132,6 +141,8 @@ You can also customize some global properties with [`echartsOption`](https://ech
 [NetJSON graphGL(bigData) Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-graphGL.html)
 
 [NetJSON graph elements legend Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-elementsLegend.html)
+
+[NetJSON graph multiple links Demo] (https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-multipleLinks.html)
          
 [NetJSON multiple interfaces Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-multipleInterfaces.html)       
 
@@ -154,6 +165,8 @@ You can also customize some global properties with [`echartsOption`](https://ech
 [NetJSON indoormap Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-indoormap.html)
 
 [NetJSON map plugins Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-plugins.html)
+
+[NetJSON map multiple tiles Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-multipleTiles.html)
 
 ### New features added
 
