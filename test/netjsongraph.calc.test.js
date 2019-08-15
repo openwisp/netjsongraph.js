@@ -16,14 +16,13 @@ describe("Test netjsongraph function utils", () => {
           properties: {
             name: "Node",
             color: "red",
-            time: "2019-04-06T20:06:54.000Z"
           },
           linkCount: 1,
           local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
         },
       ],
       // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>time</b>: 2019.04.07 04:06:54.000</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
+      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
     ],
     [
       // key
@@ -60,12 +59,11 @@ describe("Test netjsongraph function utils", () => {
           properties: {
             name: "Link",
             color: "blue",
-            time: "2019-04-06T20:06:54.000Z"
           },
         },
       ],
       // value
-      `<p><b>source</b>: 192.168.0.01</p><p><b>target</b>: 192.168.1.01</p><p><b>cost</b>: 1.000</p><p><b>name</b>: Link</p><p><b>color</b>: blue</p><p><b>time</b>: 2019.04.07 04:06:54.000</p>`
+      `<p><b>source</b>: 192.168.0.01</p><p><b>target</b>: 192.168.1.01</p><p><b>cost</b>: 1.000</p><p><b>name</b>: Link</p><p><b>color</b>: blue</p>`
     ],
     [
       // key
