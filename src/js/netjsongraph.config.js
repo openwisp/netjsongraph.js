@@ -4,8 +4,10 @@
  * Default options
  *
  * @param  {string}            el                  body        Container element. "body" defaultly.
+ * @param  {string|function}   render              "graph"     Render function. "graph" defaultly.
  * @param  {bool}              metadata            true        Display NetJSON metadata at startup?
  * @param  {bool}              svgRender           false       Use SVG render?
+ * @param  {string}            dealDataByWorker                WebWorker file url.
  *
  * @param  {object}            echartsOption       {}          A global configuration of Echarts. @see {@link https://echarts.apache.org/en/option.html#title}
  *
@@ -22,11 +24,13 @@
  *
  * @param  {function}          onInit                          Callback function executed on initialization.
  * @param  {function}          onRender                        Callback function executed on render start.
+ * @param  {function}          onUpdate                        Callback function executed on update.
+ * @param  {function}          afterUpdate                     Callback function executed after update.
  * @param  {function}          onLoad                          Callback function executed when rendered.
  * @param  {function}          prepareData                     Callback function executed after data has been loaded. Used to convert data to NetJSONGraph Data.
  * @param  {function}          onClickElement                  Called when a node or link is clicked.
  */
-const NetJSONGraphDefaultConfig = Object.freeze({
+const NetJSONGraphDefaultConfig = {
   metadata: true,
   svgRender: false,
   echartsOption: {
@@ -259,6 +263,6 @@ const NetJSONGraphDefaultConfig = Object.freeze({
 
     nodeLinkOverlay.appendChild(closeA);
   }
-});
+};
 
-export default NetJSONGraphDefaultConfig;
+export default { ...NetJSONGraphDefaultConfig };
