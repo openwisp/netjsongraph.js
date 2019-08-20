@@ -29,6 +29,7 @@ class NetJSONGraph {
       NetJSONGraphUpdate.prototype
     );
     graph.utils = Object.assign(new NetJSONGraphRender(), graph.utils);
+    graph.event = graph.utils.createEvent();
     graph.setConfig(
       Object.assign(
         {
@@ -59,6 +60,20 @@ class NetJSONGraph {
 
             return this.config;
           },
+
+          /**
+           * @function
+           * @name onUpdate
+           * Callback function executed when data update.
+           *
+           * @this  {object}          The instantiated object of NetJSONGraph
+           *
+           * @return {object}         this.config
+           */
+          onUpdate: function() {
+            return this.config;
+          },
+
           /**
            * @function
            * @name onLoad

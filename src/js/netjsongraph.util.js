@@ -197,20 +197,68 @@ class NetJSONGraphUtil {
    * @name NetJSONMetadata
    * Display metadata of NetJSONGraph.
    *
-   * @param  {object}  metadata
+   * @this   {object}   NetJSONGraph object
    *
    * @return {object} metadataContainer DOM
    */
 
-  NetJSONMetadata(metadata) {
+  NetJSONMetadata() {
+    const metadataContainer = document.createElement("div"),
+      innerDiv = document.createElement("div"),
+      closeA = document.createElement("a");
+    metadataContainer.setAttribute("class", "njg-metadata njg-container");
+    metadataContainer.setAttribute("style", "display: block");
+    innerDiv.setAttribute("class", "njg-inner");
+    innerDiv.setAttribute("id", "metadata-innerDiv");
+    closeA.setAttribute("class", "njg-close");
+    closeA.setAttribute("id", "metadata-close");
+
+    closeA.onclick = () => {
+      metadataContainer.style.visibility = "hidden";
+    };
+    innerDiv.innerHTML = this.utils._getMetadata.call(this);
+    metadataContainer.appendChild(innerDiv);
+    metadataContainer.appendChild(closeA);
+
+    return metadataContainer;
+  }
+
+  /**
+   * @function
+   * @name updateMetadata
+   *
+   * @this  {object}   NetJSONGraph object
+   *
+   */
+  updateMetadata() {
+    if (this.config.metadata) {
+      document.getElementsByClassName("njg-metadata")[0].style.visibility =
+        "visible";
+      document.getElementById(
+        "metadata-innerDiv"
+      ).innerHTML = this.utils._getMetadata.call(this);
+    }
+  }
+
+  /**
+   * @function
+   * @name _getMetadata
+   *
+   * Get metadata dom string.
+   *
+   * @this   {object}   NetJSONGraph object
+   * @return {string}   Dom string
+   */
+  _getMetadata() {
     const attrs = [
-      "protocol",
-      "version",
-      "revision",
-      "metric",
-      "router_id",
-      "topology_id"
-    ];
+        "protocol",
+        "version",
+        "revision",
+        "metric",
+        "router_id",
+        "topology_id"
+      ],
+      metadata = this.data;
     let html = "";
 
     if (metadata.label) {
@@ -230,23 +278,7 @@ class NetJSONGraphUtil {
       }</span></p>
     `;
 
-    const metadataContainer = document.createElement("div"),
-      innerDiv = document.createElement("div"),
-      closeA = document.createElement("a");
-    metadataContainer.setAttribute("class", "njg-metadata njg-container");
-    metadataContainer.setAttribute("style", "display: block");
-    innerDiv.setAttribute("class", "njg-inner");
-    closeA.setAttribute("class", "njg-close");
-    closeA.setAttribute("id", "metadata-close");
-
-    closeA.onclick = () => {
-      metadataContainer.style.visibility = "hidden";
-    };
-    innerDiv.innerHTML = html;
-    metadataContainer.appendChild(innerDiv);
-    metadataContainer.appendChild(closeA);
-
-    return metadataContainer;
+    return html;
   }
 
   /**
@@ -335,16 +367,22 @@ class NetJSONGraphUtil {
    */
 
   showLoading() {
-    let loadingContainer = document.createElement("div");
-    loadingContainer.setAttribute("id", "loadingContainer");
-    loadingContainer.innerHTML = `
-      <div class="loadingElement">
-        <div class="loadingSprite"></div>
-        <p class="loadingTip">Loading...</p>
-      </div>
-    `;
+    let loadingContainer = document.getElementById("loadingContainer");
 
-    this.el.appendChild(loadingContainer);
+    if (!loadingContainer) {
+      loadingContainer = document.createElement("div");
+      loadingContainer.setAttribute("id", "loadingContainer");
+      loadingContainer.innerHTML = `
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <p class="loadingTip">Loading...</p>
+        </div>
+      `;
+
+      this.el.appendChild(loadingContainer);
+    } else {
+      loadingContainer.style.visibility = "visible";
+    }
 
     return loadingContainer;
   }
@@ -362,9 +400,36 @@ class NetJSONGraphUtil {
   hideLoading() {
     let loadingContainer = document.getElementById("loadingContainer");
 
-    this.el.removeChild(loadingContainer);
+    if (loadingContainer) {
+      loadingContainer.style.visibility = "hidden";
+    }
 
     return loadingContainer;
+  }
+
+  createEvent() {
+    const events = new Map(),
+      events_once = new Map();
+    return {
+      on(key, ...res) {
+        events.set(key, [...(events.get(key) || []), ...res]);
+      },
+      once(key, ...res) {
+        events_once.set(key, [...(events_once.get(key) || []), ...res]);
+      },
+      emit(key) {
+        const funcs = events.get(key) || [],
+          funcs_once = events_once.get(key) || [],
+          res = funcs.map(func => func()),
+          res_once = funcs_once.map(func => func());
+        // events_once.delete(key);
+        return [...res, ...res_once];
+      },
+      delete(key) {
+        events.delete(key);
+        events_once.delete(key);
+      }
+    };
   }
 }
 
