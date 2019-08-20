@@ -50,13 +50,14 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    * @name dealDataByWorker
    *
    * Deal JSONData by WebWorker and render.
-   * @param  {object}  JSONData     NetJSONData
-   * @param  {string}  workerFile   url
-   * @param  {object}  _this        NetJSONGraph object
+   * @param  {object}    JSONData     NetJSONData
+   * @param  {string}    workerFile   url
+   * @param  {object}    _this        NetJSONGraph object
+   * @param  {function}  callback
    *
    */
 
-  dealDataByWorker(JSONData, workerFile, _this) {
+  dealDataByWorker(JSONData, workerFile, _this, callback) {
     let worker = new Worker(workerFile);
 
     worker.postMessage(JSONData);
@@ -65,18 +66,13 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
       console.error("Error in dealing JSONData!");
     });
     worker.addEventListener("message", e => {
-      _this.data = e.data;
+      if (callback) {
+        callback();
+      } else {
+        _this.utils._overrideData(e.data, _this);
 
-      if (_this.config.metadata) {
-        document.getElementsByClassName("njg-metadata")[0].style.visibility =
-          "visible";
-        document.getElementById("metadataNodesLength").innerHTML =
-          _this.data.nodes.length;
-        document.getElementById("metadataLinksLength").innerHTML =
-          _this.data.links.length;
+        _this.utils.updateMetadata.call(_this);
       }
-
-      _this.utils.NetJSONRender();
     });
   }
 
@@ -85,44 +81,71 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    * @name JSONDataUpdate
    *
    * Callback function executed when data update. Update Information and view.
-   * @param  {object}  Data     JSON data or url
+   * @param  {object|string}  Data     JSON data or url
+   * @param  {boolean}        override If old data need to be overrided?
+   * @param  {boolean}        isRaw    If data need to deal with the configuration?
    *
    * @this  {object}   NetJSONGraph object
    *
    */
 
-  JSONDataUpdate(Data) {
+  JSONDataUpdate(Data, override = true, isRaw = true) {
     const _this = this;
-    _this.config.onRender.call(_this);
+    _this.config.onUpdate.call(_this);
 
     _this.utils
       .JSONParamParse(Data)
       .then(JSONData => {
-        _this.config.prepareData.call(_this, JSONData);
-
-        if (_this.config.metadata) {
-          document.getElementsByClassName("njg-metadata")[0].style.visibility =
-            "visible";
-          document.getElementById("metadataNodesLength").innerHTML =
-            JSONData.nodes.length;
-          document.getElementById("metadataLinksLength").innerHTML =
-            JSONData.links.length;
+        if (isRaw) {
+          _this.config.prepareData.call(_this, JSONData);
+          if (_this.config.dealDataByWorker) {
+            _this.utils.dealDataByWorker(
+              JSONData,
+              _this.config.dealDataByWorker,
+              _this,
+              _update
+            );
+          } else {
+            _update();
+          }
+        } else {
+          _update();
         }
 
-        if (_this.config.dealDataByWorker) {
-          _this.utils.dealDataByWorker(
-            JSONData,
-            _this.config.dealDataByWorker,
-            _this
-          );
-        } else {
-          _this.data = JSONData;
-          _this.utils.NetJSONRender();
+        function _update() {
+          // override data.
+          if (override) {
+            _this.JSONParam = [Data];
+            _this.utils._overrideData(JSONData, _this);
+          }
+          // append data.
+          else {
+            _this.JSONParam.push(Data);
+            _this.utils._appendData(JSONData, _this);
+          }
+          // update metadata
+          _this.utils.updateMetadata.call(_this);
         }
       })
       .catch(error => {
         console.error(error);
       });
+  }
+
+  /**
+   * @function
+   * @name _overrideData
+   *
+   * Override new data after render.
+   * Internal use. Recommend to use `JSONDateUpdate` directly.
+   * @param  {object}         JSONData   Data
+   * @param  {object}         _this      NetJSONGraph object
+   *
+   */
+  _overrideData(JSONData, _this) {
+    _this.data = JSONData;
+
+    _this.utils.NetJSONRender();
   }
 }
 
