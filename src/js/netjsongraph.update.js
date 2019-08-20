@@ -6,20 +6,25 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
   /**
    * @function
    * @name searchElements
-   * Add search function for new elements.
+   * Add search function for new data.
    *
-   * @param {string} url      listen url
-   * @param {object} _this    NetJSONGraph object
+   * @param  {string}         url      listen url
+   * @param  {boolean}        override If old data need to be overrided? True defaultly. (Attention: Only 'map' render can set it `false`!)
+   * @param  {boolean}        isRaw    If the data need to deal with the configuration? True defaultly.
    *
-   * @return {function} searchFunc
+   * @this   {object}         NetJSONGraph object
+   *
+   * @return {function}       searchFunc
    */
 
-  searchElements(url, _this) {
+  searchElements(url, override = true, isRaw = true) {
     window.history.pushState({ searchValue: "" }, "");
 
     window.onpopstate = event => {
       updateSearchedElements(event.state.searchValue);
     };
+
+    const _this = this;
 
     return function searchFunc(key) {
       let searchValue = key.trim();
@@ -37,7 +42,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
       return fetch(url + searchValue)
         .then(data => data.json())
         .then(data => {
-          _this.utils.JSONDataUpdate.call(_this, data);
+          _this.utils.JSONDataUpdate.call(_this, data, override, isRaw);
         })
         .catch(error => {
           throw error;
@@ -47,45 +52,14 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
 
   /**
    * @function
-   * @name dealDataByWorker
-   *
-   * Deal JSONData by WebWorker and render.
-   * @param  {object}    JSONData     NetJSONData
-   * @param  {string}    workerFile   url
-   * @param  {object}    _this        NetJSONGraph object
-   * @param  {function}  callback
-   *
-   */
-
-  dealDataByWorker(JSONData, workerFile, _this, callback) {
-    let worker = new Worker(workerFile);
-
-    worker.postMessage(JSONData);
-
-    worker.addEventListener("error", e => {
-      console.error("Error in dealing JSONData!");
-    });
-    worker.addEventListener("message", e => {
-      if (callback) {
-        callback();
-      } else {
-        _this.utils._overrideData(e.data, _this);
-
-        _this.utils.updateMetadata.call(_this);
-      }
-    });
-  }
-
-  /**
-   * @function
    * @name JSONDataUpdate
-   *
    * Callback function executed when data update. Update Information and view.
-   * @param  {object|string}  Data     JSON data or url
-   * @param  {boolean}        override If old data need to be overrided?
-   * @param  {boolean}        isRaw    If data need to deal with the configuration?
    *
-   * @this  {object}   NetJSONGraph object
+   * @param  {object|string}  Data     JSON data or url.
+   * @param  {boolean}        override If old data need to be overrided? True defaultly. (Attention: Only 'map' render can set it `false`!)
+   * @param  {boolean}        isRaw    If the data need to deal with the configuration? True defaultly.
+   *
+   * @this   {object}         NetJSONGraph object
    *
    */
 
@@ -99,10 +73,10 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         if (isRaw) {
           _this.config.prepareData.call(_this, JSONData);
           if (_this.config.dealDataByWorker) {
-            _this.utils.dealDataByWorker(
+            _this.utils.dealDataByWorker.call(
+              _this,
               JSONData,
               _this.config.dealDataByWorker,
-              _this,
               _update
             );
           } else {
@@ -121,7 +95,9 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
           // append data.
           else {
             _this.JSONParam.push(Data);
-            _this.utils._appendData(JSONData, _this);
+            _this.config.render === _this.utils.mapRender
+              ? _this.utils._appendData(JSONData, _this)
+              : _this.utils._addData(JSONData, _this);
           }
           // update metadata
           _this.utils.updateMetadata.call(_this);
@@ -134,10 +110,41 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
 
   /**
    * @function
-   * @name _overrideData
+   * @name dealDataByWorker
+   * Deal JSONData by WebWorker.
    *
-   * Override new data after render.
-   * Internal use. Recommend to use `JSONDateUpdate` directly.
+   * @param  {object}    JSONData     NetJSONData
+   * @param  {string}    workerFile   url
+   * @param  {function}  callback     override data and render defaultly.
+   *
+   * @this   {object}    _this        NetJSONGraph object
+   *
+   */
+
+  dealDataByWorker(JSONData, workerFile, callback) {
+    const worker = new Worker(workerFile),
+      _this = this;
+
+    worker.postMessage(JSONData);
+
+    worker.addEventListener("error", e => {
+      console.error("Error in dealing JSONData!");
+    });
+    worker.addEventListener("message", e => {
+      if (callback) {
+        callback();
+      } else {
+        _this.utils._overrideData(e.data, _this);
+        _this.utils.updateMetadata.call(_this);
+      }
+    });
+  }
+
+  /**
+   * @function
+   * @name _overrideData
+   * Override old data and render.
+   *
    * @param  {object}         JSONData   Data
    * @param  {object}         _this      NetJSONGraph object
    *
@@ -145,7 +152,8 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
   _overrideData(JSONData, _this) {
     _this.data = JSONData;
 
-    _this.utils.NetJSONRender();
+    _this.utils._render();
+    _this.config.afterUpdate.call(_this);
   }
 }
 

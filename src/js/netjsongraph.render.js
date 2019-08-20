@@ -18,7 +18,7 @@ import L from "leaflet/dist/leaflet.js";
 class NetJSONGraphRender {
   /**
    * @function
-   * @name graphSetOption
+   * @name echartsSetOption
    *
    * set option in echarts and render.
    *
@@ -28,12 +28,13 @@ class NetJSONGraphRender {
    * @return {object}  graph object
    *
    */
-  graphSetOption(customOption, _this) {
+  echartsSetOption(customOption, _this) {
     const configs = _this.config,
       echartsLayer = _this.echarts,
       commonOption = _this.utils.deepMergeObj(
         {
           // Show element's detail when hover
+          //
           // tooltip: {
           //   confine: true,
           //   formatter: params => {
@@ -267,16 +268,17 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, _this) {
-    _this.utils.graphSetOption(
+    _this.utils.echartsSetOption(
       _this.utils.generateGraphOption(JSONData, _this),
       _this
     );
 
-    _this.config.onLoad.call(_this);
-    _this.event.emit("renderArray");
     window.onresize = () => {
       _this.echarts.resize();
     };
+
+    _this.event.emit("onLoad");
+    _this.event.emit("renderArray");
   }
 
   /**
@@ -294,23 +296,22 @@ class NetJSONGraphRender {
       return;
     }
 
-    _this.utils.graphSetOption(
+    _this.utils.echartsSetOption(
       _this.utils.generateMapOption(JSONData, _this),
       _this
     );
 
     _this.leaflet = _this.echarts._api.getCoordinateSystems()[0].getLeaflet();
 
-    _this.config.onLoad.call(_this);
+    _this.event.emit("onLoad");
     _this.event.emit("renderArray");
   }
 
   /**
    * @function
    * @name _appendData
+   * Append new data. Can only be used for `map` render!
    *
-   * Add new data after render. Can only be used for map render !
-   * Internal use. Recommend to use `JSONDateUpdate` directly.
    * @param  {object}         JSONData   Data
    * @param  {object}         _this      NetJSONGraph object
    *
@@ -327,13 +328,44 @@ class NetJSONGraphRender {
         data: obj.data
       });
     });
+    // modify this.data
+    _this.utils._mergeData(JSONData, _this);
+
+    _this.config.afterUpdate.call(_this);
+  }
+
+  /**
+   * @function
+   * @name _addData
+   * Add new data. Mainly used for `graph` render.
+   *
+   * @param  {object}         JSONData      Data
+   * @param  {object}         _this         NetJSONGraph object
+   */
+  _addData(JSONData, _this) {
+    // modify this.data
+    _this.utils._mergeData(JSONData, _this);
+    // `graph` render can't append data. So we have to merge the data and re-render.
+    _this.utils._render();
+
+    _this.config.afterUpdate.call(_this);
+  }
+
+  /**
+   * @function
+   * @name _mergeData
+   * Merge new data. Modify this.data.
+   *
+   * @param  {object}         JSONData      Data
+   * @param  {object}         _this         NetJSONGraph object
+   */
+  _mergeData(JSONData, _this) {
     const nodes = _this.data.nodes.concat(JSONData.nodes),
       links = _this.data.links.concat(JSONData.links);
     Object.assign(_this.data, JSONData, {
       nodes,
       links
     });
-    _this.config.onLoad.call(_this);
   }
 }
 
