@@ -155,6 +155,30 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * Judge parameter type
+   *
+   * @return {bool}
+   */
+  isArray(x) {
+    return Object.prototype.toString.call(x).slice(8, 13) === "Array";
+  }
+
+  /**
+   * Judge parameter is a dom element.
+   *
+   * @return {bool}
+   */
+  isElement(o) {
+    return typeof HTMLElement === "object"
+      ? o instanceof HTMLElement //DOM2
+      : o &&
+          typeof o === "object" &&
+          o !== null &&
+          o.nodeType === 1 &&
+          typeof o.nodeName === "string";
+  }
+
+  /**
    * merge two object deeply
    *
    * @param  {object}
@@ -422,7 +446,7 @@ class NetJSONGraphUtil {
           funcs_once = events_once.get(key) || [],
           res = funcs.map(func => func()),
           res_once = funcs_once.map(func => func());
-        // events_once.delete(key);
+        events_once.delete(key);
         return [...res, ...res_once];
       },
       delete(key) {
