@@ -10,7 +10,10 @@ class NetJSONGraph {
    * @param {Object} config
    */
   constructor(JSONParam, config) {
-    this.JSONParam = JSONParam;
+    this.JSONParam =
+      Object.prototype.toString.call(JSONParam).slice(8, 13) === "Array"
+        ? JSONParam
+        : [JSONParam];
     this.config = { ...NetJSONGraphDefaultConfig };
 
     this.setUtils();
@@ -52,12 +55,15 @@ class NetJSONGraph {
    * @this {object}      The instantiated object of NetJSONGraph
    */
   render() {
+    const [JSONParam, ...resParam] = this.JSONParam;
+
     this.config.onRender.call(this);
 
     this.utils
-      .JSONParamParse(this.JSONParam)
+      .JSONParamParse(JSONParam)
       .then(JSONData => {
         this.config.prepareData.call(this, JSONData);
+        this.data = JSONData;
 
         (function addNodeLinkOverlay(_this) {
           let nodeLinkOverlay = document.createElement("div");
@@ -66,7 +72,7 @@ class NetJSONGraph {
         })(this);
 
         if (this.config.metadata) {
-          this.el.appendChild(this.utils.NetJSONMetadata(JSONData));
+          this.el.appendChild(this.utils.NetJSONMetadata.call(this));
         }
 
         if (this.config.dealDataByWorker) {
@@ -83,6 +89,17 @@ class NetJSONGraph {
       .catch(error => {
         console.error(error);
       });
+
+    if (resParam.length) {
+      this.event.once("renderArray", _renderArray.bind(this));
+
+      function _renderArray() {
+        this.JSONParam = [JSONParam];
+        resParam.map(file => {
+          this.utils.JSONDataUpdate.call(this, file, false);
+        });
+      }
+    }
   }
 
   /**
