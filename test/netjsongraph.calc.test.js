@@ -200,6 +200,17 @@ describe("Test netjsongraph function utils", () => {
       }
     });
   }
+
+  test("Event test.", () => {
+    const event = util.createEvent(),
+          res = 1;
+
+    event.on("test", () => res);
+    event.once("test", () => res); 
+    expect(event.emit("test")).toEqual([res, res]);
+    expect(event.emit("none_event")).toEqual([]);
+    event.delete("once_test"); 
+  })
 })
 
 

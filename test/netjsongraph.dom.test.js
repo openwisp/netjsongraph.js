@@ -20,6 +20,9 @@ graph.setConfig({
   onRender: function() {
     return this.config;
   },
+  onUpdate: function() {
+    return this.config;
+  },
   onLoad: function() {
     return this.config;
   },
@@ -73,12 +76,18 @@ describe("Test netjsongraph utils dom functions", () => {
   }
 
   for(let operationText in utilsDOMObj){
+    test("Hide loading -- no dom", () => {
+      graph.utils.hideLoading.call(graph);
+    })
     test(operationText, () => {
       let [operationFunc, operationDataMap] = utilsDOMObj[operationText];
       for(let [key, value] of operationDataMap){  
         expect(graph.utils[operationFunc].call(graph, ...key)).toBeInstanceOf(value);
       }
     });
+    test("Show loading again", () => {
+      graph.utils.showLoading.call(graph);
+    })
   }
 })
 

@@ -82,6 +82,9 @@ describe('NetJSONGraph Specification', () => {
       onRender: function() {
         return this.config;
       },
+      onUpdate: function() {
+        return this.config;
+      },
       onLoad: function() {
         return this.config;
       },
@@ -90,7 +93,7 @@ describe('NetJSONGraph Specification', () => {
     expect(graph).toBeInstanceOf(NetJSONGraph);
 
     expect(graph.el).toBeInstanceOf(HTMLElement);
-    expect(graph.JSONParam).toBe(JSONFILE);
+    expect(graph.JSONParam).toEqual([JSONFILE,]);
     expect(graph.config).toBeInstanceOf(Object);
     expect(graph.utils).toBeInstanceOf(Object);
     expect(graph.setConfig).toBeInstanceOf(Function);
@@ -140,6 +143,8 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.utils.isObject).toBeInstanceOf(Function);
     expect(graph.utils.dateParse).toBeInstanceOf(Function);
     expect(graph.utils.JSONParamParse).toBeInstanceOf(Function);
+    expect(graph.utils.showLoading).toBeInstanceOf(Function);
+    expect(graph.utils.hideLoading).toBeInstanceOf(Function);
   });
 })
 
