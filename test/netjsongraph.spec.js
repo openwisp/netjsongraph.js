@@ -1,7 +1,6 @@
 'use strict';
 
 import NetJSONGraph from "../src/js/netjsongraph.core.js";
-import NetJSONGraphUpdate from "../src/js/netjsongraph.update.js";
 
 describe('NetJSONGraph Specification', () => {
   const NetJSONGraphOption = {
@@ -73,8 +72,10 @@ describe('NetJSONGraph Specification', () => {
 
   test('NetJSONGraph object attribute fields exist', () => {
     let JSONFILE = "test";
+
     const graph = new NetJSONGraph(JSONFILE);
-    graph.utils = Object.assign(new NetJSONGraphUpdate(), graph.utils);
+    // Package NetJSONGraph instance object.
+    graph.event = graph.utils.createEvent();
     graph.setConfig({
       onInit: function() {
         return this.config;
@@ -85,13 +86,17 @@ describe('NetJSONGraph Specification', () => {
       onUpdate: function() {
         return this.config;
       },
+      afterUpdate: function() {
+        return this.config;
+      },
       onLoad: function() {
         return this.config;
       },
     });
 
     expect(graph).toBeInstanceOf(NetJSONGraph);
-
+    
+    // NetJSON Props
     expect(graph.el).toBeInstanceOf(HTMLElement);
     expect(graph.JSONParam).toEqual([JSONFILE,]);
     expect(graph.config).toBeInstanceOf(Object);
@@ -99,7 +104,9 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.setConfig).toBeInstanceOf(Function);
     expect(graph.setUtils).toBeInstanceOf(Function);
     expect(graph.render).toBeInstanceOf(Function);
+    expect(graph.event).toBeInstanceOf(Object);
  
+    // NetJSON Config
     expect(graph.config).toHaveProperty("metadata", true);
     expect(graph.config).toHaveProperty("svgRender", false);
 
@@ -124,27 +131,35 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.config.onInit.call(graph)).toBe(graph.config);
     expect(graph.config.onRender).toBeInstanceOf(Function);
     expect(graph.config.onRender.call(graph)).toBe(graph.config);
+    expect(graph.config.onUpdate).toBeInstanceOf(Function);
+    expect(graph.config.onUpdate.call(graph)).toBe(graph.config);
+    expect(graph.config.afterUpdate).toBeInstanceOf(Function);
+    expect(graph.config.afterUpdate.call(graph)).toBe(graph.config);
     expect(graph.config.onLoad).toBeInstanceOf(Function);
     expect(graph.config.onLoad.call(graph)).toBe(graph.config);
     expect(graph.config.prepareData).toBeInstanceOf(Function);
     expect(graph.config.onClickElement).toBeInstanceOf(Function);
 
+    // NetJSON Update
     expect(graph.utils.JSONDataUpdate).toBeInstanceOf(Function);
-    expect(graph.utils.NetJSONRender).toBeInstanceOf(Function);
-    expect(graph.utils.dealDataByWorker).toBeInstanceOf(Function);
     expect(graph.utils.dealDataByWorker).toBeInstanceOf(Function);
     expect(graph.utils.searchElements).toBeInstanceOf(Function);
 
+    // NetJSON Utils
     expect(graph.utils.NetJSONMetadata).toBeInstanceOf(Function);
+    expect(graph.utils.updateMetadata).toBeInstanceOf(Function);
     expect(graph.utils.nodeInfo).toBeInstanceOf(Function);
     expect(graph.utils.linkInfo).toBeInstanceOf(Function);
-    expect(graph.utils.numberMinDigit).toBeInstanceOf(Function);
     expect(graph.utils.deepMergeObj).toBeInstanceOf(Function);
     expect(graph.utils.isObject).toBeInstanceOf(Function);
+    expect(graph.utils.isArray).toBeInstanceOf(Function);
+    expect(graph.utils.isElement).toBeInstanceOf(Function);
     expect(graph.utils.dateParse).toBeInstanceOf(Function);
     expect(graph.utils.JSONParamParse).toBeInstanceOf(Function);
     expect(graph.utils.showLoading).toBeInstanceOf(Function);
     expect(graph.utils.hideLoading).toBeInstanceOf(Function);
+    expect(graph.utils.createEvent).toBeInstanceOf(Function);
+    expect(graph.utils.numberMinDigit).toBeInstanceOf(Function);
   });
 })
 

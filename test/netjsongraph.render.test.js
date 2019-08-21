@@ -1,26 +1,17 @@
 'use strict';
 
 import NetJSONGraph from "../src/js/netjsongraph.core.js";
-import NetJSONGraphUpdate from "../src/js/netjsongraph.update.js";
 
 const JSONFILE = "test",
       JSONData = {
         date: "2019-04-03T05:06:54.000Z",
         nodes: [],
         links: [],
-      };
-
-window.fetch = jest.fn(url => url === JSONFILE ? 
-  Promise.resolve(JSONData) : 
-  Promise.reject("Fetch json file wrong!")
-);
-
-const graph = new NetJSONGraph([JSONFILE, JSONFILE]);
-graph.utils = Object.assign(new NetJSONGraphUpdate(), graph.utils);
+      },
+      graph = new NetJSONGraph([JSONFILE, JSONFILE]);
 graph.event = graph.utils.createEvent();
 graph.setConfig({
-  el: document.getElementsByTagName("body")[0],
-  nodeSize: 5,
+  render: () => {},
   onInit: function() {
     return this.config;
   },
@@ -30,37 +21,79 @@ graph.setConfig({
   onUpdate: function() {
     return this.config;
   },
+  afterUpdate: function() {
+    return this.config;
+  },
   onLoad: function() {
     return this.config;
   },
-  render: () => {},
 })
+graph.setUtils();
 
+window.fetch = jest.fn(url => url === JSONFILE ? 
+    Promise.resolve(JSONData) : 
+    Promise.reject("Fetch json file wrong!"))
+  
 describe("Test netjsongraph render", () => {
-  test("netjsongraph.js render function", () => {
+  beforeAll(() => {
     graph.setConfig({
       dealDataByWorker: "./error.js",
     })
+  });
 
-    expect(graph.render());
+  afterAll(() => {
+    graph.setConfig({
+      dealDataByWorker: "",
+    })
+  })
+
+  test("netjsongraph.js render function", () => {
+    graph.render();
 
     // re render
-    expect(graph.utils.NetJSONRender());
+    graph.utils._render();
   })
 })
 
-describe("Modify netjsongraph configs", () => {
+describe("Test netjsongraph setConfig", () => {
   test("NetJSONGraph support dynamic modification of config parameters", () => {
     graph.setConfig({
       nodeSize: 1
     });
-    graph.setConfig();
     expect(graph.config.nodeSize).toBe(1);
+    graph.setConfig({
+      nodeSize: 5
+    });
+    expect(graph.config.nodeSize).toBe(5);
+  });
+  test("Modify el config", () => {
+    const obj1 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    const obj2 = new NetJSONGraph([JSONFILE, JSONFILE], {
+      el: document.getElementsByTagName("body")[0],
+    });
+    const obj3 = new NetJSONGraph([JSONFILE, JSONFILE], {
+      el: "error",
+    });
+    obj1.setConfig({
+      el: "error"
+    })
   });
 })
 
 describe("Test netjsongraph JSONDataUpdate", () => {
-  // graph.render();
+  beforeAll(() => {
+    graph.setConfig({
+      metadata: true,
+      dealDataByWorker: "./error.js",
+    })
+  });
+
+  afterAll(() => {
+    graph.setConfig({
+      metadata: true,
+      dealDataByWorker: "",
+    })
+  })
 
   test("Callback function executed when data update.Update Information and view.", () => {
     graph.utils.JSONDataUpdate.call(graph, {
@@ -94,9 +127,19 @@ describe("Test netjsongraph JSONDataUpdate", () => {
       links: [],
     });
   })
-  test("Append data.", () => {
+  test("Merge data -- map append.", () => {
     graph.setConfig({
       dealDataByWorker: "",
+    })
+    graph.utils.JSONDataUpdate.call(graph, {
+      nodes: [],
+      links: [],
+    }, false);
+  })
+  test("Merge data -- graph add.", () => {
+    graph.setConfig({
+      // _this.utils.mapRender === undefined
+      render: undefined
     })
     graph.utils.JSONDataUpdate.call(graph, {
       nodes: [],
@@ -110,7 +153,7 @@ describe("Test netjsongraph JSONDataUpdate", () => {
 
 describe("Test netjsongraph JSONParamParse", () => {
   test("Perform different operations to call NetJSONDataParse function according to different Param types.", () => {
-    const {JSONParamParse} = graph.utils;
+    const { JSONParamParse } = graph.utils;
 
     JSONParamParse(JSONFILE).then(data => {
       expect(data).toEqual(JSONData);

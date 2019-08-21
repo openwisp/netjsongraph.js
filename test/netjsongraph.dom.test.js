@@ -1,7 +1,8 @@
 'use strict';
 
 import NetJSONGraph from "../src/js/netjsongraph.core.js";
-import NetJSONGraphUtil from "../src/js/netjsongraph.util.js";
+
+
 
 const graph = new NetJSONGraph({
   "type":"NetworkGraph",
@@ -12,21 +13,19 @@ const graph = new NetJSONGraph({
   "nodes": [],
   "links": [],
 });
-graph.utils = Object.assign(new NetJSONGraphUtil(), graph.utils);
+
+// Package NetJSONGraph instance object.
+graph.event = graph.utils.createEvent();
 graph.setConfig({
-  onInit: function() {
-    return this.config;
-  },
   onRender: function() {
-    return this.config;
-  },
-  onUpdate: function() {
     return this.config;
   },
   onLoad: function() {
     return this.config;
   },
 });
+graph.setUtils();
+graph.render();
 
 describe("Test netjsongraph utils dom functions", () => {
   const NetJSONMetadataData = new Map([
@@ -93,20 +92,18 @@ describe("Test netjsongraph utils dom functions", () => {
 
 
 describe("Test netjsongraph dom operate", () => {
-  graph.render();
-
   test("Click a node", () => {
-    expect(graph.config.onClickElement.call(graph, "node", {
+    graph.config.onClickElement.call(graph, "node", {
         id: "2"
-    }))
+    })
     const closeBtn = document.getElementById('nodelinkOverlay-close');
     closeBtn.click();
   })
 
   test("Click a link", () => {
-    expect(graph.config.onClickElement.call(graph, "link", {
+    graph.config.onClickElement.call(graph, "link", {
       id: "2"
-    }))
+    })
     const closeBtn = document.getElementById('nodelinkOverlay-close');
     closeBtn.click();
   })

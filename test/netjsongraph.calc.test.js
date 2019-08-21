@@ -143,6 +143,26 @@ describe("Test netjsongraph function utils", () => {
       true
     ],
   ]);
+  const isArrayData = new Map([
+    [
+      [[]],
+      true
+    ],
+    [
+      [{}],
+      false
+    ],
+  ]);
+  const isElementData = new Map([
+    [
+      [document.createElement("div")],
+      true
+    ],
+    [
+      [{}],
+      false
+    ],
+  ]);
   const deepMergeObjData = new Map([
     [
       [{a: 1}, {b: 2}],
@@ -184,6 +204,8 @@ describe("Test netjsongraph function utils", () => {
     "Guaranteed minimum number of digits": ["numberMinDigit", numberMinDigitData],
     "Parse the time in the browser's current time zone based on the incoming matching rules.": ["dateParse", dateParseData],
     "Judge parameter type is object": ["isObject", isObjectData],
+    "Judge parameter type is array": ["isArray", isArrayData],
+    "Judge parameter type is a dom element": ["isElement", isElementData],
     "Merge two object deeply": ["deepMergeObj", deepMergeObjData],
   }
 
@@ -195,7 +217,7 @@ describe("Test netjsongraph function utils", () => {
           expect(util[operationFunc](...key)).toEqual(value);
         }
         else{
-          expect(util[operationFunc](...key))
+          util[operationFunc](...key)
         }
       }
     });
