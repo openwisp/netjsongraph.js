@@ -30,24 +30,22 @@ class NetJSONGraph {
    * @return {object}     this.config
    */
   setConfig(config) {
-    if (config) {
-      this.utils.deepMergeObj(this.config, config);
+    this.utils.deepMergeObj(this.config, config);
 
-      if (!this.el) {
-        if (!this.config.el) {
-          this.el = document.getElementsByTagName("body")[0];
-        } else if (this.utils.isElement(this.config.el)) {
-          this.el = this.config.el;
-        } else {
-          this.el = document.getElementById(this.config.el);
-        }
+    if (!this.el) {
+      if (!this.config.el) {
+        this.el = document.getElementsByTagName("body")[0];
+      } else if (this.utils.isElement(this.config.el)) {
+        this.el = this.config.el;
+      } else {
+        this.el = document.getElementById(this.config.el);
+      }
+      if (this.el) {
         this.el.classList.add("njg-relativePosition");
         this.el.setAttribute("id", "graphChartContainer");
-      } else {
-        if (this.config.el) {
-          console.error("Can't change el again!");
-        }
       }
+    } else if (config && config.el) {
+      console.error("Can't change el again!");
     }
 
     return this.config;
@@ -122,7 +120,7 @@ class NetJSONGraph {
     const _this = this;
 
     _this.utils = Object.assign(
-      _this.utils || {},
+      _this.utils,
       { ...util },
       {
         /**
