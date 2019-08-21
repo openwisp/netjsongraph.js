@@ -17,7 +17,6 @@ Build powerful and interoperable visualizations without losing flexibility!
 
 **This library is still in early stages, feedback and contributions are very welcome**.
 
-
 ### Install
 
 ```
@@ -31,8 +30,8 @@ npm run build
 
 netjsongraph.js accepts two arguments.
 
-- url (required, string): URL to fetch the JSON data from. 
-               
+- url (required, string|array): URL(s) to fetch the JSON data from. 
+              
 	JSON format used internally based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4), but a little different: more occupied property names internally as follows：
 ```JS
 {
@@ -68,8 +67,10 @@ netjsongraph.js accepts two arguments.
 
 - options (optional, object): custom options described below
     - el: Container element. "body" defaultly.
+    - render: Render function. "graph" defaultly.
     - metadata: Whether to show NetJSON NetworkGraph metadata or not, defaults to true
     - svgRender: Use SVG render? Canvas defaultly.
+    - dealDataByWorker: WebWorker file url.
 
     - echartsOption: A global configuration of Echarts.
 
@@ -85,9 +86,12 @@ netjsongraph.js accepts two arguments.
     - linkStyleProperty: Used to custom link style.
 
     - onInit: Callback function executed on initialization.
-    - onLoad: Callback function executed when rendered.
+    - onRender: Callback function executed when **first** render start.
+    - onUpdate: Callback function executed on update start.
+    - afterUpdate: Callback function executed after update.
+    - onLoad: Callback function executed when **first** rendered.
     - prepareData: Callback function executed after data has been loaded. Used to convert data to NetJSON Data normally.
-    - onClickElement: Called when a node or link is clicked.
+    - onClickElement: Callback function executed when a node or link is clicked.
 
 ### Configuration instructions
 
@@ -107,6 +111,200 @@ You can customize the nodes and links with [`mapLinkConfig`](https://echarts.apa
 The difference between them and `nodeStyleProperty`、`linkStyleProperty` is that the latter two are just the style properties of the former.
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
+
+### API Introduction
+
+#### Core
+
+- setConfig: modify config
+- setUtils: add new utils
+- render: netjsongraph.js render function
+
+#### Realtime Update
+
+If you want to update the data dynamically, you have to write function to get updated data.
+Then you only need call `JSONDataUpdate` and pass the data to update the view.
+
+```JS
+/**
+ * @function
+ * @name JSONDataUpdate
+ * Callback function executed when data update. Update Information and view.
+ * 
+ * @param  {object|string}  Data     JSON data or url.
+ * @param  {boolean}        override If old data need to be overrided? True defaultly. (Attention: Only 'map' render can set it `false`!)
+ * @param  {boolean}        isRaw    If the data need to deal with the configuration? True defaultly.
+ *
+ * @this   {object}         NetJSONGraph object
+ *
+ */
+
+const graph = new NetJSONGraph("./data/netjsonmap.json", {
+    render: "graph",
+});
+
+graph.render();
+
+const socket = io("http://localhost:8078");
+socket.on("connect", function() {
+    console.log("client connect");
+});
+socket.on("disconnect", function() {
+    console.log("client disconnected.");
+});
+// Self-monitoring server， re-render when the data changes.
+socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
+```
+
+Demo is [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-updateData.html).
+I use [socket.io](https://socket.io/) to monitor data changes, which supports WebSocket or polling. 
+And I build a simple local server using the express framework and nodeJS. Before testing, you need to open it. 
+
+The code to build a local server can be found [here](https://github.com/openwisp/netjsongraph.js/tree/gsoc2019/examples/data/netjsonnode/).
+
+Execute in this directory:
+
+```
+npm install
+
+node index.js
+```
+
+Then open the demo page, you will find that the nodes and links in the view change after 5 seconds.
+
+#### Search elements
+
+If you want to add search elements function, you just need to pass the url as param to `searchElements`, which will return a function `searchFunc`.
+Then you just need to obtain the value input, and pass it to the `searchFunc`.
+
+```JS
+/**
+ * @function
+ * @name searchElements
+ * Add search function for new data.
+ *
+ * @param  {string}         url      listen url
+ * @param  {boolean}        override If old data need to be overrided? True defaultly. (Attention: Only 'map' render can set it `false`!)
+ * @param  {boolean}        isRaw    If the data need to deal with the configuration? True defaultly.
+ * 
+ * @this   {object}         NetJSONGraph object
+ * 
+ * @return {function}       searchFunc
+ */
+
+const graph = new NetJSONGraph("./data/netjsonmap.json", {
+    render: "graph",
+});
+
+graph.render();
+
+(function addSearchDOM(_this) {
+    let searchContainer = document.createElement("div"),
+        searchInput = document.createElement("input"),
+        searchBtn = document.createElement("button"),
+        /*
+            Pass in the url to listen to, and save the returned function.
+            Please ensure that the return value of the api is the specified json format.
+        */
+        searchFunc = _this.utils.searchElements("https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=", _this);
+    searchInput.setAttribute("class", "njg-searchInput");
+    searchInput.placeholder = "Input value for searching special elements.";
+    searchBtn.setAttribute("class", "njg-searchBtn");
+    searchBtn.innerHTML = "search";
+    searchContainer.setAttribute("class", "njg-searchContainer");
+    searchContainer.appendChild(searchInput);
+    searchContainer.appendChild(searchBtn);
+    _this.el.appendChild(searchContainer);
+    searchInput.onchange = () => {
+        // do something to deal user input value.
+    };
+    searchBtn.onclick = () => {
+        let inputValue = searchInput.value.trim();
+        
+        /*
+            Pass in the relevant search value, 
+            which will re-render automatically according to the request result within the function.
+        */
+        searchFunc(inputValue);
+        searchInput.value = "";
+    }
+})(graph)
+```
+
+Demo is [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-searchElements.html).
+You can input `test` and click the `search` button. 
+The view will change if the value is `valid`, and you can also click the back button of browser to `go back`.
+
+#### Deal data by WebWorker
+
+You can deal with the data asynchronously by `dealDataByWorker`.
+
+```JS
+/**
+ * @function
+ * @name dealDataByWorker
+ * Deal JSONData by WebWorker.
+ * 
+ * @param  {object}    JSONData     NetJSONData
+ * @param  {string}    workerFile   url
+ * @param  {function}  callback     override data and render defaultly.
+ *
+ * @this   {object}    _this        NetJSONGraph object
+ * 
+ */
+```
+
+Demo is [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-multipleInterfaces.html).
+You can simply set the `dealDataByWorker` param in config to process the data asynchronously before rendering.
+Of course you can also call the function directly.
+
+#### DateParse
+
+We provide a function -- `dataParse` for parsing the `time` field.
+We mainly use it to parse the time into the browser's current time zone based on the incoming matching rules.
+
+```JS
+/**
+ * @function
+ * @name dateParse
+ *
+ * Parse the time in the browser's current time zone based on the incoming matching rules.
+ * The exec result must be [date, year, month, day, hour, minute, second, millisecond?]
+ *
+ * @param  {string}          dateString    "2000-12-31T23:59:59.999Z"
+ * @param  {object(RegExp)}  parseRegular  /^([1-9]\d{3})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?Z$/ defaultly
+ * @param  {number}          hourDiffer    you can custom time difference, default is the standard time difference
+
+*
+* @return {string}    Date string
+*/
+```
+
+If you provide `time` field in node or link's properties, it'll display the parse date in the detail info defaultly. 
+
+Demo is [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-dateParse.html).
+
+#### Render
+
+- generateGraphOption: generate graph option in echarts by JSONData.
+- generateMapOption:   generate map   option in echarts by JSONData.
+- graphRender: Render the final graph view based on JSONData.
+- mapRender:   Render the final map   view based on JSONData.
+
+#### Utils
+
+- JSONParamParse: parse JSONParam(string|object), return Promise object. 
+- isObject
+- isArray
+- isElement: judge parameter is a dom element.
+- deepMergeObj: merge multiple objects deeply.
+- NetJSONMetadata: generate metadata info container, return DOM.
+- updateMetadata
+- nodeInfo: generate node info html string.
+- linkInfo: generate link info html string.
+- showLoading: display loading animation. Used in onRender defaultly.
+- hideLoading: hide    loading animation. Used in onLoad   defaultly.
+- createEvent: create event listener.
 
 ### Example Usage
 
@@ -164,112 +362,15 @@ You can also customize some global properties with [`echartsOption`](https://ech
 
 [NetJSON indoormap Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-indoormap.html)
 
+[NetJSON indoormap 2 Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-indoormap2.html)
+
 [NetJSON map plugins Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-plugins.html)
 
-[NetJSON map multiple tiles Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-multipleTiles.html)
+[NetJSON map multiple tiles Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-multipleTiles.html)   
 
-### New features added
+[NetJSON map append data Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-appendData.html) 
 
-#### Realtime Update
-
-If you want to update the data in real time, you have to realize realtime updated algorithm because of its customizable.
-Then you only need call `JSONDataUpdate` to update the view.
-
-```JS
-const graph = new NetJSONGraph("./data/netjsonmap.json", {
-    render: "graph",
-});
-
-graph.render();
-
-const socket = io("http://localhost:8078");
-socket.on("connect", function() {
-    console.log("client connect");
-});
-socket.on("disconnect", function() {
-    console.log("client disconnected.");
-});
-// Self-monitoring server， re-render when the data changes.
-socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
-```
-
-For show, I write a demo [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-updateData.html).
-I use [socket.io](https://socket.io/) to monitor data changes, which supports WebSocket or polling. 
-And I build a simple local server using the express framework and nodeJS. Before testing, you need to open it. 
-
-The code to build a local server can be found [here](https://github.com/openwisp/netjsongraph.js/tree/gsoc2019/examples/data/netjsonnode/).
-
-Execute in this directory:
-
-```
-npm install
-
-node index.js
-```
-
-Then open the demo page, you will find that the nodes and links in the view change after 5 seconds.
-
-#### Search elements
-
-If you want to add search elements function, you just need to pass the url as param to `searchElements`, which will return a function `searchFunc`.
-Then you just need to obtain the value input, and pass it to the `searchFunc`.
-
-```JS
-const graph = new NetJSONGraph("./data/netjsonmap.json", {
-    render: "graph",
-});
-
-graph.render();
-
-(function addSearchDOM(_this) {
-    let searchContainer = document.createElement("div"),
-        searchInput = document.createElement("input"),
-        searchBtn = document.createElement("button"),
-        /*
-            Pass in the url to listen to, and save the returned function.
-            Please ensure that the return value of the api is the specified json format.
-        */
-        searchFunc = _this.utils.searchElements("https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=", _this);
-    searchInput.setAttribute("class", "njg-searchInput");
-    searchInput.placeholder = "Input value for searching special elements.";
-    searchBtn.setAttribute("class", "njg-searchBtn");
-    searchBtn.innerHTML = "search";
-    searchContainer.setAttribute("class", "njg-searchContainer");
-    searchContainer.appendChild(searchInput);
-    searchContainer.appendChild(searchBtn);
-    _this.el.appendChild(searchContainer);
-    searchInput.onchange = () => {
-        // do something to deal user input value.
-    };
-    searchBtn.onclick = () => {
-        let inputValue = searchInput.value.trim();
-        
-        /*
-            Pass in the relevant search value, 
-            which will re-render automatically according to the request result within the function.
-        */
-        searchFunc(inputValue);
-        searchInput.value = "";
-    }
-})(graph)
-```
-
-The view will change if the value is valid, and you can also click the back button of browser to go back.
-
-#### DateParse
-
-We provide a function -- `dataParse` for parsing the `time` field.
-It accepts an object parameter that can be deconstructed into three fields: 
-- dateString
-- parseRegular = /^([1-9]\d{3})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?Z$/,
-- hourDiffer = new Date().getTimezoneOffset() / 60
-
-We mainly use it to parse the time into the browser's current time zone based on the incoming matching rules.
-The exec result must be [date, year, month, day, hour, minute, second, millisecond?]  
-
-If you provide `time` field in node or link's properties, and when you click the element, it'll display the parse date in the detail info defaultly.
-
-Of course you can also use it to do other things.      
+[NetJSON map append data 2 Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-appendData2.html)  
 
 ### Contributing
 
