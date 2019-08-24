@@ -8,23 +8,25 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    * @name searchElements
    * Add search function for new data.
    *
+   * The function is currently not perfect, and the improvements can be made:
+   * - Add the logic of append data and goback
+   * - Add cache to speed up goback
+   *
    * @param  {string}         url      listen url
-   * @param  {boolean}        override If old data need to be overrided? True defaultly. (Attention: Only 'map' render can set it `false`!)
-   * @param  {boolean}        isRaw    If the data need to deal with the configuration? True defaultly.
    *
    * @this   {object}         NetJSONGraph object
    *
    * @return {function}       searchFunc
    */
 
-  searchElements(url, override = true, isRaw = true) {
+  searchElements(url) {
+    const _this = this;
+
     window.history.pushState({ searchValue: "" }, "");
 
     window.onpopstate = event => {
-      updateSearchedElements(event.state.searchValue);
+      _this.utils.JSONDataUpdate.call(_this, event.state.searchValue);
     };
-
-    const _this = this;
 
     return function searchFunc(key) {
       let searchValue = key.trim();
@@ -34,20 +36,9 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         (history.state && history.state.searchValue !== searchValue)
       ) {
         history.pushState({ searchValue }, "");
-        return updateSearchedElements(searchValue);
+        return _this.utils.JSONDataUpdate.call(_this, searchValue);
       }
     };
-
-    function updateSearchedElements(searchValue) {
-      return fetch(url + searchValue)
-        .then(data => data.json())
-        .then(data => {
-          _this.utils.JSONDataUpdate.call(_this, data, override, isRaw);
-        })
-        .catch(error => {
-          throw error;
-        });
-    }
   }
 
   /**
@@ -61,13 +52,14 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    *
    * @this   {object}         NetJSONGraph object
    *
+   * @returns {object}        promise
    */
 
   JSONDataUpdate(Data, override = true, isRaw = true) {
     const _this = this;
     _this.config.onUpdate.call(_this);
 
-    _this.utils
+    return _this.utils
       .JSONParamParse(Data)
       .then(JSONData => {
         if (isRaw) {
