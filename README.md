@@ -184,8 +184,6 @@ Then you just need to obtain the value input, and pass it to the `searchFunc`.
  * Add search function for new data.
  *
  * @param  {string}         url      listen url
- * @param  {boolean}        override If old data need to be overrided? True defaultly. (Attention: Only 'map' render can set it `false`!)
- * @param  {boolean}        isRaw    If the data need to deal with the configuration? True defaultly.
  * 
  * @this   {object}         NetJSONGraph object
  * 

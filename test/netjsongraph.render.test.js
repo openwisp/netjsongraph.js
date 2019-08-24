@@ -174,7 +174,7 @@ describe("Test netjsongraph JSONParamParse", () => {
 
 describe("Test netjsongraph searchElements", () => {
   test("Add search function for new elements.", () => {
-    let searchFunc = graph.utils.searchElements("test");
+    let searchFunc = graph.utils.searchElements.call(graph, "test");
 
     window.history.pushState({ searchValue: "" }, "");
     searchFunc("false").catch(e => {
@@ -183,10 +183,68 @@ describe("Test netjsongraph searchElements", () => {
   })
 
   test("Search same key.", () => {
-    const searchFunc = graph.utils.searchElements("test"),
+    const searchFunc = graph.utils.searchElements.call(graph, "test"),
           key = "false";
 
     window.history.pushState({ searchValue: key }, "");
     searchFunc(key);
   })
 })
+
+describe("Test netjsongraph properties", () => {
+  const map = new NetJSONGraph(JSONFILE, {
+          render: "map",
+        }),
+        jsonData = {
+          nodes: [],
+          links: [],
+        };
+
+  beforeAll(() => {
+    map.event = map.utils.createEvent();
+    map.setConfig({
+      render: () => {},
+      onInit: function() {
+        return this.config;
+      },
+      onRender: function() {
+        return this.config;
+      },
+      onUpdate: function() {
+        return this.config;
+      },
+      afterUpdate: function() {
+        return this.config;
+      },
+      onLoad: function() {
+        return this.config;
+      },
+    })
+    map.setUtils();
+    map.render();
+  });
+
+  test("netjsongraph.js JSONParam and data properties -- single json init.", () => {
+    expect(map.JSONParam).toEqual([JSONFILE]);
+    expect(map.data).toEqual(JSONData);
+    
+    // append data. data won't be dealed.
+    map.utils.JSONDataUpdate.call(map, jsonData, false, false).then(() => {
+      expect(map.JSONParam).toEqual([JSONFILE, jsonData]);
+      expect(map.data).toEqual(
+        Object.assign(JSONData, jsonData, {
+          nodes: JSONData.nodes.concat(jsonData.nodes),
+          links: JSONData.links.concat(jsonData.links),
+        })
+      );
+    })
+
+    let searchFunc = map.utils.searchElements.call(map, "");
+    // override data.
+    searchFunc(JSONFILE).then(() => {
+      expect(map.JSONParam).toEqual([JSONFILE]);
+      expect(map.data).toEqual(JSONData);
+    })
+  })
+})
+
