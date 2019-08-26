@@ -330,44 +330,88 @@ Demo is [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-dateParse.h
 
 ### Different Demos
 
+The demo shows default `graph` render.
 [NetJSON graph base Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph.html)
      
+The demo shows `map` render.
 [NetJSON map base Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap.html)
          
+The demo shows how to use `graphGL` to render big data.
 [NetJSON graphGL(bigData) Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-graphGL.html)
 
+The demo shows how to set colorful elements.
 [NetJSON graph elements legend Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-elementsLegend.html)
 
+The demo shows the multiple links render.
+Currently only supports up to two links.
 [NetJSON graph multiple links Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-multipleLinks.html)
-         
+
+The demo is used to show how to deal with the `multiple interfaces` in the NetJSON data.
+We provide a work file to process the data before rendering. 
+This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, add node links, add flatNodes and so on.
+You can also define related files yourself.    
 [NetJSON multiple interfaces Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-multipleInterfaces.html)       
 
+The demo is used to show the use of the `dataParse` function.
+You can set the node or link property value `time`, we will call this function to parse the string in the element details defaultly.
+Of course you can also call directly.
 [NetJSON dataParse Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-dateParse.html)
 
+The demo is used to show how to use the `JSONDataUpdate` function to update data.
+In this example we use socket.io to listen for server messages.
+Adopted the default parameters of function -- 
+overrride old data and deal with the new data with the processing function set in config.
+See other examples：
+netjsonmap-appendData.html: It chooses append data.
+netjsonmap-nodeTiles.html: override data by different zoom value.
 [NetJSON updateData realtime Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-updateData.html)
 
+The demo shows how to switch the netjsongraph render mode -- `svg` or `canvas`.
 [NetJSON switch render mode Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-switchRenderMode.html)
 
+The demo shows how to switch the netjsongraph render mode -- `graph` or `map`.
 [NetJSON switch graph mode Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-switchGraphMode.html)
 
+The demo is used to show the use of the `searchElements` function.
+For test, you can input `test` and click the `search` button.
 [NetJSON search elements Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-searchElements.html)
 
+The demo shows hwo to interact with elements.
 [NetJSON nodes expand or fold Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsongraph-nodeExpand.html)
 
+The demo is used to show how to use the `JSONDataUpdate` function to update data.
+See other examples：
+netjson-updateData.html: It chooses override data.
+netjsonmap-appendData.html: It chooses append data.
 [NetJSON map nodes zoom tiles Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-nodeTiles.html)
 
+The demo shows hwo to set path animation.
 [NetJSON map animation lines Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-animation.html)
 
+The demo is used to show how to set indoor map.
+Mainly the operation of leaflet.
 [NetJSON indoormap Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-indoormap.html)
 
+The demo is used to show how to set indoor map.
+Similiar to the first method, the difference is the setting of image's position.
 [NetJSON indoormap 2 Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-indoormap2.html)
 
+The demo is used to show how to use the leaflet plugins.
+Mainly the operation of leaflet.
 [NetJSON map plugins Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-plugins.html)
 
+The demo shows the multiple tiles render.
 [NetJSON map multiple tiles Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-multipleTiles.html)   
 
+The demo is used to show how to use the `JSONDataUpdate` function to update data.
+Here we choose to append data by modify the default parameter.
+See other examples：
+netjson-updateData.html: It chooses override data.
+netjsonmap-nodeTiles.html: override data by different zoom value.
 [NetJSON map append data Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-appendData.html) 
 
+Using array files to append data step by step at start. 
+Similiar to the first method, but easier.
 [NetJSON map append data 2 Demo](https://kutugu.github.io/NetJSONDemo/examples/netjsonmap-appendData2.html)  
 
 ### Contributing
