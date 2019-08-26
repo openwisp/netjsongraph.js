@@ -8,10 +8,6 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    * @name searchElements
    * Add search function for new data.
    *
-   * The function is currently not perfect, and the improvements can be made:
-   * - Add the logic of append data and goback
-   * - Add cache to speed up goback
-   *
    * @param  {string}         url      listen url
    *
    * @this   {object}         NetJSONGraph object
@@ -20,15 +16,30 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
 
   searchElements(url) {
-    const _this = this;
+    const _this = this,
+      searchHistory = {
+        "": {
+          data: { ..._this.data },
+          param: [..._this.JSONParam]
+        }
+      };
 
     window.history.pushState({ searchValue: "" }, "");
 
     window.onpopstate = event => {
-      _this.utils.JSONDataUpdate.call(_this, event.state.searchValue);
+      if (searchHistory[event.state.searchValue]) {
+        _this.utils.JSONDataUpdate.call(
+          _this,
+          searchHistory[event.state.searchValue].data
+        ).then(() => {
+          _this.JSONParam = searchHistory[event.state.searchValue].param;
+        });
+      } else {
+        _this.utils.JSONDataUpdate.call(_this, url + event.state.searchValue);
+      }
     };
 
-    return function searchFunc(key) {
+    return function searchFunc(key, override = true, isRaw = true) {
       let searchValue = key.trim();
 
       if (
@@ -36,7 +47,17 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         (history.state && history.state.searchValue !== searchValue)
       ) {
         history.pushState({ searchValue }, "");
-        return _this.utils.JSONDataUpdate.call(_this, searchValue);
+        return _this.utils.JSONDataUpdate.call(
+          _this,
+          url + searchValue,
+          override,
+          isRaw
+        ).then(() => {
+          searchHistory[searchValue] = {
+            data: { ..._this.data },
+            param: [..._this.JSONParam]
+          };
+        });
       }
     };
   }
@@ -77,6 +98,8 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         } else {
           _update();
         }
+
+        return JSONData;
 
         function _update() {
           // override data.

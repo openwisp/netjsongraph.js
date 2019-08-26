@@ -176,6 +176,7 @@ Then open the demo page, you will find that the nodes and links in the view chan
 
 If you want to add search elements function, you just need to pass the url as param to `searchElements`, which will return a function `searchFunc`.
 Then you just need to obtain the value input, and pass it to the `searchFunc`.
+`searchFunc` is similar to JSONDataUpdate, you can also set `appendData` and `isRaw` params according to different conditions.
 
 ```JS
 /**
@@ -191,46 +192,56 @@ Then you just need to obtain the value input, and pass it to the `searchFunc`.
  */
 
 const graph = new NetJSONGraph("./data/netjsonmap.json", {
-    render: "graph",
+    onLoad: function(){
+        let searchContainer = document.createElement("div"),
+            searchInput = document.createElement("input"),
+            searchBtn = document.createElement("button"),
+            /*
+                Pass in the url to listen to, and save the returned function.
+                Please ensure that the return value of the api is the specified json format.
+            */
+            searchFunc = this.utils.searchElements.call(this, "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=");
+
+        searchInput.setAttribute("class", "njg-searchInput");
+        searchInput.placeholder = "Input value for searching special elements.";
+        searchBtn.setAttribute("class", "njg-searchBtn");
+        searchBtn.innerHTML = "search";
+        searchContainer.setAttribute("class", "njg-searchContainer");
+        searchContainer.appendChild(searchInput);
+        searchContainer.appendChild(searchBtn);
+        this.el.appendChild(searchContainer);
+
+        searchInput.onchange = () => {
+            // do something to deal user input value.
+        };
+
+        searchBtn.onclick = () => {
+            let inputValue = searchInput.value.trim();
+            
+            /*
+                Pass in the relevant search value, 
+                which will re-render automatically according to the request result within the function.
+            */
+            if(inputValue === "appendData"){
+                // appendData
+                searchFunc(inputValue, false);
+            }
+            else{
+                searchFunc(inputValue);
+            }
+
+            searchInput.value = "";
+        }
+
+        this.utils.hideLoading();
+    }
 });
 
 graph.render();
-
-(function addSearchDOM(_this) {
-    let searchContainer = document.createElement("div"),
-        searchInput = document.createElement("input"),
-        searchBtn = document.createElement("button"),
-        /*
-            Pass in the url to listen to, and save the returned function.
-            Please ensure that the return value of the api is the specified json format.
-        */
-        searchFunc = _this.utils.searchElements("https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=", _this);
-    searchInput.setAttribute("class", "njg-searchInput");
-    searchInput.placeholder = "Input value for searching special elements.";
-    searchBtn.setAttribute("class", "njg-searchBtn");
-    searchBtn.innerHTML = "search";
-    searchContainer.setAttribute("class", "njg-searchContainer");
-    searchContainer.appendChild(searchInput);
-    searchContainer.appendChild(searchBtn);
-    _this.el.appendChild(searchContainer);
-    searchInput.onchange = () => {
-        // do something to deal user input value.
-    };
-    searchBtn.onclick = () => {
-        let inputValue = searchInput.value.trim();
-        
-        /*
-            Pass in the relevant search value, 
-            which will re-render automatically according to the request result within the function.
-        */
-        searchFunc(inputValue);
-        searchInput.value = "";
-    }
-})(graph)
 ```
 
 Demo is [here](https://kutugu.github.io/NetJSONDemo/examples/netjson-searchElements.html).
-You can input `test` and click the `search` button. 
+You can input `test`(overrideData) or `appendData`(appendData) and click the `search` button. 
 The view will change if the value is `valid`, and you can also click the back button of browser to `go back`.
 
 #### Deal data by WebWorker
@@ -373,7 +384,7 @@ The demo shows how to switch the netjsongraph render mode -- `graph` or `map`.
 [NetJSON switch graph mode Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-switchGraphMode.html)
 
 The demo is used to show the use of the `searchElements` function.
-For test, you can input `test` and click the `search` button.
+For test, you can input `test` or `appendData` and click the `search` button.
 [NetJSON search elements Demo](https://kutugu.github.io/NetJSONDemo/examples/netjson-searchElements.html)
 
 The demo shows hwo to interact with elements.
