@@ -216,8 +216,7 @@ const NetJSONGraphDefaultConfig = {
     width: 5,
     color: "#999",
     shadowColor: "rgba(0, 0, 0, 0.5)",
-    shadowBlur: 10,
-    curveness: 0.2
+    shadowBlur: 10
   }),
   /**
    * @function
