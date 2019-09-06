@@ -4,18 +4,18 @@
  * Default options
  *
  * @param  {string}            el                  body        Container element. "body" defaultly.
+ * @param  {string|function}   render              "graph"     Render function. "graph" defaultly.
  * @param  {bool}              metadata            true        Display NetJSON metadata at startup?
  * @param  {bool}              svgRender           false       Use SVG render?
+ * @param  {string}            dealDataByWorker                WebWorker file url.
  *
  * @param  {object}            echartsOption       {}          A global configuration of Echarts. @see {@link https://echarts.apache.org/en/option.html#title}
  *
  * @param  {object}            graphConfig         {}          Configuration of graph series(graphRender). @see {@link https://echarts.apache.org/en/option.html#series-graph}
  *
- * @param  {array}             mapCenter           [0, 0]      Map init center.
- * @param  {int}               mapZoom             4           Map init zoom.
- * @param  {string|bool}       mapRoam             true        Is Map can zoom or move? @see {@link https://echarts.apache.org/en/option.html#series-graph.roam}
- * @param  {array}             mapTileConfig       []          Map tiles config array, whose format is [url, option]. @see {@link https://leafletjs.com/reference-1.5.0.html#tilelayer}
- * @param  {array}             mapLineConfig       []          Support multiple lines superimposed style. @see {@link https://echarts.apache.org/en/option.html#series-lines}
+ * @param  {string|bool}       mapOptions          {}          Map init config. @see {@link https://leafletjs.com/reference-1.5.0.html#map-option}
+ * @param  {array}             mapTileConfig       []          Map tiles config array, whose format is [{label, urlTemplate, options}]. @see {@link https://leafletjs.com/reference-1.5.0.html#tilelayer-option}
+ * @param  {array}             mapLinkConfig       []          Support multiple lines superimposed style. @see {@link https://echarts.apache.org/en/option.html#series-lines}
  * @param  {object}            mapNodeConfig       {}          Map node style. @see {@link https://echarts.apache.org/en/option.html#series-effectScatter}
  *
  * @param {int|Array|function} nodeSize            node => 10  The size of nodes in pixel. @see {@link https://echarts.apache.org/en/option.html#series-graph.symbolSize}
@@ -24,11 +24,13 @@
  *
  * @param  {function}          onInit                          Callback function executed on initialization.
  * @param  {function}          onRender                        Callback function executed on render start.
+ * @param  {function}          onUpdate                        Callback function executed on update.
+ * @param  {function}          afterUpdate                     Callback function executed after update.
  * @param  {function}          onLoad                          Callback function executed when rendered.
  * @param  {function}          prepareData                     Callback function executed after data has been loaded. Used to convert data to NetJSONGraph Data.
  * @param  {function}          onClickElement                  Called when a node or link is clicked.
  */
-const NetJSONGraphDefaultConfig = Object.freeze({
+const NetJSONGraphDefaultConfig = {
   metadata: true,
   svgRender: false,
   echartsOption: {
@@ -83,11 +85,11 @@ const NetJSONGraphDefaultConfig = Object.freeze({
     legendHoverLink: true
   },
 
-  mapCenter: [0, 0],
-  mapZoom: 4,
-  mapRoam: true,
+  mapOptions: {
+    roam: true
+  },
   mapTileConfig: [],
-  mapLineConfig: [{}],
+  mapLinkConfig: [{}],
   mapNodeConfig: {
     label: {
       show: true,
@@ -260,6 +262,6 @@ const NetJSONGraphDefaultConfig = Object.freeze({
 
     nodeLinkOverlay.appendChild(closeA);
   }
-});
+};
 
-export default NetJSONGraphDefaultConfig;
+export default { ...NetJSONGraphDefaultConfig };

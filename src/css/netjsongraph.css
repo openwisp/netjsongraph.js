@@ -33,8 +33,9 @@ html, body{
     position: absolute;
     right: 10px;
     top: 10px;
-    z-index: 1;
+    z-index: 999;
     visibility: hidden;
+    user-select: text;
 }
 
 .njg-metadata{
@@ -43,7 +44,8 @@ html, body{
     top: 10px;
     width: 200px;
     word-break: break-all;
-    z-index: 1;
+    z-index: 999;
+    user-select: text;
 }
 
 .njg-close{
@@ -59,4 +61,37 @@ html, body{
     height: 100%;
     overflow: hidden; 
     z-index: 0;
+}
+
+#loadingContainer{
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 100;
+    /* background-color: red; */
+}
+
+.loadingElement{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    text-align: center;
+}
+.loadingSprite{
+    margin: 0 auto;
+    width: 40px;
+    height: 40px;
+    background: url("./loading.gif") center no-repeat;
+    background-size: contain;
+}
+
+.loadingTip{
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
 }

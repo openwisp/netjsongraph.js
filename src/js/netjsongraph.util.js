@@ -155,6 +155,30 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * Judge parameter type
+   *
+   * @return {bool}
+   */
+  isArray(x) {
+    return Object.prototype.toString.call(x).slice(8, 13) === "Array";
+  }
+
+  /**
+   * Judge parameter is a dom element.
+   *
+   * @return {bool}
+   */
+  isElement(o) {
+    return typeof HTMLElement === "object"
+      ? o instanceof HTMLElement //DOM2
+      : o &&
+          typeof o === "object" &&
+          o !== null &&
+          o.nodeType === 1 &&
+          typeof o.nodeName === "string";
+  }
+
+  /**
    * merge two object deeply
    *
    * @param  {object}
@@ -197,20 +221,68 @@ class NetJSONGraphUtil {
    * @name NetJSONMetadata
    * Display metadata of NetJSONGraph.
    *
-   * @param  {object}  metadata
+   * @this   {object}   NetJSONGraph object
    *
    * @return {object} metadataContainer DOM
    */
 
-  NetJSONMetadata(metadata) {
+  NetJSONMetadata() {
+    const metadataContainer = document.createElement("div"),
+      innerDiv = document.createElement("div"),
+      closeA = document.createElement("a");
+    metadataContainer.setAttribute("class", "njg-metadata njg-container");
+    metadataContainer.setAttribute("style", "display: block");
+    innerDiv.setAttribute("class", "njg-inner");
+    innerDiv.setAttribute("id", "metadata-innerDiv");
+    closeA.setAttribute("class", "njg-close");
+    closeA.setAttribute("id", "metadata-close");
+
+    closeA.onclick = () => {
+      metadataContainer.style.visibility = "hidden";
+    };
+    innerDiv.innerHTML = this.utils._getMetadata.call(this);
+    metadataContainer.appendChild(innerDiv);
+    metadataContainer.appendChild(closeA);
+
+    return metadataContainer;
+  }
+
+  /**
+   * @function
+   * @name updateMetadata
+   *
+   * @this  {object}   NetJSONGraph object
+   *
+   */
+  updateMetadata() {
+    if (this.config.metadata) {
+      document.getElementsByClassName("njg-metadata")[0].style.visibility =
+        "visible";
+      document.getElementById(
+        "metadata-innerDiv"
+      ).innerHTML = this.utils._getMetadata.call(this);
+    }
+  }
+
+  /**
+   * @function
+   * @name _getMetadata
+   *
+   * Get metadata dom string.
+   *
+   * @this   {object}   NetJSONGraph object
+   * @return {string}   Dom string
+   */
+  _getMetadata() {
     const attrs = [
-      "protocol",
-      "version",
-      "revision",
-      "metric",
-      "router_id",
-      "topology_id"
-    ];
+        "protocol",
+        "version",
+        "revision",
+        "metric",
+        "router_id",
+        "topology_id"
+      ],
+      metadata = this.data;
     let html = "";
 
     if (metadata.label) {
@@ -230,23 +302,7 @@ class NetJSONGraphUtil {
       }</span></p>
     `;
 
-    const metadataContainer = document.createElement("div"),
-      innerDiv = document.createElement("div"),
-      closeA = document.createElement("a");
-    metadataContainer.setAttribute("class", "njg-metadata njg-container");
-    metadataContainer.setAttribute("style", "display: block");
-    innerDiv.setAttribute("class", "njg-inner");
-    closeA.setAttribute("class", "njg-close");
-    closeA.setAttribute("id", "metadata-close");
-
-    closeA.onclick = () => {
-      metadataContainer.style.visibility = "hidden";
-    };
-    innerDiv.innerHTML = html;
-    metadataContainer.appendChild(innerDiv);
-    metadataContainer.appendChild(closeA);
-
-    return metadataContainer;
+    return html;
   }
 
   /**
@@ -261,7 +317,7 @@ class NetJSONGraphUtil {
 
   nodeInfo(node) {
     let html = `<p><b>id</b>: ${node.id}</p>`;
-    if (node.label) {
+    if (node.label && typeof node.label === "string") {
       html += `<p><b>label</b>: ${node.label}</p>`;
     }
     if (node.properties) {
@@ -270,6 +326,10 @@ class NetJSONGraphUtil {
           html += `<p><b>location</b>:<br />lat: ${
             node.properties.location.lat
           }<br />lng: ${node.properties.location.lng}<br /></p>`;
+        } else if (key === "time") {
+          html += `<p><b>time</b>: ${this.dateParse({
+            dateString: node.properties[key]
+          })}</p>`;
         } else {
           html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
             node.properties[key]
@@ -305,13 +365,95 @@ class NetJSONGraphUtil {
     }</p><p><b>cost</b>: ${link.cost}</p>`;
     if (link.properties) {
       for (let key in link.properties) {
-        html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-          link.properties[key]
-        }</p>`;
+        if (key === "time") {
+          html += `<p><b>time</b>: ${this.dateParse({
+            dateString: link.properties[key]
+          })}</p>`;
+        } else {
+          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
+            link.properties[key]
+          }</p>`;
+        }
       }
     }
 
     return html;
+  }
+
+  /**
+   * @function
+   * @name showLoading
+   * display loading animation
+   *
+   * @this {object}      netjsongraph
+   *
+   * @return {object}    html dom
+   */
+
+  showLoading() {
+    let loadingContainer = document.getElementById("loadingContainer");
+
+    if (!loadingContainer) {
+      loadingContainer = document.createElement("div");
+      loadingContainer.setAttribute("id", "loadingContainer");
+      loadingContainer.innerHTML = `
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <p class="loadingTip">Loading...</p>
+        </div>
+      `;
+
+      this.el.appendChild(loadingContainer);
+    } else {
+      loadingContainer.style.visibility = "visible";
+    }
+
+    return loadingContainer;
+  }
+
+  /**
+   * @function
+   * @name hideLoading
+   * cancel loading animation
+   *
+   * @this {object}      netjsongraph
+   *
+   * @return {object}    html dom
+   */
+
+  hideLoading() {
+    let loadingContainer = document.getElementById("loadingContainer");
+
+    if (loadingContainer) {
+      loadingContainer.style.visibility = "hidden";
+    }
+
+    return loadingContainer;
+  }
+
+  createEvent() {
+    const events = new Map(),
+      events_once = new Map();
+    return {
+      on(key, ...res) {
+        events.set(key, [...(events.get(key) || []), ...res]);
+      },
+      once(key, ...res) {
+        events_once.set(key, [...(events_once.get(key) || []), ...res]);
+      },
+      emit(key) {
+        const funcs = events.get(key) || [],
+          funcs_once = events_once.get(key) || [],
+          res = funcs.map(func => func()),
+          res_once = funcs_once.map(func => func());
+        events_once.delete(key);
+        return [...res, ...res_once];
+      },
+      delete(key) {
+        events.delete(key);
+        events_once.delete(key);
+      }
+    };
   }
 }
 

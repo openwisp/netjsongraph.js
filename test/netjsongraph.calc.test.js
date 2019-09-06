@@ -16,14 +16,13 @@ describe("Test netjsongraph function utils", () => {
           properties: {
             name: "Node",
             color: "red",
-            update_time: "2019.5.20 14:21:07"
           },
           linkCount: 1,
           local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
         },
       ],
       // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
+      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
     ],
     [
       // key
@@ -35,7 +34,6 @@ describe("Test netjsongraph function utils", () => {
           properties: {
             name: "Node",
             color: "red",
-            update_time: "2019.5.20 14:21:07",
             location: {
               lng: 0,
               lat: 0
@@ -46,7 +44,7 @@ describe("Test netjsongraph function utils", () => {
         },
       ],
       // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>update time</b>: 2019.5.20 14:21:07</p><p><b>location</b>:<br />lat: 0<br />lng: 0<br /></p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
+      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>location</b>:<br />lat: 0<br />lng: 0<br /></p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>"
     ],
   ]);
   const linkInfoData = new Map([
@@ -61,12 +59,22 @@ describe("Test netjsongraph function utils", () => {
           properties: {
             name: "Link",
             color: "blue",
-            update_time: "2019.5.20 14:21:07"
           },
         },
       ],
       // value
-      `<p><b>source</b>: 192.168.0.01</p><p><b>target</b>: 192.168.1.01</p><p><b>cost</b>: 1.000</p><p><b>name</b>: Link</p><p><b>color</b>: blue</p><p><b>update time</b>: 2019.5.20 14:21:07</p>`
+      `<p><b>source</b>: 192.168.0.01</p><p><b>target</b>: 192.168.1.01</p><p><b>cost</b>: 1.000</p><p><b>name</b>: Link</p><p><b>color</b>: blue</p>`
+    ],
+    [
+      // key
+      [
+        {
+          source: "192.168.0.01",
+          target: "192.168.1.01",
+        },
+      ],
+      // value
+      `<p><b>source</b>: 192.168.0.01</p><p><b>target</b>: 192.168.1.01</p><p><b>cost</b>: undefined</p>`
     ],
   ]);
   const numberMinDigitData = new Map([
@@ -135,6 +143,26 @@ describe("Test netjsongraph function utils", () => {
       true
     ],
   ]);
+  const isArrayData = new Map([
+    [
+      [[]],
+      true
+    ],
+    [
+      [{}],
+      false
+    ],
+  ]);
+  const isElementData = new Map([
+    [
+      [document.createElement("div")],
+      true
+    ],
+    [
+      [{}],
+      false
+    ],
+  ]);
   const deepMergeObjData = new Map([
     [
       [{a: 1}, {b: 2}],
@@ -176,6 +204,8 @@ describe("Test netjsongraph function utils", () => {
     "Guaranteed minimum number of digits": ["numberMinDigit", numberMinDigitData],
     "Parse the time in the browser's current time zone based on the incoming matching rules.": ["dateParse", dateParseData],
     "Judge parameter type is object": ["isObject", isObjectData],
+    "Judge parameter type is array": ["isArray", isArrayData],
+    "Judge parameter type is a dom element": ["isElement", isElementData],
     "Merge two object deeply": ["deepMergeObj", deepMergeObjData],
   }
 
@@ -187,9 +217,22 @@ describe("Test netjsongraph function utils", () => {
           expect(util[operationFunc](...key)).toEqual(value);
         }
         else{
-          expect(util[operationFunc](...key))
+          util[operationFunc](...key)
         }
       }
     });
   }
+
+  test("Event test.", () => {
+    const event = util.createEvent(),
+          res = 1;
+
+    event.on("test", () => res);
+    event.once("test", () => res); 
+    expect(event.emit("test")).toEqual([res, res]);
+    expect(event.emit("none_event")).toEqual([]);
+    event.delete("once_test"); 
+  })
 })
+
+

@@ -1,7 +1,8 @@
 'use strict';
 
 import NetJSONGraph from "../src/js/netjsongraph.core.js";
-import NetJSONGraphUtil from "../src/js/netjsongraph.util.js";
+
+
 
 const graph = new NetJSONGraph({
   "type":"NetworkGraph",
@@ -12,11 +13,10 @@ const graph = new NetJSONGraph({
   "nodes": [],
   "links": [],
 });
-graph.utils = Object.assign(new NetJSONGraphUtil(), graph.utils);
+
+// Package NetJSONGraph instance object.
+graph.event = graph.utils.createEvent();
 graph.setConfig({
-  onInit: function() {
-    return this.config;
-  },
   onRender: function() {
     return this.config;
   },
@@ -24,6 +24,8 @@ graph.setConfig({
     return this.config;
   },
 });
+graph.setUtils();
+graph.render();
 
 describe("Test netjsongraph utils dom functions", () => {
   const NetJSONMetadataData = new Map([
@@ -56,37 +58,52 @@ describe("Test netjsongraph utils dom functions", () => {
       HTMLDivElement
     ],
   ]);
+
+  const loadingData = new Map([
+    [
+      // key
+      [],
+      // value
+      HTMLDivElement
+    ]
+  ]);
   
   const utilsDOMObj = {
     "Display metadata of NetJSONGraph.": ["NetJSONMetadata", NetJSONMetadataData],
+    "Display loading animation": ["showLoading", loadingData],
+    "Cancel loading animation": ["hideLoading", loadingData],
   }
 
   for(let operationText in utilsDOMObj){
+    test("Hide loading -- no dom", () => {
+      graph.utils.hideLoading.call(graph);
+    })
     test(operationText, () => {
       let [operationFunc, operationDataMap] = utilsDOMObj[operationText];
       for(let [key, value] of operationDataMap){  
-        expect(graph.utils[operationFunc](...key)).toBeInstanceOf(value);
+        expect(graph.utils[operationFunc].call(graph, ...key)).toBeInstanceOf(value);
       }
     });
+    test("Show loading again", () => {
+      graph.utils.showLoading.call(graph);
+    })
   }
 })
 
 
 describe("Test netjsongraph dom operate", () => {
-  graph.render();
-
   test("Click a node", () => {
-    expect(graph.config.onClickElement.call(graph, "node", {
+    graph.config.onClickElement.call(graph, "node", {
         id: "2"
-    }))
+    })
     const closeBtn = document.getElementById('nodelinkOverlay-close');
     closeBtn.click();
   })
 
   test("Click a link", () => {
-    expect(graph.config.onClickElement.call(graph, "link", {
+    graph.config.onClickElement.call(graph, "link", {
       id: "2"
-    }))
+    })
     const closeBtn = document.getElementById('nodelinkOverlay-close');
     closeBtn.click();
   })
@@ -96,3 +113,4 @@ describe("Test netjsongraph dom operate", () => {
     metadataClose.click();
   })
 })
+

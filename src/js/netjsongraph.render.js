@@ -8,14 +8,17 @@ import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";
 import "echarts/lib/component/toolbox";
 import "echarts/lib/component/legend";
+
 import "zrender/lib/svg/svg";
+
+import "../../lib/js/echarts-gl";
 
 import L from "leaflet/dist/leaflet.js";
 
 class NetJSONGraphRender {
   /**
    * @function
-   * @name graphSetOption
+   * @name echartsSetOption
    *
    * set option in echarts and render.
    *
@@ -25,25 +28,29 @@ class NetJSONGraphRender {
    * @return {object}  graph object
    *
    */
-  graphSetOption(customOption, _this) {
+  echartsSetOption(customOption, _this) {
     const configs = _this.config,
       echartsLayer = _this.echarts,
       commonOption = _this.utils.deepMergeObj(
         {
-          tooltip: {
-            confine: true,
-            formatter: params => {
-              if (params.componentSubType === "graph") {
-                return params.dataType === "edge"
-                  ? _this.utils.linkInfo(params.data)
-                  : _this.utils.nodeInfo(params.data);
-              } else {
-                return params.componentSubType === "lines"
-                  ? _this.utils.linkInfo(params.data.link)
-                  : _this.utils.nodeInfo(params.data.node);
-              }
-            }
-          }
+          // Show element's detail when hover
+          //
+          // tooltip: {
+          //   confine: true,
+          //   formatter: params => {
+          //     if (params.componentSubType === "graph") {
+          //       return params.dataType === "edge"
+          //         ? _this.utils.linkInfo(params.data)
+          //         : _this.utils.nodeInfo(params.data);
+          //     } else if (params.componentSubType === "graphGL") {
+          //       return _this.utils.nodeInfo(params.data);
+          //     } else {
+          //       return params.componentSubType === "lines"
+          //         ? _this.utils.linkInfo(params.data.link)
+          //         : _this.utils.nodeInfo(params.data.node);
+          //     }
+          //   }
+          // }
         },
         configs.echartsOption
       );
@@ -61,6 +68,8 @@ class NetJSONGraphRender {
             params.dataType === "edge" ? "link" : "node",
             params.data
           );
+        } else if (params.componentSubType === "graphGL") {
+          clickElement("node", params.data);
         } else {
           return params.componentSubType === "lines"
             ? clickElement("link", params.data.link)
@@ -69,10 +78,6 @@ class NetJSONGraphRender {
       },
       { passive: true }
     );
-
-    window.onresize = () => {
-      echartsLayer.resize();
-    };
 
     return echartsLayer;
   }
@@ -103,7 +108,7 @@ class NetJSONGraphRender {
           typeof configs.nodeSize === "function"
             ? configs.nodeSize(node)
             : configs.nodeSize;
-        nodeResult.name = node.label || node.id;
+        nodeResult.name = typeof node.label === "string" ? node.label : node.id;
         if (node.properties && node.properties.category) {
           nodeResult.category = String(node.properties.category);
         }
@@ -128,7 +133,11 @@ class NetJSONGraphRender {
       }),
       series = [
         Object.assign(configs.graphConfig, {
-          type: "graph",
+          type: configs.graphConfig.type === "graphGL" ? "graphGL" : "graph",
+          layout:
+            configs.graphConfig.type === "graphGL"
+              ? "forceAtlas2"
+              : configs.graphConfig.layout,
           nodes,
           links,
           categories: categories.map(category => ({ name: category }))
@@ -175,7 +184,7 @@ class NetJSONGraphRender {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
           nodesData.push({
-            name: node.label || node.id,
+            name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
             symbolSize:
               typeof configs.nodeSize === "function"
@@ -220,31 +229,27 @@ class NetJSONGraphRender {
     });
 
     let series = [
-      ...configs.mapLineConfig.map(lineConfig =>
+      Object.assign(configs.mapNodeConfig, {
+        type:
+          configs.mapNodeConfig.type === "effectScatter"
+            ? "effectScatter"
+            : "scatter",
+        coordinateSystem: "leaflet",
+        data: nodesData
+      }),
+      ...configs.mapLinkConfig.map(lineConfig =>
         Object.assign(lineConfig, {
           type: "lines",
           coordinateSystem: "leaflet",
           data: linesData
         })
-      ),
-      Object.assign(configs.mapNodeConfig, {
-        type: "effectScatter",
-        coordinateSystem: "leaflet",
-        data: nodesData
-      })
+      )
     ];
 
     return {
       leaflet: {
-        tiles: [
-          {
-            urlTemplate: configs.mapTileConfig[0],
-            options: configs.mapTileConfig[1]
-          }
-        ],
-        center: [...configs.mapCenter].reverse(),
-        zoom: configs.mapZoom,
-        roam: configs.mapRoam
+        tiles: configs.mapTileConfig,
+        mapOptions: configs.mapOptions
       },
       toolbox: {
         show: false
@@ -263,12 +268,17 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, _this) {
-    _this.utils.graphSetOption(
+    _this.utils.echartsSetOption(
       _this.utils.generateGraphOption(JSONData, _this),
       _this
     );
 
-    _this.config.onLoad.call(_this);
+    window.onresize = () => {
+      _this.echarts.resize();
+    };
+
+    _this.event.emit("onLoad");
+    _this.event.emit("renderArray");
   }
 
   /**
@@ -286,13 +296,76 @@ class NetJSONGraphRender {
       return;
     }
 
-    _this.utils.graphSetOption(
+    _this.utils.echartsSetOption(
       _this.utils.generateMapOption(JSONData, _this),
       _this
     );
+
     _this.leaflet = _this.echarts._api.getCoordinateSystems()[0].getLeaflet();
 
-    _this.config.onLoad.call(_this);
+    _this.event.emit("onLoad");
+    _this.event.emit("renderArray");
+  }
+
+  /**
+   * @function
+   * @name _appendData
+   * Append new data. Can only be used for `map` render!
+   *
+   * @param  {object}         JSONData   Data
+   * @param  {object}         _this      NetJSONGraph object
+   *
+   */
+  _appendData(JSONData, _this) {
+    if (_this.config.render !== _this.utils.mapRender) {
+      console.error("AppendData function can only be used for map render!");
+      return;
+    }
+    const opts = _this.utils.generateMapOption(JSONData, _this);
+    opts.series.map((obj, index) => {
+      _this.echarts.appendData({
+        seriesIndex: index,
+        data: obj.data
+      });
+    });
+    // modify this.data
+    _this.utils._mergeData(JSONData, _this);
+
+    _this.config.afterUpdate.call(_this);
+  }
+
+  /**
+   * @function
+   * @name _addData
+   * Add new data. Mainly used for `graph` render.
+   *
+   * @param  {object}         JSONData      Data
+   * @param  {object}         _this         NetJSONGraph object
+   */
+  _addData(JSONData, _this) {
+    // modify this.data
+    _this.utils._mergeData(JSONData, _this);
+    // `graph` render can't append data. So we have to merge the data and re-render.
+    _this.utils._render();
+
+    _this.config.afterUpdate.call(_this);
+  }
+
+  /**
+   * @function
+   * @name _mergeData
+   * Merge new data. Modify this.data.
+   *
+   * @param  {object}         JSONData      Data
+   * @param  {object}         _this         NetJSONGraph object
+   */
+  _mergeData(JSONData, _this) {
+    const nodes = _this.data.nodes.concat(JSONData.nodes),
+      links = _this.data.links.concat(JSONData.links);
+    Object.assign(_this.data, JSONData, {
+      nodes,
+      links
+    });
   }
 }
 
