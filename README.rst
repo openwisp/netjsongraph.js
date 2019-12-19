@@ -33,7 +33,7 @@ Install
 Arguments
 ---------
 
-*netjsongraph.js* accepts two arguments
+*netjsongraph.js* accepts two arguments:
 
 1. ``url`` (**required**, string): URL to fetch the JSON data from
 2. ``options`` (optional, object): custom options described below
@@ -83,7 +83,7 @@ Very basic:
         </body>
     </html>
 
-Show graph in a container:
+Show the graph in a container:
 
 .. code-block:: html
 
