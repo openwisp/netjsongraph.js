@@ -1,7 +1,5 @@
-"use strict";
-
-import NetJSONGraphDefaultConfig from "./netjsongraph.config.js";
-import NetJSONGraphUpdate from "./netjsongraph.update.js";
+import NetJSONGraphDefaultConfig from "./netjsongraph.config";
+import NetJSONGraphUpdate from "./netjsongraph.update";
 
 class NetJSONGraph {
   /**
@@ -34,6 +32,7 @@ class NetJSONGraph {
 
     if (!this.el) {
       if (!this.config.el) {
+        // eslint-disable-next-line prefer-destructuring
         this.el = document.getElementsByTagName("body")[0];
       } else if (this.utils.isElement(this.config.el)) {
         this.el = this.config.el;
@@ -45,6 +44,7 @@ class NetJSONGraph {
         this.el.setAttribute("id", "graphChartContainer");
       }
     } else if (config && config.el) {
+      // eslint-disable-next-line no-console
       console.error("Can't change el again!");
     }
 
@@ -71,7 +71,7 @@ class NetJSONGraph {
         this.data = JSONData;
 
         (function addNodeLinkOverlay(_this) {
-          let nodeLinkOverlay = document.createElement("div");
+          const nodeLinkOverlay = document.createElement("div");
           nodeLinkOverlay.setAttribute("class", "njg-overlay njg-container");
           _this.el.appendChild(nodeLinkOverlay);
         })(this);

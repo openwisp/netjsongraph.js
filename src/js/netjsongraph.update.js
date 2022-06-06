@@ -1,6 +1,4 @@
-"use strict";
-
-import NetJSONGraphUtil from "./netjsongraph.util.js";
+import NetJSONGraphUtil from "./netjsongraph.util";
 
 class NetJSONGraphUpdate extends NetJSONGraphUtil {
   /**
@@ -16,13 +14,13 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
 
   searchElements(url) {
-    const _this = this,
-      searchHistory = {
-        "": {
-          data: { ..._this.data },
-          param: [..._this.JSONParam]
-        }
-      };
+    const _this = this;
+    const searchHistory = {
+      "": {
+        data: { ..._this.data },
+        param: [..._this.JSONParam]
+      }
+    };
 
     window.history.pushState({ searchValue: "" }, "");
 
@@ -40,7 +38,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
     };
 
     return function searchFunc(key, override = true, isRaw = true) {
-      let searchValue = key.trim();
+      const searchValue = key.trim();
 
       if (
         !history.state ||
@@ -83,6 +81,24 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
     return _this.utils
       .JSONParamParse(Data)
       .then(JSONData => {
+        function _update() {
+          // override data.
+          if (override) {
+            _this.JSONParam = [Data];
+            _this.utils._overrideData(JSONData, _this);
+          }
+          // append data.
+          else {
+            _this.JSONParam.push(Data);
+            if (_this.config.render === _this.utils.mapRender) {
+              _this.utils._appendData(JSONData, _this);
+            } else {
+              _this.utils._addData(JSONData, _this);
+            }
+          }
+          // update metadata
+          _this.utils.updateMetadata.call(_this);
+        }
         if (isRaw) {
           _this.config.prepareData.call(_this, JSONData);
           if (_this.config.dealDataByWorker) {
@@ -100,23 +116,6 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         }
 
         return JSONData;
-
-        function _update() {
-          // override data.
-          if (override) {
-            _this.JSONParam = [Data];
-            _this.utils._overrideData(JSONData, _this);
-          }
-          // append data.
-          else {
-            _this.JSONParam.push(Data);
-            _this.config.render === _this.utils.mapRender
-              ? _this.utils._appendData(JSONData, _this)
-              : _this.utils._addData(JSONData, _this);
-          }
-          // update metadata
-          _this.utils.updateMetadata.call(_this);
-        }
       })
       .catch(error => {
         console.error(error);
@@ -137,12 +136,13 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
 
   dealDataByWorker(JSONData, workerFile, callback) {
-    const worker = new Worker(workerFile),
-      _this = this;
+    const worker = new Worker(workerFile);
+    const _this = this;
 
     worker.postMessage(JSONData);
 
     worker.addEventListener("error", e => {
+      console.error(e);
       console.error("Error in dealing JSONData!");
     });
     worker.addEventListener("message", e => {
@@ -166,7 +166,6 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
   _overrideData(JSONData, _this) {
     _this.data = JSONData;
-
     _this.utils._render();
     _this.config.afterUpdate.call(_this);
   }

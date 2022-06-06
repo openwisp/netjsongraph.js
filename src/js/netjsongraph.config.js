@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Default options
  *
@@ -101,116 +99,114 @@ const NetJSONGraphDefaultConfig = {
 
   nodeSize: 25,
   nodeStyleProperty: (() => {
-    let styles = [
-        {
-          color: {
-            type: "radial",
-            x: 0.5,
-            y: 0.5,
-            r: 0.5,
-            colorStops: [
-              {
-                offset: 0,
-                color: "#d66b30"
-              },
-              {
-                offset: 0.7,
-                color: "#d66b30"
-              },
-              {
-                offset: 0.71,
-                color: "#ebb598"
-              },
-              {
-                offset: 1,
-                color: "#ebb598"
-              }
-            ]
-          }
-        },
-        {
-          color: {
-            type: "radial",
-            x: 0.5,
-            y: 0.5,
-            r: 0.5,
-            colorStops: [
-              {
-                offset: 0,
-                color: "#a3c7dd"
-              },
-              {
-                offset: 0.7,
-                color: "#a3c7dd"
-              },
-              {
-                offset: 0.71,
-                color: "#e3edf6"
-              },
-              {
-                offset: 1,
-                color: "#e3edf6"
-              }
-            ]
-          }
-        },
-        {
-          color: {
-            type: "radial",
-            x: 0.5,
-            y: 0.5,
-            r: 0.5,
-            colorStops: [
-              {
-                offset: 0,
-                color: "#5c9660"
-              },
-              {
-                offset: 0.7,
-                color: "#5c9660"
-              },
-              {
-                offset: 0.71,
-                color: "#aecbb0"
-              },
-              {
-                offset: 1,
-                color: "#aecbb0"
-              }
-            ]
-          }
-        },
-        {
-          color: {
-            type: "radial",
-            x: 0.5,
-            y: 0.5,
-            r: 0.5,
-            colorStops: [
-              {
-                offset: 0,
-                color: "#d66b30"
-              },
-              {
-                offset: 0.7,
-                color: "#d66b30"
-              },
-              {
-                offset: 0.71,
-                color: "#ebb598"
-              },
-              {
-                offset: 1,
-                color: "#ebb598"
-              }
-            ]
-          }
+    const styles = [
+      {
+        color: {
+          type: "radial",
+          x: 0.5,
+          y: 0.5,
+          r: 0.5,
+          colorStops: [
+            {
+              offset: 0,
+              color: "#d66b30"
+            },
+            {
+              offset: 0.7,
+              color: "#d66b30"
+            },
+            {
+              offset: 0.71,
+              color: "#ebb598"
+            },
+            {
+              offset: 1,
+              color: "#ebb598"
+            }
+          ]
         }
-      ],
-      i = 0;
-    return () => {
-      return styles[i++ % styles.length];
-    };
+      },
+      {
+        color: {
+          type: "radial",
+          x: 0.5,
+          y: 0.5,
+          r: 0.5,
+          colorStops: [
+            {
+              offset: 0,
+              color: "#a3c7dd"
+            },
+            {
+              offset: 0.7,
+              color: "#a3c7dd"
+            },
+            {
+              offset: 0.71,
+              color: "#e3edf6"
+            },
+            {
+              offset: 1,
+              color: "#e3edf6"
+            }
+          ]
+        }
+      },
+      {
+        color: {
+          type: "radial",
+          x: 0.5,
+          y: 0.5,
+          r: 0.5,
+          colorStops: [
+            {
+              offset: 0,
+              color: "#5c9660"
+            },
+            {
+              offset: 0.7,
+              color: "#5c9660"
+            },
+            {
+              offset: 0.71,
+              color: "#aecbb0"
+            },
+            {
+              offset: 1,
+              color: "#aecbb0"
+            }
+          ]
+        }
+      },
+      {
+        color: {
+          type: "radial",
+          x: 0.5,
+          y: 0.5,
+          r: 0.5,
+          colorStops: [
+            {
+              offset: 0,
+              color: "#d66b30"
+            },
+            {
+              offset: 0.7,
+              color: "#d66b30"
+            },
+            {
+              offset: 0.71,
+              color: "#ebb598"
+            },
+            {
+              offset: 1,
+              color: "#ebb598"
+            }
+          ]
+        }
+      }
+    ];
+    let i = 0;
+    return () => styles[i++ % styles.length];
   })(),
   linkStyleProperty: () => ({
     width: 5,
@@ -228,7 +224,8 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  prepareData: function(JSONData) {},
+  // eslint-disable-next-line no-unused-vars
+  prepareData(JSONData) {},
   /**
    * @function
    * @name onClickElement
@@ -240,8 +237,8 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  onClickElement: function(type, data) {
-    let nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
+  onClickElement(type, data) {
+    const nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
     nodeLinkOverlay.style.visibility = "visible";
     nodeLinkOverlay.innerHTML = `
         <div class="njg-inner">
