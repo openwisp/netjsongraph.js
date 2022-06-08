@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+npm run format:check
+npm run lint
+
+openwisp-qa-check --skip-checkmigrations \
+                  --skip-checkmakemigrations \
+                  --skip-black \
+                  --skip-flake8 \
+                  --skip-isort \
+                  --skip-checkendline
+                  
