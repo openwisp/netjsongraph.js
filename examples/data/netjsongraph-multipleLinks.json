@@ -1,0 +1,52 @@
+{ 
+    "type":"NetworkGraph",
+    "label":"Ninux Roma",
+    "protocol":"OLSR",
+    "version":"0.6.6.2",
+    "metric":"ETX",
+    "nodes":[
+      {
+        "id":"172.0.0.1"
+      },
+      {
+        "id":"172.0.0.2"
+      },
+      
+      {
+        "id":"172.0.0.5"
+      }
+    ],
+    "links":[
+      {
+        "source":"172.0.0.1",
+        "target":"172.0.0.2",
+        "cost":1
+      },
+      {
+        "source":"172.0.0.2",
+        "target":"172.0.0.1",
+        "cost":1
+      },
+      {
+        "source":"172.0.0.1",
+        "target":"172.0.0.5",
+        "cost":1
+      },
+      {
+        "source":"172.0.0.5",
+        "target":"172.0.0.1",
+        "cost":1
+      },
+      {
+        "source":"172.0.0.2",
+        "target":"172.0.0.5",
+        "cost":1
+      },
+      {
+        "source":"172.0.0.5",
+        "target":"172.0.0.2",
+        "cost":1
+      }
+    ]
+  }
+  
