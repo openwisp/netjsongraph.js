@@ -43,33 +43,33 @@ jobs:
       - name: QA checks
         run: ./run-qa-checks
 
-    build:
-      name: Tests and Coverage
-      runs-on: ubuntu-20.04
+  build:
+    name: Tests and Coverage
+    runs-on: ubuntu-20.04
 
-      steps:
-        - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-        - name: Get yarn cache directory path
-          id: yarn-cache-dir-path
-          run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
 
-        - name: Cache yarn
-          uses: actions/cache@v2
-          id: yarn-cache
-          with:
-            path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-            restore-keys: ${{ runner.os }}-yarn-
+      - name: Cache yarn
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
 
-        - name: Installing dependencies
-          run: |
-            yarn install
+      - name: Installing dependencies
+        run: |
+          yarn install
 
-        - name: Tests
-          run: yarn coverage
+      - name: Tests
+        run: yarn coverage
 
-        - name: Coveralls
-          uses: coverallsapp/github-action@master
-          with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
