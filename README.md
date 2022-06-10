@@ -17,13 +17,12 @@ Build powerful and interoperable visualizations without losing flexibility!
 
 **This library is still in early stages, feedback and contributions are very welcome**.
 
-### Install
+### Install and run demo examples
 
 ```
-npm install
-npm run start
-
-npm run build
+yarn install
+yarn build
+yarn start
 ```
 
 ### Arguments
