@@ -32,23 +32,23 @@ class NetJSONGraphRender {
     const commonOption = self.utils.deepMergeObj(
       {
         // Show element's detail when hover
-        //
-        // tooltip: {
-        //   confine: true,
-        //   formatter: params => {
-        //     if (params.componentSubType === "graph") {
-        //       return params.dataType === "edge"
-        //         ? self.utils.linkInfo(params.data)
-        //         : self.utils.nodeInfo(params.data);
-        //     } else if (params.componentSubType === "graphGL") {
-        //       return self.utils.nodeInfo(params.data);
-        //     } else {
-        //       return params.componentSubType === "lines"
-        //         ? self.utils.linkInfo(params.data.link)
-        //         : self.utils.nodeInfo(params.data.node);
-        //     }
-        //   }
-        // }
+
+        tooltip: {
+          confine: true,
+          formatter: (params) => {
+            if (params.componentSubType === "graph") {
+              return params.dataType === "edge"
+                ? self.utils.linkInfo(params.data)
+                : self.utils.nodeInfo(params.data);
+            }
+            if (params.componentSubType === "graphGL") {
+              return self.utils.nodeInfo(params.data);
+            }
+            return params.componentSubType === "lines"
+              ? self.utils.linkInfo(params.data.link)
+              : self.utils.nodeInfo(params.data.node);
+          },
+        },
       },
       configs.echartsOption,
     );
