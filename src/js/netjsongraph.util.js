@@ -15,16 +15,16 @@ class NetJSONGraphUtil {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json"
-        }
+          Accept: "application/json",
+        },
       })
-        .then(response => {
+        .then((response) => {
           if (response.json) {
             return response.json();
           }
           return response;
         })
-        .catch(msg => {
+        .catch((msg) => {
           console.error(msg);
         });
     }
@@ -49,7 +49,7 @@ class NetJSONGraphUtil {
   dateParse({
     dateString,
     parseRegular = /^([1-9]\d{3})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?Z$/,
-    hourDiffer = new Date().getTimezoneOffset() / 60
+    hourDiffer = new Date().getTimezoneOffset() / 60,
   }) {
     const dateParseArr = parseRegular.exec(dateString);
     if (!dateParseArr || dateParseArr.length < 7) {
@@ -65,9 +65,9 @@ class NetJSONGraphUtil {
       ["dateMonth", 12],
       [
         "dateDay",
-        [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
       ],
-      ["dateHour", 24]
+      ["dateHour", 24],
     ]);
 
     for (let i = dateNumberFields.length; i > 0; i--) {
@@ -81,9 +81,8 @@ class NetJSONGraphUtil {
         dateNumberObject[dateNumberFields[i - 1]] += carry;
         break;
       } else if (dateNumberFields[i - 1] === "dateDay") {
-        limitBoundary = limitBoundaries.get("dateDay")[
-          dateNumberObject.dateMonth - 1
-        ];
+        limitBoundary =
+          limitBoundaries.get("dateDay")[dateNumberObject.dateMonth - 1];
       } else {
         limitBoundary = limitBoundaries.get(dateNumberFields[i - 1]);
       }
@@ -91,12 +90,12 @@ class NetJSONGraphUtil {
       let calculateResult = dateNumberObject[dateNumberFields[i - 1]] + carry;
 
       if (dateNumberFields[i - 1] === "dateHour") {
-        // eslint-disable-next-line no-nested-ternary
         carry =
+          // eslint-disable-next-line no-nested-ternary
           calculateResult < 0 ? -1 : calculateResult >= limitBoundary ? 1 : 0;
       } else {
-        // eslint-disable-next-line no-nested-ternary
         carry =
+          // eslint-disable-next-line no-nested-ternary
           calculateResult <= 0 ? -1 : calculateResult > limitBoundary ? 1 : 0;
       }
 
@@ -104,9 +103,10 @@ class NetJSONGraphUtil {
         calculateResult -= limitBoundary;
       } else if (carry < 0) {
         if (dateNumberFields[i - 1] === "dateDay") {
-          limitBoundary = limitBoundaries.get("dateDay")[
-            (dateNumberObject[dateNumberFields[i - 1]] + 10) % 11
-          ];
+          limitBoundary =
+            limitBoundaries.get("dateDay")[
+              (dateNumberObject[dateNumberFields[i - 1]] + 10) % 11
+            ];
         }
         calculateResult += limitBoundary;
       }
@@ -115,11 +115,11 @@ class NetJSONGraphUtil {
     }
 
     return `${dateNumberObject.dateYear}.${this.numberMinDigit(
-      dateNumberObject.dateMonth
+      dateNumberObject.dateMonth,
     )}.${this.numberMinDigit(dateNumberObject.dateDay)} ${this.numberMinDigit(
-      dateNumberObject.dateHour
+      dateNumberObject.dateHour,
     )}:${this.numberMinDigit(dateParseArr[5])}:${this.numberMinDigit(
-      dateParseArr[6]
+      dateParseArr[6],
     )}${dateParseArr[7] ? `.${this.numberMinDigit(dateParseArr[7], 3)}` : ""}`;
   }
 
@@ -249,9 +249,8 @@ class NetJSONGraphUtil {
     if (this.config.metadata) {
       document.getElementsByClassName("njg-metadata")[0].style.visibility =
         "visible";
-      document.getElementById(
-        "metadata-innerDiv"
-      ).innerHTML = this.utils._getMetadata.call(this);
+      document.getElementById("metadata-innerDiv").innerHTML =
+        this.utils._getMetadata.call(this);
     }
   }
 
@@ -271,7 +270,7 @@ class NetJSONGraphUtil {
       "revision",
       "metric",
       "router_id",
-      "topology_id"
+      "topology_id",
     ];
     const metadata = this.data;
     let html = "";
@@ -285,12 +284,8 @@ class NetJSONGraphUtil {
       }
     }
     html += `
-      <p><b>nodes</b>: <span id='metadataNodesLength'>${
-        metadata.nodes.length
-      }</span></p>
-      <p><b>links</b>: <span id='metadataLinksLength'>${
-        metadata.links.length
-      }</span></p>
+      <p><b>nodes</b>: <span id='metadataNodesLength'>${metadata.nodes.length}</span></p>
+      <p><b>links</b>: <span id='metadataLinksLength'>${metadata.links.length}</span></p>
     `;
 
     return html;
@@ -314,12 +309,10 @@ class NetJSONGraphUtil {
     if (node.properties) {
       for (const key in node.properties) {
         if (key === "location") {
-          html += `<p><b>location</b>:<br />lat: ${
-            node.properties.location.lat
-          }<br />lng: ${node.properties.location.lng}<br /></p>`;
+          html += `<p><b>location</b>:<br />lat: ${node.properties.location.lat}<br />lng: ${node.properties.location.lng}<br /></p>`;
         } else if (key === "time") {
           html += `<p><b>time</b>: ${this.dateParse({
-            dateString: node.properties[key]
+            dateString: node.properties[key],
           })}</p>`;
         } else {
           html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
@@ -333,7 +326,7 @@ class NetJSONGraphUtil {
     }
     if (node.local_addresses) {
       html += `<p><b>local addresses</b>:<br />${node.local_addresses.join(
-        "<br />"
+        "<br />",
       )}</p>`;
     }
 
@@ -351,14 +344,12 @@ class NetJSONGraphUtil {
    */
 
   linkInfo(link) {
-    let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${
-      link.target
-    }</p><p><b>cost</b>: ${link.cost}</p>`;
+    let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${link.target}</p><p><b>cost</b>: ${link.cost}</p>`;
     if (link.properties) {
       for (const key in link.properties) {
         if (key === "time") {
           html += `<p><b>time</b>: ${this.dateParse({
-            dateString: link.properties[key]
+            dateString: link.properties[key],
           })}</p>`;
         } else {
           html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
@@ -435,15 +426,15 @@ class NetJSONGraphUtil {
       emit(key) {
         const funcs = events.get(key) || [];
         const funcsOnce = eventsOnce.get(key) || [];
-        const res = funcs.map(func => func());
-        const resOnce = funcsOnce.map(func => func());
+        const res = funcs.map((func) => func());
+        const resOnce = funcsOnce.map((func) => func());
         eventsOnce.delete(key);
         return [...res, ...resOnce];
       },
       delete(key) {
         events.delete(key);
         eventsOnce.delete(key);
-      }
+      },
     };
   }
 }

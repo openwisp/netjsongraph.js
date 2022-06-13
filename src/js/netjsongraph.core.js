@@ -11,7 +11,7 @@ class NetJSONGraph {
   constructor(JSONParam, config) {
     this.utils = new NetJSONGraphUpdate();
 
-    this.config = { ...NetJSONGraphDefaultConfig };
+    this.config = {...NetJSONGraphDefaultConfig};
     this.setConfig(config);
 
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
@@ -66,7 +66,7 @@ class NetJSONGraph {
 
     this.utils
       .JSONParamParse(JSONParam)
-      .then(JSONData => {
+      .then((JSONData) => {
         this.config.prepareData.call(this, JSONData);
         this.data = JSONData;
 
@@ -84,26 +84,25 @@ class NetJSONGraph {
           this.utils.dealDataByWorker.call(
             this,
             JSONData,
-            this.config.dealDataByWorker
+            this.config.dealDataByWorker,
           );
         } else {
           this.data = JSONData;
           this.utils._render();
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
 
     if (resParam.length) {
+      const renderArray = function _renderArray() {
+        resParam.map((file) =>
+          this.utils.JSONDataUpdate.call(this, file, false),
+        );
+      };
       this.JSONParam = [JSONParam];
-      this.event.once("renderArray", _renderArray.bind(this));
-
-      function _renderArray() {
-        resParam.map(file => {
-          this.utils.JSONDataUpdate.call(this, file, false);
-        });
-      }
+      this.event.once("renderArray", renderArray.bind(this));
     }
   }
 
@@ -121,7 +120,7 @@ class NetJSONGraph {
 
     _this.utils = Object.assign(
       _this.utils,
-      { ...util },
+      {...util},
       {
         /**
          * @function
@@ -135,8 +134,8 @@ class NetJSONGraph {
           } else {
             throw new Error("No render function!");
           }
-        }
-      }
+        },
+      },
     );
 
     return _this.utils;

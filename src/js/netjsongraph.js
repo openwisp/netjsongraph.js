@@ -1,10 +1,10 @@
 import NetJSONGraphCore from "./netjsongraph.core";
-import { NetJSONGraphRender, echarts, L } from "./netjsongraph.render";
+import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
 import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
 
 const colorTool = require("zrender/lib/tool/color");
 const aria = require("echarts/lib/visual/aria");
-const { each } = require("zrender/lib/core/util");
+const {each} = require("zrender/lib/core/util");
 const env = require("zrender/lib/core/env");
 
 class NetJSONGraph {
@@ -98,14 +98,15 @@ class NetJSONGraph {
 
         return this.config;
       },
-      ...config
+      ...config,
     });
     graph.echarts = echarts.init(graph.el, null, {
-      renderer: graph.config.svgRender ? "svg" : "canvas"
+      renderer: graph.config.svgRender ? "svg" : "canvas",
     });
 
     graph.config.onInit.call(graph);
 
+    // eslint-disable-next-line no-constructor-return
     return graph;
   }
 }
@@ -114,7 +115,7 @@ registerLeafletSystem(echarts, L, {
   colorTool,
   aria,
   each,
-  env
+  env,
 });
 
 window.NetJSONGraph = NetJSONGraph;

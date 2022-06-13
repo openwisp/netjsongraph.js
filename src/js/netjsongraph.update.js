@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import NetJSONGraphUtil from "./netjsongraph.util";
 
 class NetJSONGraphUpdate extends NetJSONGraphUtil {
@@ -17,18 +18,18 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
     const _this = this;
     const searchHistory = {
       "": {
-        data: { ..._this.data },
-        param: [..._this.JSONParam]
-      }
+        data: {..._this.data},
+        param: [..._this.JSONParam],
+      },
     };
 
-    window.history.pushState({ searchValue: "" }, "");
+    window.history.pushState({searchValue: ""}, "");
 
-    window.onpopstate = event => {
+    window.onpopstate = (event) => {
       if (searchHistory[event.state.searchValue]) {
         _this.utils.JSONDataUpdate.call(
           _this,
-          searchHistory[event.state.searchValue].data
+          searchHistory[event.state.searchValue].data,
         ).then(() => {
           _this.JSONParam = searchHistory[event.state.searchValue].param;
         });
@@ -37,6 +38,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
       }
     };
 
+    // eslint-disable-next-line consistent-return
     return function searchFunc(key, override = true, isRaw = true) {
       const searchValue = key.trim();
 
@@ -44,16 +46,16 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         !history.state ||
         (history.state && history.state.searchValue !== searchValue)
       ) {
-        history.pushState({ searchValue }, "");
+        history.pushState({searchValue}, "");
         return _this.utils.JSONDataUpdate.call(
           _this,
           url + searchValue,
           override,
-          isRaw
+          isRaw,
         ).then(() => {
           searchHistory[searchValue] = {
-            data: { ..._this.data },
-            param: [..._this.JSONParam]
+            data: {..._this.data},
+            param: [..._this.JSONParam],
           };
         });
       }
@@ -80,7 +82,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
 
     return _this.utils
       .JSONParamParse(Data)
-      .then(JSONData => {
+      .then((JSONData) => {
         function _update() {
           // override data.
           if (override) {
@@ -106,7 +108,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
               _this,
               JSONData,
               _this.config.dealDataByWorker,
-              _update
+              _update,
             );
           } else {
             _update();
@@ -117,7 +119,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
 
         return JSONData;
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }
@@ -141,11 +143,11 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
 
     worker.postMessage(JSONData);
 
-    worker.addEventListener("error", e => {
+    worker.addEventListener("error", (e) => {
       console.error(e);
       console.error("Error in dealing JSONData!");
     });
-    worker.addEventListener("message", e => {
+    worker.addEventListener("message", (e) => {
       if (callback) {
         callback();
       } else {

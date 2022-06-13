@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 const operations = {
   /**
    * @function
@@ -12,16 +13,16 @@ const operations = {
     const flatNodes = {};
     const nodeInterfaces = {};
 
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       flatNodes[node.id] = node;
 
       if (node.local_addresses) {
-        node.local_addresses.forEach(address => {
+        node.local_addresses.forEach((address) => {
           nodeInterfaces[address] = node;
         });
       }
     });
-    return { flatNodes, nodeInterfaces };
+    return {flatNodes, nodeInterfaces};
   },
 
   /**
@@ -38,13 +39,13 @@ const operations = {
     const nodeLinks = {};
     const resultNodes = [];
 
-    JSONData.links.forEach(link => {
+    JSONData.links.forEach((link) => {
       const sourceNode = JSONData.flatNodes[link.source];
       const targetNode = JSONData.flatNodes[link.target];
       if (sourceNode && targetNode) {
         if (sourceNode.id === targetNode.id) {
           console.error(
-            `Link source and target (${sourceNode.id}) are duplicated!`
+            `Link source and target (${sourceNode.id}) are duplicated!`,
           );
           return;
         }
@@ -63,6 +64,7 @@ const operations = {
         console.error(`Node ${link.target} is not exist!`);
       }
     });
+    // eslint-disable-next-line guard-for-in
     for (const nodeID in JSONData.flatNodes) {
       const copyNode = JSONData.flatNodes[nodeID];
       copyNode.linkCount = nodeLinks[nodeID] || 0;
@@ -141,7 +143,7 @@ const operations = {
       }
     }
     return copyArr;
-  }
+  },
 };
 /**
  * @function
@@ -155,7 +157,7 @@ const operations = {
 function dealJSONData(JSONData) {
   JSONData.nodes = operations.arrayDeduplication(JSONData.nodes, ["id"]);
 
-  const { flatNodes, nodeInterfaces } = operations.addFlatNodes(JSONData.nodes);
+  const {flatNodes, nodeInterfaces} = operations.addFlatNodes(JSONData.nodes);
   JSONData.flatNodes = flatNodes;
   JSONData.nodeInterfaces = nodeInterfaces;
 
@@ -164,7 +166,7 @@ function dealJSONData(JSONData) {
   JSONData.links = operations.arrayDeduplication(
     JSONData.links,
     ["source", "target"],
-    false
+    false,
   );
 
   JSONData.nodes = operations.addNodeLinks(JSONData);
@@ -172,10 +174,10 @@ function dealJSONData(JSONData) {
   return JSONData;
 }
 
-self.addEventListener("message", e => {
+self.addEventListener("message", (e) => {
   dealJSONData(e.data, operations);
   postMessage(e.data);
   close();
 });
 
-module.exports = { operations, dealJSONData };
+module.exports = {operations, dealJSONData};

@@ -50,21 +50,22 @@ class NetJSONGraphRender {
         //   }
         // }
       },
-      configs.echartsOption
+      configs.echartsOption,
     );
 
     echartsLayer.setOption(
-      _this.utils.deepMergeObj(commonOption, customOption)
+      _this.utils.deepMergeObj(commonOption, customOption),
     );
     echartsLayer.on(
       "click",
-      params => {
+      // eslint-disable-next-line consistent-return
+      (params) => {
         const clickElement = configs.onClickElement.bind(_this);
 
         if (params.componentSubType === "graph") {
           clickElement(
             params.dataType === "edge" ? "link" : "node",
-            params.data
+            params.data,
           );
         } else if (params.componentSubType === "graphGL") {
           clickElement("node", params.data);
@@ -74,7 +75,7 @@ class NetJSONGraphRender {
             : clickElement("node", params.data.node);
         }
       },
-      { passive: true }
+      {passive: true},
     );
 
     return echartsLayer;
@@ -95,7 +96,7 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, _this) {
     const categories = [];
     const configs = _this.config;
-    const nodes = JSONData.nodes.map(node => {
+    const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
 
       nodeResult.itemStyle =
@@ -119,7 +120,7 @@ class NetJSONGraphRender {
 
       return nodeResult;
     });
-    const links = JSONData.links.map(link => {
+    const links = JSONData.links.map((link) => {
       const linkResult = JSON.parse(JSON.stringify(link));
 
       linkResult.lineStyle =
@@ -138,18 +139,18 @@ class NetJSONGraphRender {
             : configs.graphConfig.layout,
         nodes,
         links,
-        categories: categories.map(category => ({ name: category }))
-      })
+        categories: categories.map((category) => ({name: category})),
+      }),
     ];
     const legend = categories.length
       ? {
-          data: categories
+          data: categories,
         }
       : undefined;
 
     return {
       legend,
-      series
+      series,
     };
   }
 
@@ -167,16 +168,16 @@ class NetJSONGraphRender {
    */
   generateMapOption(JSONData, _this) {
     const configs = _this.config;
-    const { nodes, links } = JSONData;
+    const {nodes, links} = JSONData;
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
     const nodesData = [];
 
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       if (!node.properties) {
         console.error(`Node ${node.id} position is undefined!`);
       } else {
-        const { location } = node.properties;
+        const {location} = node.properties;
 
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
@@ -192,7 +193,7 @@ class NetJSONGraphRender {
               typeof configs.nodeStyleProperty === "function"
                 ? configs.nodeStyleProperty(node)
                 : configs.nodeStyleProperty,
-            node
+            node,
           });
           if (!JSONData.flatNodes) {
             flatNodes[node.id] = JSON.parse(JSON.stringify(node));
@@ -200,7 +201,7 @@ class NetJSONGraphRender {
         }
       }
     });
-    links.forEach(link => {
+    links.forEach((link) => {
       if (!flatNodes[link.source]) {
         console.error(`Node ${link.source} is not exist!`);
       } else if (!flatNodes[link.target]) {
@@ -210,18 +211,18 @@ class NetJSONGraphRender {
           coords: [
             [
               flatNodes[link.source].properties.location.lng,
-              flatNodes[link.source].properties.location.lat
+              flatNodes[link.source].properties.location.lat,
             ],
             [
               flatNodes[link.target].properties.location.lng,
-              flatNodes[link.target].properties.location.lat
-            ]
+              flatNodes[link.target].properties.location.lat,
+            ],
           ],
           lineStyle:
             typeof configs.linkStyleProperty === "function"
               ? configs.linkStyleProperty(link)
               : configs.linkStyleProperty,
-          link
+          link,
         });
       }
     });
@@ -233,26 +234,26 @@ class NetJSONGraphRender {
             ? "effectScatter"
             : "scatter",
         coordinateSystem: "leaflet",
-        data: nodesData
+        data: nodesData,
       }),
-      ...configs.mapLinkConfig.map(lineConfig =>
+      ...configs.mapLinkConfig.map((lineConfig) =>
         Object.assign(lineConfig, {
           type: "lines",
           coordinateSystem: "leaflet",
-          data: linesData
-        })
-      )
+          data: linesData,
+        }),
+      ),
     ];
 
     return {
       leaflet: {
         tiles: configs.mapTileConfig,
-        mapOptions: configs.mapOptions
+        mapOptions: configs.mapOptions,
       },
       toolbox: {
-        show: false
+        show: false,
       },
-      series
+      series,
     };
   }
 
@@ -268,7 +269,7 @@ class NetJSONGraphRender {
   graphRender(JSONData, _this) {
     _this.utils.echartsSetOption(
       _this.utils.generateGraphOption(JSONData, _this),
-      _this
+      _this,
     );
 
     window.onresize = () => {
@@ -296,7 +297,7 @@ class NetJSONGraphRender {
 
     _this.utils.echartsSetOption(
       _this.utils.generateMapOption(JSONData, _this),
-      _this
+      _this,
     );
 
     _this.leaflet = _this.echarts._api.getCoordinateSystems()[0].getLeaflet();
@@ -321,7 +322,7 @@ class NetJSONGraphRender {
     }
     const opts = _this.utils.generateMapOption(JSONData, _this);
     opts.series.forEach((obj, index) => {
-      _this.echarts.appendData({ seriesIndex: index, data: obj.data });
+      _this.echarts.appendData({seriesIndex: index, data: obj.data});
     });
     // modify this.data
     _this.utils._mergeData(JSONData, _this);
@@ -359,9 +360,9 @@ class NetJSONGraphRender {
     const links = _this.data.links.concat(JSONData.links);
     Object.assign(_this.data, JSONData, {
       nodes,
-      links
+      links,
     });
   }
 }
 
-export { NetJSONGraphRender, echarts, L };
+export {NetJSONGraphRender, echarts, L};

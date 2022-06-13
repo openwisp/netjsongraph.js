@@ -38,30 +38,30 @@ const NetJSONGraphDefaultConfig = {
       textStyle: {
         color: "grey",
         fontWeight: "bold",
-        fontSize: 30
+        fontSize: 30,
       },
       left: "center",
-      top: "5%"
+      top: "5%",
     },
     aria: {
       show: true,
       description:
-        "This is a force-oriented graph chart that depicts the relationship between ip nodes."
+        "This is a force-oriented graph chart that depicts the relationship between ip nodes.",
     },
     toolbox: {
       show: true,
       feature: {
         restore: {
           show: true,
-          title: "Restore view"
+          title: "Restore view",
         },
         saveAsImage: {
           show: true,
-          title: "Save image"
-        }
-      }
+          title: "Save image",
+        },
+      },
     },
-    color: ["#d66b30", "#a3c7dd", "#5c9660", "#d66b30"]
+    color: ["#d66b30", "#a3c7dd", "#5c9660", "#d66b30"],
   },
 
   graphConfig: {
@@ -69,22 +69,22 @@ const NetJSONGraphDefaultConfig = {
     label: {
       show: true,
       color: "#000000",
-      position: "top"
+      position: "top",
     },
     force: {
       gravity: 0.1,
       edgeLength: [20, 60],
-      repulsion: 120
+      repulsion: 120,
     },
     roam: true,
     draggable: true,
     focusNodeAdjacency: false,
     hoverAnimation: true,
-    legendHoverLink: true
+    legendHoverLink: true,
   },
 
   mapOptions: {
-    roam: true
+    roam: true,
   },
   mapTileConfig: [],
   mapLinkConfig: [{}],
@@ -93,8 +93,8 @@ const NetJSONGraphDefaultConfig = {
       show: true,
       color: "#000000",
       position: "top",
-      formatter: "{b}"
-    }
+      formatter: "{b}",
+    },
   },
 
   nodeSize: 25,
@@ -109,22 +109,22 @@ const NetJSONGraphDefaultConfig = {
           colorStops: [
             {
               offset: 0,
-              color: "#d66b30"
+              color: "#d66b30",
             },
             {
               offset: 0.7,
-              color: "#d66b30"
+              color: "#d66b30",
             },
             {
               offset: 0.71,
-              color: "#ebb598"
+              color: "#ebb598",
             },
             {
               offset: 1,
-              color: "#ebb598"
-            }
-          ]
-        }
+              color: "#ebb598",
+            },
+          ],
+        },
       },
       {
         color: {
@@ -135,22 +135,22 @@ const NetJSONGraphDefaultConfig = {
           colorStops: [
             {
               offset: 0,
-              color: "#a3c7dd"
+              color: "#a3c7dd",
             },
             {
               offset: 0.7,
-              color: "#a3c7dd"
+              color: "#a3c7dd",
             },
             {
               offset: 0.71,
-              color: "#e3edf6"
+              color: "#e3edf6",
             },
             {
               offset: 1,
-              color: "#e3edf6"
-            }
-          ]
-        }
+              color: "#e3edf6",
+            },
+          ],
+        },
       },
       {
         color: {
@@ -161,22 +161,22 @@ const NetJSONGraphDefaultConfig = {
           colorStops: [
             {
               offset: 0,
-              color: "#5c9660"
+              color: "#5c9660",
             },
             {
               offset: 0.7,
-              color: "#5c9660"
+              color: "#5c9660",
             },
             {
               offset: 0.71,
-              color: "#aecbb0"
+              color: "#aecbb0",
             },
             {
               offset: 1,
-              color: "#aecbb0"
-            }
-          ]
-        }
+              color: "#aecbb0",
+            },
+          ],
+        },
       },
       {
         color: {
@@ -187,23 +187,23 @@ const NetJSONGraphDefaultConfig = {
           colorStops: [
             {
               offset: 0,
-              color: "#d66b30"
+              color: "#d66b30",
             },
             {
               offset: 0.7,
-              color: "#d66b30"
+              color: "#d66b30",
             },
             {
               offset: 0.71,
-              color: "#ebb598"
+              color: "#ebb598",
             },
             {
               offset: 1,
-              color: "#ebb598"
-            }
-          ]
-        }
-      }
+              color: "#ebb598",
+            },
+          ],
+        },
+      },
     ];
     let i = 0;
     return () => styles[i++ % styles.length];
@@ -212,7 +212,7 @@ const NetJSONGraphDefaultConfig = {
     width: 5,
     color: "#999",
     shadowColor: "rgba(0, 0, 0, 0.5)",
-    shadowBlur: 10
+    shadowBlur: 10,
   }),
   /**
    * @function
@@ -258,7 +258,7 @@ const NetJSONGraphDefaultConfig = {
     };
 
     nodeLinkOverlay.appendChild(closeA);
-  }
+  },
 };
 
-export default { ...NetJSONGraphDefaultConfig };
+export default {...NetJSONGraphDefaultConfig};
