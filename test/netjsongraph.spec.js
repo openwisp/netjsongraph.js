@@ -1,8 +1,6 @@
-'use strict';
+import NetJSONGraph from "../src/js/netjsongraph.core";
 
-import NetJSONGraph from "../src/js/netjsongraph.core.js";
-
-describe('NetJSONGraph Specification', () => {
+describe("NetJSONGraph Specification", () => {
   const NetJSONGraphOption = {
     title: {
       text: "NetJSONGraph",
@@ -10,101 +8,99 @@ describe('NetJSONGraph Specification', () => {
       textStyle: {
         color: "grey",
         fontWeight: "bold",
-        fontSize: 30
+        fontSize: 30,
       },
       left: "center",
-      top: "5%"
+      top: "5%",
     },
     aria: {
       show: true,
       description:
-        "This is a force-oriented graph chart that depicts the relationship between ip nodes."
+        "This is a force-oriented graph chart that depicts the relationship between ip nodes.",
     },
     toolbox: {
       show: true,
       feature: {
         restore: {
           show: true,
-          title: "Restore view"
+          title: "Restore view",
         },
         saveAsImage: {
           show: true,
-          title: "Save image"
-        }
-      }
+          title: "Save image",
+        },
+      },
     },
-    color: [
-      "#d66b30", "#a3c7dd", "#5c9660", "#d66b30"
-    ],
+    color: ["#d66b30", "#a3c7dd", "#5c9660", "#d66b30"],
   };
   const NetJSONGraphConfig = {
     layout: "force",
     label: {
       show: true,
       color: "#000000",
-      position: "top"
+      position: "top",
     },
     force: {
       gravity: 0.1,
       edgeLength: [20, 60],
-      repulsion: 120
+      repulsion: 120,
     },
     roam: true,
     draggable: true,
     focusNodeAdjacency: false,
     hoverAnimation: true,
-    legendHoverLink: true
+    legendHoverLink: true,
   };
   const NetJSONGraphLinkStyle = {
     width: 5,
     color: "#999",
     shadowColor: "rgba(0, 0, 0, 0.5)",
     shadowBlur: 10,
-  }
+  };
 
   test("APIs exist", () => {
     expect(NetJSONGraph).toBeDefined();
 
     expect(NetJSONGraph.prototype.setConfig).toBeInstanceOf(Function);
     expect(NetJSONGraph.prototype.setUtils).toBeInstanceOf(Function);
-  })
+  });
 
-  test('NetJSONGraph object attribute fields exist', () => {
+  test("NetJSONGraph object attribute fields exist", () => {
     let JSONFILE = "test";
 
     const graph = new NetJSONGraph(JSONFILE);
     // Package NetJSONGraph instance object.
     graph.event = graph.utils.createEvent();
     graph.setConfig({
-      onInit: function() {
+      onInit: function () {
         return this.config;
       },
-      onRender: function() {
+      onRender: function () {
         return this.config;
       },
-      onUpdate: function() {
+      onUpdate: function () {
         return this.config;
       },
-      afterUpdate: function() {
+      afterUpdate: function () {
         return this.config;
       },
-      onLoad: function() {
+      onLoad: function () {
         return this.config;
       },
     });
 
     expect(graph).toBeInstanceOf(NetJSONGraph);
-    
+
     // NetJSON Props
     expect(graph.el).toBeInstanceOf(HTMLElement);
-    expect(graph.JSONParam).toEqual([JSONFILE,]);
+    expect(graph.JSONParam).toEqual([JSONFILE]);
     expect(graph.config).toBeInstanceOf(Object);
     expect(graph.utils).toBeInstanceOf(Object);
     expect(graph.setConfig).toBeInstanceOf(Function);
     expect(graph.setUtils).toBeInstanceOf(Function);
     expect(graph.render).toBeInstanceOf(Function);
     expect(graph.event).toBeInstanceOf(Object);
- 
+
     // NetJSON Config
     expect(graph.config).toHaveProperty("metadata", true);
     expect(graph.config).toHaveProperty("svgRender", false);
@@ -160,7 +156,4 @@ describe('NetJSONGraph Specification', () => {
     expect(graph.utils.createEvent).toBeInstanceOf(Function);
     expect(graph.utils.numberMinDigit).toBeInstanceOf(Function);
   });
-})
-
-
-
+});

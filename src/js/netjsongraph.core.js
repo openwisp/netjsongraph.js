@@ -1,7 +1,5 @@
-"use strict";
-
-import NetJSONGraphDefaultConfig from "./netjsongraph.config.js";
-import NetJSONGraphUpdate from "./netjsongraph.update.js";
+import NetJSONGraphDefaultConfig from "./netjsongraph.config";
+import NetJSONGraphUpdate from "./netjsongraph.update";
 
 class NetJSONGraph {
   /**
@@ -13,7 +11,7 @@ class NetJSONGraph {
   constructor(JSONParam, config) {
     this.utils = new NetJSONGraphUpdate();
 
-    this.config = { ...NetJSONGraphDefaultConfig };
+    this.config = {...NetJSONGraphDefaultConfig};
     this.setConfig(config);
 
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
@@ -34,6 +32,7 @@ class NetJSONGraph {
 
     if (!this.el) {
       if (!this.config.el) {
+        // eslint-disable-next-line prefer-destructuring
         this.el = document.getElementsByTagName("body")[0];
       } else if (this.utils.isElement(this.config.el)) {
         this.el = this.config.el;
@@ -45,6 +44,7 @@ class NetJSONGraph {
         this.el.setAttribute("id", "graphChartContainer");
       }
     } else if (config && config.el) {
+      // eslint-disable-next-line no-console
       console.error("Can't change el again!");
     }
 
@@ -66,12 +66,12 @@ class NetJSONGraph {
 
     this.utils
       .JSONParamParse(JSONParam)
-      .then(JSONData => {
+      .then((JSONData) => {
         this.config.prepareData.call(this, JSONData);
         this.data = JSONData;
 
         (function addNodeLinkOverlay(_this) {
-          let nodeLinkOverlay = document.createElement("div");
+          const nodeLinkOverlay = document.createElement("div");
           nodeLinkOverlay.setAttribute("class", "njg-overlay njg-container");
           _this.el.appendChild(nodeLinkOverlay);
         })(this);
@@ -84,26 +84,25 @@ class NetJSONGraph {
           this.utils.dealDataByWorker.call(
             this,
             JSONData,
-            this.config.dealDataByWorker
+            this.config.dealDataByWorker,
           );
         } else {
           this.data = JSONData;
           this.utils._render();
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
 
     if (resParam.length) {
+      const renderArray = function _renderArray() {
+        resParam.map((file) =>
+          this.utils.JSONDataUpdate.call(this, file, false),
+        );
+      };
       this.JSONParam = [JSONParam];
-      this.event.once("renderArray", _renderArray.bind(this));
-
-      function _renderArray() {
-        resParam.map(file => {
-          this.utils.JSONDataUpdate.call(this, file, false);
-        });
-      }
+      this.event.once("renderArray", renderArray.bind(this));
     }
   }
 
@@ -121,7 +120,7 @@ class NetJSONGraph {
 
     _this.utils = Object.assign(
       _this.utils,
-      { ...util },
+      {...util},
       {
         /**
          * @function
@@ -135,8 +134,8 @@ class NetJSONGraph {
           } else {
             throw new Error("No render function!");
           }
-        }
-      }
+        },
+      },
     );
 
     return _this.utils;

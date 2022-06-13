@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 const operations = {
   /**
    * @function
@@ -9,19 +10,19 @@ const operations = {
    * @return {object}  {flatNodes, nodeInterfaces}
    */
   addFlatNodes(nodes) {
-    let flatNodes = {};
-    let nodeInterfaces = {};
+    const flatNodes = {};
+    const nodeInterfaces = {};
 
-    nodes.map(function(node) {
+    nodes.forEach((node) => {
       flatNodes[node.id] = node;
 
       if (node.local_addresses) {
-        node.local_addresses.map(address => {
+        node.local_addresses.forEach((address) => {
           nodeInterfaces[address] = node;
         });
       }
     });
-    return { flatNodes, nodeInterfaces };
+    return {flatNodes, nodeInterfaces};
   },
 
   /**
@@ -35,16 +36,16 @@ const operations = {
    *
    */
   addNodeLinks(JSONData) {
-    let nodeLinks = {};
-    let resultNodes = [];
+    const nodeLinks = {};
+    const resultNodes = [];
 
-    JSONData.links.map(function(link) {
-      let sourceNode = JSONData.flatNodes[link.source],
-        targetNode = JSONData.flatNodes[link.target];
+    JSONData.links.forEach((link) => {
+      const sourceNode = JSONData.flatNodes[link.source];
+      const targetNode = JSONData.flatNodes[link.target];
       if (sourceNode && targetNode) {
         if (sourceNode.id === targetNode.id) {
           console.error(
-            `Link source and target (${sourceNode.id}) are duplicated!`
+            `Link source and target (${sourceNode.id}) are duplicated!`,
           );
           return;
         }
@@ -63,8 +64,9 @@ const operations = {
         console.error(`Node ${link.target} is not exist!`);
       }
     });
-    for (let nodeID in JSONData.flatNodes) {
-      let copyNode = JSONData.flatNodes[nodeID];
+    // eslint-disable-next-line guard-for-in
+    for (const nodeID in JSONData.flatNodes) {
+      const copyNode = JSONData.flatNodes[nodeID];
       copyNode.linkCount = nodeLinks[nodeID] || 0;
       resultNodes.push(copyNode);
     }
@@ -82,9 +84,9 @@ const operations = {
    *
    */
   changeInterfaceID(JSONData) {
-    let copyLinks = JSON.parse(JSON.stringify(JSONData.links));
+    const copyLinks = JSON.parse(JSON.stringify(JSONData.links));
     for (let i = copyLinks.length - 1; i >= 0; i--) {
-      let link = copyLinks[i];
+      const link = copyLinks[i];
 
       if (link.source && link.target) {
         if (JSONData.nodeInterfaces[link.source]) {
@@ -114,12 +116,12 @@ const operations = {
    *
    */
   arrayDeduplication(arrData, eigenvalues = [], ordered = true) {
-    let copyArr = JSON.parse(JSON.stringify(arrData));
-    let tempStack = [];
+    const copyArr = JSON.parse(JSON.stringify(arrData));
+    const tempStack = [];
     for (let i = copyArr.length - 1; i >= 0; i--) {
-      let tempValueArr = [],
-        flag = 0;
-      for (let key of eigenvalues) {
+      const tempValueArr = [];
+      let flag = 0;
+      for (const key of eigenvalues) {
         if (!copyArr[i][key]) {
           console.error(`The array doesn't have "${key}"`);
           flag = 1;
@@ -130,7 +132,7 @@ const operations = {
       if (flag) {
         copyArr.splice(i, 1);
       } else {
-        let value = ordered
+        const value = ordered
           ? tempValueArr.join("")
           : tempValueArr.sort().join("");
         if (tempStack.indexOf(value) !== -1) {
@@ -141,7 +143,7 @@ const operations = {
       }
     }
     return copyArr;
-  }
+  },
 };
 /**
  * @function
@@ -152,10 +154,10 @@ const operations = {
  * @param  {object}  operations
  *
  */
-function dealJSONData(JSONData, operations) {
+function dealJSONData(JSONData) {
   JSONData.nodes = operations.arrayDeduplication(JSONData.nodes, ["id"]);
 
-  let { flatNodes, nodeInterfaces } = operations.addFlatNodes(JSONData.nodes);
+  const {flatNodes, nodeInterfaces} = operations.addFlatNodes(JSONData.nodes);
   JSONData.flatNodes = flatNodes;
   JSONData.nodeInterfaces = nodeInterfaces;
 
@@ -164,7 +166,7 @@ function dealJSONData(JSONData, operations) {
   JSONData.links = operations.arrayDeduplication(
     JSONData.links,
     ["source", "target"],
-    false
+    false,
   );
 
   JSONData.nodes = operations.addNodeLinks(JSONData);
@@ -172,10 +174,10 @@ function dealJSONData(JSONData, operations) {
   return JSONData;
 }
 
-self.addEventListener("message", e => {
+self.addEventListener("message", (e) => {
   dealJSONData(e.data, operations);
   postMessage(e.data);
   close();
 });
 
-module.exports = { operations, dealJSONData };
+module.exports = {operations, dealJSONData};
