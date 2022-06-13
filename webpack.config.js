@@ -1,21 +1,21 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = (env, argv) => ({
-  entry: './src/js/netjsongraph.js',
+  entry: "./src/js/netjsongraph.js",
   output: {
-    path: path.resolve(__dirname, './dist'),
-    filename: 'netjsongraph.min.js'
+    path: path.resolve(__dirname, "./dist"),
+    filename: "netjsongraph.min.js",
   },
 
   devServer: {
     contentBase: "./",
     historyApiFallback: true,
-    inline: true, 
+    inline: true,
     open: true,
-    openPage: './examples/netjsongraph.html'
+    openPage: "./examples/netjsongraph.html",
   },
 
   performance: {
-    hints: false
-  }
-})
+    hints: false,
+  },
+});
