@@ -1,6 +1,7 @@
 /node_modules
 /dist
 webpack.*.js
-.eslintrc.json
+.eslintrc.js
 /lib
 /examples
+/coverage

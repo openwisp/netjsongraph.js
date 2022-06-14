@@ -33,43 +33,43 @@ const NetJSONGraphDefaultConfig = {
   svgRender: false,
   echartsOption: {
     title: {
-      text: "NetJSONGraph",
-      link: "",
+      text: 'NetJSONGraph',
+      link: '',
       textStyle: {
-        color: "grey",
-        fontWeight: "bold",
+        color: 'grey',
+        fontWeight: 'bold',
         fontSize: 30,
       },
-      left: "center",
-      top: "5%",
+      left: 'center',
+      top: '5%',
     },
     aria: {
       show: true,
       description:
-        "This is a force-oriented graph chart that depicts the relationship between ip nodes.",
+        'This is a force-oriented graph chart that depicts the relationship between ip nodes.',
     },
     toolbox: {
       show: true,
       feature: {
         restore: {
           show: true,
-          title: "Restore view",
+          title: 'Restore view',
         },
         saveAsImage: {
           show: true,
-          title: "Save image",
+          title: 'Save image',
         },
       },
     },
-    color: ["#d66b30", "#a3c7dd", "#5c9660", "#d66b30"],
+    color: ['#d66b30', '#a3c7dd', '#5c9660', '#d66b30'],
   },
 
   graphConfig: {
-    layout: "force",
+    layout: 'force',
     label: {
       show: true,
-      color: "#000000",
-      position: "top",
+      color: '#000000',
+      position: 'top',
     },
     force: {
       gravity: 0.1,
@@ -91,9 +91,9 @@ const NetJSONGraphDefaultConfig = {
   mapNodeConfig: {
     label: {
       show: true,
-      color: "#000000",
-      position: "top",
-      formatter: "{b}",
+      color: '#000000',
+      position: 'top',
+      formatter: '{b}',
     },
   },
 
@@ -102,116 +102,119 @@ const NetJSONGraphDefaultConfig = {
     const styles = [
       {
         color: {
-          type: "radial",
+          type: 'radial',
           x: 0.5,
           y: 0.5,
           r: 0.5,
           colorStops: [
             {
               offset: 0,
-              color: "#d66b30",
+              color: '#d66b30',
             },
             {
               offset: 0.7,
-              color: "#d66b30",
+              color: '#d66b30',
             },
             {
               offset: 0.71,
-              color: "#ebb598",
+              color: '#ebb598',
             },
             {
               offset: 1,
-              color: "#ebb598",
+              color: '#ebb598',
             },
           ],
         },
       },
       {
         color: {
-          type: "radial",
+          type: 'radial',
           x: 0.5,
           y: 0.5,
           r: 0.5,
           colorStops: [
             {
               offset: 0,
-              color: "#a3c7dd",
+              color: '#a3c7dd',
             },
             {
               offset: 0.7,
-              color: "#a3c7dd",
+              color: '#a3c7dd',
             },
             {
               offset: 0.71,
-              color: "#e3edf6",
+              color: '#e3edf6',
             },
             {
               offset: 1,
-              color: "#e3edf6",
+              color: '#e3edf6',
             },
           ],
         },
       },
       {
         color: {
-          type: "radial",
+          type: 'radial',
           x: 0.5,
           y: 0.5,
           r: 0.5,
           colorStops: [
             {
               offset: 0,
-              color: "#5c9660",
+              color: '#5c9660',
             },
             {
               offset: 0.7,
-              color: "#5c9660",
+              color: '#5c9660',
             },
             {
               offset: 0.71,
-              color: "#aecbb0",
+              color: '#aecbb0',
             },
             {
               offset: 1,
-              color: "#aecbb0",
+              color: '#aecbb0',
             },
           ],
         },
       },
       {
         color: {
-          type: "radial",
+          type: 'radial',
           x: 0.5,
           y: 0.5,
           r: 0.5,
           colorStops: [
             {
               offset: 0,
-              color: "#d66b30",
+              color: '#d66b30',
             },
             {
               offset: 0.7,
-              color: "#d66b30",
+              color: '#d66b30',
             },
             {
               offset: 0.71,
-              color: "#ebb598",
+              color: '#ebb598',
             },
             {
               offset: 1,
-              color: "#ebb598",
+              color: '#ebb598',
             },
           ],
         },
       },
     ];
     let i = 0;
-    return () => styles[i++ % styles.length];
+    return () => {
+      i += 1;
+      return styles[i % styles.length];
+    };
   })(),
   linkStyleProperty: () => ({
     width: 5,
-    color: "#999",
-    shadowColor: "rgba(0, 0, 0, 0.5)",
+    color: '#999',
+    shadowColor: 'rgba(0, 0, 0, 0.5)',
     shadowBlur: 10,
   }),
   /**
@@ -238,23 +241,23 @@ const NetJSONGraphDefaultConfig = {
    *
    */
   onClickElement(type, data) {
-    const nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
-    nodeLinkOverlay.style.visibility = "visible";
+    const nodeLinkOverlay = document.getElementsByClassName('njg-overlay')[0];
+    nodeLinkOverlay.style.visibility = 'visible';
     nodeLinkOverlay.innerHTML = `
         <div class="njg-inner">
             ${
-              type === "link"
+              type === 'link'
                 ? this.utils.linkInfo(data)
                 : this.utils.nodeInfo(data)
             }
         </div>
     `;
 
-    const closeA = document.createElement("a");
-    closeA.setAttribute("class", "njg-close");
-    closeA.setAttribute("id", "nodelinkOverlay-close");
+    const closeA = document.createElement('a');
+    closeA.setAttribute('class', 'njg-close');
+    closeA.setAttribute('id', 'nodelinkOverlay-close');
     closeA.onclick = () => {
-      nodeLinkOverlay.style.visibility = "hidden";
+      nodeLinkOverlay.style.visibility = 'hidden';
     };
 
     nodeLinkOverlay.appendChild(closeA);

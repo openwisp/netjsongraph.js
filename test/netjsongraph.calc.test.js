@@ -1,7 +1,7 @@
-import NetJSONGraphUtil from "../src/js/netjsongraph.util";
+import NetJSONGraphUtil from '../src/js/netjsongraph.util';
 
-describe("Test netjsongraph function utils", () => {
-  const util = new NetJSONGraphUtil("", {});
+describe('Test netjsongraph function utils', () => {
+  const util = new NetJSONGraphUtil('', {});
 
   const nodeInfoData = new Map([
     [
@@ -10,17 +10,17 @@ describe("Test netjsongraph function utils", () => {
         // nodeInfo
         {
           id: 0,
-          label: "test",
+          label: 'test',
           properties: {
-            name: "Node",
-            color: "red",
+            name: 'Node',
+            color: 'red',
           },
           linkCount: 1,
-          local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
+          local_addresses: ['192.168.0.01', '192.168.0.02', '192.168.0.03'],
         },
       ],
       // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>",
+      '<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>',
     ],
     [
       // key
@@ -28,21 +28,21 @@ describe("Test netjsongraph function utils", () => {
         // nodeInfo
         {
           id: 0,
-          label: "test",
+          label: 'test',
           properties: {
-            name: "Node",
-            color: "red",
+            name: 'Node',
+            color: 'red',
             location: {
               lng: 0,
               lat: 0,
             },
           },
           linkCount: 1,
-          local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
+          local_addresses: ['192.168.0.01', '192.168.0.02', '192.168.0.03'],
         },
       ],
       // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>location</b>:<br />lat: 0<br />lng: 0<br /></p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>",
+      '<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>location</b>:<br />lat: 0<br />lng: 0<br /></p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>',
     ],
   ]);
   const linkInfoData = new Map([
@@ -51,12 +51,12 @@ describe("Test netjsongraph function utils", () => {
       [
         // linkInfo
         {
-          source: "192.168.0.01",
-          target: "192.168.1.01",
-          cost: "1.000",
+          source: '192.168.0.01',
+          target: '192.168.1.01',
+          cost: '1.000',
           properties: {
-            name: "Link",
-            color: "blue",
+            name: 'Link',
+            color: 'blue',
           },
         },
       ],
@@ -67,8 +67,8 @@ describe("Test netjsongraph function utils", () => {
       // key
       [
         {
-          source: "192.168.0.01",
-          target: "192.168.1.01",
+          source: '192.168.0.01',
+          target: '192.168.1.01',
         },
       ],
       // value
@@ -87,7 +87,7 @@ describe("Test netjsongraph function utils", () => {
         0,
       ],
       // value
-      "001",
+      '001',
     ],
   ]);
   const dateParseData = new Map([
@@ -95,48 +95,48 @@ describe("Test netjsongraph function utils", () => {
       // key
       [
         {
-          dateString: "2019-02-28T23:59:59.999Z",
+          dateString: '2019-02-28T23:59:59.999Z',
           hourDiffer: -1,
         },
       ],
-      "2019.03.01 00:59:59.999",
+      '2019.03.01 00:59:59.999',
     ],
-    [["23:59:59.999Z"]],
+    [['23:59:59.999Z']],
     [
       [
         {
-          dateString: "2020-02-29T23:59:59Z",
+          dateString: '2020-02-29T23:59:59Z',
           hourDiffer: -1,
         },
       ],
-      "2020.03.01 00:59:59",
-    ],
-    [
-      [
-        {
-          dateString: "2000-12-31T23:59:59Z",
-          hourDiffer: -1,
-        },
-      ],
-      "2001.01.01 00:59:59",
+      '2020.03.01 00:59:59',
     ],
     [
       [
         {
-          dateString: "2000-12-31T23:59:59Z",
+          dateString: '2000-12-31T23:59:59Z',
+          hourDiffer: -1,
+        },
+      ],
+      '2001.01.01 00:59:59',
+    ],
+    [
+      [
+        {
+          dateString: '2000-12-31T23:59:59Z',
           hourDiffer: 1,
         },
       ],
-      "2000.12.31 22:59:59",
+      '2000.12.31 22:59:59',
     ],
     [
       [
         {
-          dateString: "1000-01-01T00:59:59Z",
+          dateString: '1000-01-01T00:59:59Z',
           hourDiffer: 1,
         },
       ],
-      "999.12.31 23:59:59",
+      '999.12.31 23:59:59',
     ],
   ]);
   const isObjectData = new Map([
@@ -148,56 +148,56 @@ describe("Test netjsongraph function utils", () => {
     [[{}], false],
   ]);
   const isElementData = new Map([
-    [[document.createElement("div")], true],
+    [[document.createElement('div')], true],
     [[{}], false],
   ]);
   const deepMergeObjData = new Map([
     [[{a: 1}, {b: 2}], {a: 1, b: 2}],
     [[{a: 1}], {a: 1}],
-    [[, {a: 1}], {a: 1}],
+    [[{a: 1}], {a: 1}],
     [[{a: 1}, {a: 2}], {a: 2}],
     [[{a: [1]}, {a: [2]}], {a: [2]}],
     [[{a: {b: 1}}, {a: {c: 2}}], {a: {b: 1, c: 2}}],
     [[{a: 1}, {b: 2}, {c: 3}], {a: 1, b: 2, c: 3}],
-    [[{a: 1}, {c: 3}, , ,], {a: 1, c: 3}],
+    [[{a: 1}, {c: 3}], {a: 1, c: 3}],
   ]);
 
   const utilsObj = {
-    "Parse the infomation of incoming node data.": ["nodeInfo", nodeInfoData],
-    "Parse the infomation of incoming link data.": ["linkInfo", linkInfoData],
-    "Guaranteed minimum number of digits": [
-      "numberMinDigit",
+    'Parse the infomation of incoming node data.': ['nodeInfo', nodeInfoData],
+    'Parse the infomation of incoming link data.': ['linkInfo', linkInfoData],
+    'Guaranteed minimum number of digits': [
+      'numberMinDigit',
       numberMinDigitData,
     ],
     "Parse the time in the browser's current time zone based on the incoming matching rules.":
-      ["dateParse", dateParseData],
-    "Judge parameter type is object": ["isObject", isObjectData],
-    "Judge parameter type is array": ["isArray", isArrayData],
-    "Judge parameter type is a dom element": ["isElement", isElementData],
-    "Merge two object deeply": ["deepMergeObj", deepMergeObjData],
+      ['dateParse', dateParseData],
+    'Judge parameter type is object': ['isObject', isObjectData],
+    'Judge parameter type is array': ['isArray', isArrayData],
+    'Judge parameter type is a dom element': ['isElement', isElementData],
+    'Merge two object deeply': ['deepMergeObj', deepMergeObjData],
   };
 
-  for (let operationText in utilsObj) {
+  Object.keys(utilsObj).forEach((operationText) => {
     test(operationText, () => {
-      let [operationFunc, operationDataMap] = utilsObj[operationText];
-      for (let [key, value] of operationDataMap) {
+      const [operationFunc, operationDataMap] = utilsObj[operationText];
+      Object.entries(operationDataMap).forEach(([key, value]) => {
         if (value) {
           expect(util[operationFunc](...key)).toEqual(value);
         } else {
           util[operationFunc](...key);
         }
-      }
+      });
     });
-  }
+  });
 
-  test("Event test.", () => {
-    const event = util.createEvent(),
-      res = 1;
+  test('Event test.', () => {
+    const event = util.createEvent();
+    const res = 1;
 
-    event.on("test", () => res);
-    event.once("test", () => res);
-    expect(event.emit("test")).toEqual([res, res]);
-    expect(event.emit("none_event")).toEqual([]);
-    event.delete("once_test");
+    event.on('test', () => res);
+    event.once('test', () => res);
+    expect(event.emit('test')).toEqual([res, res]);
+    expect(event.emit('none_event')).toEqual([]);
+    event.delete('once_test');
   });
 });

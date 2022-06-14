@@ -1,28 +1,28 @@
-import NetJSONGraph from "../src/js/netjsongraph.core";
+import NetJSONGraph from '../src/js/netjsongraph.core';
 
-const JSONFILE = "test",
-  JSONData = {
-    date: "2019-04-03T05:06:54.000Z",
-    nodes: [],
-    links: [],
-  },
-  graph = new NetJSONGraph([JSONFILE, JSONFILE]);
+const JSONFILE = 'test';
+const JSONData = {
+  date: '2019-04-03T05:06:54.000Z',
+  nodes: [],
+  links: [],
+};
+const graph = new NetJSONGraph([JSONFILE, JSONFILE]);
 graph.event = graph.utils.createEvent();
 graph.setConfig({
   render: () => {},
-  onInit: function () {
+  onInit() {
     return this.config;
   },
-  onRender: function () {
+  onRender() {
     return this.config;
   },
-  onUpdate: function () {
+  onUpdate() {
     return this.config;
   },
-  afterUpdate: function () {
+  afterUpdate() {
     return this.config;
   },
-  onLoad: function () {
+  onLoad() {
     return this.config;
   },
 });
@@ -31,32 +31,32 @@ graph.setUtils();
 window.fetch = jest.fn((url) =>
   url === JSONFILE
     ? Promise.resolve(JSONData)
-    : Promise.reject("Fetch json file wrong!"),
+    : Promise.reject(new Error('Fetch json file wrong!')),
 );
 
-describe("Test netjsongraph render", () => {
+describe('Test netjsongraph render', () => {
   beforeAll(() => {
     graph.setConfig({
-      dealDataByWorker: "./error.js",
+      dealDataByWorker: './error.js',
     });
   });
 
   afterAll(() => {
     graph.setConfig({
-      dealDataByWorker: "",
+      dealDataByWorker: '',
     });
   });
 
-  test("netjsongraph.js render function", () => {
+  test('netjsongraph.js render function', () => {
     graph.render();
 
     // re render
-    graph.utils._render();
+    graph.utils.render();
   });
 });
 
-describe("Test netjsongraph setConfig", () => {
-  test("NetJSONGraph support dynamic modification of config parameters", () => {
+describe('Test netjsongraph setConfig', () => {
+  test('NetJSONGraph support dynamic modification of config parameters', () => {
     graph.setConfig({
       nodeSize: 1,
     });
@@ -66,44 +66,39 @@ describe("Test netjsongraph setConfig", () => {
     });
     expect(graph.config.nodeSize).toBe(5);
   });
-  test("Modify el config", () => {
+  test('Modify el config', () => {
     const obj1 = new NetJSONGraph([JSONFILE, JSONFILE]);
-    const obj2 = new NetJSONGraph([JSONFILE, JSONFILE], {
-      el: document.getElementsByTagName("body")[0],
-    });
-    const obj3 = new NetJSONGraph([JSONFILE, JSONFILE], {
-      el: "error",
-    });
+
     obj1.setConfig({
-      el: "error",
+      el: 'error',
     });
   });
 });
 
-describe("Test netjsongraph JSONDataUpdate", () => {
+describe('Test netjsongraph JSONDataUpdate', () => {
   beforeAll(() => {
     graph.setConfig({
       metadata: true,
-      dealDataByWorker: "./error.js",
+      dealDataByWorker: './error.js',
     });
   });
 
   afterAll(() => {
     graph.setConfig({
       metadata: true,
-      dealDataByWorker: "",
+      dealDataByWorker: '',
     });
   });
 
-  test("Callback function executed when data update.Update Information and view.", () => {
+  test('Callback function executed when data update.Update Information and view.', () => {
     graph.utils.JSONDataUpdate.call(graph, {
       metadata: {},
-      date: "2019-04-03T09:06:54.000Z",
-      nodes: [{id: "1"}],
-      links: [{id: "2"}],
+      date: '2019-04-03T09:06:54.000Z',
+      nodes: [{id: '1'}],
+      links: [{id: '2'}],
     });
   });
-  test("Update metadata test.", () => {
+  test('Update metadata test.', () => {
     graph.utils.JSONDataUpdate.call(
       graph,
       {
@@ -115,7 +110,7 @@ describe("Test netjsongraph JSONDataUpdate", () => {
       false,
     );
   });
-  test("Update metadata false test.", () => {
+  test('Update metadata false test.', () => {
     graph.setConfig({
       metadata: false,
     });
@@ -131,15 +126,15 @@ describe("Test netjsongraph JSONDataUpdate", () => {
       false,
     );
   });
-  test("Deal with webWorker.", () => {
+  test('Deal with webWorker.', () => {
     graph.utils.JSONDataUpdate.call(graph, {
       nodes: [],
       links: [],
     });
   });
-  test("Merge data -- map append.", () => {
+  test('Merge data -- map append.', () => {
     graph.setConfig({
-      dealDataByWorker: "",
+      dealDataByWorker: '',
     });
     graph.utils.JSONDataUpdate.call(
       graph,
@@ -150,7 +145,7 @@ describe("Test netjsongraph JSONDataUpdate", () => {
       false,
     );
   });
-  test("Merge data -- graph add.", () => {
+  test('Merge data -- graph add.', () => {
     graph.setConfig({
       // _this.utils.mapRender === undefined
       render: undefined,
@@ -164,23 +159,23 @@ describe("Test netjsongraph JSONDataUpdate", () => {
       false,
     );
   });
-  test("JSON update event emit.", () => {
-    graph.event.emit("renderArray");
+  test('JSON update event emit.', () => {
+    graph.event.emit('renderArray');
   });
 });
 
-describe("Test netjsongraph JSONParamParse", () => {
-  test("Perform different operations to call NetJSONDataParse function according to different Param types.", () => {
+describe('Test netjsongraph JSONParamParse', () => {
+  test('Perform different operations to call NetJSONDataParse function according to different Param types.', () => {
     const {JSONParamParse} = graph.utils;
 
     JSONParamParse(JSONFILE).then((data) => {
       expect(data).toEqual(JSONData);
     });
-    JSONParamParse("false").catch((e) => {
-      expect(e).toMatch("Fetch json file wrong!");
+    JSONParamParse('false').catch((e) => {
+      expect(e).toMatch('Fetch json file wrong!');
     });
 
-    let json = {
+    const json = {
       test: true,
     };
 
@@ -190,51 +185,51 @@ describe("Test netjsongraph JSONParamParse", () => {
   });
 });
 
-describe("Test netjsongraph searchElements", () => {
-  test("Add search function for new elements.", () => {
-    let searchFunc = graph.utils.searchElements.call(graph, "test");
+describe('Test netjsongraph searchElements', () => {
+  test('Add search function for new elements.', () => {
+    const searchFunc = graph.utils.searchElements.call(graph, 'test');
 
-    window.history.pushState({searchValue: ""}, "");
-    searchFunc("false").catch((e) => {
-      expect(e).toMatch("Fetch json file wrong!");
+    window.history.pushState({searchValue: ''}, '');
+    searchFunc('false').catch((e) => {
+      expect(e).toMatch('Fetch json file wrong!');
     });
   });
 
-  test("Search same key.", () => {
-    const searchFunc = graph.utils.searchElements.call(graph, "test"),
-      key = "false";
+  test('Search same key.', () => {
+    const searchFunc = graph.utils.searchElements.call(graph, 'test');
+    const key = 'false';
 
-    window.history.pushState({searchValue: key}, "");
+    window.history.pushState({searchValue: key}, '');
     searchFunc(key);
   });
 });
 
-describe("Test netjsongraph properties", () => {
+describe('Test netjsongraph properties', () => {
   const map = new NetJSONGraph(JSONFILE, {
-      render: "map",
-    }),
-    jsonData = {
-      nodes: [],
-      links: [],
-    };
+    render: 'map',
+  });
+  const jsonData = {
+    nodes: [],
+    links: [],
+  };
 
   beforeAll(() => {
     map.event = map.utils.createEvent();
     map.setConfig({
       render: () => {},
-      onInit: function () {
+      onInit() {
         return this.config;
       },
-      onRender: function () {
+      onRender() {
         return this.config;
       },
-      onUpdate: function () {
+      onUpdate() {
         return this.config;
       },
-      afterUpdate: function () {
+      afterUpdate() {
         return this.config;
       },
-      onLoad: function () {
+      onLoad() {
         return this.config;
       },
     });
@@ -242,7 +237,7 @@ describe("Test netjsongraph properties", () => {
     map.render();
   });
 
-  test("netjsongraph.js JSONParam and data properties -- single json init.", () => {
+  test('netjsongraph.js JSONParam and data properties -- single json init.', () => {
     expect(map.JSONParam).toEqual([JSONFILE]);
     expect(map.data).toEqual(JSONData);
 
@@ -257,7 +252,7 @@ describe("Test netjsongraph properties", () => {
       );
     });
 
-    let searchFunc = map.utils.searchElements.call(map, "");
+    const searchFunc = map.utils.searchElements.call(map, '');
     // override data.
     searchFunc(JSONFILE).then(() => {
       expect(map.JSONParam).toEqual([JSONFILE]);

@@ -1,5 +1,5 @@
-import NetJSONGraphDefaultConfig from "./netjsongraph.config";
-import NetJSONGraphUpdate from "./netjsongraph.update";
+import NetJSONGraphDefaultConfig from './netjsongraph.config';
+import NetJSONGraphUpdate from './netjsongraph.update';
 
 class NetJSONGraph {
   /**
@@ -32,19 +32,17 @@ class NetJSONGraph {
 
     if (!this.el) {
       if (!this.config.el) {
-        // eslint-disable-next-line prefer-destructuring
-        this.el = document.getElementsByTagName("body")[0];
+        this.el = document.body;
       } else if (this.utils.isElement(this.config.el)) {
         this.el = this.config.el;
       } else {
         this.el = document.getElementById(this.config.el);
       }
       if (this.el) {
-        this.el.classList.add("njg-relativePosition");
-        this.el.setAttribute("id", "graphChartContainer");
+        this.el.classList.add('njg-relativePosition');
+        this.el.setAttribute('id', 'graphChartContainer');
       }
     } else if (config && config.el) {
-      // eslint-disable-next-line no-console
       console.error("Can't change el again!");
     }
 
@@ -62,7 +60,7 @@ class NetJSONGraph {
     const [JSONParam, ...resParam] = this.JSONParam;
 
     this.config.onRender.call(this);
-    this.event.once("onLoad", this.config.onLoad.bind(this));
+    this.event.once('onLoad', this.config.onLoad.bind(this));
 
     this.utils
       .JSONParamParse(JSONParam)
@@ -71,8 +69,8 @@ class NetJSONGraph {
         this.data = JSONData;
 
         (function addNodeLinkOverlay(_this) {
-          const nodeLinkOverlay = document.createElement("div");
-          nodeLinkOverlay.setAttribute("class", "njg-overlay njg-container");
+          const nodeLinkOverlay = document.createElement('div');
+          nodeLinkOverlay.setAttribute('class', 'njg-overlay njg-container');
           _this.el.appendChild(nodeLinkOverlay);
         })(this);
 
@@ -88,7 +86,7 @@ class NetJSONGraph {
           );
         } else {
           this.data = JSONData;
-          this.utils._render();
+          this.utils.render();
         }
       })
       .catch((error) => {
@@ -102,7 +100,7 @@ class NetJSONGraph {
         );
       };
       this.JSONParam = [JSONParam];
-      this.event.once("renderArray", renderArray.bind(this));
+      this.event.once('renderArray', renderArray.bind(this));
     }
   }
 
@@ -116,10 +114,10 @@ class NetJSONGraph {
    * @this {object}         The instantiated object of NetJSONGraph
    */
   setUtils(util = {}) {
-    const _this = this;
+    const self = this;
 
-    _this.utils = Object.assign(
-      _this.utils,
+    self.utils = Object.assign(
+      self.utils,
       {...util},
       {
         /**
@@ -128,17 +126,17 @@ class NetJSONGraph {
          * Perform different renderings according to `render` config.
          */
 
-        _render() {
-          if (_this.config.render) {
-            _this.config.render(_this.data, _this);
+        render() {
+          if (self.config.render) {
+            self.config.render(self.data, self);
           } else {
-            throw new Error("No render function!");
+            throw new Error('No render function!');
           }
         },
       },
     );
 
-    return _this.utils;
+    return self.utils;
   }
 }
 

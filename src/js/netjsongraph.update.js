@@ -1,5 +1,4 @@
-/* eslint-disable no-restricted-globals */
-import NetJSONGraphUtil from "./netjsongraph.util";
+import NetJSONGraphUtil from './netjsongraph.util';
 
 class NetJSONGraphUpdate extends NetJSONGraphUtil {
   /**
@@ -15,26 +14,26 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
 
   searchElements(url) {
-    const _this = this;
+    const self = this;
     const searchHistory = {
-      "": {
-        data: {..._this.data},
-        param: [..._this.JSONParam],
+      '': {
+        data: {...self.data},
+        param: [...self.JSONParam],
       },
     };
 
-    window.history.pushState({searchValue: ""}, "");
+    window.history.pushState({searchValue: ''}, '');
 
     window.onpopstate = (event) => {
       if (searchHistory[event.state.searchValue]) {
-        _this.utils.JSONDataUpdate.call(
-          _this,
+        self.utils.JSONDataUpdate.call(
+          self,
           searchHistory[event.state.searchValue].data,
         ).then(() => {
-          _this.JSONParam = searchHistory[event.state.searchValue].param;
+          self.JSONParam = searchHistory[event.state.searchValue].param;
         });
       } else {
-        _this.utils.JSONDataUpdate.call(_this, url + event.state.searchValue);
+        self.utils.JSONDataUpdate.call(self, url + event.state.searchValue);
       }
     };
 
@@ -43,19 +42,20 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
       const searchValue = key.trim();
 
       if (
-        !history.state ||
-        (history.state && history.state.searchValue !== searchValue)
+        !window.history.state ||
+        (window.history.state &&
+          window.history.state.searchValue !== searchValue)
       ) {
-        history.pushState({searchValue}, "");
-        return _this.utils.JSONDataUpdate.call(
-          _this,
+        window.history.pushState({searchValue}, '');
+        return self.utils.JSONDataUpdate.call(
+          self,
           url + searchValue,
           override,
           isRaw,
         ).then(() => {
           searchHistory[searchValue] = {
-            data: {..._this.data},
-            param: [..._this.JSONParam],
+            data: {...self.data},
+            param: [...self.JSONParam],
           };
         });
       }
@@ -77,44 +77,44 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
 
   JSONDataUpdate(Data, override = true, isRaw = true) {
-    const _this = this;
-    _this.config.onUpdate.call(_this);
+    const self = this;
+    self.config.onUpdate.call(self);
 
-    return _this.utils
+    return self.utils
       .JSONParamParse(Data)
       .then((JSONData) => {
-        function _update() {
+        function update() {
           // override data.
           if (override) {
-            _this.JSONParam = [Data];
-            _this.utils._overrideData(JSONData, _this);
+            self.JSONParam = [Data];
+            self.utils.overrideData(JSONData, self);
           }
           // append data.
           else {
-            _this.JSONParam.push(Data);
-            if (_this.config.render === _this.utils.mapRender) {
-              _this.utils._appendData(JSONData, _this);
+            self.JSONParam.push(Data);
+            if (self.config.render === self.utils.mapRender) {
+              self.utils.appendData(JSONData, self);
             } else {
-              _this.utils._addData(JSONData, _this);
+              self.utils.addData(JSONData, self);
             }
           }
           // update metadata
-          _this.utils.updateMetadata.call(_this);
+          self.utils.updateMetadata.call(self);
         }
         if (isRaw) {
-          _this.config.prepareData.call(_this, JSONData);
-          if (_this.config.dealDataByWorker) {
-            _this.utils.dealDataByWorker.call(
-              _this,
+          self.config.prepareData.call(self, JSONData);
+          if (self.config.dealDataByWorker) {
+            self.utils.dealDataByWorker.call(
+              self,
               JSONData,
-              _this.config.dealDataByWorker,
-              _update,
+              self.config.dealDataByWorker,
+              update,
             );
           } else {
-            _update();
+            update();
           }
         } else {
-          _update();
+          update();
         }
 
         return JSONData;
@@ -133,43 +133,43 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    * @param  {string}    workerFile   url
    * @param  {function}  callback     override data and render defaultly.
    *
-   * @this   {object}    _this        NetJSONGraph object
+   * @this   {object}    self        NetJSONGraph object
    *
    */
 
   dealDataByWorker(JSONData, workerFile, callback) {
     const worker = new Worker(workerFile);
-    const _this = this;
+    const self = this;
 
     worker.postMessage(JSONData);
 
-    worker.addEventListener("error", (e) => {
+    worker.addEventListener('error', (e) => {
       console.error(e);
-      console.error("Error in dealing JSONData!");
+      console.error('Error in dealing JSONData!');
     });
-    worker.addEventListener("message", (e) => {
+    worker.addEventListener('message', (e) => {
       if (callback) {
         callback();
       } else {
-        _this.utils._overrideData(e.data, _this);
-        _this.utils.updateMetadata.call(_this);
+        self.utils.overrideData(e.data, self);
+        self.utils.updateMetadata.call(self);
       }
     });
   }
 
   /**
    * @function
-   * @name _overrideData
+   * @name overrideData
    * Override old data and render.
    *
    * @param  {object}         JSONData   Data
-   * @param  {object}         _this      NetJSONGraph object
+   * @param  {object}         self      NetJSONGraph object
    *
    */
-  _overrideData(JSONData, _this) {
-    _this.data = JSONData;
-    _this.utils._render();
-    _this.config.afterUpdate.call(_this);
+  overrideData(JSONData, self) {
+    self.data = JSONData;
+    self.utils.render();
+    self.config.afterUpdate.call(self);
   }
 }
 

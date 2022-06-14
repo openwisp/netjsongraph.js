@@ -1,11 +1,8 @@
 module.exports = {
-  extends: ["airbnb", "prettier"],
+  extends: ['airbnb', 'prettier'],
   rules: {
-    "no-underscore-dangle": "off",
-    "no-plusplus": "off",
-    "no-param-reassign": "off",
-    "class-methods-use-this": "off",
-    "no-restricted-syntax": "off",
+    'no-param-reassign': 'off',
+    'class-methods-use-this': 'off',
   },
   env: {
     jest: true,

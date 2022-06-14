@@ -56,7 +56,7 @@ body {
   top: 10px;
 }
 .njg-close:before {
-  content: "\2716";
+  content: '\2716';
 }
 
 #graphChartContainer {
@@ -89,7 +89,7 @@ body {
   margin: 0 auto;
   width: 40px;
   height: 40px;
-  background: url("./loading.gif") center no-repeat;
+  background: url('./loading.gif') center no-repeat;
   background-size: contain;
 }
 
