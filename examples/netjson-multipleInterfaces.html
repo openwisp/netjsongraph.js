@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>netjsongraph.js: basic example</title>
+    <meta charset="utf-8">
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script type="text/javascript">
+        /*
+            The demo is used to show how to deal with the `multiple interfaces` in the NetJSON data.
+            We provide a work file to process the data before rendering. 
+            This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, add node links, add flatNodes and so on.
+            You can also define related files yourself.
+        */
+        // `graph` render defaultly.
+        const graph = new NetJSONGraph("./data/netjson-multipleInterfaces.json", {
+            // Asynchronous processing of incoming data formats using WebWorker file.
+            dealDataByWorker: "../src/js/netjsonWorker.js",
+        });
+        graph.render();
+    </script>
+</body>
+</html>

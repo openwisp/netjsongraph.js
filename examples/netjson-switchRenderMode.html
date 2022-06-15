@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>netjsongraph.js: basic example</title>
+    <meta charset="utf-8">
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script type="text/javascript">
+        /*
+            The demo is used to show how to switch the netjsongraph render mode -- `svg` or `canvas`.
+        */
+        const graph = new NetJSONGraph("./data/netjsonmap.json", {
+            onLoad: function(){
+                switchRenderMode(this);
+                this.utils.hideLoading();
+            }
+        });
+        
+        graph.render();
+
+        /**
+         * @function
+         * @name switchRenderMode
+         * Switch rendering mode -- Canvas or Svg. Poor performance, not recommended.
+         * 
+         * @param {object} _this  NetJSONGraph object
+         *
+         * @return {object} switchWrapper DOM
+         */
+
+        function switchRenderMode(_this) {
+            const switchWrapper = document.createElement("div"),
+            checkInput = document.createElement("input"),
+            checkLabel = document.createElement("label"),
+            canvasMode = document.createElement("b"),
+            svgMode = document.createElement("b");
+
+            switchWrapper.setAttribute("class", "switch-wrap");
+            checkInput.setAttribute("id", "switch");
+            checkInput.setAttribute("type", "checkbox");
+            checkLabel.setAttribute("for", "switch");
+            canvasMode.innerHTML = "Canvas";
+            svgMode.innerHTML = "Svg";
+            checkInput.onchange = () => {
+                // Switch between different rendering modes -- `canvas` or `svg`.
+                // Poor performance, not recommended.
+                _this.config.svgRender = !_this.config.svgRender;
+
+                // reDraw
+                _this.echarts.dispose();
+                const graph = new NetJSONGraph(_this.data, {
+                    ..._this.config,
+                    el: _this.el,
+                });
+                graph.render();
+            };
+            if (_this.config.svgRender) {
+                checkInput.checked = true;
+            } else {
+                checkInput.checked = false;
+            }
+            switchWrapper.appendChild(canvasMode);
+            switchWrapper.appendChild(checkInput);
+            switchWrapper.appendChild(checkLabel);
+            switchWrapper.appendChild(svgMode);
+            _this.el.appendChild(switchWrapper);
+
+            return switchWrapper;
+        }
+    </script>
+</html>

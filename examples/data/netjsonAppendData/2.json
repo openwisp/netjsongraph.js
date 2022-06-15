@@ -1,0 +1,16 @@
+{
+    "type":"NetworkGraph",
+    "label":"Ninux Roma",
+    "protocol":"OLSR",
+    "version": "v0.1",
+    "nodes":[
+        {"id":"172.16.146.1","name":"zxczc","location":{"lng":23.905,"lat":50.499750000000006},"properties":{"time":"2019-04-03T05:06:54.000Z"}},
+        {"id":"172.16.146.2","name":"asdasd","location":{"lng":20.905,"lat":52.499750000000006},"properties":{"time":"2019-04-03T05:06:54.000Z"}},
+        {"id":"172.16.146.3","name":"cgb","location":{"lng":23.905,"lat":53.499750000000006},"properties":{"time":"2019-01-03T05:04:54.000Z"}},
+        {"id":"172.16.146.4","name":"acvbcvb","location":{"lng":24.905,"lat":57.499750000000006},"properties":{"time":"2019-02-03T05:03:54.000Z"}},
+        {"id":"172.16.146.5","name":"cvbcnfgn","location":{"lng":27.905,"lat":59.499750000000006},"properties":{"time":"2019-05-03T05:06:59.000Z"}},
+        {"id":"172.16.146.6","name":"dfgd","location":{"lng":29.905,"lat":55.499750000000006},"properties":{}},
+        {"id":"172.16.146.7","name":"ghkhj","location":{"lng":20.905,"lat":54.499750000000006},"properties":{}},
+        {"id":"172.16.146.8","name":"ajk","location":{"lng":22.905,"lat":58.499750000000006},"properties":{}}
+    ],
+    "links":[{"source":"172.16.146.1","target":"172.16.146.2","cost":1.3779296875}]}

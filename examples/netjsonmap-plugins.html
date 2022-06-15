@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>netjsongraph.js: Dark Colors</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    <link href="../lib/css/leaflet-draw.css" rel="stylesheet">
+    <link href="../lib/css/leaflet-measure.css" rel="stylesheet">
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+    <style type="text/css">
+        .njg-metadata{
+          left: 50px;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>  
+    <script type="text/javascript" src="../lib/js/leaflet-draw.js"></script>
+    <script type="text/javascript" src="../lib/js/leaflet-measure.js"></script>
+    <script type="module">
+        /*
+            The demo is used to show how to use the leaflet plugins.
+            Mainly the operation of leaflet.
+            See below for details.
+        */
+        const graph = new NetJSONGraph("./data/netjsonmap.json", {
+            render: "map",
+            mapNodeConfig: {
+                label: {
+                    color: "white",
+                    offset: [0, -10],
+                }
+            },
+            // set map tiles config, can set multiple values.
+            mapTileConfig: [{
+              label: "Blue Street",
+              urlTemplate: "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
+              options: {
+                  minZoom: 0.25, 
+                  maxZoom: 18,
+              }
+            }],
+            // set map initial state.
+            mapOptions: {
+              center: [46.86764405052012, 19.675998687744144],
+              zoom: 6,
+            },
+
+            // Convert to internal json format
+            prepareData: data => {
+                data.nodes.map(node => {
+                    node.label = node.name;
+                    node.properties = Object.assign(node.properties || {}, {
+                        location: node.location,
+                    })
+                })
+            },
+
+            // Load related plugins after the map is rendered
+            onLoad: function(){
+              /* 
+                The map has this property only after the map is rendered, 
+                so we have to put the relevant function in `onLoad` life cycle  
+              */
+              let map = this.leaflet,
+                editableLayers = new L.FeatureGroup(),
+
+                // Plugin related configuration
+                MyCustomMarker = L.Icon.extend({
+                  options: {
+                    shadowUrl: null,
+                    iconAnchor: new L.Point(12, 12),
+                    iconUrl: "../lib/css/images/marker-icon.png"
+                  }
+                }),
+                options = {
+                  position: "topleft",
+                  draw: {
+                    polyline: {
+                      shapeOptions: {
+                        color: "#f357a1",
+                        weight: 3
+                      }
+                    },
+                    polygon: {
+                      allowIntersection: false, // Restricts shapes to simple polygons
+                      drawError: {
+                        color: "#e1e100", // Color the shape will turn when intersects
+                        message: "<strong>Oh snap!<strong> you can't draw that!" // Message that will show when intersect
+                      },
+                      shapeOptions: {
+                        color: "#bada55"
+                      }
+                    },
+                    circle: true, // Turns off this drawing tool
+                    rectangle: {
+                      shapeOptions: {
+                        clickable: false
+                      }
+                    },
+                    marker: {
+                      icon: new MyCustomMarker()
+                    }
+                  },
+                  edit: {
+                    featureGroup: editableLayers, //REQUIRED!!
+                    remove: true
+                  }
+                };
+
+              map.addLayer(editableLayers);
+              map.addControl(new L.Control.Draw(options));
+              map.on(L.Draw.Event.CREATED, function(e) {
+                var type = e.layerType,
+                  layer = e.layer;
+
+                if (type === "marker") {
+                  layer.bindPopup("A popup!");
+                }
+
+                editableLayers.addLayer(layer);
+              });
+
+              L.control.measure({}).addTo(map);
+
+              this.utils.hideLoading();
+            }
+        })
+
+        graph.render(); 
+    </script>
+</body>
+</html>
