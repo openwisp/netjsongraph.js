@@ -3,28 +3,121 @@
 <head>
     <title>netjsongraph.js: basic examples</title>
     <meta charset="utf-8">
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #eceaea;
+            overflow-x: hidden;
+        }
+
+        header{
+          text-align: center;
+          color: #333;
+          font-size: 22px;
+        }
+
+        main{
+          display: flex;
+          justify-content: space-between;
+          width: 80vw;  
+          flex-wrap: wrap;
+          margin: 0 auto;
+        }
+
+        main a{
+          text-decoration: none;
+          color: black;
+          font-size: 17px;
+          transition: all 0.2s ease;
+        }
+
+        .cards{
+          background-color: #fff;
+          padding: 12px;
+          margin: 10px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 200px;
+          transition: all 0.2s ease;
+        }
+
+        .cards:hover{
+          transform: scale(1.2);
+          border: 1px solid red;
+        }
+        .cards:hover a{
+          color: red;
+        }        
+    </style>
 </head>
 <body>
-    <h1>Basic Examples</h1>
-    <a href="./netjsongraph.html" target="_blank">Link to netjsongraph base</a><br/>
-    <a href="./netjsonmap.html" target="_blank">Link to netjsonmap base html</a><br/>
-    <a href="./netjson-multipleInterfaces.html" target="_blank">Link to netjsongraph multiple interfaces</a><br/>
-    <a href="./netjson-searchElements.html" target="_blank">Link to netjsongraph search elements</a><br/>
-    <a href="./netjson-dateParse.html" target="_blank">Link to netjsongraph dateParse demo</a><br/>
-    <a href="./netjson-switchRenderMode.html" target="_blank">Link to netjsongraph switch render mode demo</a><br/>
-    <a href="./netjson-switchGraphMode.html" target="_blank">Link to netjsongraph switch graph mode demo</a><br/>
-    <a href="./netjson-updateData.html" target="_blank">Link to netjsongraph updateData realtime demo</a><br/>
-    <a href="./netjsongraph-nodeExpand.html" target="_blank">Link to netjsongraph nodes expand or fold demo</a><br/>
-    <a href="./netjsonmap-indoormap.html" target="_blank">Link to netjsongraph indoormap demo</a><br/>
-    <a href="./netjsonmap-indoormap2.html" target="_blank">Link to netjsongraph indoormap demo 2.</a><br/>
-    <a href="./netjsonmap-plugins.html" target="_blank">Link to netjsongraph leaflet plugins demo</a><br/>
-    <a href="./netjsongraph-graphGL.html" target="_blank">Link to netjsongraph graphGL render for big data demo</a><br/>
-    <a href="./netjsongraph-elementsLegend.html" target="_blank">Link to demo which shows how to set colorful elements.</a><br/>
-    <a href="./netjsongraph-multipleLinks.html" target="_blank">Link to netjsongraph multiple links render demo</a><br/>
-    <a href="./netjsonmap-nodeTiles.html" target="_blank">Link to demo which demonstrates the use of JSONDataUpdate function to update data by overriding</a><br/>
-    <a href="./netjsonmap-animation.html" target="_blank">Link to netjsongraph map animation lines html</a><br/>
-    <a href="./netjsonmap-multipleTiles.html" target="_blank">Link to demo which demonstrates multiple tiles render</a><br/>
-    <a href="./netjsonmap-appendData.html" target="_blank">Link to demo which demonstrates the use of JSONDataUpdate function to update data by appending</a><br/>
-    <a href="./netjsonmap-appendData2.html" target="_blank">Link to demo which demonstrates the use of array to append data step by step at start.</a><br/>
+    <header>
+     <h1>Basic Examples</h1>
+    </header>
+    <main>
+      <div class="cards">
+        <a href="./netjsongraph.html" target="_blank">Link to netjsongraph base demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsonmap.html" target="_blank">Link to netjsonmap base demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjson-multipleInterfaces.html" target="_blank">Link to netjsongraph multiple interfaces demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjson-searchElements.html" target="_blank">Link to netjsongraph search elements demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjson-dateParse.html" target="_blank">Link to netjsongraph dateParse demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjson-switchRenderMode.html" target="_blank">Link to netjsongraph switch render mode demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjson-switchGraphMode.html" target="_blank">Link to netjsongraph switch graph mode demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjson-updateData.html" target="_blank">Link to netjsongraph updateData realtime demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsongraph-nodeExpand.html" target="_blank">Link to netjsongraph nodes expand or fold demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsonmap-indoormap.html" target="_blank">Link to netjsongraph indoormap demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsonmap-indoormap2.html" target="_blank">Link to netjsongraph indoormap demo 2.</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsonmap-plugins.html" target="_blank">Link to netjsongraph leaflet plugins demo</a>
+      </div>
+      <div class="cards">
+         <a href="./netjsongraph-graphGL.html" target="_blank">Link to netjsongraph graphGL render for big data demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsongraph-elementsLegend.html" target="_blank">Link to demo which shows how to set colorful elements</a>
+      </div>
+      <div class="cards">
+         <a href="./netjsongraph-multipleLinks.html" target="_blank">Link to netjsongraph multiple links render demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsonmap-nodeTiles.html" target="_blank">Link to demo which demonstrates the use of JSONDataUpdate function to update data by overriding</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsonmap-animation.html" target="_blank">Link to netjsongraph map animation lines demo</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsonmap-multipleTiles.html" target="_blank">Link to demo which demonstrates multiple tiles render</a>
+      </div>
+      <div class="cards">
+        <a href="./netjsonmap-appendData.html" target="_blank">Link to demo which demonstrates the use of JSONDataUpdate function to update data by appending</a>
+      </div>
+      <div class="cards">
+         <a href="./netjsonmap-appendData2.html" target="_blank">Link to demo which demonstrates the use of array to append data step by step at start</a>
+      </div>
+    </main>
 </body>
 </html>
