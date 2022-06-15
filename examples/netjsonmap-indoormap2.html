@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>netjsongraph.js: Dark Colors</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+
+    <link rel="preload" href="./data/indoormap.jpg" as="image" />
+    <style type="text/css">
+        .njg-metadata{
+          left: 50px;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script>
+        /*
+            The demo is used to show how to set indoor map.
+            Similiar to the first method, the difference is the setting of image's position.
+        */
+        const graph = new NetJSONGraph("./data/netjsonmap-indoormap.json", {
+            render: "map",
+            mapNodeConfig: {
+                label: {
+                    offset: [0, -10],
+                }
+            },
+            // set map tiles config, can set multiple values.
+            mapTileConfig: [{
+                label: "Blue Street",
+                urlTemplate: "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
+                options: {
+                    minZoom: 0.25, 
+                    maxZoom: 18,
+                }
+            }],
+            // set map initial state.
+            mapOptions: {
+                center: [46.86764405052012, 19.675998687744144],
+                zoom: 6,
+            },
+            linkStyleProperty: () => ({
+                width: 5,
+                color: "black",
+            }),
+    
+            // Convert to internal json format
+            prepareData: function(data){
+                let southWest = [180, 180], northEast = [-180, -180];
+
+                // get the rectangle coordinate formed by nodes
+                data.nodes.map(node => {
+                    node.label = node.name;
+                    node.properties = Object.assign(node.properties || {}, {
+                        location: node.location,
+                    })
+                    
+                    if(node.properties.location.lng <= southWest[1]){
+                        southWest[1] = node.properties.location.lng;
+                    }
+                    if(node.properties.location.lng >= northEast[1]){
+                        northEast[1] = node.properties.location.lng;
+                    }
+                    if(node.properties.location.lat <= southWest[0]){
+                        southWest[0] = node.properties.location.lat;
+                    }
+                    if(node.properties.location.lng >= northEast[0]){
+                        northEast[0] = node.properties.location.lat;
+                    }
+                })
+
+                this.config.mapPosition = {
+                    southWest,
+                    northEast
+                }
+            },
+
+            onLoad: function presentIndoormap(){
+                let netjsonmap = this.leaflet,
+                    image = new Image();
+                    
+                image.src = "./data/indoormap.jpg";
+                image.onload = () => {
+                    // set image position according to the rectangle coordinate.
+                    let swPoint = netjsonmap.latLngToLayerPoint(this.config.mapPosition.southWest),
+                        nePoint = netjsonmap.latLngToLayerPoint(this.config.mapPosition.northEast),
+                        nodeAreaRatio = (nePoint.x - swPoint.x) / (swPoint.y - nePoint.y),
+                        imgRatio = image.width / image.height,
+                        imgScale = 1.12,
+                        x, y;
+
+                    if(imgRatio >= nodeAreaRatio){
+                        y = swPoint.y - nePoint.y;
+                        x = y * imgRatio;
+                    }
+                    else{
+                        x = nePoint.x - swPoint.x;
+                        y = x / imgRatio;
+                    }
+
+                    let southWest = netjsonmap.layerPointToLatLng([
+                            swPoint.x - (imgScale - 1) * x, swPoint.y + (imgScale - 1) * y
+                        ]), 
+                        northEast = netjsonmap.layerPointToLatLng([
+                            swPoint.x + imgScale * x, swPoint.y - imgScale * y
+                        ]), 
+                        bounds = new L.LatLngBounds(southWest, northEast);
+
+                    L.imageOverlay(image, bounds).addTo(netjsonmap);
+
+                    this.utils.hideLoading();
+                }
+            }
+        })
+    
+        graph.render(); 
+    </script>
+</body>
+</html>

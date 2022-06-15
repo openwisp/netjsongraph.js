@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>netjsongraph.js: basic example</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+    <style type="text/css">
+        .njg-metadata{
+          left: 50px;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script type="text/javascript">
+        /*
+            Using array files to append data step by step at start. 
+            Similiar to the first method, but easier.
+        */
+        const map = new NetJSONGraph(["./data/netjsonAppendData/1.json", "./data/netjsonAppendData/2.json", "./data/netjsonAppendData/3.json"], {
+                render: "map",
+                mapNodeConfig: {
+                    label: {
+                        color: "white",
+                        offset: [0, -10],
+                    }
+                },
+                // set map tiles config, can set multiple values.
+                mapTileConfig: [{
+                    label: "Blue Street",
+                    urlTemplate: "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
+                    options: {
+                        minZoom: 0.25, 
+                        maxZoom: 18,
+                    }
+                }],
+                // set map initial state.
+                mapOptions: {
+                    center: [46.86764405052012, 19.675998687744144],
+                    zoom: 2,
+                },
+
+                // Convert to internal json format
+                prepareData: data => {
+                    data.nodes.map(node => {
+                        node.label = node.name;
+                        node.properties = Object.assign(node.properties || {}, {
+                            location: node.location,
+                        })
+                    })
+                },
+            });
+        
+        map.render();
+    </script>
+</html>

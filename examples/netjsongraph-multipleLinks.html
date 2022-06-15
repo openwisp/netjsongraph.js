@@ -10,9 +10,19 @@
 <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
+        /*
+            The demo is used to show the multiple links render.
+            Currently only supports up to two links.
+        */
         // `graph` render defaultly.
-        // We can add data gradually by array.
-        const graph = new NetJSONGraph("./data/netjsonmap.json");
+        const graph = new NetJSONGraph("./data/netjsongraph-multipleLinks.json", {
+            graphConfig: {
+                // set force layout params
+                force: {
+                    edgeLength: [200, 600],
+                },
+            },
+        });
 
         graph.render();
     </script>

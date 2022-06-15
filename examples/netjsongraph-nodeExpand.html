@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>netjsongraph.js: basic example</title>
+    <meta charset="utf-8">
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script type="text/javascript">
+        /*
+            The demo is used to show hwo to interact with elements.
+        */
+        // `graph` render defaultly.
+        const graph = new NetJSONGraph("./data/netjsongraph-foldNodes.json", {
+            dealDataByWorker: "../src/js/netjsonWorker.js",
+            echartsOption: {
+                legend: {
+                    left: 10,
+                    bottom: 10,
+                    orient: "vertical",
+                    textStyle: {
+                        color: "#6d6357",
+                        fontFamily: "Arial, sans-serif",
+                        fontSize: 14,
+                    },
+                    backgroundColor: "#fbfbfb",
+                    borderWidth: 1, 
+                    borderRadius: 2,
+                }
+            },
+            
+            // Convert to internal json format
+            prepareData: data => {
+                data.nodes.map(node => {
+                    node.properties = Object.assign(node.properties || {}, {
+                        category: node.category
+                    })
+                })
+            },
+
+            // re-write click element function.
+            onClickElement: function(type, data){
+                clickElement.call(this, type, data);
+            }
+        });
+
+        graph.render();
+
+        function clickElement(type, data){
+            // present element info overlay
+            let nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
+            
+            nodeLinkOverlay.style.visibility = "visible";
+            nodeLinkOverlay.innerHTML = `
+                <div class="njg-inner">
+                    ${
+                    type === "link"
+                        ? this.utils.linkInfo(data)
+                        : this.utils.nodeInfo(data)
+                    }
+                </div>
+            `;
+
+            const closeA = document.createElement("a");
+            closeA.setAttribute("class", "njg-close");
+            closeA.setAttribute("id", "nodelinkOverlay-close");
+            closeA.onclick = () => {
+                nodeLinkOverlay.style.visibility = "hidden";
+            };
+
+            nodeLinkOverlay.appendChild(closeA);
+
+            // expand or fold nodes
+            if(type === "node" && data.childNodes){
+                let JSONData = this.data;
+
+                // Detect whether expanded.
+                if(!data._expanded){
+                    // Traverse child nodes, add them to the level with father.
+                    data.childNodes.map(child => {
+                        // The `flatNodes` attribute is obtained after processed by `dealDataByWorker`.
+                        JSONData.flatNodes[child.id] = child;
+                        JSONData.nodes.push(child);
+                        // Add links
+                        JSONData.links.push({
+                            source: data.id,
+                            target: child.id
+                        });
+                        child.category = data.category;
+                    })
+
+                    JSONData.flatNodes[data.id]._expanded = true;
+                }
+                else{
+                    // delete expanded nodes
+                    data.childNodes.map(child => {
+                        let node = JSONData.flatNodes[child.id],
+                            index = JSONData.nodes.indexOf(node);
+                        
+                        JSONData.nodes.splice(index, 1);
+                        Reflect.deleteProperty(JSONData.flatNodes, child.id)
+                    })
+
+                    JSONData.flatNodes[data.id]._expanded = false;
+                }
+
+                graph.echarts.setOption(graph.utils.generateGraphOption(JSONData, graph));
+            }
+        }
+    </script>
+</html>

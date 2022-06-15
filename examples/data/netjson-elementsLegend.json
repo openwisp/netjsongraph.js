@@ -1,0 +1,180 @@
+{
+  "type": "NetworkGraph",
+  "label": "Custom Attributes Example",
+  "protocol": "OLSR",
+  "version": "0.6.6.2",
+  "revision": "6ec73b8f5213cc740816f2fd2ff93108",
+  "metric": "ETX",
+  "router_id": "172.16.146.6",
+  "nodes": [
+      {
+          "id": "172.16.146.99",
+          "label": "FusolabNAS",
+          "properties": {
+              "hostname": "NAS.nnx",
+              "gateway": false,
+              "time": "2019-04-03T05:06:54.000Z"
+          }
+      },
+      {
+          "id": "172.16.146.6",
+          "label": "Fusolab",
+          "properties": {
+              "hostname": "fusolab.nnx",
+              "gateway": true,
+              "time": "2019-04-03T04:06:54.000Z"
+          }
+      },
+      {
+          "id": "172.16.145.2",
+          "label": "Clauzroma",
+          "properties": {
+              "hostname": "clauzroma.nnx",
+              "gateway": false,
+              "time": "2019-04-06T04:06:54.000Z"
+          }
+      },
+      {
+          "id": "172.16.146.4",
+          "label": "Lux",
+          "properties": {
+              "hostname": "lux.nnx"
+          }
+      },
+      {
+          "id": "172.16.146.1",
+          "label": "Nino",
+          "properties": {
+              "hostname": "nino.nnx",
+              "gateway": true
+          }
+      },
+      {
+          "id": "172.16.146.7",
+          "label": "Nemesis",
+          "local_addresses": [
+              "10.40.0.129",
+              "10.40.0.130",
+              "10.40.0.131"
+          ],
+          "properties": {
+              "hostname": "nemesis.nnx",
+              "ssh_pub_key": "ba1aed089f9a513cc8e4ae081b935eb6"
+          }
+      }
+  ],
+  "links": [
+      {
+          "source": "172.16.146.6",
+          "target": "172.16.145.2",
+          "cost": 1.2939453125,
+          "properties": {
+              "lq": 0.900,
+              "nlq": 0.497,
+              "bitrate": "20 mbit/s",
+              "type": "fiber",
+              "time": "2019-04-06T20:06:54.000Z"
+          }
+      },
+      {
+          "source": "172.16.146.6",
+          "target": "172.16.146.4",
+          "cost": 1.10011212,
+          "properties": {
+              "lq": 0.940,
+              "nlq": 0.797,
+              "bitrate": "40 mbit/s",
+              "type": "wireless",
+              "time": "2019-04-06T23:06:54.000Z"
+          }
+      },
+      {
+          "source": "172.16.146.6",
+          "target": "172.16.146.1",
+          "cost": 1.0,
+          "properties": {
+              "lq": 1.0,
+              "nlq": 1.0,
+              "bitrate": "30 mbit/s",
+              "type": "vpn"
+          }
+      },
+      {
+          "source": "172.16.145.2",
+          "target": "172.16.146.7",
+          "cost": 12.739,
+          "properties": {
+              "lq": 0.345,
+              "nlq": 0.227,
+              "bitrate": "1 mbit/s",
+              "type": "wireless_weak"
+          }
+      },
+      {
+          "source": "172.16.145.2",
+          "target": "172.16.146.4",
+          "cost": 1.1,
+          "properties": {
+              "lq": 1.0,
+              "nlq": 1.0,
+              "bitrate": "35 mbit/s",
+              "type": "wireless"
+          }
+      },
+      {
+          "source": "172.16.146.99",
+          "target": "172.16.146.6",
+          "cost": 1.0,
+          "properties": {
+              "lq": 1.0,
+              "nlq": 1.0,
+              "bitrate": "1000 mbit/s",
+              "type": "ethernet"
+          }
+      },
+      {
+          "source": "172.16.146.7",
+          "target": "172.16.146.6",
+          "cost": 1.0,
+          "properties": {
+              "lq": 1.0,
+              "nlq": 1.0,
+              "bitrate": "32 mbit/s",
+              "type": "fiber"
+          }
+      },
+      {
+          "source": "172.16.145.2",
+          "target": "172.16.146.1",
+          "cost": 1.0,
+          "properties": {
+              "lq": 1.0,
+              "nlq": 1.0,
+              "bitrate": "29 mbit/s",
+              "type": "wireless"
+          }
+      },
+      {
+          "source": "172.16.146.7",
+          "target": "172.16.146.1",
+          "cost": 1.0,
+          "properties": {
+              "lq": 1.0,
+              "nlq": 1.0,
+              "bitrate": "45 mbit/s",
+              "type": "wireless"
+          }
+      },
+      {
+          "source": "172.16.146.7",
+          "target": "172.16.146.4",
+          "cost": 1.0,
+          "properties": {
+              "lq": 1.0,
+              "nlq": 1.0,
+              "bitrate": "39 mbit/s",
+              "type": "fiber"
+          }
+      }
+  ]
+}

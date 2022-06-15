@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>netjsongraph.js: basic example</title>
+    <meta charset="utf-8">
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script type="text/javascript">
+        /*
+            The demo is used to show the use of the `searchElements` function.
+            For test, you can input `test` and click the `search` button.
+            See the following comments for details.
+        */
+        // `graph` render defaultly.
+        const graph = new NetJSONGraph("./data/netjsonmap.json", {
+            onLoad: function(){
+                let searchContainer = document.createElement("div"),
+                    searchInput = document.createElement("input"),
+                    searchBtn = document.createElement("button"),
+                    /*
+                        Pass in the url to listen to, and save the returned function.
+                        Please ensure that the return value of the api is the specified json format.
+                    */
+                    searchFunc = this.utils.searchElements.call(this, "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=");
+
+                searchInput.setAttribute("class", "njg-searchInput");
+                searchInput.placeholder = "Input value for searching special elements.";
+                searchBtn.setAttribute("class", "njg-searchBtn");
+                searchBtn.innerHTML = "search";
+                searchContainer.setAttribute("class", "njg-searchContainer");
+                searchContainer.appendChild(searchInput);
+                searchContainer.appendChild(searchBtn);
+                this.el.appendChild(searchContainer);
+
+                searchInput.onchange = () => {
+                    // do something to deal user input value.
+                };
+
+                searchBtn.onclick = () => {
+                    let inputValue = searchInput.value.trim();
+                    
+                    /*
+                        Pass in the relevant search value, 
+                        which will re-render automatically according to the request result within the function.
+                    */
+                    if(inputValue === "appendData"){
+                        // appendData
+                        searchFunc(inputValue, false);
+                    }
+                    else{
+                        searchFunc(inputValue);
+                    }
+
+                    searchInput.value = "";
+                }
+
+                this.utils.hideLoading();
+            }
+        });
+        
+        graph.render();
+    </script>
+</html>

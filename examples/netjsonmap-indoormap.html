@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>netjsongraph.js: Dark Colors</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+
+    <link rel="preload" href="./data/indoormap.jpg" as="image" />
+    <style type="text/css">
+        .njg-metadata{
+          left: 50px;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script>
+        /*
+            The demo is used to show how to set indoor map.
+            Mainly the operation of leaflet.
+            See `onLoad` below for details.
+        */
+        const graph = new NetJSONGraph("./data/netjsonmap-indoormap.json", {
+            render: "map",
+            mapNodeConfig: {
+                label: {
+                    offset: [0, -10],
+                }
+            },
+            // set map tiles config, can set multiple values.
+            mapTileConfig: [{
+                label: "Blue Street",
+                urlTemplate: "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
+                options: {
+                    minZoom: 0.25, 
+                    maxZoom: 18,
+                }
+            }],
+            // set map initial state.
+            mapOptions: {
+                center: [48.577, 18.539],
+                zoom: 6,
+            },
+            linkStyleProperty: () => ({
+                width: 5,
+                color: "black",
+            }),
+    
+            // Convert to internal json format
+            prepareData: function(data){
+                data.nodes.map(node => {
+                    node.label = node.name;
+                    node.properties = Object.assign(node.properties || {}, {
+                        location: node.location,
+                    })
+                })
+            },
+
+            onLoad: function presentIndoormap(){
+                let netjsonmap = this.leaflet,
+                    image = new Image();
+                    
+                image.src = "./data/indoormap.jpg";
+                image.onload = () => {
+                    let southWest = {"lat":53.39105802617281,"lng":2.258377075195313},
+                        northEast = {"lat":43.05747491746001,"lng":35.327825546264656},
+                        bounds = new L.LatLngBounds(southWest, northEast);
+
+                    // remove the geographic map
+                    netjsonmap.eachLayer(layer => {
+                        if (layer._url) {
+                            netjsonmap.removeLayer(layer);
+                        }
+                    });
+                    // add indoormap image
+                    L.imageOverlay(image, bounds).addTo(netjsonmap);
+                    
+                    this.utils.hideLoading();
+                }
+            }
+        })
+    
+        graph.render(); 
+    </script>
+</body>
+</html>

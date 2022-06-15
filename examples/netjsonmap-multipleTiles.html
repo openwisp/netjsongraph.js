@@ -18,32 +18,34 @@
 <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
+        /*
+            The demo is used to show the multiple tiles render.
+        */
         const map = new NetJSONGraph("./data/netjsonmap.json", {
             render: "map",
             mapNodeConfig: {
                 label: {
+                    color: "white",
                     offset: [0, -10],
                 }
             },
-            
-            // set map tiles config, can set multiple values.
+            // set multiple tiles config, can change them dynamically.
             mapTileConfig: [{
                 label: "Blue Street",
-                urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                urlTemplate: "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
                 options: {
-                    minZoom: 2, 
-                    maxZoom: 20,
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    minZoom: 0.25, 
+                    maxZoom: 18,
                 }
+            }, {
+                label: "Open Street Map",
+                urlTemplate: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+                options: {}
             }],
-
-            // mapLinkConfig:[{
-            //     color:"#76D67F",
-            // }],
             // set map initial state.
             mapOptions: {
                 center: [46.86764405052012, 19.675998687744144],
-                zoom: 5,
+                zoom: 6,
             },
             
             // Convert to internal json format
@@ -56,6 +58,7 @@
                 })
             },
         });
+        
         map.render();
     </script>
 </html>

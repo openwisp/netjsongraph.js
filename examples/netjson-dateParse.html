@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>netjsongraph.js: basic example</title>
+    <meta charset="utf-8">
+    <!-- theme can be easily customized via css -->
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+</head>
+<body>
+    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
+    <script type="text/javascript">
+        /*
+            The demo is used to show the use of the `dataParse` function.
+            You can set the node or link property value `time`, we will call this function to parse the string in the element details defaultly.
+            Of course you can also call directly.
+        */
+        // `graph` render defaultly.
+        const graph = new NetJSONGraph("./data/netjsonmap.json", {
+            // Convert to internal json format，add `time` field.
+            prepareData: data => {
+                data.nodes.map(node => {
+                    node.label = node.name;
+                    node.properties = node.properties || {};
+                    node.properties.time = node.properties.time || "2000-01-01T00:00:00.000Z"
+                })
+                data.links.map(link => {
+                    link.properties = link.properties || {};
+                    link.properties.time = link.properties.time || "1999-12-31T23:59:59.999Z"
+                })
+            },
+        });
+        
+        graph.render();
+
+        (function addDateParse(_this){
+            const dateNode = document.createElement("span"),
+              // Try to call the function directly.
+              // The exec result must be [date, year, month, day, hour, minute, second, millisecond?]
+              dateResult = _this.utils.dateParse({
+                dateString: "2019-04-03T05:06:54.000Z",
+                parseRegular: /^([1-9]\d{3})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?Z$/,
+              });
+              
+            dateNode.setAttribute("title", dateResult);
+            dateNode.setAttribute("class", "njg-date");
+            dateNode.innerHTML = "Incoming Time: " + dateResult;
+            _this.el.appendChild(dateNode);
+        })(graph)   
+    </script>
+</html>
