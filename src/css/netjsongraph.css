@@ -98,3 +98,7 @@ body {
   font-weight: bold;
   text-align: center;
 }
+
+.njg-tooltip {
+  background-color: #ccc !important;
+}

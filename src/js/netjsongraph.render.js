@@ -35,6 +35,8 @@ class NetJSONGraphRender {
 
         tooltip: {
           confine: true,
+          position: "right",
+          padding: [5, 16],
           formatter: (params) => {
             if (params.componentSubType === "graph") {
               return params.dataType === "edge"
