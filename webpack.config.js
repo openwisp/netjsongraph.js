@@ -12,7 +12,7 @@ module.exports = (env, argv) => ({
     historyApiFallback: true,
     inline: true,
     open: true,
-    openPage: "./examples/index.html",
+    openPage: "./index.html",
   },
 
   performance: {
