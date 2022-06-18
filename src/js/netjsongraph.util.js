@@ -10,12 +10,12 @@ class NetJSONGraphUtil {
    */
 
   JSONParamParse(JSONParam) {
-    if (typeof JSONParam === 'string') {
+    if (typeof JSONParam === "string") {
       return fetch(JSONParam, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
       })
         .then((response) => {
@@ -54,20 +54,20 @@ class NetJSONGraphUtil {
     const dateParseArr = parseRegular.exec(dateString);
     if (!dateParseArr || dateParseArr.length < 7) {
       console.error("Date doesn't meet the specifications.");
-      return '';
+      return "";
     }
-    const dateNumberFields = ['dateYear', 'dateMonth', 'dateDay', 'dateHour'];
+    const dateNumberFields = ["dateYear", "dateMonth", "dateDay", "dateHour"];
     const dateNumberObject = {};
     const leapYear =
       (dateParseArr[1] % 4 === 0 && dateParseArr[1] % 100 !== 0) ||
       dateParseArr[1] % 400 === 0;
     const limitBoundaries = new Map([
-      ['dateMonth', 12],
+      ["dateMonth", 12],
       [
-        'dateDay',
+        "dateDay",
         [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
       ],
-      ['dateHour', 24],
+      ["dateHour", 24],
     ]);
 
     for (let i = dateNumberFields.length; i > 0; i -= 1) {
@@ -77,19 +77,19 @@ class NetJSONGraphUtil {
     let carry = -hourDiffer;
     let limitBoundary;
     for (let i = dateNumberFields.length; i > 0; i -= 1) {
-      if (dateNumberFields[i - 1] === 'dateYear') {
+      if (dateNumberFields[i - 1] === "dateYear") {
         dateNumberObject[dateNumberFields[i - 1]] += carry;
         break;
-      } else if (dateNumberFields[i - 1] === 'dateDay') {
+      } else if (dateNumberFields[i - 1] === "dateDay") {
         limitBoundary =
-          limitBoundaries.get('dateDay')[dateNumberObject.dateMonth - 1];
+          limitBoundaries.get("dateDay")[dateNumberObject.dateMonth - 1];
       } else {
         limitBoundary = limitBoundaries.get(dateNumberFields[i - 1]);
       }
 
       let calculateResult = dateNumberObject[dateNumberFields[i - 1]] + carry;
 
-      if (dateNumberFields[i - 1] === 'dateHour') {
+      if (dateNumberFields[i - 1] === "dateHour") {
         if (calculateResult < 0) {
           carry = -1;
         } else if (calculateResult >= limitBoundary) {
@@ -108,9 +108,9 @@ class NetJSONGraphUtil {
       if (carry === 1) {
         calculateResult -= limitBoundary;
       } else if (carry < 0) {
-        if (dateNumberFields[i - 1] === 'dateDay') {
+        if (dateNumberFields[i - 1] === "dateDay") {
           limitBoundary =
-            limitBoundaries.get('dateDay')[
+            limitBoundaries.get("dateDay")[
               (dateNumberObject[dateNumberFields[i - 1]] + 10) % 11
             ];
         }
@@ -126,7 +126,7 @@ class NetJSONGraphUtil {
       dateNumberObject.dateHour,
     )}:${this.numberMinDigit(dateParseArr[5])}:${this.numberMinDigit(
       dateParseArr[6],
-    )}${dateParseArr[7] ? `.${this.numberMinDigit(dateParseArr[7], 3)}` : ''}`;
+    )}${dateParseArr[7] ? `.${this.numberMinDigit(dateParseArr[7], 3)}` : ""}`;
   }
 
   /**
@@ -138,7 +138,7 @@ class NetJSONGraphUtil {
    *
    * @return {string}
    */
-  numberMinDigit(number, digit = 2, filler = '0') {
+  numberMinDigit(number, digit = 2, filler = "0") {
     return (Array(digit).join(filler) + number).slice(-digit);
   }
 
@@ -148,7 +148,7 @@ class NetJSONGraphUtil {
    * @return {bool}
    */
   isObject(x) {
-    return Object.prototype.toString.call(x).slice(8, 14) === 'Object';
+    return Object.prototype.toString.call(x).slice(8, 14) === "Object";
   }
 
   /**
@@ -157,7 +157,7 @@ class NetJSONGraphUtil {
    * @return {bool}
    */
   isArray(x) {
-    return Object.prototype.toString.call(x).slice(8, 13) === 'Array';
+    return Object.prototype.toString.call(x).slice(8, 13) === "Array";
   }
 
   /**
@@ -166,13 +166,13 @@ class NetJSONGraphUtil {
    * @return {bool}
    */
   isElement(o) {
-    return typeof HTMLElement === 'object'
+    return typeof HTMLElement === "object"
       ? o instanceof HTMLElement // DOM2
       : o &&
-          typeof o === 'object' &&
+          typeof o === "object" &&
           o !== null &&
           o.nodeType === 1 &&
-          typeof o.nodeName === 'string';
+          typeof o.nodeName === "string";
   }
 
   /**
@@ -224,18 +224,18 @@ class NetJSONGraphUtil {
    */
 
   NetJSONMetadata() {
-    const metadataContainer = document.createElement('div');
-    const innerDiv = document.createElement('div');
-    const closeA = document.createElement('a');
-    metadataContainer.setAttribute('class', 'njg-metadata njg-container');
-    metadataContainer.setAttribute('style', 'display: block');
-    innerDiv.setAttribute('class', 'njg-inner');
-    innerDiv.setAttribute('id', 'metadata-innerDiv');
-    closeA.setAttribute('class', 'njg-close');
-    closeA.setAttribute('id', 'metadata-close');
+    const metadataContainer = document.createElement("div");
+    const innerDiv = document.createElement("div");
+    const closeA = document.createElement("a");
+    metadataContainer.setAttribute("class", "njg-metadata njg-container");
+    metadataContainer.setAttribute("style", "display: block");
+    innerDiv.setAttribute("class", "njg-inner");
+    innerDiv.setAttribute("id", "metadata-innerDiv");
+    closeA.setAttribute("class", "njg-close");
+    closeA.setAttribute("id", "metadata-close");
 
     closeA.onclick = () => {
-      metadataContainer.style.visibility = 'hidden';
+      metadataContainer.style.visibility = "hidden";
     };
     innerDiv.innerHTML = this.utils.getMetadata.call(this);
     metadataContainer.appendChild(innerDiv);
@@ -253,9 +253,9 @@ class NetJSONGraphUtil {
    */
   updateMetadata() {
     if (this.config.metadata) {
-      document.getElementsByClassName('njg-metadata')[0].style.visibility =
-        'visible';
-      document.getElementById('metadata-innerDiv').innerHTML =
+      document.getElementsByClassName("njg-metadata")[0].style.visibility =
+        "visible";
+      document.getElementById("metadata-innerDiv").innerHTML =
         this.utils.getMetadata.call(this);
     }
   }
@@ -271,20 +271,20 @@ class NetJSONGraphUtil {
    */
   getMetadata() {
     const attrs = [
-      'protocol',
-      'version',
-      'revision',
-      'metric',
-      'router_id',
-      'topology_id',
+      "protocol",
+      "version",
+      "revision",
+      "metric",
+      "router_id",
+      "topology_id",
     ];
     const metadata = this.data;
-    let html = '';
+    let html = "";
 
     if (metadata.label) {
       html += `<h3>${metadata.label}</h3>`;
     }
-    Object.keys(attrs).forEach((attr) => {
+    attrs.forEach((attr) => {
       if (metadata[attr]) {
         html += `<p><b>${attr}</b>: <span>${metadata[attr]}</span></p>`;
       }
@@ -309,19 +309,19 @@ class NetJSONGraphUtil {
 
   nodeInfo(node) {
     let html = `<p><b>id</b>: ${node.id}</p>`;
-    if (node.label && typeof node.label === 'string') {
+    if (node.label && typeof node.label === "string") {
       html += `<p><b>label</b>: ${node.label}</p>`;
     }
     if (node.properties) {
       Object.keys(node.properties).forEach((key) => {
-        if (key === 'location') {
+        if (key === "location") {
           html += `<p><b>location</b>:<br />lat: ${node.properties.location.lat}<br />lng: ${node.properties.location.lng}<br /></p>`;
-        } else if (key === 'time') {
+        } else if (key === "time") {
           html += `<p><b>time</b>: ${this.dateParse({
             dateString: node.properties[key],
           })}</p>`;
         } else {
-          html += `<p><b>${key.replace(/_/g, ' ')}</b>: ${
+          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
             node.properties[key]
           }</p>`;
         }
@@ -332,7 +332,7 @@ class NetJSONGraphUtil {
     }
     if (node.local_addresses) {
       html += `<p><b>local addresses</b>:<br />${node.local_addresses.join(
-        '<br />',
+        "<br />",
       )}</p>`;
     }
 
@@ -353,12 +353,12 @@ class NetJSONGraphUtil {
     let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${link.target}</p><p><b>cost</b>: ${link.cost}</p>`;
     if (link.properties) {
       Object.keys(link.properties).forEach((key) => {
-        if (key === 'time') {
+        if (key === "time") {
           html += `<p><b>time</b>: ${this.dateParse({
             dateString: link.properties[key],
           })}</p>`;
         } else {
-          html += `<p><b>${key.replace(/_/g, ' ')}</b>: ${
+          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
             link.properties[key]
           }</p>`;
         }
@@ -379,11 +379,11 @@ class NetJSONGraphUtil {
    */
 
   showLoading() {
-    let loadingContainer = document.getElementById('loadingContainer');
+    let loadingContainer = document.getElementById("loadingContainer");
 
     if (!loadingContainer) {
-      loadingContainer = document.createElement('div');
-      loadingContainer.setAttribute('id', 'loadingContainer');
+      loadingContainer = document.createElement("div");
+      loadingContainer.setAttribute("id", "loadingContainer");
       loadingContainer.innerHTML = `
         <div class="loadingElement">
           <div class="loadingSprite"></div>
@@ -393,7 +393,7 @@ class NetJSONGraphUtil {
 
       this.el.appendChild(loadingContainer);
     } else {
-      loadingContainer.style.visibility = 'visible';
+      loadingContainer.style.visibility = "visible";
     }
 
     return loadingContainer;
@@ -410,10 +410,10 @@ class NetJSONGraphUtil {
    */
 
   hideLoading() {
-    const loadingContainer = document.getElementById('loadingContainer');
+    const loadingContainer = document.getElementById("loadingContainer");
 
     if (loadingContainer) {
-      loadingContainer.style.visibility = 'hidden';
+      loadingContainer.style.visibility = "hidden";
     }
 
     return loadingContainer;

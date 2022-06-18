@@ -1,17 +1,17 @@
-import * as echarts from 'echarts/lib/echarts';
-import 'echarts/lib/chart/graph';
-import 'echarts/lib/chart/effectScatter';
-import 'echarts/lib/chart/lines';
-import 'echarts/lib/component/tooltip';
-import 'echarts/lib/component/title';
-import 'echarts/lib/component/toolbox';
-import 'echarts/lib/component/legend';
+import * as echarts from "echarts/lib/echarts";
+import "echarts/lib/chart/graph";
+import "echarts/lib/chart/effectScatter";
+import "echarts/lib/chart/lines";
+import "echarts/lib/component/tooltip";
+import "echarts/lib/component/title";
+import "echarts/lib/component/toolbox";
+import "echarts/lib/component/legend";
 
-import 'zrender/lib/svg/svg';
+import "zrender/lib/svg/svg";
 
-import '../../lib/js/echarts-gl';
+import "../../lib/js/echarts-gl";
 
-import L from 'leaflet/dist/leaflet';
+import L from "leaflet/dist/leaflet";
 
 class NetJSONGraphRender {
   /**
@@ -55,23 +55,23 @@ class NetJSONGraphRender {
 
     echartsLayer.setOption(self.utils.deepMergeObj(commonOption, customOption));
     echartsLayer.on(
-      'click',
+      "click",
 
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
 
-        if (params.componentSubType === 'graph') {
+        if (params.componentSubType === "graph") {
           return clickElement(
-            params.dataType === 'edge' ? 'link' : 'node',
+            params.dataType === "edge" ? "link" : "node",
             params.data,
           );
         }
-        if (params.componentSubType === 'graphGL') {
-          return clickElement('node', params.data);
+        if (params.componentSubType === "graphGL") {
+          return clickElement("node", params.data);
         }
-        return params.componentSubType === 'lines'
-          ? clickElement('link', params.data.link)
-          : clickElement('node', params.data.node);
+        return params.componentSubType === "lines"
+          ? clickElement("link", params.data.link)
+          : clickElement("node", params.data.node);
       },
       {passive: true},
     );
@@ -98,14 +98,14 @@ class NetJSONGraphRender {
       const nodeResult = JSON.parse(JSON.stringify(node));
 
       nodeResult.itemStyle =
-        typeof configs.nodeStyleProperty === 'function'
+        typeof configs.nodeStyleProperty === "function"
           ? configs.nodeStyleProperty(node)
           : configs.nodeStyleProperty;
       nodeResult.symbolSize =
-        typeof configs.nodeSize === 'function'
+        typeof configs.nodeSize === "function"
           ? configs.nodeSize(node)
           : configs.nodeSize;
-      nodeResult.name = typeof node.label === 'string' ? node.label : node.id;
+      nodeResult.name = typeof node.label === "string" ? node.label : node.id;
       if (node.properties && node.properties.category) {
         nodeResult.category = String(node.properties.category);
       }
@@ -122,7 +122,7 @@ class NetJSONGraphRender {
       const linkResult = JSON.parse(JSON.stringify(link));
 
       linkResult.lineStyle =
-        typeof configs.linkStyleProperty === 'function'
+        typeof configs.linkStyleProperty === "function"
           ? configs.linkStyleProperty(link)
           : configs.linkStyleProperty;
 
@@ -130,10 +130,10 @@ class NetJSONGraphRender {
     });
     const series = [
       Object.assign(configs.graphConfig, {
-        type: configs.graphConfig.type === 'graphGL' ? 'graphGL' : 'graph',
+        type: configs.graphConfig.type === "graphGL" ? "graphGL" : "graph",
         layout:
-          configs.graphConfig.type === 'graphGL'
-            ? 'forceAtlas2'
+          configs.graphConfig.type === "graphGL"
+            ? "forceAtlas2"
             : configs.graphConfig.layout,
         nodes,
         links,
@@ -181,14 +181,14 @@ class NetJSONGraphRender {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
           nodesData.push({
-            name: typeof node.label === 'string' ? node.label : node.id,
+            name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
             symbolSize:
-              typeof configs.nodeSize === 'function'
+              typeof configs.nodeSize === "function"
                 ? configs.nodeSize(node)
                 : configs.nodeSize,
             itemStyle:
-              typeof configs.nodeStyleProperty === 'function'
+              typeof configs.nodeStyleProperty === "function"
                 ? configs.nodeStyleProperty(node)
                 : configs.nodeStyleProperty,
             node,
@@ -217,7 +217,7 @@ class NetJSONGraphRender {
             ],
           ],
           lineStyle:
-            typeof configs.linkStyleProperty === 'function'
+            typeof configs.linkStyleProperty === "function"
               ? configs.linkStyleProperty(link)
               : configs.linkStyleProperty,
           link,
@@ -228,17 +228,17 @@ class NetJSONGraphRender {
     const series = [
       Object.assign(configs.mapNodeConfig, {
         type:
-          configs.mapNodeConfig.type === 'effectScatter'
-            ? 'effectScatter'
-            : 'scatter',
-        coordinateSystem: 'leaflet',
+          configs.mapNodeConfig.type === "effectScatter"
+            ? "effectScatter"
+            : "scatter",
+        coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
       }),
       ...configs.mapLinkConfig.map((lineConfig) =>
         Object.assign(lineConfig, {
-          type: 'lines',
-          coordinateSystem: 'leaflet',
+          type: "lines",
+          coordinateSystem: "leaflet",
           data: linesData,
         }),
       ),
@@ -275,8 +275,8 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
-    self.event.emit('onLoad');
-    self.event.emit('renderArray');
+    self.event.emit("onLoad");
+    self.event.emit("renderArray");
   }
 
   /**
@@ -304,8 +304,8 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
-    self.event.emit('onLoad');
-    self.event.emit('renderArray');
+    self.event.emit("onLoad");
+    self.event.emit("renderArray");
   }
 
   /**
@@ -319,7 +319,7 @@ class NetJSONGraphRender {
    */
   appendData(JSONData, self) {
     if (self.config.render !== self.utils.mapRender) {
-      console.error('AppendData function can only be used for map render!');
+      console.error("AppendData function can only be used for map render!");
       return;
     }
     const opts = self.utils.generateMapOption(JSONData, self);

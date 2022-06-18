@@ -1,4 +1,4 @@
-import NetJSONGraphUtil from './netjsongraph.util';
+import NetJSONGraphUtil from "./netjsongraph.util";
 
 class NetJSONGraphUpdate extends NetJSONGraphUtil {
   /**
@@ -16,13 +16,13 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
   searchElements(url) {
     const self = this;
     const searchHistory = {
-      '': {
+      "": {
         data: {...self.data},
         param: [...self.JSONParam],
       },
     };
 
-    window.history.pushState({searchValue: ''}, '');
+    window.history.pushState({searchValue: ""}, "");
 
     window.onpopstate = (event) => {
       if (searchHistory[event.state.searchValue]) {
@@ -46,7 +46,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         (window.history.state &&
           window.history.state.searchValue !== searchValue)
       ) {
-        window.history.pushState({searchValue}, '');
+        window.history.pushState({searchValue}, "");
         return self.utils.JSONDataUpdate.call(
           self,
           url + searchValue,
@@ -143,11 +143,11 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
 
     worker.postMessage(JSONData);
 
-    worker.addEventListener('error', (e) => {
+    worker.addEventListener("error", (e) => {
       console.error(e);
-      console.error('Error in dealing JSONData!');
+      console.error("Error in dealing JSONData!");
     });
-    worker.addEventListener('message', (e) => {
+    worker.addEventListener("message", (e) => {
       if (callback) {
         callback();
       } else {

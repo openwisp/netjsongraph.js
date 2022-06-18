@@ -1,11 +1,11 @@
-import NetJSONGraphCore from './netjsongraph.core';
-import {NetJSONGraphRender, echarts, L} from './netjsongraph.render';
-import registerLeafletSystem from '../../lib/js/echarts-leaflet/index';
+import NetJSONGraphCore from "./netjsongraph.core";
+import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
+import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
 
-const colorTool = require('zrender/lib/tool/color');
-const aria = require('echarts/lib/visual/aria');
-const {each} = require('zrender/lib/core/util');
-const env = require('zrender/lib/core/env');
+const colorTool = require("zrender/lib/tool/color");
+const aria = require("echarts/lib/visual/aria");
+const {each} = require("zrender/lib/core/util");
+const env = require("zrender/lib/core/env");
 
 class NetJSONGraph {
   /**
@@ -15,9 +15,9 @@ class NetJSONGraph {
    * @param {Object} config
    */
   constructor(JSONParam, config) {
-    if (config && config.render === 'map') {
+    if (config && config.render === "map") {
       config.render = NetJSONGraphRender.prototype.mapRender;
-    } else if (!config || !config.render || config.render === 'graph') {
+    } else if (!config || !config.render || config.render === "graph") {
       config = config || {};
       config.render = NetJSONGraphRender.prototype.graphRender;
     }
@@ -101,7 +101,7 @@ class NetJSONGraph {
       ...config,
     });
     graph.echarts = echarts.init(graph.el, null, {
-      renderer: graph.config.svgRender ? 'svg' : 'canvas',
+      renderer: graph.config.svgRender ? "svg" : "canvas",
     });
 
     graph.config.onInit.call(graph);

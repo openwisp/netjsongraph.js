@@ -1,11 +1,11 @@
-import NetJSONGraph from '../src/js/netjsongraph.core';
+import NetJSONGraph from "../src/js/netjsongraph.core";
 
 const graph = new NetJSONGraph({
-  type: 'NetworkGraph',
-  label: 'Ninux Roma',
-  protocol: 'OLSR',
-  version: '0.6.6.2',
-  metric: 'ETX',
+  type: "NetworkGraph",
+  label: "Ninux Roma",
+  protocol: "OLSR",
+  version: "0.6.6.2",
+  metric: "ETX",
   nodes: [],
   links: [],
 });
@@ -23,17 +23,17 @@ graph.setConfig({
 graph.setUtils();
 graph.render();
 
-describe('Test netjsongraph utils dom functions', () => {
+describe("Test netjsongraph utils dom functions", () => {
   const NetJSONMetadataData = new Map([
     [
       // key
       [
         {
-          type: 'NetworkGraph',
-          label: 'Ninux Roma',
-          protocol: 'OLSR',
-          version: '0.6.6.2',
-          metric: 'ETX',
+          type: "NetworkGraph",
+          label: "Ninux Roma",
+          protocol: "OLSR",
+          version: "0.6.6.2",
+          metric: "ETX",
           nodes: [],
           links: [],
         },
@@ -45,7 +45,7 @@ describe('Test netjsongraph utils dom functions', () => {
       // key
       [
         {
-          type: 'NetworkGraph',
+          type: "NetworkGraph",
           nodes: [],
           links: [],
         },
@@ -65,64 +65,51 @@ describe('Test netjsongraph utils dom functions', () => {
   ]);
 
   const utilsDOMObj = {
-    'Display metadata of NetJSONGraph.': [
-      'NetJSONMetadata',
+    "Display metadata of NetJSONGraph.": [
+      "NetJSONMetadata",
       NetJSONMetadataData,
     ],
-    'Display loading animation': ['showLoading', loadingData],
-    'Cancel loading animation': ['hideLoading', loadingData],
+    "Display loading animation": ["showLoading", loadingData],
+    "Cancel loading animation": ["hideLoading", loadingData],
   };
 
-  // for (const operationText in utilsDOMObj) {
-  //   test(operationText, () => {
-  //     const [operationFunc, operationDataMap] = utilsDOMObj[operationText];
-  //     for (const [key, value] of operationDataMap) {
-  //       expect(graph.utils[operationFunc].call(graph, ...key)).toBeInstanceOf(
-  //         value,
-  //       );
-  //     }
-  //   });
-  //   test("Show loading again", () => {
-  //     graph.utils.showLoading.call(graph);
-  //   });
-  // }
   Object.keys(utilsDOMObj).forEach((operationText) => {
-    test('Hide loading -- no dom', () => {
+    test("Hide loading -- no dom", () => {
       graph.utils.hideLoading.call(graph);
     });
     test(operationText, () => {
       const [operationFunc, operationDataMap] = utilsDOMObj[operationText];
-      Object.entries(operationDataMap).forEach(([key, value]) => {
+      operationDataMap.forEach((value, key) => {
         expect(graph.utils[operationFunc].call(graph, ...key)).toBeInstanceOf(
           value,
         );
       });
     });
-    test('Show loading again', () => {
+    test("Show loading again", () => {
       graph.utils.showLoading.call(graph);
     });
   });
 });
 
-describe('Test netjsongraph dom operate', () => {
-  test('Click a node', () => {
-    graph.config.onClickElement.call(graph, 'node', {
-      id: '2',
+describe("Test netjsongraph dom operate", () => {
+  test("Click a node", () => {
+    graph.config.onClickElement.call(graph, "node", {
+      id: "2",
     });
-    const closeBtn = document.getElementById('nodelinkOverlay-close');
+    const closeBtn = document.getElementById("nodelinkOverlay-close");
     closeBtn.click();
   });
 
-  test('Click a link', () => {
-    graph.config.onClickElement.call(graph, 'link', {
-      id: '2',
+  test("Click a link", () => {
+    graph.config.onClickElement.call(graph, "link", {
+      id: "2",
     });
-    const closeBtn = document.getElementById('nodelinkOverlay-close');
+    const closeBtn = document.getElementById("nodelinkOverlay-close");
     closeBtn.click();
   });
 
-  test('Close the metadata', () => {
-    const metadataClose = document.getElementById('metadata-close');
+  test("Close the metadata", () => {
+    const metadataClose = document.getElementById("metadata-close");
     metadataClose.click();
   });
 });

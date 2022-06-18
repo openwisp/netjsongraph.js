@@ -1,5 +1,5 @@
-import NetJSONGraphDefaultConfig from './netjsongraph.config';
-import NetJSONGraphUpdate from './netjsongraph.update';
+import NetJSONGraphDefaultConfig from "./netjsongraph.config";
+import NetJSONGraphUpdate from "./netjsongraph.update";
 
 class NetJSONGraph {
   /**
@@ -39,8 +39,8 @@ class NetJSONGraph {
         this.el = document.getElementById(this.config.el);
       }
       if (this.el) {
-        this.el.classList.add('njg-relativePosition');
-        this.el.setAttribute('id', 'graphChartContainer');
+        this.el.classList.add("njg-relativePosition");
+        this.el.setAttribute("id", "graphChartContainer");
       }
     } else if (config && config.el) {
       console.error("Can't change el again!");
@@ -60,7 +60,7 @@ class NetJSONGraph {
     const [JSONParam, ...resParam] = this.JSONParam;
 
     this.config.onRender.call(this);
-    this.event.once('onLoad', this.config.onLoad.bind(this));
+    this.event.once("onLoad", this.config.onLoad.bind(this));
 
     this.utils
       .JSONParamParse(JSONParam)
@@ -69,8 +69,8 @@ class NetJSONGraph {
         this.data = JSONData;
 
         (function addNodeLinkOverlay(_this) {
-          const nodeLinkOverlay = document.createElement('div');
-          nodeLinkOverlay.setAttribute('class', 'njg-overlay njg-container');
+          const nodeLinkOverlay = document.createElement("div");
+          nodeLinkOverlay.setAttribute("class", "njg-overlay njg-container");
           _this.el.appendChild(nodeLinkOverlay);
         })(this);
 
@@ -100,7 +100,7 @@ class NetJSONGraph {
         );
       };
       this.JSONParam = [JSONParam];
-      this.event.once('renderArray', renderArray.bind(this));
+      this.event.once("renderArray", renderArray.bind(this));
     }
   }
 
@@ -130,7 +130,7 @@ class NetJSONGraph {
           if (self.config.render) {
             self.config.render(self.data, self);
           } else {
-            throw new Error('No render function!');
+            throw new Error("No render function!");
           }
         },
       },

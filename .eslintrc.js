@@ -1,8 +1,8 @@
 module.exports = {
-  extends: ['airbnb', 'prettier'],
+  extends: ["airbnb", "prettier"],
   rules: {
-    'no-param-reassign': 'off',
-    'class-methods-use-this': 'off',
+    "no-param-reassign": "off",
+    "class-methods-use-this": "off",
   },
   env: {
     jest: true,

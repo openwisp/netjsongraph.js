@@ -133,8 +133,8 @@ const operations = {
         copyArr.splice(i, 1);
       } else {
         const value = ordered
-          ? tempValueArr.join('')
-          : tempValueArr.sort().join('');
+          ? tempValueArr.join("")
+          : tempValueArr.sort().join("");
         if (tempStack.indexOf(value) !== -1) {
           copyArr.splice(i, 1);
         } else {
@@ -155,7 +155,7 @@ const operations = {
  *
  */
 function dealJSONData(JSONData) {
-  JSONData.nodes = operations.arrayDeduplication(JSONData.nodes, ['id']);
+  JSONData.nodes = operations.arrayDeduplication(JSONData.nodes, ["id"]);
 
   const {flatNodes, nodeInterfaces} = operations.addFlatNodes(JSONData.nodes);
   JSONData.flatNodes = flatNodes;
@@ -165,7 +165,7 @@ function dealJSONData(JSONData) {
 
   JSONData.links = operations.arrayDeduplication(
     JSONData.links,
-    ['source', 'target'],
+    ["source", "target"],
     false,
   );
 
@@ -176,7 +176,7 @@ function dealJSONData(JSONData) {
 
 // We need to disable this as we are executing this file outside browser
 // eslint-disable-next-line no-restricted-globals
-self.addEventListener('message', (e) => {
+self.addEventListener("message", (e) => {
   dealJSONData(e.data, operations);
   postMessage(e.data);
   // eslint-disable-next-line no-restricted-globals

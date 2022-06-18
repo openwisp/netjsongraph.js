@@ -3,18 +3,18 @@ let nodeLength = 10000,
 let nodes = [],
   links = [],
   JSONData = {
-    type: 'NetworkGraph',
-    label: 'Ninux Roma',
-    protocol: 'OLSR',
-    version: '0.6.6.2',
-    metric: 'ETX',
-    date: '2019-04-03T05:06:54.000Z',
+    type: "NetworkGraph",
+    label: "Ninux Roma",
+    protocol: "OLSR",
+    version: "0.6.6.2",
+    metric: "ETX",
+    date: "2019-04-03T05:06:54.000Z",
   };
 
 for (let i = 0; i < nodeLength; i++) {
   let node1 = {
       id: i,
-      category: 'category' + parseInt(Math.random() * categoryLength),
+      category: "category" + parseInt(Math.random() * categoryLength),
       name: Math.random().toString(36).slice(2, 8),
       location: {
         lng: Math.random() * 180 - 90,
@@ -23,7 +23,7 @@ for (let i = 0; i < nodeLength; i++) {
     },
     node2 = {
       id: nodeLength + i,
-      category: 'category' + parseInt(Math.random() * categoryLength),
+      category: "category" + parseInt(Math.random() * categoryLength),
       name: Math.random().toString(36).slice(2, 8),
       location: {
         lng: Math.random() * 180 - 90,
