@@ -235,6 +235,7 @@ class NetJSONGraphRender {
             : "scatter",
         coordinateSystem: "leaflet",
         data: nodesData,
+        animationDuration: 1000,
       }),
       ...configs.mapLinkConfig.map((lineConfig) =>
         Object.assign(lineConfig, {
@@ -301,6 +302,7 @@ class NetJSONGraphRender {
     );
 
     _this.leaflet = _this.echarts._api.getCoordinateSystems()[0].getLeaflet();
+    _this.leaflet._zoomAnimated = false;
 
     _this.event.emit("onLoad");
     _this.event.emit("renderArray");
