@@ -13,10 +13,10 @@ const graph = new NetJSONGraph({
 // Package NetJSONGraph instance object.
 graph.event = graph.utils.createEvent();
 graph.setConfig({
-  onRender: function () {
+  onRender() {
     return this.config;
   },
-  onLoad: function () {
+  onLoad() {
     return this.config;
   },
 });
@@ -73,22 +73,22 @@ describe("Test netjsongraph utils dom functions", () => {
     "Cancel loading animation": ["hideLoading", loadingData],
   };
 
-  for (let operationText in utilsDOMObj) {
+  Object.keys(utilsDOMObj).forEach((operationText) => {
     test("Hide loading -- no dom", () => {
       graph.utils.hideLoading.call(graph);
     });
     test(operationText, () => {
-      let [operationFunc, operationDataMap] = utilsDOMObj[operationText];
-      for (let [key, value] of operationDataMap) {
+      const [operationFunc, operationDataMap] = utilsDOMObj[operationText];
+      operationDataMap.forEach((value, key) => {
         expect(graph.utils[operationFunc].call(graph, ...key)).toBeInstanceOf(
           value,
         );
-      }
+      });
     });
     test("Show loading again", () => {
       graph.utils.showLoading.call(graph);
     });
-  }
+  });
 });
 
 describe("Test netjsongraph dom operate", () => {

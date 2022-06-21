@@ -444,30 +444,30 @@ const operationsObj = {
 };
 
 describe("Some separated operations with netjson", () => {
-  for (let operationText in operationsObj) {
+  Object.keys(operationsObj).forEach((operationText) => {
     if (operationText === "Add node linkCount field") {
       test("Add node linkCount field", () => {
-        let [operationFunc, operationDataMap] = operationsObj[operationText];
-        for (let [key, value] of operationDataMap) {
+        const [operationFunc, operationDataMap] = operationsObj[operationText];
+        operationDataMap.forEach((value, key) => {
           expect(operationFunc(...key)).toEqual(value);
-        }
+        });
       });
     } else {
       test(operationText, () => {
-        let [operationFunc, operationDataMap] = operationsObj[operationText];
-        for (let [key, value] of operationDataMap) {
-          let keyJsonStore = JSON.stringify(key);
+        const [operationFunc, operationDataMap] = operationsObj[operationText];
+        operationDataMap.forEach((value, key) => {
+          const keyJsonStore = JSON.stringify(key);
           expect(operationFunc(...key)).toEqual(value);
           expect(JSON.stringify(key)).toBe(keyJsonStore);
-        }
+        });
       });
     }
-  }
+  });
 });
 describe("Overall operation with netjson", () => {
   test("Deal with raw JSONData", () => {
-    for (let [key, value] of rawJSONData) {
+    rawJSONData.forEach((value, key) => {
       expect(dealJSONData(...key)).toEqual(value);
-    }
+    });
   });
 });
