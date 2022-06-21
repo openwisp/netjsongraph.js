@@ -27,5 +27,4 @@ yarn-error.log*
 .*.swo
 
 #other
-examples/
 lib/

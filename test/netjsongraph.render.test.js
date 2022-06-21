@@ -1,28 +1,28 @@
 import NetJSONGraph from "../src/js/netjsongraph.core";
 
-const JSONFILE = "test",
-  JSONData = {
-    date: "2019-04-03T05:06:54.000Z",
-    nodes: [],
-    links: [],
-  },
-  graph = new NetJSONGraph([JSONFILE, JSONFILE]);
+const JSONFILE = "test";
+const JSONData = {
+  date: "2019-04-03T05:06:54.000Z",
+  nodes: [],
+  links: [],
+};
+const graph = new NetJSONGraph([JSONFILE, JSONFILE]);
 graph.event = graph.utils.createEvent();
 graph.setConfig({
   render: () => {},
-  onInit: function () {
+  onInit() {
     return this.config;
   },
-  onRender: function () {
+  onRender() {
     return this.config;
   },
-  onUpdate: function () {
+  onUpdate() {
     return this.config;
   },
-  afterUpdate: function () {
+  afterUpdate() {
     return this.config;
   },
-  onLoad: function () {
+  onLoad() {
     return this.config;
   },
 });
@@ -31,7 +31,7 @@ graph.setUtils();
 window.fetch = jest.fn((url) =>
   url === JSONFILE
     ? Promise.resolve(JSONData)
-    : Promise.reject("Fetch json file wrong!"),
+    : Promise.reject(new Error("Fetch json file wrong!")),
 );
 
 describe("Test netjsongraph render", () => {
@@ -51,7 +51,7 @@ describe("Test netjsongraph render", () => {
     graph.render();
 
     // re render
-    graph.utils._render();
+    graph.utils.render();
   });
 });
 
@@ -68,9 +68,12 @@ describe("Test netjsongraph setConfig", () => {
   });
   test("Modify el config", () => {
     const obj1 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    // unused variables is required in this test
+    // eslint-disable-next-line no-unused-vars
     const obj2 = new NetJSONGraph([JSONFILE, JSONFILE], {
       el: document.getElementsByTagName("body")[0],
     });
+    // eslint-disable-next-line no-unused-vars
     const obj3 = new NetJSONGraph([JSONFILE, JSONFILE], {
       el: "error",
     });
@@ -180,7 +183,7 @@ describe("Test netjsongraph JSONParamParse", () => {
       expect(e).toMatch("Fetch json file wrong!");
     });
 
-    let json = {
+    const json = {
       test: true,
     };
 
@@ -192,7 +195,7 @@ describe("Test netjsongraph JSONParamParse", () => {
 
 describe("Test netjsongraph searchElements", () => {
   test("Add search function for new elements.", () => {
-    let searchFunc = graph.utils.searchElements.call(graph, "test");
+    const searchFunc = graph.utils.searchElements.call(graph, "test");
 
     window.history.pushState({searchValue: ""}, "");
     searchFunc("false").catch((e) => {
@@ -201,8 +204,8 @@ describe("Test netjsongraph searchElements", () => {
   });
 
   test("Search same key.", () => {
-    const searchFunc = graph.utils.searchElements.call(graph, "test"),
-      key = "false";
+    const searchFunc = graph.utils.searchElements.call(graph, "test");
+    const key = "false";
 
     window.history.pushState({searchValue: key}, "");
     searchFunc(key);
@@ -211,30 +214,30 @@ describe("Test netjsongraph searchElements", () => {
 
 describe("Test netjsongraph properties", () => {
   const map = new NetJSONGraph(JSONFILE, {
-      render: "map",
-    }),
-    jsonData = {
-      nodes: [],
-      links: [],
-    };
+    render: "map",
+  });
+  const jsonData = {
+    nodes: [],
+    links: [],
+  };
 
   beforeAll(() => {
     map.event = map.utils.createEvent();
     map.setConfig({
       render: () => {},
-      onInit: function () {
+      onInit() {
         return this.config;
       },
-      onRender: function () {
+      onRender() {
         return this.config;
       },
-      onUpdate: function () {
+      onUpdate() {
         return this.config;
       },
-      afterUpdate: function () {
+      afterUpdate() {
         return this.config;
       },
-      onLoad: function () {
+      onLoad() {
         return this.config;
       },
     });
@@ -257,7 +260,7 @@ describe("Test netjsongraph properties", () => {
       );
     });
 
-    let searchFunc = map.utils.searchElements.call(map, "");
+    const searchFunc = map.utils.searchElements.call(map, "");
     // override data.
     searchFunc(JSONFILE).then(() => {
       expect(map.JSONParam).toEqual([JSONFILE]);

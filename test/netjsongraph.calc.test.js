@@ -154,11 +154,14 @@ describe("Test netjsongraph function utils", () => {
   const deepMergeObjData = new Map([
     [[{a: 1}, {b: 2}], {a: 1, b: 2}],
     [[{a: 1}], {a: 1}],
+    // sparse arrays are needed for this test
+    // eslint-disable-next-line no-sparse-arrays
     [[, {a: 1}], {a: 1}],
     [[{a: 1}, {a: 2}], {a: 2}],
     [[{a: [1]}, {a: [2]}], {a: [2]}],
     [[{a: {b: 1}}, {a: {c: 2}}], {a: {b: 1, c: 2}}],
     [[{a: 1}, {b: 2}, {c: 3}], {a: 1, b: 2, c: 3}],
+    // eslint-disable-next-line no-sparse-arrays
     [[{a: 1}, {c: 3}, , ,], {a: 1, c: 3}],
   ]);
 
@@ -177,22 +180,22 @@ describe("Test netjsongraph function utils", () => {
     "Merge two object deeply": ["deepMergeObj", deepMergeObjData],
   };
 
-  for (let operationText in utilsObj) {
+  Object.keys(utilsObj).forEach((operationText) => {
     test(operationText, () => {
-      let [operationFunc, operationDataMap] = utilsObj[operationText];
-      for (let [key, value] of operationDataMap) {
+      const [operationFunc, operationDataMap] = utilsObj[operationText];
+      operationDataMap.forEach((value, key) => {
         if (value) {
           expect(util[operationFunc](...key)).toEqual(value);
         } else {
           util[operationFunc](...key);
         }
-      }
+      });
     });
-  }
+  });
 
   test("Event test.", () => {
-    const event = util.createEvent(),
-      res = 1;
+    const event = util.createEvent();
+    const res = 1;
 
     event.on("test", () => res);
     event.once("test", () => res);

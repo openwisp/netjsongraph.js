@@ -32,8 +32,7 @@ class NetJSONGraph {
 
     if (!this.el) {
       if (!this.config.el) {
-        // eslint-disable-next-line prefer-destructuring
-        this.el = document.getElementsByTagName("body")[0];
+        this.el = document.body;
       } else if (this.utils.isElement(this.config.el)) {
         this.el = this.config.el;
       } else {
@@ -44,7 +43,6 @@ class NetJSONGraph {
         this.el.setAttribute("id", "graphChartContainer");
       }
     } else if (config && config.el) {
-      // eslint-disable-next-line no-console
       console.error("Can't change el again!");
     }
 
@@ -88,7 +86,7 @@ class NetJSONGraph {
           );
         } else {
           this.data = JSONData;
-          this.utils._render();
+          this.utils.render();
         }
       })
       .catch((error) => {
@@ -116,10 +114,10 @@ class NetJSONGraph {
    * @this {object}         The instantiated object of NetJSONGraph
    */
   setUtils(util = {}) {
-    const _this = this;
+    const self = this;
 
-    _this.utils = Object.assign(
-      _this.utils,
+    self.utils = Object.assign(
+      self.utils,
       {...util},
       {
         /**
@@ -128,9 +126,9 @@ class NetJSONGraph {
          * Perform different renderings according to `render` config.
          */
 
-        _render() {
-          if (_this.config.render) {
-            _this.config.render(_this.data, _this);
+        render() {
+          if (self.config.render) {
+            self.config.render(self.data, self);
           } else {
             throw new Error("No render function!");
           }
@@ -138,7 +136,7 @@ class NetJSONGraph {
       },
     );
 
-    return _this.utils;
+    return self.utils;
   }
 }
 

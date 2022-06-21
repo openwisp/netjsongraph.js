@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 const operations = {
   /**
    * @function
@@ -56,20 +55,19 @@ const operations = {
         if (!nodeLinks[targetNode.id]) {
           nodeLinks[targetNode.id] = 0;
         }
-        nodeLinks[sourceNode.id]++;
-        nodeLinks[targetNode.id]++;
+        nodeLinks[sourceNode.id] += 1;
+        nodeLinks[targetNode.id] += 1;
       } else if (!sourceNode) {
         console.error(`Node ${link.source} is not exist!`);
       } else {
         console.error(`Node ${link.target} is not exist!`);
       }
     });
-    // eslint-disable-next-line guard-for-in
-    for (const nodeID in JSONData.flatNodes) {
+    Object.keys(JSONData.flatNodes).forEach((nodeID) => {
       const copyNode = JSONData.flatNodes[nodeID];
       copyNode.linkCount = nodeLinks[nodeID] || 0;
       resultNodes.push(copyNode);
-    }
+    });
     return resultNodes;
   },
 
@@ -85,7 +83,7 @@ const operations = {
    */
   changeInterfaceID(JSONData) {
     const copyLinks = JSON.parse(JSON.stringify(JSONData.links));
-    for (let i = copyLinks.length - 1; i >= 0; i--) {
+    for (let i = copyLinks.length - 1; i >= 0; i -= 1) {
       const link = copyLinks[i];
 
       if (link.source && link.target) {
@@ -118,9 +116,11 @@ const operations = {
   arrayDeduplication(arrData, eigenvalues = [], ordered = true) {
     const copyArr = JSON.parse(JSON.stringify(arrData));
     const tempStack = [];
-    for (let i = copyArr.length - 1; i >= 0; i--) {
+    for (let i = copyArr.length - 1; i >= 0; i -= 1) {
       const tempValueArr = [];
       let flag = 0;
+
+      // eslint-disable-next-line no-restricted-syntax
       for (const key of eigenvalues) {
         if (!copyArr[i][key]) {
           console.error(`The array doesn't have "${key}"`);
@@ -174,9 +174,12 @@ function dealJSONData(JSONData) {
   return JSONData;
 }
 
+// We need to disable this as we are executing this file outside browser
+// eslint-disable-next-line no-restricted-globals
 self.addEventListener("message", (e) => {
   dealJSONData(e.data, operations);
   postMessage(e.data);
+  // eslint-disable-next-line no-restricted-globals
   close();
 });
 

@@ -206,7 +206,10 @@ const NetJSONGraphDefaultConfig = {
       },
     ];
     let i = 0;
-    return () => styles[i++ % styles.length];
+    return () => {
+      i += 1;
+      return styles[i % styles.length];
+    };
   })(),
   linkStyleProperty: () => ({
     width: 5,

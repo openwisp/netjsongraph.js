@@ -66,25 +66,25 @@ describe("NetJSONGraph Specification", () => {
   });
 
   test("NetJSONGraph object attribute fields exist", () => {
-    let JSONFILE = "test";
+    const JSONFILE = "test";
 
     const graph = new NetJSONGraph(JSONFILE);
     // Package NetJSONGraph instance object.
     graph.event = graph.utils.createEvent();
     graph.setConfig({
-      onInit: function () {
+      onInit() {
         return this.config;
       },
-      onRender: function () {
+      onRender() {
         return this.config;
       },
-      onUpdate: function () {
+      onUpdate() {
         return this.config;
       },
-      afterUpdate: function () {
+      afterUpdate() {
         return this.config;
       },
-      onLoad: function () {
+      onLoad() {
         return this.config;
       },
     });

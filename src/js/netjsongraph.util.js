@@ -70,13 +70,13 @@ class NetJSONGraphUtil {
       ["dateHour", 24],
     ]);
 
-    for (let i = dateNumberFields.length; i > 0; i--) {
+    for (let i = dateNumberFields.length; i > 0; i -= 1) {
       dateNumberObject[dateNumberFields[i - 1]] = parseInt(dateParseArr[i], 10);
     }
 
     let carry = -hourDiffer;
     let limitBoundary;
-    for (let i = dateNumberFields.length; i > 0; i--) {
+    for (let i = dateNumberFields.length; i > 0; i -= 1) {
       if (dateNumberFields[i - 1] === "dateYear") {
         dateNumberObject[dateNumberFields[i - 1]] += carry;
         break;
@@ -90,13 +90,19 @@ class NetJSONGraphUtil {
       let calculateResult = dateNumberObject[dateNumberFields[i - 1]] + carry;
 
       if (dateNumberFields[i - 1] === "dateHour") {
-        carry =
-          // eslint-disable-next-line no-nested-ternary
-          calculateResult < 0 ? -1 : calculateResult >= limitBoundary ? 1 : 0;
+        if (calculateResult < 0) {
+          carry = -1;
+        } else if (calculateResult >= limitBoundary) {
+          carry = 1;
+        } else {
+          carry = 0;
+        }
+      } else if (calculateResult <= 0) {
+        carry = -1;
+      } else if (calculateResult > limitBoundary) {
+        carry = 1;
       } else {
-        carry =
-          // eslint-disable-next-line no-nested-ternary
-          calculateResult <= 0 ? -1 : calculateResult > limitBoundary ? 1 : 0;
+        carry = 0;
       }
 
       if (carry === 1) {
@@ -180,7 +186,7 @@ class NetJSONGraphUtil {
     const objs = [...args].reverse();
     const len = objs.length;
 
-    for (let i = 0; i < len - 1; i++) {
+    for (let i = 0; i < len - 1; i += 1) {
       const originObj = objs[i];
       const targetObj = objs[i + 1];
       if (
@@ -189,7 +195,7 @@ class NetJSONGraphUtil {
         this.isObject(targetObj) &&
         this.isObject(originObj)
       ) {
-        for (const attr in originObj) {
+        Object.keys(originObj).forEach((attr) => {
           if (
             !targetObj[attr] ||
             !(this.isObject(targetObj[attr]) && this.isObject(originObj[attr]))
@@ -198,7 +204,7 @@ class NetJSONGraphUtil {
           } else {
             this.deepMergeObj(targetObj[attr], originObj[attr]);
           }
-        }
+        });
       } else if (!targetObj) {
         objs[i + 1] = originObj;
       }
@@ -231,7 +237,7 @@ class NetJSONGraphUtil {
     closeA.onclick = () => {
       metadataContainer.style.visibility = "hidden";
     };
-    innerDiv.innerHTML = this.utils._getMetadata.call(this);
+    innerDiv.innerHTML = this.utils.getMetadata.call(this);
     metadataContainer.appendChild(innerDiv);
     metadataContainer.appendChild(closeA);
 
@@ -250,20 +256,20 @@ class NetJSONGraphUtil {
       document.getElementsByClassName("njg-metadata")[0].style.visibility =
         "visible";
       document.getElementById("metadata-innerDiv").innerHTML =
-        this.utils._getMetadata.call(this);
+        this.utils.getMetadata.call(this);
     }
   }
 
   /**
    * @function
-   * @name _getMetadata
+   * @name getMetadata
    *
    * Get metadata dom string.
    *
    * @this   {object}   NetJSONGraph object
    * @return {string}   Dom string
    */
-  _getMetadata() {
+  getMetadata() {
     const attrs = [
       "protocol",
       "version",
@@ -278,11 +284,11 @@ class NetJSONGraphUtil {
     if (metadata.label) {
       html += `<h3>${metadata.label}</h3>`;
     }
-    for (const attr of attrs) {
+    attrs.forEach((attr) => {
       if (metadata[attr]) {
         html += `<p><b>${attr}</b>: <span>${metadata[attr]}</span></p>`;
       }
-    }
+    });
     html += `
       <p><b>nodes</b>: <span id='metadataNodesLength'>${metadata.nodes.length}</span></p>
       <p><b>links</b>: <span id='metadataLinksLength'>${metadata.links.length}</span></p>
@@ -307,7 +313,7 @@ class NetJSONGraphUtil {
       html += `<p><b>label</b>: ${node.label}</p>`;
     }
     if (node.properties) {
-      for (const key in node.properties) {
+      Object.keys(node.properties).forEach((key) => {
         if (key === "location") {
           html += `<p><b>location</b>:<br />lat: ${node.properties.location.lat}<br />lng: ${node.properties.location.lng}<br /></p>`;
         } else if (key === "time") {
@@ -319,7 +325,7 @@ class NetJSONGraphUtil {
             node.properties[key]
           }</p>`;
         }
-      }
+      });
     }
     if (node.linkCount) {
       html += `<p><b>links</b>: ${node.linkCount}</p>`;
@@ -346,7 +352,7 @@ class NetJSONGraphUtil {
   linkInfo(link) {
     let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${link.target}</p><p><b>cost</b>: ${link.cost}</p>`;
     if (link.properties) {
-      for (const key in link.properties) {
+      Object.keys(link.properties).forEach((key) => {
         if (key === "time") {
           html += `<p><b>time</b>: ${this.dateParse({
             dateString: link.properties[key],
@@ -356,7 +362,7 @@ class NetJSONGraphUtil {
             link.properties[key]
           }</p>`;
         }
-      }
+      });
     }
 
     return html;
