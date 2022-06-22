@@ -3,7 +3,6 @@ import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
 import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
 
 const colorTool = require("zrender/lib/tool/color");
-const aria = require("echarts/lib/visual/aria");
 const {each} = require("zrender/lib/core/util");
 const env = require("zrender/lib/core/env");
 
@@ -113,7 +112,6 @@ class NetJSONGraph {
 
 registerLeafletSystem(echarts, L, {
   colorTool,
-  aria,
   each,
   env,
 });

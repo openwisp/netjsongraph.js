@@ -9,7 +9,7 @@ import "echarts/lib/component/legend";
 
 import "zrender/lib/svg/svg";
 
-import "../../lib/js/echarts-gl";
+import "../../lib/js/echarts-gl.min";
 
 import L from "leaflet/dist/leaflet";
 
