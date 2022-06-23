@@ -19,3 +19,6 @@ yarn.lock
 
 # Folder
 coverage
+
+# Other
+*.map
