@@ -1,4 +1,5 @@
 const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = (env, argv) => ({
   entry: "./src/js/netjsongraph.js",
@@ -6,15 +7,21 @@ module.exports = (env, argv) => ({
     path: path.resolve(__dirname, "./dist"),
     filename: "netjsongraph.min.js",
   },
-
-  devServer: {
-    contentBase: "./",
-    historyApiFallback: true,
-    inline: true,
-    open: true,
-    openPage: "./index.html",
+  devtool:
+    argv.mode === "development" ? "cheap-module-source-map" : "source-map",
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+      }),
+    ],
   },
-
+  devServer: {
+    static: "./",
+    historyApiFallback: true,
+    open: ["./index.html"],
+  },
   performance: {
     hints: false,
   },
