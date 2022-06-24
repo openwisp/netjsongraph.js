@@ -32,23 +32,43 @@ class NetJSONGraphRender {
     const commonOption = self.utils.deepMergeObj(
       {
         // Show element's detail when hover
-        //
-        // tooltip: {
-        //   confine: true,
-        //   formatter: params => {
-        //     if (params.componentSubType === "graph") {
-        //       return params.dataType === "edge"
-        //         ? self.utils.linkInfo(params.data)
-        //         : self.utils.nodeInfo(params.data);
-        //     } else if (params.componentSubType === "graphGL") {
-        //       return self.utils.nodeInfo(params.data);
-        //     } else {
-        //       return params.componentSubType === "lines"
-        //         ? self.utils.linkInfo(params.data.link)
-        //         : self.utils.nodeInfo(params.data.node);
-        //     }
-        //   }
-        // }
+
+        tooltip: {
+          confine: true,
+          position: (pos, params, dom, rect, size) => {
+            let position = "right";
+            if (size.viewSize[0] - pos[0] < size.contentSize[0]) {
+              position = "left";
+            }
+            if (params.componentSubType === "lines") {
+              position = [
+                pos[0] + size.contentSize[0] / 8,
+                pos[1] - size.contentSize[1] / 2,
+              ];
+
+              if (size.viewSize[0] - position[0] < size.contentSize[0]) {
+                position[0] -= 1.25 * size.contentSize[0];
+              }
+            }
+            return position;
+          },
+          padding: [5, 16],
+          renderMode: "html",
+          className: "njg-tooltip",
+          formatter: (params) => {
+            if (params.componentSubType === "graph") {
+              return params.dataType === "edge"
+                ? self.utils.linkInfo(params.data)
+                : self.utils.nodeInfo(params.data);
+            }
+            if (params.componentSubType === "graphGL") {
+              return self.utils.nodeInfo(params.data);
+            }
+            return params.componentSubType === "lines"
+              ? self.utils.linkInfo(params.data.link)
+              : self.utils.nodeInfo(params.data.node);
+          },
+        },
       },
       configs.echartsOption,
     );
