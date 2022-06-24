@@ -35,8 +35,26 @@ class NetJSONGraphRender {
 
         tooltip: {
           confine: true,
-          position: "right",
+          position: (pos, params, dom, rect, size) => {
+            let position = "right";
+            if (size.viewSize[0] - pos[0] < size.contentSize[0]) {
+              position = "left";
+            }
+            if (params.componentSubType === "lines") {
+              position = [
+                pos[0] + size.contentSize[0] / 8,
+                pos[1] - size.contentSize[1] / 2,
+              ];
+
+              if (size.viewSize[0] - position[0] < size.contentSize[0]) {
+                position[0] -= 1.25 * size.contentSize[0];
+              }
+            }
+            return position;
+          },
           padding: [5, 16],
+          renderMode: "html",
+          className: "njg-tooltip",
           formatter: (params) => {
             if (params.componentSubType === "graph") {
               return params.dataType === "edge"

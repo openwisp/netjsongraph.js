@@ -100,5 +100,6 @@ body {
 }
 
 .njg-tooltip {
-  background-color: #ccc !important;
+  background: rgba(251, 251, 251, 0.9) !important;
+  border: none !important;
 }
