@@ -1,4 +1,21 @@
-const io = require("socket.io")(8078);
+const express = require("express");
+const http = require("http");
+const {Server} = require("socket.io");
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "POST, GET, OPTIONS, PUT, PATCH, DELETE",
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 let JSONData = {
   type: "NetworkGraph",
   label: "Ninux Roma",
@@ -155,7 +172,7 @@ let JSONData = {
 };
 
 io.on("connection", function (socket) {
-  console.log("client connection");
+  console.log("client connected");
 
   socket.on("disconnect", function () {
     console.log("client disconnected");
@@ -163,4 +180,12 @@ io.on("connection", function (socket) {
   setTimeout(() => {
     socket.emit("netjsonChange", JSONData);
   }, 5000);
+});
+
+app.use("/", (req, res) => {
+  res.json(JSONData);
+});
+
+server.listen(3000, () => {
+  console.log("listening on:3000");
 });

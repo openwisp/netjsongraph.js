@@ -8,7 +8,7 @@
     <link href="../src/css/netjsongraph.css" rel="stylesheet">
 </head>
 <body>
-    <script type="text/javascript" src="../lib/js/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
         /*
@@ -25,7 +25,7 @@
         
         graph.render();
 
-        const socket = io("http://localhost:8078");
+        const socket = io("http://localhost:3000/",{ transports : ['websocket'] });
 
         socket.on("connect", function() {
           console.log("client connect");
