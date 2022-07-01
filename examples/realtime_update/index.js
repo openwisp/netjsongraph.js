@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const path = require("path");
 const {Server} = require("socket.io");
 
 const app = express();
@@ -15,6 +16,8 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
+
+app.use(express.static(path.join(__dirname, "assets")));
 
 let JSONData = {
   type: "NetworkGraph",
@@ -183,9 +186,9 @@ io.on("connection", function (socket) {
 });
 
 app.use("/", (req, res) => {
-  res.json(JSONData);
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 server.listen(3000, () => {
-  console.log("listening on:3000");
+  console.log("listening on PORT 3000");
 });
