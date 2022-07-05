@@ -120,7 +120,7 @@ You can also customize some global properties with [`echartsOption`](https://ech
 - setUtils: add new utils
 - render: netjsongraph.js render function
 
-#### Realtime Update
+#### Live update example
 
 We use [socket.io](https://socket.io/) to monitor data changes which supports WebSockets and Polling. You can call `JSONDataUpdate` when the data change event occurs and pass the data to update the view.
 
@@ -156,15 +156,17 @@ socket.on("disconnect", function() {
 socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
 ```
 
-You can see this in action by navigating to this [directory](https://github.com/openwisp/netjsongraph.js/tree/gsoc22/examples/realtime_update). Start the server by executing the following commands:
+You can see this in action by executing the following commands:
 
 ```
+cd examples/realtime_update
+
 yarn install
 
 yarn start
 ```
 
-Visit `localhost:3000` to see this in action. In this demo the nodes and links change after 5 seconds.
+In this demo the nodes and links change after 5 seconds.
 
 #### Search elements
 

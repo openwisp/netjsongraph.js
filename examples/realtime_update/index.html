@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>netjsongraph.js</title>
+    <title>Live update example</title>
     <meta charset="utf-8">
     <!-- theme can be easily customized via css -->
     <link href="/netjsongraph.css" rel="stylesheet">
@@ -19,8 +19,14 @@
             See other examples：
         */
         // `graph` render by default.
-        const graph = new NetJSONGraph("/netjsonmap.json");
-        
+        const graph = new NetJSONGraph("/netjsonmap.json",{
+          echartsOption: {
+              legend: {
+                show: false,
+              },
+            },
+        });
+
         graph.render();
 
         const socket = io("http://localhost:3000/",{ transports : ['websocket'] });

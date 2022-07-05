@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const path = require("path");
 const {Server} = require("socket.io");
+const open = require("open");
 
 const app = express();
 const server = http.createServer(app);
@@ -191,4 +192,5 @@ app.use("/", (req, res) => {
 
 server.listen(3000, () => {
   console.log("listening on PORT 3000");
+  open("http://localhost:3000");
 });
