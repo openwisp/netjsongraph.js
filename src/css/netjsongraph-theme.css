@@ -104,8 +104,13 @@ p {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-eye:hover {
-  color: red;
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 30px;
+  font-style: normal;
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .icon-eye:before {
@@ -115,21 +120,25 @@ p {
 }
 
 .njg-selectIcon {
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  z-index: 999;
   width: 35px;
   height: 35px;
   line-height: 35px;
   text-align: center;
-  background: #fbfbfb;
-  border-radius: 4px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
-  border: 1px solid #ccc;
-  color: #6d6357;
+  background: rgba(217, 79, 52, 0.85);
+  border-radius: 5px;
+  border: 0;
+  color: #ffffff;
 }
-
+.njg-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  right: 10px;
+  top: 20px;
+  z-index: 999;
+  background-color: inherit;
+}
 .njg-searchInput {
   width: 250px;
   height: 20px;
@@ -144,4 +153,99 @@ p {
   left: 300px;
   top: 10px;
   z-index: 1;
+}
+
+.njg-sideBar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 350px;
+  height: 100%;
+  z-index: 1000;
+  background-color: #fff;
+  transition: left 0.5s;
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden {
+  left: -500px;
+}
+
+.sideBarHandle {
+  background: rgba(217, 79, 52, 0.85);
+  position: fixed;
+  top: 15px;
+  left: 370px;
+  border: 0;
+  border-radius: 5px;
+  outline: none;
+  font-size: 24px;
+  width: 50px;
+  height: 40px;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.5s;
+  transform: rotateY(180deg);
+}
+
+.sideBarHandle::before {
+  content: "\27A4";
+  color: #fff;
+}
+
+.hidden .sideBarHandle {
+  left: 15px;
+  transform: rotateY(0deg);
+}
+
+.njg-aboutContainer,
+.njg-nodeLinkInfoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.njg-metaData,
+.njg-infoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background-color: inherit;
+  padding: 0 20px;
+  margin-top: 20px;
+}
+
+.njg-keyLabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.njg-metaDataItems,
+.njg-infoItems {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  text-transform: capitalize;
+  padding: 5px 0;
+}
+
+.njg-headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-transform: capitalize;
+  width: 100%;
+}
+
+.njg-headerContainer h2 {
+  transform: translate(100%, 0);
+}
+
+.njg-headerContainer #closeButton {
+  cursor: pointer;
 }

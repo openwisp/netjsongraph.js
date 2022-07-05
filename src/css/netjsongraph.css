@@ -103,3 +103,31 @@ body {
   background: rgba(251, 251, 251, 0.9) !important;
   border: none !important;
 }
+
+.leaflet-control-zoom {
+  top: 55px;
+  border: 0 !important;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  background: rgba(217, 79, 52, 0.85) !important;
+  color: #fff !important;
+}
+
+.leaflet-zoom-animated {
+  transform-origin: 0 0 !important;
+}
+
+.leaflet-zoom-anim > .leaflet-zoom-animated {
+  transition: transform 0.25s cubic-bezier(0, 0, 0.25, 1) !important;
+  will-change: transform !important;
+}
+
+.leaflet-zoom-anim > .leaflet-zoom-hide {
+  visibility: hidden !important;
+}
+
+.leaflet-zoom-anim > .leaflet-tile {
+  transition: none !important;
+}

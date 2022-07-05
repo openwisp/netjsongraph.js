@@ -68,16 +68,6 @@ class NetJSONGraph {
         this.config.prepareData.call(this, JSONData);
         this.data = JSONData;
 
-        (function addNodeLinkOverlay(_this) {
-          const nodeLinkOverlay = document.createElement("div");
-          nodeLinkOverlay.setAttribute("class", "njg-overlay njg-container");
-          _this.el.appendChild(nodeLinkOverlay);
-        })(this);
-
-        if (this.config.metadata) {
-          this.el.appendChild(this.utils.NetJSONMetadata.call(this));
-        }
-
         if (this.config.dealDataByWorker) {
           this.utils.dealDataByWorker.call(
             this,

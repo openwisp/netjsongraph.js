@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 class NetJSONGraphUtil {
   /**
    * @function
@@ -269,7 +270,7 @@ class NetJSONGraphUtil {
    * @this   {object}   NetJSONGraph object
    * @return {string}   Dom string
    */
-  getMetadata() {
+  getMetadata(data) {
     const attrs = [
       "protocol",
       "version",
@@ -278,65 +279,65 @@ class NetJSONGraphUtil {
       "router_id",
       "topology_id",
     ];
-    const metadata = this.data;
-    let html = "";
+    const metadata = data;
+    const metaDataObj = {};
 
     if (metadata.label) {
-      html += `<h3>${metadata.label}</h3>`;
+      // We only need this label property if it exists.
+      metaDataObj["label"] = metadata.label;
     }
     attrs.forEach((attr) => {
       if (metadata[attr]) {
-        html += `<p><b>${attr}</b>: <span>${metadata[attr]}</span></p>`;
+        metaDataObj[attr] = metadata[attr];
       }
     });
-    html += `
-      <p><b>nodes</b>: <span id='metadataNodesLength'>${metadata.nodes.length}</span></p>
-      <p><b>links</b>: <span id='metadataLinksLength'>${metadata.links.length}</span></p>
-    `;
 
-    return html;
+    metaDataObj["nodes"] = metadata.nodes.length;
+    metaDataObj["links"] = metadata.links.length;
+    return metaDataObj;
   }
 
   /**
    * @function
    * @name nodeInfo
    *
-   * Parse the infomation of incoming node data.
+   * Parse the information of incoming node data.
    * @param  {object}    node
    *
    * @return {string}    html dom string
    */
 
   nodeInfo(node) {
-    let html = `<p><b>id</b>: ${node.id}</p>`;
+    const nodeInfo = {};
+    nodeInfo["id"] = node.id;
     if (node.label && typeof node.label === "string") {
-      html += `<p><b>label</b>: ${node.label}</p>`;
+      nodeInfo["label"] = node.label;
     }
     if (node.properties) {
       Object.keys(node.properties).forEach((key) => {
         if (key === "location") {
-          html += `<p><b>location</b>:<br />lat: ${node.properties.location.lat}<br />lng: ${node.properties.location.lng}<br /></p>`;
+          nodeInfo[key] = {
+            lat: node.properties.location.lat,
+            lng: node.properties.location.lng,
+          };
         } else if (key === "time") {
-          html += `<p><b>time</b>: ${this.dateParse({
+          const time = this.dateParse({
             dateString: node.properties[key],
-          })}</p>`;
+          });
+          nodeInfo[key] = time;
         } else {
-          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-            node.properties[key]
-          }</p>`;
+          nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
         }
       });
     }
     if (node.linkCount) {
-      html += `<p><b>links</b>: ${node.linkCount}</p>`;
+      nodeInfo["linkCount"] = node.linkCount;
     }
     if (node.local_addresses) {
-      html += `<p><b>local addresses</b>:<br />${node.local_addresses.join(
-        "<br />",
-      )}</p>`;
+      nodeInfo["local_addresses"] = node.local_addresses;
     }
 
-    return html;
+    return nodeInfo;
   }
 
   /**
@@ -350,22 +351,24 @@ class NetJSONGraphUtil {
    */
 
   linkInfo(link) {
-    let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${link.target}</p><p><b>cost</b>: ${link.cost}</p>`;
+    const linkInfo = {};
+    linkInfo["source"] = link.source;
+    linkInfo["target"] = link.target;
+    linkInfo["cost"] = link.cost;
     if (link.properties) {
       Object.keys(link.properties).forEach((key) => {
         if (key === "time") {
-          html += `<p><b>time</b>: ${this.dateParse({
+          const time = this.dateParse({
             dateString: link.properties[key],
-          })}</p>`;
+          });
+          linkInfo[key] = time;
         } else {
-          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-            link.properties[key]
-          }</p>`;
+          linkInfo[key.replace(/_/g, " ")] = link.properties[key];
         }
       });
     }
 
-    return html;
+    return linkInfo;
   }
 
   /**

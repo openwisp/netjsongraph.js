@@ -117,24 +117,21 @@ class NetJSONGraphRender {
     const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
 
-      nodeResult.itemStyle =
-        typeof configs.nodeStyleProperty === "function"
-          ? configs.nodeStyleProperty(node)
-          : configs.nodeStyleProperty;
+      nodeResult.itemStyle = configs.graphConfig.series.nodeStyle;
       nodeResult.symbolSize =
-        typeof configs.nodeSize === "function"
-          ? configs.nodeSize(node)
-          : configs.nodeSize;
+        typeof configs.graphConfig.series.nodeSize === "function"
+          ? configs.graphConfig.series.nodeSize(node)
+          : configs.graphConfig.series.nodeSize;
       nodeResult.name = typeof node.label === "string" ? node.label : node.id;
-      if (node.properties && node.properties.category) {
-        nodeResult.category = String(node.properties.category);
-      }
-      if (
-        nodeResult.category &&
-        categories.indexOf(nodeResult.category) === -1
-      ) {
-        categories.push(nodeResult.category);
-      }
+      // if (node.properties && node.properties.category) {
+      //   nodeResult.category = String(node.properties.category);
+      // }
+      // if (
+      //   nodeResult.category &&
+      //   categories.indexOf(nodeResult.category) === -1
+      // ) {
+      //   categories.push(nodeResult.category);
+      // }
 
       return nodeResult;
     });
@@ -142,22 +139,23 @@ class NetJSONGraphRender {
       const linkResult = JSON.parse(JSON.stringify(link));
 
       linkResult.lineStyle =
-        typeof configs.linkStyleProperty === "function"
-          ? configs.linkStyleProperty(link)
-          : configs.linkStyleProperty;
+        typeof configs.graphConfig.series.linkStyle === "function"
+          ? configs.graphConfig.series.linkStyle(link)
+          : configs.graphConfig.series.linkStyle;
 
       return linkResult;
     });
     const series = [
-      Object.assign(configs.graphConfig, {
-        type: configs.graphConfig.type === "graphGL" ? "graphGL" : "graph",
+      Object.assign(configs.graphConfig.series, {
+        type:
+          configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
-          configs.graphConfig.type === "graphGL"
+          configs.graphConfig.series.type === "graphGL"
             ? "forceAtlas2"
-            : configs.graphConfig.layout,
+            : configs.graphConfig.series.layout,
         nodes,
         links,
-        categories: categories.map((category) => ({name: category})),
+        // categories: categories.map((category) => ({name: category})),
       }),
     ];
     const legend = categories.length
@@ -169,6 +167,7 @@ class NetJSONGraphRender {
     return {
       legend,
       series,
+      ...configs.graphConfig.baseOptions,
     };
   }
 
@@ -204,13 +203,13 @@ class NetJSONGraphRender {
             name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
             symbolSize:
-              typeof configs.nodeSize === "function"
-                ? configs.nodeSize(node)
-                : configs.nodeSize,
+              typeof configs.mapOptions.series.nodeSize === "function"
+                ? configs.mapOptions.series.nodeSize(node)
+                : configs.mapOptions.series.nodeSize,
             itemStyle:
-              typeof configs.nodeStyleProperty === "function"
-                ? configs.nodeStyleProperty(node)
-                : configs.nodeStyleProperty,
+              typeof configs.mapOptions.series.nodeStyle === "function"
+                ? configs.mapOptions.series.nodeStyle(node)
+                : configs.mapOptions.series.nodeStyle,
             node,
           });
           if (!JSONData.flatNodes) {
@@ -237,9 +236,9 @@ class NetJSONGraphRender {
             ],
           ],
           lineStyle:
-            typeof configs.linkStyleProperty === "function"
-              ? configs.linkStyleProperty(link)
-              : configs.linkStyleProperty,
+            typeof configs.mapOptions.series.linkStyle === "function"
+              ? configs.mapOptions.series.linkStyle(link)
+              : configs.mapOptions.series.linkStyle,
           link,
         });
       }
@@ -267,12 +266,10 @@ class NetJSONGraphRender {
     return {
       leaflet: {
         tiles: configs.mapTileConfig,
-        mapOptions: configs.mapOptions,
-      },
-      toolbox: {
-        show: false,
+        mapOptions: configs.mapOptions.series,
       },
       series,
+      ...configs.mapOptions.baseOptions,
     };
   }
 

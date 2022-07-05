@@ -23,25 +23,16 @@
                     offset: [0, -10],
                 }
             },
-            
-            // set map tiles config, can set multiple values.
-            mapTileConfig: [{
-                label: "Blue Street",
-                urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                options: {
-                    minZoom: 2, 
-                    maxZoom: 20,
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                }
-            }],
-
+            switchMode:true,
             // mapLinkConfig:[{
             //     color:"#76D67F",
             // }],
             // set map initial state.
             mapOptions: {
-                center: [46.86764405052012, 19.675998687744144],
-                zoom: 5,
+                series:{
+                    center: [46.86764405052012, 19.675998687744144],
+                    zoom: 5,
+                }
             },
             
             // Convert to internal json format

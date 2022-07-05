@@ -1,5 +1,6 @@
 import NetJSONGraphCore from "./netjsongraph.core";
 import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
+import NetJSONGraphGUI from "./netjsongraph.gui";
 import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
 
 const colorTool = require("zrender/lib/tool/color");
@@ -21,13 +22,15 @@ class NetJSONGraph {
       config.render = NetJSONGraphRender.prototype.graphRender;
     }
 
-    const graph = new NetJSONGraphCore(JSONParam);
+    let graph = new NetJSONGraphCore(JSONParam);
 
     Object.setPrototypeOf(NetJSONGraphRender.prototype, graph.utils);
     graph.utils = new NetJSONGraphRender();
     graph.setUtils();
 
     graph.event = graph.utils.createEvent();
+    const gui = new NetJSONGraphGUI(graph);
+
     graph.setConfig({
       /**
        * @function
@@ -93,8 +96,28 @@ class NetJSONGraph {
        * @return {object}         this.config
        */
       onLoad() {
+        gui.init();
+        gui.createAboutContainer(graph);
+        if (this.config.switchMode) {
+          gui.renderModeSelector.onclick = () => {
+            if (this.config.render === this.utils.mapRender) {
+              this.config.render = this.utils.graphRender;
+              this.echarts.dispose();
+              graph = new NetJSONGraph(this.data, {
+                ...this.config,
+              });
+              graph.render();
+            } else {
+              this.config.render = this.utils.mapRender;
+              this.config.render(this.data, this);
+            }
+          };
+        }
+        this.config.onClickElement = (type, data) => {
+          gui.getNodeLinkInfo(type, data);
+          gui.sideBar.classList.remove("hidden");
+        };
         this.utils.hideLoading.call(this);
-
         return this.config;
       },
       ...config,
