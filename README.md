@@ -122,8 +122,7 @@ You can also customize some global properties with [`echartsOption`](https://ech
 
 #### Realtime Update
 
-If you want to update the data dynamically, you have to write function to get updated data.
-Then you only need call `JSONDataUpdate` and pass the data to update the view.
+We use [socket.io](https://socket.io/) to monitor data changes which supports WebSockets and Polling. You can call `JSONDataUpdate` when the data change event occurs and pass the data to update the view.
 
 ```JS
 /**
@@ -145,32 +144,29 @@ const graph = new NetJSONGraph("./data/netjsonmap.json", {
 
 graph.render();
 
-const socket = io("http://localhost:8078");
+const socket = io("http://localhost:3000/",{ transports : ['websocket'] });
+
 socket.on("connect", function() {
-    console.log("client connect");
+    console.log("client connected");
 });
 socket.on("disconnect", function() {
-    console.log("client disconnected.");
+    console.log("client disconnected");
 });
 // Self-monitoring server， re-render when the data changes.
 socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
 ```
 
-Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-updateData.html).
-I use [socket.io](https://socket.io/) to monitor data changes, which supports WebSocket or polling.
-And I build a simple local server using the express framework and nodeJS. Before testing, you need to open it.
-
-The code to build a local server can be found [here](https://github.com/openwisp/netjsongraph.js/tree/gsoc2019/examples/data/netjsonnode/).
-
-Execute in this directory:
+You can see this in action by executing the following commands:
 
 ```
-npm install
+cd examples/realtime_update
 
-node index.js
+yarn install
+
+yarn dev
 ```
 
-Then open the demo page, you will find that the nodes and links in the view change after 5 seconds.
+In this demo the nodes and links change after 5 seconds.
 
 #### Search elements
 
