@@ -120,7 +120,7 @@ You can also customize some global properties with [`echartsOption`](https://ech
 - setUtils: add new utils
 - render: netjsongraph.js render function
 
-#### Live update example
+#### Realtime Update
 
 We use [socket.io](https://socket.io/) to monitor data changes which supports WebSockets and Polling. You can call `JSONDataUpdate` when the data change event occurs and pass the data to update the view.
 
@@ -163,7 +163,7 @@ cd examples/realtime_update
 
 yarn install
 
-yarn start
+yarn dev
 ```
 
 In this demo the nodes and links change after 5 seconds.
