@@ -106,16 +106,9 @@ const NetJSONGraphDefaultConfig = {
       },
     },
   },
-  mapTileConfig: [
-    {
-      options: {
-        minZoom: 3,
-        maxZoom: 30,
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      },
-    },
-  ],
+  mapTileConfig: [],
+  nodeCategories: [],
+  linkCategories: [],
   mapLinkConfig: [{}],
   mapNodeConfig: {
     label: {

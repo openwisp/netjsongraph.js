@@ -116,35 +116,27 @@ class NetJSONGraphRender {
     const configs = self.config;
     const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
+      const {nodeStyleConfig, nodeSizeConfig} = self.utils.getNodeStyle(
+        node,
+        configs,
+        "graph",
+      );
 
-      nodeResult.itemStyle = configs.graphConfig.series.nodeStyle;
-      nodeResult.symbolSize =
-        typeof configs.graphConfig.series.nodeSize === "function"
-          ? configs.graphConfig.series.nodeSize(node)
-          : configs.graphConfig.series.nodeSize;
+      nodeResult.itemStyle = nodeStyleConfig;
+      nodeResult.symbolSize = nodeSizeConfig;
       nodeResult.name = typeof node.label === "string" ? node.label : node.id;
-      // if (node.properties && node.properties.category) {
-      //   nodeResult.category = String(node.properties.category);
-      // }
-      // if (
-      //   nodeResult.category &&
-      //   categories.indexOf(nodeResult.category) === -1
-      // ) {
-      //   categories.push(nodeResult.category);
-      // }
 
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
       const linkResult = JSON.parse(JSON.stringify(link));
+      const {linkStyleConfig} = self.utils.getLinkStyle(link, configs, "graph");
 
-      linkResult.lineStyle =
-        typeof configs.graphConfig.series.linkStyle === "function"
-          ? configs.graphConfig.series.linkStyle(link)
-          : configs.graphConfig.series.linkStyle;
+      linkResult.lineStyle = linkStyleConfig;
 
       return linkResult;
     });
+
     const series = [
       Object.assign(configs.graphConfig.series, {
         type:
@@ -155,7 +147,6 @@ class NetJSONGraphRender {
             : configs.graphConfig.series.layout,
         nodes,
         links,
-        // categories: categories.map((category) => ({name: category})),
       }),
     ];
     const legend = categories.length
@@ -199,17 +190,16 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
+          const {nodeStyleConfig, nodeSizeConfig} = self.utils.getNodeStyle(
+            node,
+            configs,
+            "map",
+          );
           nodesData.push({
             name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
-            symbolSize:
-              typeof configs.mapOptions.series.nodeSize === "function"
-                ? configs.mapOptions.series.nodeSize(node)
-                : configs.mapOptions.series.nodeSize,
-            itemStyle:
-              typeof configs.mapOptions.series.nodeStyle === "function"
-                ? configs.mapOptions.series.nodeStyle(node)
-                : configs.mapOptions.series.nodeStyle,
+            symbolSize: nodeSizeConfig,
+            itemStyle: nodeStyleConfig,
             node,
           });
           if (!JSONData.flatNodes) {
@@ -224,6 +214,7 @@ class NetJSONGraphRender {
       } else if (!flatNodes[link.target]) {
         console.error(`Node ${link.target} is not exist!`);
       } else {
+        const {linkStyleConfig} = self.utils.getLinkStyle(link, configs, "map");
         linesData.push({
           coords: [
             [
@@ -235,10 +226,7 @@ class NetJSONGraphRender {
               flatNodes[link.target].properties.location.lat,
             ],
           ],
-          lineStyle:
-            typeof configs.mapOptions.series.linkStyle === "function"
-              ? configs.mapOptions.series.linkStyle(link)
-              : configs.mapOptions.series.linkStyle,
+          lineStyle: linkStyleConfig,
           link,
         });
       }

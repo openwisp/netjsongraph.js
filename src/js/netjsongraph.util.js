@@ -371,6 +371,48 @@ class NetJSONGraphUtil {
     return linkInfo;
   }
 
+  generateStyle(styleConfig, item) {
+    const styles =
+      typeof styleConfig === "function" ? styleConfig(item) : styleConfig;
+    return styles;
+  }
+
+  getNodeStyle(node, config, type) {
+    let nodeStyleConfig;
+    let nodeSizeConfig;
+    if (node.category && config.nodeCategories.length) {
+      const category = config.nodeCategories.find(
+        (cat) => cat.name === node.category,
+      );
+      nodeStyleConfig = this.generateStyle(category.nodeStyle, node);
+      nodeSizeConfig = this.generateStyle(category.nodeSize, node);
+    } else if (type === "map") {
+      nodeStyleConfig = config.mapOptions.series.nodeStyle;
+      nodeSizeConfig = config.mapOptions.series.nodeSize;
+    } else {
+      nodeStyleConfig = config.graphConfig.series.nodeStyle;
+      nodeSizeConfig = config.graphConfig.series.nodeSize;
+    }
+    return {nodeStyleConfig, nodeSizeConfig};
+  }
+
+  getLinkStyle(link, config, type) {
+    let linkStyleConfig;
+
+    if (link.category && config.linkCategories.length) {
+      const category = config.linkCategories.find(
+        (cat) => cat.name === link.category,
+      );
+      linkStyleConfig = this.generateStyle(category.linkStyle, link);
+    } else if (type === "map") {
+      linkStyleConfig = config.mapOptions.series.linkStyle;
+    } else {
+      linkStyleConfig = config.graphConfig.series.linkStyle;
+    }
+
+    return {linkStyleConfig};
+  }
+
   /**
    * @function
    * @name showLoading
