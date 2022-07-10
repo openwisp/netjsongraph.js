@@ -8,11 +8,10 @@ class NetJSONGraph {
    * @param {string} JSONParam    The NetJSON file param
    * @param {Object} config
    */
-  constructor(JSONParam, config) {
+  constructor(JSONParam) {
     this.utils = new NetJSONGraphUpdate();
 
     this.config = {...NetJSONGraphDefaultConfig};
-    this.setConfig(config);
 
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
   }
@@ -29,7 +28,6 @@ class NetJSONGraph {
    */
   setConfig(config) {
     this.utils.deepMergeObj(this.config, config);
-
     if (!this.el) {
       if (!this.config.el) {
         this.el = document.body;
@@ -38,7 +36,7 @@ class NetJSONGraph {
       } else {
         this.el = document.getElementById(this.config.el);
       }
-      if (this.el) {
+      if (this.el === document.body) {
         this.el.classList.add("njg-relativePosition");
         this.el.setAttribute("id", "graphChartContainer");
       }
@@ -112,7 +110,7 @@ class NetJSONGraph {
       {
         /**
          * @function
-         * @name _render
+         * @name render
          * Perform different renderings according to `render` config.
          */
 
