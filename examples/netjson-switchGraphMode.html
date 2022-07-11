@@ -20,15 +20,16 @@
         /*
             The demo is used to show how to switch the netjsongraph render mode -- `graph` or `map`.
         */
-        const graph = new NetJSONGraph("./data/netjsonmap.json", {
-            render: "map",
-            switchMode:true,          
+        const map = new NetJSONGraph("./data/netjsonmap.json", {
+            render: "map",  
+            switchMode:true,    
             // set map tiles config, can set multiple values.
             mapTileConfig: [{
                 options: {
-                    minZoom: 0.25, 
-                    maxZoom: 18,
-                }
+                    minZoom: 3,
+                    maxZoom: 30,
+                    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                 },
             }],
             // set map initial state.
             mapOptions: {        
@@ -36,11 +37,10 @@
                 zoom: 5,
                 nodeConfig: {
                     label: {
-                    offset: [0, -10],
-                }
+                        offset: [0, -10],
+                    }
+                 },  
             },
-                
-            },     
             // Convert to internal json format
             prepareData: data => {
                 data.nodes.map(node => {
@@ -50,52 +50,7 @@
                     })
                 })
             },
-
-            onLoad: function(){
-                switchGraphMode(this);
-                this.utils.hideLoading();
-            }
         });
-        
-        graph.render();
-
-        /**
-         * @function
-         * @name switchGraphMode
-         * Add viewEye icon to change graph or map mode.
-         * 
-         * @param {object} _this  NetJSONGraph object
-         *
-         * @return {object} selectIconContainer DOM
-         */
-
-        function switchGraphMode(_this){
-            let selectIconContainer = document.createElement("div"),
-                iconEye = document.createElement("span");
-            iconEye.setAttribute("class", "iconfont icon-eye");
-            selectIconContainer.setAttribute("class", "njg-selectIcon");
-            selectIconContainer.appendChild(iconEye);
-            _this.el.appendChild(selectIconContainer);
-
-            iconEye.onclick = () => {
-                if(_this.config.render === _this.utils.mapRender){
-                    _this.config.render = _this.utils.graphRender;
-                    // Poor performance, not recommended.
-                    // reDraw
-                    _this.echarts.dispose();
-                    const graph = new NetJSONGraph(_this.data, {
-                        ..._this.config,
-                        el: _this.el,
-                    });
-                    graph.render();
-                }
-                else{
-                    _this.config.render = _this.utils.mapRender;
-                    _this.config.render(_this.data, _this);
-                }
-            }
-
-            return selectIconContainer;
-        }
+        map.render();
     </script>
 </html>

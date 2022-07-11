@@ -130,6 +130,20 @@ const NetJSONGraphDefaultConfig = {
    */
   // eslint-disable-next-line no-unused-vars
   prepareData(JSONData) {},
+
+  /**
+   * @function
+   * @name onClickElement
+   * Called when a node or link is clicked
+   *
+   * @param {string} type   The type of element
+   * @param {object} data   Element data
+   *
+   * @this  {object}        The instantiated object of NetJSONGraph
+   *
+   */
+  // eslint-disable-next-line no-unused-vars
+  onClickElement(type, data) {},
 };
 
 export default {...NetJSONGraphDefaultConfig};

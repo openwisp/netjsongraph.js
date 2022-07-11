@@ -224,26 +224,26 @@ class NetJSONGraphUtil {
    * @return {object} metadataContainer DOM
    */
 
-  NetJSONMetadata() {
-    const metadataContainer = document.createElement("div");
-    const innerDiv = document.createElement("div");
-    const closeA = document.createElement("a");
-    metadataContainer.setAttribute("class", "njg-metadata njg-container");
-    metadataContainer.setAttribute("style", "display: block");
-    innerDiv.setAttribute("class", "njg-inner");
-    innerDiv.setAttribute("id", "metadata-innerDiv");
-    closeA.setAttribute("class", "njg-close");
-    closeA.setAttribute("id", "metadata-close");
+  // NetJSONMetadata() {
+  //   const metadataContainer = document.createElement("div");
+  //   const innerDiv = document.createElement("div");
+  //   const closeA = document.createElement("a");
+  //   metadataContainer.setAttribute("class", "njg-metadata njg-container");
+  //   metadataContainer.setAttribute("style", "display: block");
+  //   innerDiv.setAttribute("class", "njg-inner");
+  //   innerDiv.setAttribute("id", "metadata-innerDiv");
+  //   closeA.setAttribute("class", "njg-close");
+  //   closeA.setAttribute("id", "metadata-close");
 
-    closeA.onclick = () => {
-      metadataContainer.style.visibility = "hidden";
-    };
-    innerDiv.innerHTML = this.utils.getMetadata.call(this);
-    metadataContainer.appendChild(innerDiv);
-    metadataContainer.appendChild(closeA);
+  //   closeA.onclick = () => {
+  //     metadataContainer.style.visibility = "hidden";
+  //   };
+  //   innerDiv.innerHTML = this.utils.getMetadata.call(this);
+  //   metadataContainer.appendChild(innerDiv);
+  //   metadataContainer.appendChild(closeA);
 
-    return metadataContainer;
-  }
+  //   return metadataContainer;
+  // }
 
   /**
    * @function
@@ -252,14 +252,14 @@ class NetJSONGraphUtil {
    * @this  {object}   NetJSONGraph object
    *
    */
-  updateMetadata() {
-    if (this.config.metadata) {
-      document.getElementsByClassName("njg-metadata")[0].style.visibility =
-        "visible";
-      document.getElementById("metadata-innerDiv").innerHTML =
-        this.utils.getMetadata.call(this);
-    }
-  }
+  // updateMetadata() {
+  //   if (this.config.metadata) {
+  //     document.getElementsByClassName("njg-metadata")[0].style.visibility =
+  //       "visible";
+  //     document.getElementById("metadata-innerDiv").innerHTML =
+  //       this.utils.getMetadata.call(this);
+  //   }
+  // }
 
   /**
    * @function

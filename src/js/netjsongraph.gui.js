@@ -50,18 +50,6 @@ class NetJSONGraphGUI {
     aboutContainer.classList.add("njg-aboutContainer");
 
     header.innerHTML = "About";
-    // for (let key in metaData) {
-    //   const metaDataItems = document.createElement("div");
-    //   metaDataItems.classList.add("njg-metaDataItems");
-    //   const keyLabel = document.createElement("span");
-    //   keyLabel.setAttribute("class", "njg-keyLabel");
-    //   const valueLabel = document.createElement("span");
-    //   keyLabel.innerHTML = key;
-    //   valueLabel.innerHTML = metaData[key];
-    //   metaDataItems.appendChild(keyLabel);
-    //   metaDataItems.appendChild(valueLabel);
-    //   metadataContainer.appendChild(metaDataItems);
-    // }
     Object.keys(metaData).forEach((key) => {
       const metaDataItems = document.createElement("div");
       metaDataItems.classList.add("njg-metaDataItems");

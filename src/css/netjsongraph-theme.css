@@ -29,6 +29,7 @@ p {
   left: 50px;
   bottom: 45px;
   z-index: 1;
+  color: #fff;
 }
 
 .switch-wrap input[type="checkbox"] {
@@ -81,6 +82,7 @@ p {
   right: 0;
   bottom: 20px;
   z-index: 1;
+  color: #fff;
 }
 
 @font-face {

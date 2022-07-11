@@ -40,39 +40,21 @@
                     })
                 })
             },
-
+            
             // re-write click element function.
             onClickElement: function(type, data){
                 clickElement.call(this, type, data);
-            }
+            },
+
+             onLoad:function(){
+                this.config.onClickElement.bind(this);
+                this.utils.hideLoading();
+            },
         });
 
         graph.render();
 
         function clickElement(type, data){
-            // present element info overlay
-            let nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
-            
-            nodeLinkOverlay.style.visibility = "visible";
-            nodeLinkOverlay.innerHTML = `
-                <div class="njg-inner">
-                    ${
-                    type === "link"
-                        ? this.utils.linkInfo(data)
-                        : this.utils.nodeInfo(data)
-                    }
-                </div>
-            `;
-
-            const closeA = document.createElement("a");
-            closeA.setAttribute("class", "njg-close");
-            closeA.setAttribute("id", "nodelinkOverlay-close");
-            closeA.onclick = () => {
-                nodeLinkOverlay.style.visibility = "hidden";
-            };
-
-            nodeLinkOverlay.appendChild(closeA);
-
             // expand or fold nodes
             if(type === "node" && data.childNodes){
                 let JSONData = this.data;

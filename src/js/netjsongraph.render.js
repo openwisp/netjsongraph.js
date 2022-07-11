@@ -272,7 +272,7 @@ class NetJSONGraphRender {
       self.utils.generateGraphOption(JSONData, self),
       self,
     );
-    console.log(self);
+
     window.onresize = () => {
       self.echarts.resize();
     };
