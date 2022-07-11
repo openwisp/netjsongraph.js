@@ -32,12 +32,6 @@
         */
       const graph = new NetJSONGraph("./data/netjsonmap.json", {
         render: "map",
-        mapNodeConfig: {
-          label: {
-            color: "white",
-            offset: [0, -10],
-          },
-        },
         // set map tiles config, can set multiple values.
         mapTileConfig: [
           {
@@ -54,6 +48,12 @@
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 6,
+          nodeConfig: {
+            label: {
+              color: "white",
+              offset: [0, -10],
+            },
+          },
         },
 
         // Convert to internal json format

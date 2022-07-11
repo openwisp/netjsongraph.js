@@ -76,7 +76,6 @@ class NetJSONGraphRender {
     echartsLayer.setOption(self.utils.deepMergeObj(commonOption, customOption));
     echartsLayer.on(
       "click",
-
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
 
@@ -233,28 +232,26 @@ class NetJSONGraphRender {
     });
 
     const series = [
-      Object.assign(configs.mapNodeConfig, {
+      Object.assign(configs.mapOptions.nodeConfig, {
         type:
-          configs.mapNodeConfig.type === "effectScatter"
+          configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
             : "scatter",
         coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
       }),
-      ...configs.mapLinkConfig.map((lineConfig) =>
-        Object.assign(lineConfig, {
-          type: "lines",
-          coordinateSystem: "leaflet",
-          data: linesData,
-        }),
-      ),
+      Object.assign(configs.mapOptions.linkConfig, {
+        type: "lines",
+        coordinateSystem: "leaflet",
+        data: linesData,
+      }),
     ];
 
     return {
       leaflet: {
         tiles: configs.mapTileConfig,
-        mapOptions: configs.mapOptions.series,
+        mapOptions: configs.mapOptions,
       },
       series,
       ...configs.mapOptions.baseOptions,
@@ -275,7 +272,7 @@ class NetJSONGraphRender {
       self.utils.generateGraphOption(JSONData, self),
       self,
     );
-
+    console.log(self);
     window.onresize = () => {
       self.echarts.resize();
     };

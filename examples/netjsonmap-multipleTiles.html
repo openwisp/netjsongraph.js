@@ -1,62 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <title>netjsongraph.js: basic example</title>
-    <meta charset="utf-8">
-     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
+    <meta charset="utf-8" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
     <!-- theme can be easily customized via css -->
-    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
-    <link href="../src/css/netjsongraph.css" rel="stylesheet">
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../src/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
-        .njg-metadata{
-          left: 50px;
-        }
+      .njg-metadata {
+        left: 50px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
-        /*
+      /*
             The demo is used to show the multiple tiles render.
         */
-        const map = new NetJSONGraph("./data/netjsonmap.json", {
-            render: "map",
-            mapNodeConfig: {
-                label: {
-                    color: "white",
-                    offset: [0, -10],
-                }
+      const map = new NetJSONGraph("./data/netjsonmap.json", {
+        render: "map",
+        // set multiple tiles config, can change them dynamically.
+        mapTileConfig: [
+          {
+            label: "Blue Street",
+            urlTemplate:
+              "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
+            options: {
+              minZoom: 0.25,
+              maxZoom: 18,
             },
-            // set multiple tiles config, can change them dynamically.
-            mapTileConfig: [{
-                label: "Blue Street",
-                urlTemplate: "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
-                options: {
-                    minZoom: 0.25, 
-                    maxZoom: 18,
-                }
-            }, {
-                label: "Open Street Map",
-                urlTemplate: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-                options: {}
-            }],
-            // set map initial state.
-            mapOptions: {
-                center: [46.86764405052012, 19.675998687744144],
-                zoom: 6,
+          },
+          {
+            label: "Open Street Map",
+            urlTemplate:
+              "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+            options: {},
+          },
+        ],
+        // set map initial state.
+        mapOptions: {
+          center: [46.86764405052012, 19.675998687744144],
+          zoom: 6,
+          nodeConfig: {
+            label: {
+              color: "white",
+              offset: [0, -10],
             },
-            
-            // Convert to internal json format
-            prepareData: data => {
-                data.nodes.map(node => {
-                    node.label = node.name;
-                    node.properties = Object.assign(node.properties || {}, {
-                        location: node.location,
-                    })
-                })
-            },
-        });
-        
-        map.render();
+          },
+        },
+
+        // Convert to internal json format
+        prepareData: (data) => {
+          data.nodes.map((node) => {
+            node.label = node.name;
+            node.properties = Object.assign(node.properties || {}, {
+              location: node.location,
+            });
+          });
+        },
+      });
+
+      map.render();
     </script>
+  </body>
 </html>

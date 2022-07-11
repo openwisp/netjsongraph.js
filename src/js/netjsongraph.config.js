@@ -71,7 +71,6 @@ const NetJSONGraphDefaultConfig = {
       },
       roam: true,
       draggable: true,
-      focusNodeAdjacency: false,
       legendHoverLink: true,
       emphasis: {focus: "none"},
       nodeStyle: {
@@ -89,16 +88,25 @@ const NetJSONGraphDefaultConfig = {
   },
 
   mapOptions: {
-    series: {
-      roam: true,
+    roam: true,
+    nodeConfig: {
+      type: "scatter",
+      label: {
+        show: true,
+        color: "#000000",
+        position: "top",
+        formatter: "{b}",
+      },
       nodeStyle: {
         color: "#1566a9",
       },
+      nodeSize: "15",
+    },
+    linkConfig: {
       linkStyle: {
         width: 4,
         color: "#1aa422",
       },
-      nodeSize: "15",
     },
     baseOptions: {
       toolbox: {
@@ -109,15 +117,6 @@ const NetJSONGraphDefaultConfig = {
   mapTileConfig: [],
   nodeCategories: [],
   linkCategories: [],
-  mapLinkConfig: [{}],
-  mapNodeConfig: {
-    label: {
-      show: true,
-      color: "#000000",
-      position: "top",
-      formatter: "{b}",
-    },
-  },
 
   /**
    * @function

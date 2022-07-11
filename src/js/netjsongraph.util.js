@@ -387,11 +387,23 @@ class NetJSONGraphUtil {
       nodeStyleConfig = this.generateStyle(category.nodeStyle, node);
       nodeSizeConfig = this.generateStyle(category.nodeSize, node);
     } else if (type === "map") {
-      nodeStyleConfig = config.mapOptions.series.nodeStyle;
-      nodeSizeConfig = config.mapOptions.series.nodeSize;
+      nodeStyleConfig = this.generateStyle(
+        config.mapOptions.nodeConfig.nodeStyle,
+        node,
+      );
+      nodeSizeConfig = this.generateStyle(
+        config.mapOptions.nodeConfig.nodeSize,
+        node,
+      );
     } else {
-      nodeStyleConfig = config.graphConfig.series.nodeStyle;
-      nodeSizeConfig = config.graphConfig.series.nodeSize;
+      nodeStyleConfig = this.generateStyle(
+        config.graphConfig.series.nodeStyle,
+        node,
+      );
+      nodeSizeConfig = this.generateStyle(
+        config.graphConfig.series.nodeSize,
+        node,
+      );
     }
     return {nodeStyleConfig, nodeSizeConfig};
   }
@@ -405,9 +417,15 @@ class NetJSONGraphUtil {
       );
       linkStyleConfig = this.generateStyle(category.linkStyle, link);
     } else if (type === "map") {
-      linkStyleConfig = config.mapOptions.series.linkStyle;
+      linkStyleConfig = this.generateStyle(
+        config.mapOptions.linkConfig.linkStyle,
+        link,
+      );
     } else {
-      linkStyleConfig = config.graphConfig.series.linkStyle;
+      linkStyleConfig = this.generateStyle(
+        config.graphConfig.series.linkStyle,
+        link,
+      );
     }
 
     return {linkStyleConfig};

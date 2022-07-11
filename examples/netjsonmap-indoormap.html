@@ -30,11 +30,6 @@
         */
       const graph = new NetJSONGraph("./data/netjsonmap-indoormap.json", {
         render: "map",
-        mapNodeConfig: {
-          label: {
-            offset: [0, -10],
-          },
-        },
         // set map tiles config, can set multiple values.
         mapTileConfig: [
           {
@@ -51,6 +46,11 @@
         mapOptions: {
           center: [48.577, 18.539],
           zoom: 6,
+          nodeConfig: {
+            label: {
+              offset: [0, -10],
+            },
+          },
         },
         linkStyleProperty: () => ({
           width: 5,
