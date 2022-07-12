@@ -1,19 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <title>netjsongraph.js: basic example</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <!-- theme can be easily customized via css -->
-    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
-    <link href="../src/css/netjsongraph.css" rel="stylesheet">
-</head>
-<body>
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../src/css/netjsongraph.css" rel="stylesheet" />
+  </head>
+  <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
-        // `graph` render defaultly.
-        // We can add data gradually by array.
-        const graph = new NetJSONGraph("./data/netjsonmap.json");
+      // `graph` render defaultly.
+      // We can add data gradually by array.
+      const graph = new NetJSONGraph("./data/netjsonmap.json", {
+        switchMode: true,
+        mapTileConfig: [
+          {
+            options: {
+              minZoom: 3,
+              maxZoom: 30,
+              attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            },
+          },
+        ],
+        // set map initial state.
+        mapOptions: {
+          roam: true,
+          center: [46.86764405052012, 19.675998687744144],
+          zoom: 5,
+          nodeConfig: {
+            label: {
+              offset: [0, -10],
+            },
+          },
+        },
+        // Convert to internal json format
+        prepareData: (data) => {
+          data.nodes.map((node) => {
+            node.label = node.name;
+            node.properties = Object.assign(node.properties || {}, {
+              location: node.location,
+            });
+          });
+        },
+      });
 
-        graph.render();
+      graph.render();
     </script>
+  </body>
 </html>

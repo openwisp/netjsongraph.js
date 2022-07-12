@@ -1,6 +1,5 @@
 import NetJSONGraphCore from "./netjsongraph.core";
 import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
-import NetJSONGraphGUI from "./netjsongraph.gui";
 import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
 
 const colorTool = require("zrender/lib/tool/color");
@@ -29,7 +28,6 @@ class NetJSONGraph {
     graph.setUtils();
 
     graph.event = graph.utils.createEvent();
-    const gui = new NetJSONGraphGUI(graph);
 
     graph.setConfig({
       /**
@@ -96,6 +94,7 @@ class NetJSONGraph {
        * @return {object}         this.config
        */
       onLoad() {
+        const gui = this.utils.getGUI(this);
         gui.init();
         gui.createAboutContainer(graph);
         if (this.config.switchMode) {

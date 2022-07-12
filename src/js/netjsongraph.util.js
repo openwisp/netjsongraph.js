@@ -1,3 +1,4 @@
+import NetJSONGraphGUI from "./netjsongraph.gui";
 /* eslint-disable dot-notation */
 class NetJSONGraphUtil {
   /**
@@ -429,6 +430,11 @@ class NetJSONGraphUtil {
     }
 
     return {linkStyleConfig};
+  }
+
+  getGUI(graph) {
+    const gui = new NetJSONGraphGUI(graph);
+    return gui;
   }
 
   /**
