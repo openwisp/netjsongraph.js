@@ -217,50 +217,29 @@ class NetJSONGraphUtil {
 
   /**
    * @function
-   * @name NetJSONMetadata
-   * Display metadata of NetJSONGraph.
-   *
-   * @this   {object}   NetJSONGraph object
-   *
-   * @return {object} metadataContainer DOM
-   */
-
-  // NetJSONMetadata() {
-  //   const metadataContainer = document.createElement("div");
-  //   const innerDiv = document.createElement("div");
-  //   const closeA = document.createElement("a");
-  //   metadataContainer.setAttribute("class", "njg-metadata njg-container");
-  //   metadataContainer.setAttribute("style", "display: block");
-  //   innerDiv.setAttribute("class", "njg-inner");
-  //   innerDiv.setAttribute("id", "metadata-innerDiv");
-  //   closeA.setAttribute("class", "njg-close");
-  //   closeA.setAttribute("id", "metadata-close");
-
-  //   closeA.onclick = () => {
-  //     metadataContainer.style.visibility = "hidden";
-  //   };
-  //   innerDiv.innerHTML = this.utils.getMetadata.call(this);
-  //   metadataContainer.appendChild(innerDiv);
-  //   metadataContainer.appendChild(closeA);
-
-  //   return metadataContainer;
-  // }
-
-  /**
-   * @function
    * @name updateMetadata
    *
    * @this  {object}   NetJSONGraph object
    *
    */
-  // updateMetadata() {
-  //   if (this.config.metadata) {
-  //     document.getElementsByClassName("njg-metadata")[0].style.visibility =
-  //       "visible";
-  //     document.getElementById("metadata-innerDiv").innerHTML =
-  //       this.utils.getMetadata.call(this);
-  //   }
-  // }
+  updateMetadata() {
+    if (this.config.metadata) {
+      const metaData = this.utils.getMetadata(this.data);
+      const metadataContainer = document.querySelector(".njg-metaData");
+      Object.keys(metaData).forEach((key) => {
+        const metaDataItems = document.createElement("div");
+        metaDataItems.classList.add("njg-metaDataItems");
+        const keyLabel = document.createElement("span");
+        keyLabel.setAttribute("class", "njg-keyLabel");
+        const valueLabel = document.createElement("span");
+        keyLabel.innerHTML = key;
+        valueLabel.innerHTML = metaData[key];
+        metaDataItems.appendChild(keyLabel);
+        metaDataItems.appendChild(valueLabel);
+        metadataContainer.appendChild(metaDataItems);
+      });
+    }
+  }
 
   /**
    * @function
@@ -309,36 +288,35 @@ class NetJSONGraphUtil {
    */
 
   nodeInfo(node) {
-    const nodeInfo = {};
-    nodeInfo["id"] = node.id;
+    let html = `<p><b>id</b>: ${node.id}</p>`;
     if (node.label && typeof node.label === "string") {
-      nodeInfo["label"] = node.label;
+      html += `<p><b>label</b>: ${node.label}</p>`;
     }
     if (node.properties) {
       Object.keys(node.properties).forEach((key) => {
         if (key === "location") {
-          nodeInfo[key] = {
-            lat: node.properties.location.lat,
-            lng: node.properties.location.lng,
-          };
+          html += `<p><b>location</b>:<br />lat: ${node.properties.location.lat}<br />lng: ${node.properties.location.lng}<br /></p>`;
         } else if (key === "time") {
-          const time = this.dateParse({
+          html += `<p><b>time</b>: ${this.dateParse({
             dateString: node.properties[key],
-          });
-          nodeInfo[key] = time;
+          })}</p>`;
         } else {
-          nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
+          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
+            node.properties[key]
+          }</p>`;
         }
       });
     }
     if (node.linkCount) {
-      nodeInfo["linkCount"] = node.linkCount;
+      html += `<p><b>links</b>: ${node.linkCount}</p>`;
     }
     if (node.local_addresses) {
-      nodeInfo["local_addresses"] = node.local_addresses;
+      html += `<p><b>local addresses</b>:<br />${node.local_addresses.join(
+        "<br />",
+      )}</p>`;
     }
 
-    return nodeInfo;
+    return html;
   }
 
   /**
@@ -352,24 +330,22 @@ class NetJSONGraphUtil {
    */
 
   linkInfo(link) {
-    const linkInfo = {};
-    linkInfo["source"] = link.source;
-    linkInfo["target"] = link.target;
-    linkInfo["cost"] = link.cost;
+    let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${link.target}</p><p><b>cost</b>: ${link.cost}</p>`;
     if (link.properties) {
       Object.keys(link.properties).forEach((key) => {
         if (key === "time") {
-          const time = this.dateParse({
+          html += `<p><b>time</b>: ${this.dateParse({
             dateString: link.properties[key],
-          });
-          linkInfo[key] = time;
+          })}</p>`;
         } else {
-          linkInfo[key.replace(/_/g, " ")] = link.properties[key];
+          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
+            link.properties[key]
+          }</p>`;
         }
       });
     }
 
-    return linkInfo;
+    return html;
   }
 
   generateStyle(styleConfig, item) {

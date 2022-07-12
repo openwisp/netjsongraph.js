@@ -96,7 +96,10 @@ class NetJSONGraph {
       onLoad() {
         const gui = this.utils.getGUI(this);
         gui.init();
-        gui.createAboutContainer(graph);
+        if (this.config.metadata) {
+          gui.createAboutContainer(graph);
+          this.utils.updateMetadata.call(this);
+        }
         if (this.config.switchMode) {
           gui.renderModeSelector.onclick = () => {
             if (this.config.render === this.utils.mapRender) {

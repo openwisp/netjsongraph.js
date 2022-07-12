@@ -73,7 +73,10 @@
           onLoad: function () {
             const gui = this.utils.getGUI(this);
             gui.init();
-            gui.createAboutContainer(map);
+            if (this.config.metadata) {
+              gui.createAboutContainer(graph);
+              this.utils.updateMetadata.call(this);
+            }
             if (this.config.switchMode) {
               gui.renderModeSelector.onclick = () => {
                 if (this.config.render === this.utils.mapRender) {

@@ -26,8 +26,8 @@ p {
 
 .switch-wrap {
   position: absolute;
-  left: 50px;
-  bottom: 45px;
+  right: 40px;
+  bottom: 30px;
   z-index: 1;
   color: #fff;
 }
@@ -79,7 +79,7 @@ p {
 }
 .njg-date {
   position: absolute;
-  right: 0;
+  right: 20px;
   bottom: 20px;
   z-index: 1;
   color: #fff;

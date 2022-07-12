@@ -99,7 +99,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
             }
           }
           // update metadata
-          self.utils.updateMetadata.call(self);
+          this.utils.updateMetadata.call(this);
         }
         if (isRaw) {
           self.config.prepareData.call(self, JSONData);

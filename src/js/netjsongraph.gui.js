@@ -41,29 +41,16 @@ class NetJSONGraphGUI {
   }
 
   createAboutContainer() {
-    const metaData = this.self.utils.getMetadata(this.self.data);
     const aboutContainer = document.createElement("div");
     const header = document.createElement("h2");
     const metadataContainer = document.createElement("div");
 
     metadataContainer.classList.add("njg-metaData");
     aboutContainer.classList.add("njg-aboutContainer");
-
     header.innerHTML = "About";
-    Object.keys(metaData).forEach((key) => {
-      const metaDataItems = document.createElement("div");
-      metaDataItems.classList.add("njg-metaDataItems");
-      const keyLabel = document.createElement("span");
-      keyLabel.setAttribute("class", "njg-keyLabel");
-      const valueLabel = document.createElement("span");
-      keyLabel.innerHTML = key;
-      valueLabel.innerHTML = metaData[key];
-      metaDataItems.appendChild(keyLabel);
-      metaDataItems.appendChild(valueLabel);
-      metadataContainer.appendChild(metaDataItems);
-    });
     aboutContainer.appendChild(header);
     aboutContainer.appendChild(metadataContainer);
+
     this.sideBar.appendChild(aboutContainer);
     this.nodeLinkInfoContainer = this.createNodeLinkInfoContainer();
     return aboutContainer;

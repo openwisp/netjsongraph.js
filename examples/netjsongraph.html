@@ -12,40 +12,7 @@
     <script type="text/javascript">
       // `graph` render defaultly.
       // We can add data gradually by array.
-      const graph = new NetJSONGraph("./data/netjsonmap.json", {
-        switchMode: true,
-        mapTileConfig: [
-          {
-            options: {
-              minZoom: 3,
-              maxZoom: 30,
-              attribution:
-                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            },
-          },
-        ],
-        // set map initial state.
-        mapOptions: {
-          roam: true,
-          center: [46.86764405052012, 19.675998687744144],
-          zoom: 5,
-          nodeConfig: {
-            label: {
-              offset: [0, -10],
-            },
-          },
-        },
-        // Convert to internal json format
-        prepareData: (data) => {
-          data.nodes.map((node) => {
-            node.label = node.name;
-            node.properties = Object.assign(node.properties || {}, {
-              location: node.location,
-            });
-          });
-        },
-      });
-
+      const graph = new NetJSONGraph("./data/netjsonmap.json");
       graph.render();
     </script>
   </body>
