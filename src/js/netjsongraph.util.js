@@ -1,5 +1,5 @@
 import NetJSONGraphGUI from "./netjsongraph.gui";
-/* eslint-disable dot-notation */
+
 class NetJSONGraphUtil {
   /**
    * @function
@@ -226,6 +226,12 @@ class NetJSONGraphUtil {
     if (this.config.metadata) {
       const metaData = this.utils.getMetadata(this.data);
       const metadataContainer = document.querySelector(".njg-metaData");
+      const metadataChildren = document.querySelectorAll(".njg-metaDataItems");
+
+      for (let i = 0; i < metadataChildren.length; i += 1) {
+        metadataChildren[i].remove();
+      }
+
       Object.keys(metaData).forEach((key) => {
         const metaDataItems = document.createElement("div");
         metaDataItems.classList.add("njg-metaDataItems");
@@ -263,8 +269,7 @@ class NetJSONGraphUtil {
     const metaDataObj = {};
 
     if (metadata.label) {
-      // We only need this label property if it exists.
-      metaDataObj["label"] = metadata.label;
+      metaDataObj.label = metadata.label;
     }
     attrs.forEach((attr) => {
       if (metadata[attr]) {
@@ -272,8 +277,8 @@ class NetJSONGraphUtil {
       }
     });
 
-    metaDataObj["nodes"] = metadata.nodes.length;
-    metaDataObj["links"] = metadata.links.length;
+    metaDataObj.nodes = metadata.nodes.length;
+    metaDataObj.links = metadata.links.length;
     return metaDataObj;
   }
 
@@ -288,6 +293,46 @@ class NetJSONGraphUtil {
    */
 
   nodeInfo(node) {
+    const nodeInfo = {};
+    nodeInfo.id = node.id;
+    if (node.label && typeof node.label === "string") {
+      nodeInfo.label = node.label;
+    }
+    if (node.name) {
+      nodeInfo.name = node.name;
+    }
+    if (node.location) {
+      nodeInfo.location = node.location;
+    }
+
+    if (node.properties) {
+      Object.keys(node.properties).forEach((key) => {
+        if (key === "location") {
+          nodeInfo[key] = {
+            lat: node.properties.location.lat,
+            lng: node.properties.location.lng,
+          };
+        } else if (key === "time") {
+          const time = this.dateParse({
+            dateString: node.properties[key],
+          });
+          nodeInfo[key] = time;
+        } else {
+          nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
+        }
+      });
+    }
+    if (node.linkCount) {
+      nodeInfo.linkCount = node.linkCount;
+    }
+    if (node.local_addresses) {
+      nodeInfo.localAddresses = node.local_addresses;
+    }
+
+    return nodeInfo;
+  }
+
+  getNodeTooltipInfo(node) {
     let html = `<p><b>id</b>: ${node.id}</p>`;
     if (node.label && typeof node.label === "string") {
       html += `<p><b>label</b>: ${node.label}</p>`;
@@ -315,21 +360,10 @@ class NetJSONGraphUtil {
         "<br />",
       )}</p>`;
     }
-
     return html;
   }
 
-  /**
-   * @function
-   * @name linkInfo
-   *
-   * Parse the infomation of incoming link data.
-   * @param  {object}    link
-   *
-   * @return {string}    html dom string
-   */
-
-  linkInfo(link) {
+  getLinkTooltipInfo(link) {
     let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${link.target}</p><p><b>cost</b>: ${link.cost}</p>`;
     if (link.properties) {
       Object.keys(link.properties).forEach((key) => {
@@ -344,8 +378,37 @@ class NetJSONGraphUtil {
         }
       });
     }
-
     return html;
+  }
+  /**
+   * @function
+   * @name linkInfo
+   *
+   * Parse the infomation of incoming link data.
+   * @param  {object}    link
+   *
+   * @return {string}    html dom string
+   */
+
+  linkInfo(link) {
+    const linkInfo = {};
+    linkInfo.source = link.source;
+    linkInfo.target = link.target;
+    linkInfo.cost = link.cost;
+    if (link.properties) {
+      Object.keys(link.properties).forEach((key) => {
+        if (key === "time") {
+          const time = this.dateParse({
+            dateString: link.properties[key],
+          });
+          linkInfo[key] = time;
+        } else {
+          linkInfo[key.replace(/_/g, " ")] = link.properties[key];
+        }
+      });
+    }
+
+    return linkInfo;
   }
 
   generateStyle(styleConfig, item) {

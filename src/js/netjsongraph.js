@@ -116,7 +116,13 @@ class NetJSONGraph {
           };
         }
         this.config.onClickElement = (type, data) => {
-          gui.getNodeLinkInfo(type, data);
+          let nodeLinkData;
+          if (type === "node") {
+            nodeLinkData = this.utils.nodeInfo(data);
+          } else {
+            nodeLinkData = this.utils.linkInfo(data);
+          }
+          gui.getNodeLinkInfo(type, nodeLinkData);
           gui.sideBar.classList.remove("hidden");
         };
         this.utils.hideLoading.call(this);

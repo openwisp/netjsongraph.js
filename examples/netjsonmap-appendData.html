@@ -72,7 +72,7 @@
             const gui = this.utils.getGUI(this);
             gui.init();
             if (this.config.metadata) {
-              gui.createAboutContainer(graph);
+              gui.createAboutContainer(map);
               this.utils.updateMetadata.call(this);
             }
             if (this.config.switchMode) {
@@ -91,7 +91,13 @@
               };
             }
             this.config.onClickElement = (type, data) => {
-              gui.getNodeLinkInfo(type, data);
+              let nodeLinkData;
+              if (type === "node") {
+                nodeLinkData = this.utils.nodeInfo(data);
+              } else {
+                nodeLinkData = this.utils.linkInfo(data);
+              }
+              gui.getNodeLinkInfo(type, nodeLinkData);
               gui.sideBar.classList.remove("hidden");
             };
             /* 

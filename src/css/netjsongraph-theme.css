@@ -168,6 +168,7 @@ p {
   transition: left 0.5s;
   display: flex;
   flex-direction: column;
+  user-select: text;
 }
 
 .hidden {

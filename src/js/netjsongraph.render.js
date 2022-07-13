@@ -58,15 +58,15 @@ class NetJSONGraphRender {
           formatter: (params) => {
             if (params.componentSubType === "graph") {
               return params.dataType === "edge"
-                ? self.utils.linkInfo(params.data)
-                : self.utils.nodeInfo(params.data);
+                ? self.utils.getLinkTooltipInfo(params.data)
+                : self.utils.getNodeTooltipInfo(params.data);
             }
             if (params.componentSubType === "graphGL") {
-              return self.utils.nodeInfo(params.data);
+              return self.utils.getNodeTooltipInfo(params.data);
             }
             return params.componentSubType === "lines"
-              ? self.utils.linkInfo(params.data.link)
-              : self.utils.nodeInfo(params.data.node);
+              ? self.utils.getLinkTooltipInfo(params.data.link)
+              : self.utils.getNodeTooltipInfo(params.data.node);
           },
         },
       },
@@ -78,7 +78,6 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
-
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",

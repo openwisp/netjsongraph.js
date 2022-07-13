@@ -64,7 +64,14 @@
             };
           }
           this.config.onClickElement = (type, data) => {
-            gui.getNodeLinkInfo(type, data);
+            let nodeLinkData;
+            console.log(data);
+            if (type === "node") {
+              nodeLinkData = this.utils.nodeInfo(data);
+            } else {
+              nodeLinkData = this.utils.linkInfo(data);
+            }
+            gui.getNodeLinkInfo(type, nodeLinkData);
             clickElement.call(this, type, data);
             gui.sideBar.classList.remove("hidden");
           };
