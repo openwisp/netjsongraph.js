@@ -41,8 +41,9 @@
         z-index: 2;
       }
       #legend p {
-        line-height: 16px;
         margin: 10px 0;
+        display: flex;
+        align-items: center;
       }
       #legend span {
         width: 16px;
@@ -67,19 +68,10 @@
       }
       #legend .wireless {
         border-color: #669999;
-      } /* light green */
-      #legend .wireless_weak {
-        border-color: #ccccff;
-      } /* light grey */
+      } 
       #legend .ethernet {
         border-color: #00ff00;
-      } /* glowing green */
-      #legend .fiber {
-        border-color: #1f77b4;
-      }
-      #legend .vpn {
-        border-color: purple;
-      }
+      } 
     </style>
   </head>
   <body>
@@ -88,10 +80,7 @@
       <p><span class="circle node">&nbsp;</span> ordinary node</p>
       <p><span class="circle gateway">&nbsp;</span> gateway node</p>
       <p><span class="link wireless">&nbsp;</span> wireless link</p>
-      <p><span class="link wireless_weak">&nbsp;</span> weak wireless link</p>
       <p><span class="link ethernet">&nbsp;</span> ethernet link</p>
-      <p><span class="link fiber">&nbsp;</span> fiber link</p>
-      <p><span class="link vpn">&nbsp;</span> vpn link</p>
     </div>
     <div id="container"></div>
     <script type="text/javascript">
@@ -186,31 +175,10 @@
             },
           },
           {
-            name: "wireless_weak",
-            linkStyle: {
-              color: "#ccccff",
-              width: 10,
-            },
-          },
-          {
             name: "ethernet",
             linkStyle: {
               color: "#00ff00",
               opacity: 0.7,
-              width: 10,
-            },
-          },
-          {
-            name: "fiber",
-            linkStyle: {
-              color: "#1f77b4",
-              width: 10,
-            },
-          },
-          {
-            name: "vpn",
-            linkStyle: {
-              color: "purple",
               width: 10,
             },
           },
@@ -225,7 +193,7 @@
             }
           });
           data.links.map((link) => {
-            if (link.properties.type) {
+            if (link.properties.type==='wireless' || link.properties.type==='ethernet') {
               link.category = link.properties.type;
             }
           });

@@ -323,7 +323,7 @@ class NetJSONGraphUtil {
       });
     }
     if (node.linkCount) {
-      nodeInfo.linkCount = node.linkCount;
+      nodeInfo.links = node.linkCount;
     }
     if (node.local_addresses) {
       nodeInfo.localAddresses = node.local_addresses;
