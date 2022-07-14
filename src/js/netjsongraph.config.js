@@ -74,16 +74,16 @@ const NetJSONGraphDefaultConfig = {
       legendHoverLink: true,
       emphasis: {focus: "none"},
       nodeStyle: {
-        color: "#fff",
+        color: "#FEE715FF",
       },
       linkStyle: {
-        width: 3,
+        width: 5,
         color: "#1aa422",
       },
-      nodeSize: "15",
+      nodeSize: "17",
     },
     baseOptions: {
-      backgroundColor: "#3F3F3E",
+      backgroundColor: "#101820FF",
     },
   },
 
@@ -100,11 +100,11 @@ const NetJSONGraphDefaultConfig = {
       nodeStyle: {
         color: "#1566a9",
       },
-      nodeSize: "15",
+      nodeSize: "17",
     },
     linkConfig: {
       linkStyle: {
-        width: 4,
+        width: 5,
         color: "#1aa422",
       },
     },

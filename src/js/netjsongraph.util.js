@@ -332,53 +332,91 @@ class NetJSONGraphUtil {
     return nodeInfo;
   }
 
+  createTooltipItem(key, value) {
+    const item = document.createElement("div");
+    item.classList.add("njg-tooltip-item");
+    const keyLabel = document.createElement("span");
+    keyLabel.setAttribute("class", "njg-tooltip-key");
+    const valueLabel = document.createElement("span");
+    valueLabel.setAttribute("class", "njg-tooltip-value");
+    keyLabel.innerHTML = key;
+    valueLabel.innerHTML = value;
+    item.appendChild(keyLabel);
+    item.appendChild(valueLabel);
+    return item;
+  }
+
   getNodeTooltipInfo(node) {
-    let html = `<p><b>id</b>: ${node.id}</p>`;
-    if (node.label && typeof node.label === "string") {
-      html += `<p><b>label</b>: ${node.label}</p>`;
+    const container = document.createElement("div");
+    container.classList.add("njg-tooltip-inner");
+    if (node.id) {
+      container.appendChild(this.createTooltipItem("id", node.id));
     }
+    if (node.label && typeof node.label === "string") {
+      container.appendChild(this.createTooltipItem("label", node.label));
+    }
+
     if (node.properties) {
       Object.keys(node.properties).forEach((key) => {
         if (key === "location") {
-          html += `<p><b>location</b>:<br />lat: ${node.properties.location.lat}<br />lng: ${node.properties.location.lng}<br /></p>`;
+          container.appendChild(
+            this.createTooltipItem(
+              "location",
+              `${Math.round(node.properties.location.lat * 1000) / 1000}, ${
+                Math.round(node.properties.location.lng * 1000) / 1000
+              }`,
+            ),
+          );
         } else if (key === "time") {
-          html += `<p><b>time</b>: ${this.dateParse({
+          const time = this.dateParse({
             dateString: node.properties[key],
-          })}</p>`;
+          });
+          container.appendChild(this.createTooltipItem("time", time));
         } else {
-          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-            node.properties[key]
-          }</p>`;
+          container.appendChild(
+            this.createTooltipItem(
+              `${key.replace(/_/g, " ")}`,
+              node.properties[key],
+            ),
+          );
         }
       });
     }
     if (node.linkCount) {
-      html += `<p><b>links</b>: ${node.linkCount}</p>`;
+      container.appendChild(this.createTooltipItem("Links", node.linkCount));
     }
     if (node.local_addresses) {
-      html += `<p><b>local addresses</b>:<br />${node.local_addresses.join(
-        "<br />",
-      )}</p>`;
+      container.appendChild(
+        this.createTooltipItem("Local Addresses", node.local_addresses),
+      );
     }
-    return html;
+    return container;
   }
 
   getLinkTooltipInfo(link) {
-    let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${link.target}</p><p><b>cost</b>: ${link.cost}</p>`;
+    const container = document.createElement("div");
+    container.classList.add("njg-tooltip-inner");
+    container.appendChild(this.createTooltipItem("source", link.source));
+    container.appendChild(this.createTooltipItem("target", link.target));
+    container.appendChild(this.createTooltipItem("cost", link.cost));
     if (link.properties) {
       Object.keys(link.properties).forEach((key) => {
         if (key === "time") {
-          html += `<p><b>time</b>: ${this.dateParse({
+          const time = this.dateParse({
             dateString: link.properties[key],
-          })}</p>`;
+          });
+          container.appendChild(this.createTooltipItem("time", time));
         } else {
-          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-            link.properties[key]
-          }</p>`;
+          container.appendChild(
+            this.createTooltipItem(
+              `${key.replace(/_/g, " ")}`,
+              link.properties[key],
+            ),
+          );
         }
       });
     }
-    return html;
+    return container;
   }
   /**
    * @function

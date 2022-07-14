@@ -208,7 +208,7 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  padding: 20px 0px;
 }
 
 .njg-metaData,
@@ -237,18 +237,47 @@ p {
   padding: 5px 0;
 }
 
+.njg-tooltip {
+  background: rgba(251, 251, 251, 0.9) !important;
+  border: none !important;
+}
+
+.njg-tooltip-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1px 0;
+  flex-wrap: wrap;
+}
+
+.njg-tooltip-key {
+  display: inline-flex;
+  flex-basis: 40%;
+  flex-wrap: wrap;
+  text-transform: capitalize;
+  font-weight: 600;
+  color: #000;
+}
+.njg-tooltip-value {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-basis: 60%;
+  color: #000;
+}
+
 .njg-headerContainer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   text-transform: capitalize;
   width: 100%;
-}
-
-.njg-headerContainer h2 {
-  transform: translate(100%, 0);
+  padding: 0 15px;
+  position: relative;
 }
 
 .njg-headerContainer #closeButton {
+  position: absolute;
+  right: 20px;
   cursor: pointer;
 }

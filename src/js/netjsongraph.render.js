@@ -52,7 +52,10 @@ class NetJSONGraphRender {
             }
             return position;
           },
-          padding: [5, 16],
+          padding: [5, 12],
+          textStyle: {
+            lineHeight: 5,
+          },
           renderMode: "html",
           className: "njg-tooltip",
           formatter: (params) => {
