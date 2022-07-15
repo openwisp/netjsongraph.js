@@ -225,6 +225,13 @@ p {
 .njg-keyLabel {
   font-size: 14px;
   font-weight: 600;
+  flex: 1 1 50%;
+  word-break: break-word;
+}
+
+.njg-valueLabel {
+  flex: 1 1 50%;
+  word-break: break-word;
 }
 
 .njg-metaDataItems,
@@ -232,7 +239,6 @@ p {
   display: flex;
   align-items: center;
   width: 100%;
-  justify-content: space-between;
   text-transform: capitalize;
   padding: 5px 0;
 }

@@ -238,6 +238,7 @@ class NetJSONGraphUtil {
         const keyLabel = document.createElement("span");
         keyLabel.setAttribute("class", "njg-keyLabel");
         const valueLabel = document.createElement("span");
+        valueLabel.setAttribute("class", "njg-valueLabel");
         keyLabel.innerHTML = key;
         valueLabel.innerHTML = metaData[key];
         metaDataItems.appendChild(keyLabel);
@@ -387,7 +388,10 @@ class NetJSONGraphUtil {
     }
     if (node.local_addresses) {
       container.appendChild(
-        this.createTooltipItem("Local Addresses", node.local_addresses),
+        this.createTooltipItem(
+          "Local Addresses",
+          node.local_addresses.join("<br/>"),
+        ),
       );
     }
     return container;

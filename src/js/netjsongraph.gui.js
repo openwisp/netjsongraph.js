@@ -96,11 +96,15 @@ class NetJSONGraphGUI {
       const keyLabel = document.createElement("span");
       keyLabel.setAttribute("class", "njg-keyLabel");
       const valueLabel = document.createElement("span");
+      valueLabel.setAttribute("class", "njg-valueLabel");
       if (key === "location") {
         keyLabel.innerHTML = "Location";
         valueLabel.innerHTML = `${Math.round(data[key].lat * 1000) / 1000}, ${
           Math.round(data[key].lng * 1000) / 1000
         }`;
+      } else if (key === "localAddresses") {
+        keyLabel.innerHTML = "Local Addresses";
+        valueLabel.innerHTML = data[key].join("<br/>");
       } else {
         keyLabel.innerHTML = key;
         valueLabel.innerHTML = data[key];
