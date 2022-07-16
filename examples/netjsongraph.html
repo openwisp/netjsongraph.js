@@ -45,10 +45,12 @@
         border-bottom-style: solid;
       }
       #legend .link-up {
-        color: #1aa422;
+        color: #3acc38;
+        margin-right: 10px;
       }
       #legend .link-down {
-        color: #ff0000;
+        color: red;
+        margin-right: 10px;
       }
     </style>
   </head>
@@ -62,8 +64,14 @@
           {
             name: "down",
             linkStyle: {
-              color: "#FF0000",
+              color: "#c92517",
               width: 5,
+            },
+            emphasis: {
+              linkStyle: {
+                color: "#FD0101",
+                opacity: 1,
+              },
             },
           },
         ],

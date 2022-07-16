@@ -51,10 +51,12 @@
         border-bottom-style: solid;
       }
       #legend .link-up {
-        color: #1aa422;
+        color: #3acc38;
+        margin-right: 10px;
       }
       #legend .link-down {
-        color: #ff0000;
+        color: red;
+        margin-right: 10px;
       }
     </style>
   </head>
@@ -63,17 +65,6 @@
     <script type="text/javascript">
       const map = new NetJSONGraph("./data/netjsonmap.json", {
         render: "map",
-        // set map tiles config, can set multiple values.
-        mapTileConfig: [
-          {
-            options: {
-              minZoom: 3,
-              maxZoom: 30,
-              attribution:
-                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            },
-          },
-        ],
         // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
@@ -88,8 +79,14 @@
           {
             name: "down",
             linkStyle: {
-              color: "#FF0000",
+              color: "#c92517",
               width: 5,
+            },
+            emphasis: {
+              linkStyle: {
+                color: "#FD0101",
+                opacity: 1,
+              },
             },
           },
         ],

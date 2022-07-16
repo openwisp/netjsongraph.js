@@ -184,8 +184,8 @@ p {
   border-radius: 5px;
   outline: none;
   font-size: 24px;
-  width: 50px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   cursor: pointer;
   padding: 0;
   transition: all 0.5s;
@@ -244,7 +244,7 @@ p {
 }
 
 .njg-tooltip {
-  background: rgba(251, 251, 251, 0.9) !important;
+  background: #fff !important;
   border: none !important;
 }
 

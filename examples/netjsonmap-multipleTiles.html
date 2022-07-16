@@ -16,32 +16,44 @@
       .njg-metadata {
         left: 50px;
       }
+      .leaflet-control-zoom {
+        right: 5px;
+      }
     </style>
   </head>
   <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
-            The demo is used to show the multiple tiles render.
-        */
+                 The demo is used to show the multiple tiles render.
+             */
       const map = new NetJSONGraph("./data/netjsonmap.json", {
         render: "map",
         // set multiple tiles config, can change them dynamically.
         mapTileConfig: [
           {
-            label: "Blue Street",
+            label: "Outdoor",
             urlTemplate:
-              "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
+              "https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
             options: {
-              minZoom: 0.25,
-              maxZoom: 18,
+              minZoom: 3,
+              maxZoom: 32,
+              attribution:
+                '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
             },
           },
           {
-            label: "Open Street Map",
+            label: "Terrain",
             urlTemplate:
-              "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-            options: {},
+              "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}",
+            options: {
+              attribution:
+                'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+              subdomains: "abcd",
+              minZoom: 3,
+              maxZoom: 32,
+              ext: "png",
+            },
           },
         ],
         // set map initial state.
@@ -50,7 +62,6 @@
           zoom: 6,
           nodeConfig: {
             label: {
-              color: "white",
               offset: [0, -10],
             },
           },

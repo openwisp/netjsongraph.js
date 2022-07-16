@@ -117,23 +117,26 @@ class NetJSONGraphRender {
     const configs = self.config;
     const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
-      const {nodeStyleConfig, nodeSizeConfig} = self.utils.getNodeStyle(
-        node,
-        configs,
-        "graph",
-      );
+      const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
+        self.utils.getNodeStyle(node, configs, "graph");
 
       nodeResult.itemStyle = nodeStyleConfig;
       nodeResult.symbolSize = nodeSizeConfig;
+      nodeResult.emphasis = {itemStyle: nodeEmphasisConfig};
       nodeResult.name = typeof node.label === "string" ? node.label : node.id;
 
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
       const linkResult = JSON.parse(JSON.stringify(link));
-      const {linkStyleConfig} = self.utils.getLinkStyle(link, configs, "graph");
+      const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
+        link,
+        configs,
+        "graph",
+      );
 
       linkResult.lineStyle = linkStyleConfig;
+      linkResult.emphasis = {lineStyle: linkEmphasisConfig};
 
       return linkResult;
     });
@@ -191,16 +194,15 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeStyleConfig, nodeSizeConfig} = self.utils.getNodeStyle(
-            node,
-            configs,
-            "map",
-          );
+          const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
+            self.utils.getNodeStyle(node, configs, "map");
+
           nodesData.push({
             name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
             symbolSize: nodeSizeConfig,
             itemStyle: nodeStyleConfig,
+            emphasis: {itemStyle: nodeEmphasisConfig},
             node,
           });
           if (!JSONData.flatNodes) {
@@ -215,7 +217,11 @@ class NetJSONGraphRender {
       } else if (!flatNodes[link.target]) {
         console.error(`Node ${link.target} is not exist!`);
       } else {
-        const {linkStyleConfig} = self.utils.getLinkStyle(link, configs, "map");
+        const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
+          link,
+          configs,
+          "map",
+        );
         linesData.push({
           coords: [
             [
@@ -228,6 +234,7 @@ class NetJSONGraphRender {
             ],
           ],
           lineStyle: linkStyleConfig,
+          emphasis: {lineStyle: linkEmphasisConfig},
           link,
         });
       }

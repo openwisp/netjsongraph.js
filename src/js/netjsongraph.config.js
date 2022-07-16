@@ -72,18 +72,24 @@ const NetJSONGraphDefaultConfig = {
       roam: true,
       draggable: true,
       legendHoverLink: true,
-      emphasis: {focus: "none"},
+      emphasis: {
+        focus: "none",
+        lineStyle: {
+          color: "#3acc38",
+          opacity: 1,
+        },
+      },
       nodeStyle: {
-        color: "#FEE715FF",
+        color: "#f4d38c",
       },
       linkStyle: {
         width: 5,
-        color: "#1aa422",
+        color: "#1ba619",
       },
       nodeSize: "17",
     },
     baseOptions: {
-      backgroundColor: "#101820FF",
+      backgroundColor: "#2B2B2B",
     },
   },
 
@@ -105,7 +111,14 @@ const NetJSONGraphDefaultConfig = {
     linkConfig: {
       linkStyle: {
         width: 5,
-        color: "#1aa422",
+        color: "#1ba619",
+      },
+      emphasis: {
+        focus: "none",
+        lineStyle: {
+          color: "#3acc38",
+          opacity: 1,
+        },
       },
     },
     baseOptions: {
@@ -114,7 +127,18 @@ const NetJSONGraphDefaultConfig = {
       },
     },
   },
-  mapTileConfig: [],
+  mapTileConfig: [
+    {
+      urlTemplate:
+        "https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
+      options: {
+        minZoom: 3,
+        maxZoom: 32,
+        attribution:
+          '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+      },
+    },
+  ],
   nodeCategories: [],
   linkCategories: [],
 

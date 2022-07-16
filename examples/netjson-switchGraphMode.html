@@ -17,6 +17,10 @@
       .njg-metadata {
         left: 50px;
       }
+      .leaflet-control-zoom {
+        top: 55px;
+        right: 1px;
+      }
     </style>
   </head>
   <body>
@@ -28,17 +32,6 @@
       const map = new NetJSONGraph("./data/netjsonmap.json", {
         render: "map",
         switchMode: true,
-        // set map tiles config, can set multiple values.
-        mapTileConfig: [
-          {
-            options: {
-              minZoom: 3,
-              maxZoom: 30,
-              attribution:
-                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            },
-          },
-        ],
         // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],

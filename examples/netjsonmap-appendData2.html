@@ -33,25 +33,12 @@
         ],
         {
           render: "map",
-          // set map tiles config, can set multiple values.
-          mapTileConfig: [
-            {
-              label: "Blue Street",
-              urlTemplate:
-                "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
-              options: {
-                minZoom: 0.25,
-                maxZoom: 18,
-              },
-            },
-          ],
           // set map initial state.
           mapOptions: {
             center: [46.86764405052012, 19.675998687744144],
             zoom: 2,
             nodeConfig: {
               label: {
-                color: "white",
                 offset: [0, -10],
               },
             },
