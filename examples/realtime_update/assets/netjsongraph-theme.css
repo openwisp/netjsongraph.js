@@ -168,6 +168,7 @@ p {
   transition: left 0.5s;
   display: flex;
   flex-direction: column;
+  user-select: text;
 }
 
 .hidden {
@@ -183,8 +184,8 @@ p {
   border-radius: 5px;
   outline: none;
   font-size: 24px;
-  width: 50px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   cursor: pointer;
   padding: 0;
   transition: all 0.5s;
@@ -207,7 +208,7 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  padding: 20px 0px;
 }
 
 .njg-metaData,
@@ -224,6 +225,13 @@ p {
 .njg-keyLabel {
   font-size: 14px;
   font-weight: 600;
+  flex: 1 1 50%;
+  word-break: break-word;
+}
+
+.njg-valueLabel {
+  flex: 1 1 50%;
+  word-break: break-word;
 }
 
 .njg-metaDataItems,
@@ -231,23 +239,51 @@ p {
   display: flex;
   align-items: center;
   width: 100%;
-  justify-content: space-between;
   text-transform: capitalize;
   padding: 5px 0;
+}
+
+.njg-tooltip {
+  background: #fff !important;
+  border: none !important;
+}
+
+.njg-tooltip-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1px 0;
+  flex-wrap: wrap;
+}
+
+.njg-tooltip-key {
+  display: inline-flex;
+  flex-basis: 40%;
+  flex-wrap: wrap;
+  text-transform: capitalize;
+  font-weight: 600;
+  color: #000;
+}
+.njg-tooltip-value {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-basis: 60%;
+  color: #000;
 }
 
 .njg-headerContainer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   text-transform: capitalize;
   width: 100%;
-}
-
-.njg-headerContainer h2 {
-  transform: translate(100%, 0);
+  padding: 0 15px;
+  position: relative;
 }
 
 .njg-headerContainer #closeButton {
+  position: absolute;
+  right: 20px;
   cursor: pointer;
 }

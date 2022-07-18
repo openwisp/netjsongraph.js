@@ -2,17 +2,6 @@ import NetJSONGraph from "../src/js/netjsongraph.core";
 
 describe("NetJSONGraph Specification", () => {
   const NetJSONGraphOption = {
-    title: {
-      text: "NetJSONGraph",
-      link: "",
-      textStyle: {
-        color: "grey",
-        fontWeight: "bold",
-        fontSize: 30,
-      },
-      left: "center",
-      top: "5%",
-    },
     aria: {
       show: true,
       description:
@@ -20,6 +9,9 @@ describe("NetJSONGraph Specification", () => {
     },
     toolbox: {
       show: true,
+      iconStyle: {
+        borderColor: "#fff",
+      },
       feature: {
         restore: {
           show: true,
@@ -31,31 +23,76 @@ describe("NetJSONGraph Specification", () => {
         },
       },
     },
-    color: ["#d66b30", "#a3c7dd", "#5c9660", "#d66b30"],
   };
   const NetJSONGraphConfig = {
-    layout: "force",
-    label: {
-      show: true,
-      color: "#000000",
-      position: "top",
+    series: {
+      layout: "force",
+      label: {
+        show: true,
+        color: "#fff",
+        position: "top",
+      },
+      force: {
+        gravity: 0.1,
+        edgeLength: [20, 60],
+        repulsion: 120,
+      },
+      roam: true,
+      draggable: true,
+      legendHoverLink: true,
+      emphasis: {
+        focus: "none",
+        lineStyle: {
+          color: "#3acc38",
+          opacity: 1,
+        },
+      },
+      nodeStyle: {
+        color: "#f4d38c",
+      },
+      linkStyle: {
+        width: 5,
+        color: "#1ba619",
+      },
+      nodeSize: "17",
     },
-    force: {
-      gravity: 0.1,
-      edgeLength: [20, 60],
-      repulsion: 120,
+    baseOptions: {
+      backgroundColor: "#2B2B2B",
     },
-    roam: true,
-    draggable: true,
-    focusNodeAdjacency: false,
-    hoverAnimation: true,
-    legendHoverLink: true,
   };
-  const NetJSONGraphLinkStyle = {
-    width: 5,
-    color: "#999",
-    shadowColor: "rgba(0, 0, 0, 0.5)",
-    shadowBlur: 10,
+  const NetJSONGraphMapOptions = {
+    roam: true,
+    nodeConfig: {
+      type: "scatter",
+      label: {
+        show: true,
+        color: "#000000",
+        position: "top",
+        formatter: "{b}",
+      },
+      nodeStyle: {
+        color: "#1566a9",
+      },
+      nodeSize: "17",
+    },
+    linkConfig: {
+      linkStyle: {
+        width: 5,
+        color: "#1ba619",
+      },
+      emphasis: {
+        focus: "none",
+        lineStyle: {
+          color: "#3acc38",
+          opacity: 1,
+        },
+      },
+    },
+    baseOptions: {
+      toolbox: {
+        show: false,
+      },
+    },
   };
 
   test("APIs exist", () => {
@@ -109,18 +146,23 @@ describe("NetJSONGraph Specification", () => {
 
     expect(graph.config.graphConfig).toEqual(NetJSONGraphConfig);
 
-    expect(graph.config.mapOptions).toEqual({
-      roam: true,
-    });
-    expect(graph.config.mapTileConfig).toEqual([]);
-    expect(graph.config.mapLinkConfig).toEqual([{}]);
-    expect(graph.config.mapNodeConfig).toBeInstanceOf(Object);
-
-    expect(graph.config.nodeSize).toBeDefined();
-    expect(graph.config.nodeStyleProperty).toBeInstanceOf(Function);
-    expect(graph.config.linkStyleProperty).toBeInstanceOf(Function);
-    expect(graph.config.nodeStyleProperty()).toBeInstanceOf(Object);
-    expect(graph.config.linkStyleProperty()).toEqual(NetJSONGraphLinkStyle);
+    expect(graph.config.mapOptions).toEqual(NetJSONGraphMapOptions);
+    expect(graph.config.mapTileConfig).toEqual([
+      {
+        urlTemplate:
+          "https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
+        options: {
+          minZoom: 3,
+          maxZoom: 32,
+          attribution:
+            '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+        },
+      },
+    ]);
+    expect(graph.config.mapOptions.nodeConfig).toBeInstanceOf(Object);
+    expect(graph.config.mapOptions.linkConfig).toBeInstanceOf(Object);
+    expect(graph.config.nodeCategories).toEqual([]);
+    expect(graph.config.linkCategories).toEqual([]);
 
     expect(graph.config.onInit).toBeInstanceOf(Function);
     expect(graph.config.onInit.call(graph)).toBe(graph.config);
@@ -141,7 +183,6 @@ describe("NetJSONGraph Specification", () => {
     expect(graph.utils.searchElements).toBeInstanceOf(Function);
 
     // NetJSON Utils
-    expect(graph.utils.NetJSONMetadata).toBeInstanceOf(Function);
     expect(graph.utils.updateMetadata).toBeInstanceOf(Function);
     expect(graph.utils.nodeInfo).toBeInstanceOf(Function);
     expect(graph.utils.linkInfo).toBeInstanceOf(Function);
@@ -155,5 +196,13 @@ describe("NetJSONGraph Specification", () => {
     expect(graph.utils.hideLoading).toBeInstanceOf(Function);
     expect(graph.utils.createEvent).toBeInstanceOf(Function);
     expect(graph.utils.numberMinDigit).toBeInstanceOf(Function);
+    expect(graph.utils.generateStyle).toBeInstanceOf(Function);
+    expect(graph.utils.getGUI).toBeInstanceOf(Function);
+    expect(graph.utils.getLinkStyle).toBeInstanceOf(Function);
+    expect(graph.utils.getMetadata).toBeInstanceOf(Function);
+    expect(graph.utils.getNodeStyle).toBeInstanceOf(Function);
+    expect(graph.utils.createTooltipItem).toBeInstanceOf(Function);
+    expect(graph.utils.getNodeTooltipInfo).toBeInstanceOf(Function);
+    expect(graph.utils.getLinkTooltipInfo).toBeInstanceOf(Function);
   });
 });

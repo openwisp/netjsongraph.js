@@ -122,7 +122,10 @@ class NetJSONGraphRender {
 
       nodeResult.itemStyle = nodeStyleConfig;
       nodeResult.symbolSize = nodeSizeConfig;
-      nodeResult.emphasis = {itemStyle: nodeEmphasisConfig};
+      nodeResult.emphasis = {
+        itemStyle: nodeEmphasisConfig.nodeStyle,
+        symbolSize: nodeEmphasisConfig.nodeSize,
+      };
       nodeResult.name = typeof node.label === "string" ? node.label : node.id;
 
       return nodeResult;
@@ -136,7 +139,7 @@ class NetJSONGraphRender {
       );
 
       linkResult.lineStyle = linkStyleConfig;
-      linkResult.emphasis = {lineStyle: linkEmphasisConfig};
+      linkResult.emphasis = {lineStyle: linkEmphasisConfig.linkStyle};
 
       return linkResult;
     });
@@ -202,7 +205,10 @@ class NetJSONGraphRender {
             value: [location.lng, location.lat],
             symbolSize: nodeSizeConfig,
             itemStyle: nodeStyleConfig,
-            emphasis: {itemStyle: nodeEmphasisConfig},
+            emphasis: {
+              itemStyle: nodeEmphasisConfig.nodeStyle,
+              symbolSize: nodeEmphasisConfig.nodeSize,
+            },
             node,
           });
           if (!JSONData.flatNodes) {
@@ -234,7 +240,7 @@ class NetJSONGraphRender {
             ],
           ],
           lineStyle: linkStyleConfig,
-          emphasis: {lineStyle: linkEmphasisConfig},
+          emphasis: {lineStyle: linkEmphasisConfig.linkStyle},
           link,
         });
       }

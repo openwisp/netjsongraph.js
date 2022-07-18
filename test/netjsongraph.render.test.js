@@ -98,7 +98,7 @@ describe("Test netjsongraph JSONDataUpdate", () => {
     });
   });
 
-  test("Callback function executed when data update.Update Information and view.", () => {
+  test("Callback function executed when data update. Update Information and view.", () => {
     graph.utils.JSONDataUpdate.call(graph, {
       metadata: {},
       date: "2019-04-03T09:06:54.000Z",

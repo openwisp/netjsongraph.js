@@ -461,18 +461,30 @@ class NetJSONGraphUtil {
 
   getNodeStyle(node, config, type) {
     let nodeStyleConfig;
-    let nodeSizeConfig;
+    let nodeSizeConfig = {};
     let nodeEmphasisConfig = {};
     if (node.category && config.nodeCategories.length) {
       const category = config.nodeCategories.find(
         (cat) => cat.name === node.category,
       );
-      nodeStyleConfig = this.generateStyle(category.nodeStyle, node);
-      nodeSizeConfig = this.generateStyle(category.nodeSize, node);
-      nodeEmphasisConfig = this.generateStyle(
-        category.emphasis ? category.emphasis.nodeStyle : {},
-        node,
-      );
+
+      nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
+
+      nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
+
+      nodeEmphasisConfig = {
+        ...nodeEmphasisConfig,
+        nodeStyle: category.emphasis
+          ? this.generateStyle(category.emphasis.nodeStyle || {}, node)
+          : {},
+      };
+
+      nodeEmphasisConfig = {
+        ...nodeEmphasisConfig,
+        nodeSize: category.empahsis
+          ? this.generateStyle(category.emphasis.nodeSize || {}, node)
+          : {},
+      };
     } else if (type === "map") {
       nodeStyleConfig = this.generateStyle(
         config.mapOptions.nodeConfig.nodeStyle,
@@ -502,12 +514,15 @@ class NetJSONGraphUtil {
       const category = config.linkCategories.find(
         (cat) => cat.name === link.category,
       );
-      linkStyleConfig = this.generateStyle(category.linkStyle, link);
 
-      linkEmphasisConfig = this.generateStyle(
-        category.emphasis ? category.emphasis.linkStyle : {},
-        link,
-      );
+      linkStyleConfig = this.generateStyle(category.linkStyle || {}, link);
+
+      linkEmphasisConfig = {
+        ...linkEmphasisConfig,
+        linkStyle: category.emphasis
+          ? this.generateStyle(category.emphasis.linkStyle || {}, link)
+          : {},
+      };
     } else if (type === "map") {
       linkStyleConfig = this.generateStyle(
         config.mapOptions.linkConfig.linkStyle,
