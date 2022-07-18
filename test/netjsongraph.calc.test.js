@@ -47,6 +47,10 @@ describe("Test netjsongraph function utils", () => {
           properties: {
             name: "Node",
             color: "red",
+            location: {
+              lng: 0,
+              lat: 0,
+            },
           },
           linkCount: 1,
           local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
@@ -57,6 +61,10 @@ describe("Test netjsongraph function utils", () => {
         color: "red",
         id: 0,
         label: "test",
+        location: {
+          lng: 0,
+          lat: 0,
+        },
         links: 1,
         localAddresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
         name: "Node",
@@ -69,13 +77,13 @@ describe("Test netjsongraph function utils", () => {
         {
           id: 0,
           label: "test",
+          name: "Node",
+          location: {
+            lng: 0,
+            lat: 0,
+          },
           properties: {
-            name: "Node",
             color: "red",
-            location: {
-              lng: 0,
-              lat: 0,
-            },
             time: "2019-04-03T05:06:54.000Z",
           },
           linkCount: 1,
