@@ -108,7 +108,7 @@
         },
       });
 
-      const createLegends = (key, name) => {
+      const createLegend = (key, name) => {
         const legendItem = document.createElement("p");
         const legendIcon = document.createElement("span");
 
@@ -123,10 +123,10 @@
       const legends = document.createElement("div");
       const legendsHeader = document.createElement("h4");
       legends.setAttribute("id", "legend");
-      legendsHeader.innerHTML = "Legends";
+      legendsHeader.innerHTML = "Legend";
       legends.appendChild(legendsHeader);
-      legends.appendChild(createLegends("Up", "link-up"));
-      legends.appendChild(createLegends("Down", "link-down"));
+      legends.appendChild(createLegend("Up", "link-up"));
+      legends.appendChild(createLegend("Down", "link-down"));
 
       document.body.appendChild(legends);
 

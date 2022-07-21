@@ -80,16 +80,16 @@ const NetJSONGraphDefaultConfig = {
         },
       },
       nodeStyle: {
-        color: "#f4d38c",
+        color: "#ffebc4",
       },
       linkStyle: {
-        width: 5,
+        width: 6,
         color: "#1ba619",
       },
-      nodeSize: "17",
+      nodeSize: "15",
     },
     baseOptions: {
-      backgroundColor: "#2B2B2B",
+      backgroundColor: "#282222",
     },
   },
 
