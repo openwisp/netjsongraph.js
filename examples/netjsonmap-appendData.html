@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -22,12 +23,12 @@
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
-            The demo is used to show how to use the `JSONDataUpdate` function to update data.
-            Here we choose to append data by modify the default parameter.
-            See other examples：
-            netjson-updateData.html: It chooses override data.
-            netjsonmap-nodeTiles.html: override data by different zoom value.
-        */
+          The demo is used to show how to use the `JSONDataUpdate` function to update data.
+          Here we choose to append data by modify the default parameter.
+          See other examples：
+          netjson-updateData.html: It chooses override data.
+          netjsonmap-nodeTiles.html: override data by different zoom value.
+      */
       const folderName = "./data/netjsonAppendData/",
         tilesMap = {
           4: "2.json",
@@ -55,18 +56,55 @@
             });
           },
 
+<<<<<<< HEAD
           onReady: function () {
+=======
+          onLoad: function () {
+            const gui = this.utils.getGUI(this);
+            gui.init();
+            if (this.config.metadata) {
+              gui.createAboutContainer(map);
+              this.utils.updateMetadata.call(this);
+            }
+            if (this.config.switchMode) {
+              gui.renderModeSelector.onclick = () => {
+                if (this.config.render === this.utils.mapRender) {
+                  this.config.render = this.utils.graphRender;
+                  this.echarts.dispose();
+                  graph = new NetJSONGraph(this.data, {
+                    ...this.config,
+                  });
+                  graph.render();
+                } else {
+                  this.config.render = this.utils.mapRender;
+                  this.config.render(this.data, this);
+                  const sidebar = gui.sideBar;
+                  this.el.appendChild(sidebar);
+                }
+              };
+            }
+            this.config.onClickElement = (type, data) => {
+              let nodeLinkData;
+              if (type === "node") {
+                nodeLinkData = this.utils.nodeInfo(data);
+              } else {
+                nodeLinkData = this.utils.linkInfo(data);
+              }
+              gui.getNodeLinkInfo(type, nodeLinkData);
+              gui.sideBar.classList.remove("hidden");
+            };
+>>>>>>> a8dfcb0 ([change] Add support to narrow screen #115)
             /* 
-                        The map has this property only after the map is rendered, 
-                        so we have to put the relevant function in `onLoad` life cycle  
-                    */
+                      The map has this property only after the map is rendered, 
+                      so we have to put the relevant function in `onLoad` life cycle  
+                  */
             let baseMap = this.leaflet,
               preZoom = this.config.mapZoom;
 
             /*
-                        Monitor the zoom of the leaflet.
-                        New data is updated if the zoom value reaches the relevant threshold.
-                    */
+                      Monitor the zoom of the leaflet.
+                      New data is updated if the zoom value reaches the relevant threshold.
+                  */
             baseMap.on("zoomstart", () => {
               preZoom = baseMap.getZoom();
             });

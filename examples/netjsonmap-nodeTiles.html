@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -22,11 +23,11 @@
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
-            The demo is used to show how to use the `JSONDataUpdate` function to update data.
-            See other examples：
-            netjson-updateData.html: It chooses override data.
-            netjsonmap-appendData.html: It chooses append data.
-        */
+          The demo is used to show how to use the `JSONDataUpdate` function to update data.
+          See other examples：
+          netjson-updateData.html: It chooses override data.
+          netjsonmap-appendData.html: It chooses append data.
+      */
       const folderName = "./data/netjsonNodeTiles/",
         tilesMap = {
           2: "1.json",
@@ -58,16 +59,16 @@
 
           onReady: function () {
             /* 
-                        The map has this property only after the map is rendered, 
-                        so we have to put the relevant function in `onLoad` life cycle  
-                    */
+                      The map has this property only after the map is rendered, 
+                      so we have to put the relevant function in `onLoad` life cycle  
+                  */
             let baseMap = this.leaflet,
               preZoom = this.config.mapZoom;
 
             /*
-                        Monitor the zoom of the leaflet.
-                        New data is updated if the zoom value reaches the relevant threshold.
-                    */
+                      Monitor the zoom of the leaflet.
+                      New data is updated if the zoom value reaches the relevant threshold.
+                  */
             baseMap.on("zoomstart", () => {
               preZoom = baseMap.getZoom();
             });

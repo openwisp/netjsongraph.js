@@ -119,6 +119,8 @@ class NetJSONGraph {
               this.echarts.clear();
               this.config.render = this.utils.mapRender;
               this.utils.mapRender(this.data, this);
+              const sidebar = this.gui.sideBar;
+              this.el.appendChild(sidebar);
             }
           };
         }

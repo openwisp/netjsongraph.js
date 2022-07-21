@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: Dark Colors</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -12,19 +13,14 @@
     <!-- theme can be easily customized via css -->
     <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../src/css/netjsongraph.css" rel="stylesheet" />
-    <style type="text/css">
-      .njg-metadata {
-        left: 50px;
-      }
-    </style>
   </head>
   <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script>
       /*
-            The demo is used to show hwo to set path animation.
-            See `mapLinkConfig` below for details.
-        */
+          The demo is used to show hwo to set path animation.
+          See `mapLinkConfig` below for details.
+      */
       const graph = new NetJSONGraph("./data/airplaneRouteMap.json", {
         render: "map",
         echartsOption: {
@@ -33,7 +29,7 @@
             subtext: "Develop By WanderGIS",
             left: "center",
             textStyle: {
-              color: "#fff",
+              color: "#000",
             },
           },
         },
@@ -47,11 +43,8 @@
             rippleEffect: {
               brushType: "fill",
             },
-            label: {
-              color: "#a6c84c",
-            },
             nodeStyle: {
-              color: "#a6c84c",
+              color: "#1566a9",
             },
             nodeSize: 15,
           },
@@ -68,8 +61,7 @@
               symbolSize: 15,
             },
             linkStyle: {
-              color: "#a6c84c",
-              width: 1,
+              width: 2,
               opacity: 0.4,
               curveness: 0.2,
             },
@@ -84,8 +76,6 @@
             });
           });
         },
-
-        // Map lines configuration
       });
 
       graph.render();

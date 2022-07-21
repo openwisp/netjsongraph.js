@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- theme can be easily customized via css -->
     <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../src/css/netjsongraph.css" rel="stylesheet" />
@@ -52,14 +53,44 @@
         color: red;
         margin-right: 10px;
       }
+
+      @media only screen and (max-width: 500px) {
+        #legend {
+          margin-bottom: 50px;
+          right: 10px;
+        }
+      }
     </style>
   </head>
+
   <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       // `graph` render defaultly.
       // We can add data gradually by array.
       const graph = new NetJSONGraph("./data/netjsonmap.json", {
+        graphConfig: {
+          baseOptions: {
+            media: [
+              {
+                query: {
+                  minWidth: 320,
+                  maxWidth: 500,
+                },
+                option: {
+                  series: [
+                    {
+                      zoom: 0.7,
+                    },
+                  ],
+                  toolbox: {
+                    itemSize: 18,
+                  },
+                },
+              },
+            ],
+          },
+        },
         linkCategories: [
           {
             name: "down",

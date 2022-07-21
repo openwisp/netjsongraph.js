@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -25,8 +26,8 @@
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
-                 The demo is used to show the multiple tiles render.
-             */
+               The demo is used to show the multiple tiles render.
+           */
       const map = new NetJSONGraph("./data/netjsonmap.json", {
         render: "map",
         // set multiple tiles config, can change them dynamically.

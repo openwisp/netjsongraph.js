@@ -3,16 +3,52 @@
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- theme can be easily customized via css -->
     <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../src/css/netjsongraph.css" rel="stylesheet" />
+    <style>
+      .switch-wrap input[type="checkbox"] {
+        height: 0;
+        width: 0;
+        left: unset;
+        pointer-events: none;
+      }
+
+      @media only screen and (max-width: 500px) {
+        .switch-wrap {
+          top: 6px;
+          right: 60px;
+          height: fit-content;
+        }
+
+        .switch-wrap b {
+          font-size: 13px;
+        }
+
+        .switch-wrap label {
+          width: 38px;
+          height: 16px;
+        }
+
+        .switch-wrap label::before {
+          width: 12px;
+          height: 12px;
+        }
+
+        .switch-wrap input[type="checkbox"]:checked + label:before {
+          transform: translateX(20px);
+        }
+      }
+    </style>
   </head>
+
   <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
-            The demo is used to show how to switch the netjsongraph render mode -- `svg` or `canvas`.
-        */
+          The demo is used to show how to switch the netjsongraph render mode -- `svg` or `canvas`.
+      */
       const graph = new NetJSONGraph("./data/netjsonmap.json", {
         onReady: function () {
           switchRenderMode(this);

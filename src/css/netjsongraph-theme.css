@@ -287,3 +287,16 @@ p {
   right: 20px;
   cursor: pointer;
 }
+
+@media only screen and (max-width: 500px) {
+  .njg-sideBar {
+    margin-top: -60px;
+    top: unset;
+    width: 100%;
+    height: fit-content;
+  }
+
+  .sideBarHandle {
+    display: none;
+  }
+}
