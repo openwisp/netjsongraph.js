@@ -1,3 +1,6 @@
+.leaflet-control-measure{
+  margin-top: -55px !important;
+}
 .leaflet-control-measure h3,
 .leaflet-measure-resultpopup h3 {
   margin: 0 0 12px;

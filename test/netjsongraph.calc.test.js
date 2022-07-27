@@ -1,27 +1,42 @@
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
+import NetJSONGraphGUI from "../src/js/netjsongraph.gui";
+import NetJSONGraph from "../src/js/netjsongraph.core";
+
+const configs = {
+  nodeCategories: [],
+  linkCategories: [],
+  mapOptions: {
+    nodeConfig: {
+      nodeStyle: {
+        color: "blue",
+      },
+      nodeSize: 15,
+    },
+    linkConfig: {
+      linkStyle: {
+        width: 5,
+        color: "green",
+      },
+    },
+  },
+  graphConfig: {
+    series: {
+      nodeStyle: {
+        color: "blue",
+      },
+      nodeSize: 15,
+      linkStyle: {
+        width: 5,
+        color: "green",
+      },
+    },
+  },
+};
 
 describe("Test netjsongraph function utils", () => {
   const util = new NetJSONGraphUtil("", {});
 
   const nodeInfoData = new Map([
-    [
-      // key
-      [
-        // nodeInfo
-        {
-          id: 0,
-          label: "test",
-          properties: {
-            name: "Node",
-            color: "red",
-          },
-          linkCount: 1,
-          local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
-        },
-      ],
-      // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>",
-    ],
     [
       // key
       [
@@ -42,7 +57,53 @@ describe("Test netjsongraph function utils", () => {
         },
       ],
       // value
-      "<p><b>id</b>: 0</p><p><b>label</b>: test</p><p><b>name</b>: Node</p><p><b>color</b>: red</p><p><b>location</b>:<br />lat: 0<br />lng: 0<br /></p><p><b>links</b>: 1</p><p><b>local addresses</b>:<br />192.168.0.01<br />192.168.0.02<br />192.168.0.03</p>",
+      {
+        color: "red",
+        id: 0,
+        label: "test",
+        location: {
+          lng: 0,
+          lat: 0,
+        },
+        links: 1,
+        localAddresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
+        name: "Node",
+      },
+    ],
+    [
+      // key
+      [
+        // nodeInfo
+        {
+          id: 0,
+          label: "test",
+          name: "Node",
+          location: {
+            lng: 0,
+            lat: 0,
+          },
+          properties: {
+            color: "red",
+            time: "2019-04-03T05:06:54.000Z",
+          },
+          linkCount: 1,
+          local_addresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
+        },
+      ],
+      // value
+      {
+        color: "red",
+        id: 0,
+        label: "test",
+        links: 1,
+        location: {
+          lng: 0,
+          lat: 0,
+        },
+        time: "2019.04.03 05:06:54.000",
+        localAddresses: ["192.168.0.01", "192.168.0.02", "192.168.0.03"],
+        name: "Node",
+      },
     ],
   ]);
   const linkInfoData = new Map([
@@ -57,11 +118,19 @@ describe("Test netjsongraph function utils", () => {
           properties: {
             name: "Link",
             color: "blue",
+            time: "2019-04-03T05:06:54.000Z",
           },
         },
       ],
       // value
-      `<p><b>source</b>: 192.168.0.01</p><p><b>target</b>: 192.168.1.01</p><p><b>cost</b>: 1.000</p><p><b>name</b>: Link</p><p><b>color</b>: blue</p>`,
+      {
+        color: "blue",
+        cost: "1.000",
+        name: "Link",
+        source: "192.168.0.01",
+        target: "192.168.1.01",
+        time: "2019.04.03 05:06:54.000",
+      },
     ],
     [
       // key
@@ -72,7 +141,7 @@ describe("Test netjsongraph function utils", () => {
         },
       ],
       // value
-      `<p><b>source</b>: 192.168.0.01</p><p><b>target</b>: 192.168.1.01</p><p><b>cost</b>: undefined</p>`,
+      {cost: undefined, source: "192.168.0.01", target: "192.168.1.01"},
     ],
   ]);
   const numberMinDigitData = new Map([
@@ -202,5 +271,166 @@ describe("Test netjsongraph function utils", () => {
     expect(event.emit("test")).toEqual([res, res]);
     expect(event.emit("none_event")).toEqual([]);
     event.delete("once_test");
+  });
+
+  test("Parse the metadata information from the JSON data", () => {
+    const data = {
+      type: "NetworkGraph",
+      label: "Ninux Roma",
+      protocol: "OLSR",
+      version: "0.6.6.2",
+      metric: "ETX",
+      nodes: [],
+      links: [],
+    };
+    const metadata = util.getMetadata(data);
+    expect(metadata).toEqual({
+      label: "Ninux Roma",
+      protocol: "OLSR",
+      version: "0.6.6.2",
+      metric: "ETX",
+      nodes: 0,
+      links: 0,
+    });
+  });
+
+  test("Generate the style of a node or a link", () => {
+    let style = {
+      color: "red",
+    };
+    const link = {};
+    expect(util.generateStyle(style, link)).toEqual(style);
+
+    const node = {
+      opacity: 0.5,
+    };
+    style = (n) => n.opacity * 2;
+    expect(util.generateStyle(style, node)).toEqual(1);
+  });
+
+  test("Get the style of a node", () => {
+    let node = {};
+    let style = util.getNodeStyle(node, configs, "map");
+    expect(style).toEqual({
+      nodeStyleConfig: {
+        color: "blue",
+      },
+      nodeSizeConfig: 15,
+      nodeEmphasisConfig: {},
+    });
+
+    node = {
+      category: "test",
+    };
+    style = util.getNodeStyle(
+      node,
+      {
+        ...configs,
+        nodeCategories: [
+          {
+            name: "test",
+            nodeStyle: {
+              color: "red",
+              opacity: 0.5,
+            },
+            emphasis: {
+              nodeStyle: {
+                color: "green",
+                opacity: 0.8,
+              },
+            },
+          },
+        ],
+      },
+      "graph",
+    );
+    expect(style).toEqual({
+      nodeStyleConfig: {
+        color: "red",
+        opacity: 0.5,
+      },
+      nodeSizeConfig: {},
+      nodeEmphasisConfig: {
+        nodeStyle: {
+          color: "green",
+          opacity: 0.8,
+        },
+        nodeSize: {},
+      },
+    });
+
+    node = {};
+    style = util.getNodeStyle(node, configs, "graph");
+    expect(style).toEqual({
+      nodeStyleConfig: {
+        color: "blue",
+      },
+      nodeSizeConfig: 15,
+      nodeEmphasisConfig: {},
+    });
+  });
+
+  test("Get the style of a link", () => {
+    let link = {};
+    let style = util.getLinkStyle(link, configs, "map");
+    expect(style).toEqual({
+      linkStyleConfig: {
+        color: "green",
+        width: 5,
+      },
+      linkEmphasisConfig: {},
+    });
+
+    link = {
+      category: "test",
+    };
+    style = util.getLinkStyle(
+      link,
+      {
+        ...configs,
+        linkCategories: [
+          {
+            name: "test",
+            linkStyle: {
+              color: "red",
+              opacity: 0.5,
+            },
+            emphasis: {
+              linkStyle: {
+                opacity: 1,
+              },
+            },
+          },
+        ],
+      },
+      "graph",
+    );
+    expect(style).toEqual({
+      linkStyleConfig: {
+        color: "red",
+        opacity: 0.5,
+      },
+      linkEmphasisConfig: {
+        linkStyle: {
+          opacity: 1,
+        },
+      },
+    });
+
+    link = {};
+    style = util.getLinkStyle(link, configs, "graph");
+    expect(style).toEqual({
+      linkStyleConfig: {
+        color: "green",
+        width: 5,
+      },
+      linkEmphasisConfig: {},
+    });
+  });
+
+  test("Get the GUI instance", () => {
+    const graph = new NetJSONGraph({});
+    const gui = util.getGUI(graph);
+    expect(gui).toBeInstanceOf(NetJSONGraphGUI);
   });
 });

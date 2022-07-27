@@ -152,7 +152,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         callback();
       } else {
         self.utils.overrideData(e.data, self);
-        self.utils.updateMetadata.call(self);
+        // self.utils.updateMetadata.call(self);
       }
     });
   }

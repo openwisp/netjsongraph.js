@@ -1,73 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <title>netjsongraph.js: basic example</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <!-- theme can be easily customized via css -->
-    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
-    <link href="../src/css/netjsongraph.css" rel="stylesheet">
-</head>
-<body>
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../src/css/netjsongraph.css" rel="stylesheet" />
+  </head>
+  <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
-        /*
+      /*
             The demo is used to show how to use `graphGL` to render big data.
         */
-        // `graph` render defaultly.
-        const graph = new NetJSONGraph("./data/netjsongraph-graphGL.json", {
-            echartsOption: {
-                backgroundColor: '#000',
+      // `graph` render defaultly.
+      const graph = new NetJSONGraph("./data/netjsongraph-graphGL.json", {
+        graphConfig: {
+          series: {
+            type: "graphGL",
+            modularity: {
+              resolution: 2,
+              sort: true,
             },
-            nodeSize: node => {
-                return Math.sqrt(node.value / 10);
+            nodeSize: (node) => {
+              return Math.sqrt(node.value / 10);
             },
-            graphConfig: {
-                type: "graphGL",
-                color: ["rgb(203,239,15)", "rgb(73,15,239)","rgb(15,217,239)","rgb(30,15,239)","rgb(15,174,239)","rgb(116,239,15)","rgb(239,15,58)","rgb(15,239,174)","rgb(239,102,15)","rgb(239,15,15)","rgb(15,44,239)","rgb(239,145,15)","rgb(30,239,15)","rgb(239,188,15)","rgb(159,239,15)","rgb(159,15,239)","rgb(15,239,44)","rgb(15,239,87)","rgb(15,239,217)","rgb(203,15,239)","rgb(239,15,188)","rgb(239,15,102)","rgb(239,58,15)","rgb(239,15,145)","rgb(116,15,239)","rgb(15,131,239)","rgb(73,239,15)","rgb(15,239,131)","rgb(15,87,239)","rgb(239,15,231)"],
-                modularity: {
-                    resolution: 2,
-                    sort: true
-                },
-                focusNodeAdjacency: false,
-                focusNodeAdjacencyOn: 'click',
-                label: {
-                    textStyle: {
-                        color: '#fff'
-                    },
-                    // graphGL render must set it !!!
-                    show: false,
-                },
-                emphasis: {
-                    label: {
-                        show: false
-                    },
-                    lineStyle: {
-                        opacity: 0.5,
-                        width: 4
-                    }
-                },
-                // set force layout params
-                forceAtlas2: {
-                    steps: 5,
-                    stopThreshold: 20,
-                    jitterTolerence: 10,
-                    edgeWeight: [0.2, 1],
-                    gravity: 5,
-                    edgeWeightInfluence: 0,
-                }
+            linkStyle: {
+              color: "#1aa422",
+              opacity: 0.05,
             },
-            nodeStyleProperty: {
-                opacity: 1,
-                borderColor: '#fff',
-                borderWidth: 1
+            nodeStyle: {
+              color: "#CBEF0E",
+              opacity: 1,
+              borderColor: "#fff",
+              borderWidth: 1,
             },
-            linkStyleProperty: {
-                color: 'rgba(255,255,255,1)',
-                opacity: 0.05
+            label: {
+              textStyle: {
+                color: "#fff",
+              },
+              // graphGL render must set it !!!
+              show: false,
             },
-        });
+            focusNodeAdjacency: false,
+            emphasis: {
+              label: {
+                show: false,
+              },
+              lineStyle: {
+                opacity: 0.5,
+                width: 4,
+              },
+            },
+            // set force layout params
+            forceAtlas2: {
+              steps: 5,
+              stopThreshold: 20,
+              jitterTolerence: 10,
+              edgeWeight: [0.2, 1],
+              gravity: 5,
+              edgeWeightInfluence: 0,
+            },
+          },
+          baseOptions: {
+            backgroundColor: "#000",
+          },
+        },
+      });
 
-        graph.render();
+      graph.render();
     </script>
+  </body>
 </html>
-

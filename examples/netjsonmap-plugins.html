@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>netjsongraph.js: Dark Colors</title>
+    <title>netjsongraph.js: Leaflet plugins</title>
     <meta charset="utf-8" />
     <link
       rel="stylesheet"
@@ -18,6 +18,9 @@
       .njg-metadata {
         left: 50px;
       }
+      .leaflet-control-zoom {
+        top: 55px;
+      }
     </style>
   </head>
   <body>
@@ -32,28 +35,16 @@
         */
       const graph = new NetJSONGraph("./data/netjsonmap.json", {
         render: "map",
-        mapNodeConfig: {
-          label: {
-            color: "white",
-            offset: [0, -10],
-          },
-        },
-        // set map tiles config, can set multiple values.
-        mapTileConfig: [
-          {
-            label: "Blue Street",
-            urlTemplate:
-              "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
-            options: {
-              minZoom: 0.25,
-              maxZoom: 18,
-            },
-          },
-        ],
         // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 6,
+          nodeConfig: {
+            label: {
+              color: "#000",
+              offset: [0, -10],
+            },
+          },
         },
 
         // Convert to internal json format
@@ -68,6 +59,37 @@
 
         // Load related plugins after the map is rendered
         onLoad: function () {
+          const gui = this.utils.getGUI(this);
+          gui.init();
+          if (this.config.metadata) {
+            gui.createAboutContainer(graph);
+            this.utils.updateMetadata.call(this);
+          }
+          if (this.config.switchMode) {
+            gui.renderModeSelector.onclick = () => {
+              if (this.config.render === this.utils.mapRender) {
+                this.config.render = this.utils.graphRender;
+                this.echarts.dispose();
+                graph = new NetJSONGraph(this.data, {
+                  ...this.config,
+                });
+                graph.render();
+              } else {
+                this.config.render = this.utils.mapRender;
+                this.config.render(this.data, this);
+              }
+            };
+          }
+          this.config.onClickElement = (type, data) => {
+            let nodeLinkData;
+            if (type === "node") {
+              nodeLinkData = this.utils.nodeInfo(data);
+            } else {
+              nodeLinkData = this.utils.linkInfo(data);
+            }
+            gui.getNodeLinkInfo(type, nodeLinkData);
+            gui.sideBar.classList.remove("hidden");
+          };
           /* 
                 The map has this property only after the map is rendered, 
                 so we have to put the relevant function in `onLoad` life cycle  
@@ -83,7 +105,7 @@
               },
             }),
             options = {
-              position: "topleft",
+              position: "bottomright",
               draw: {
                 polyline: {
                   shapeOptions: {
