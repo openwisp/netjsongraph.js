@@ -68,18 +68,36 @@ describe("Test netjsongraph setConfig", () => {
   });
   test("Modify el config", () => {
     const obj1 = new NetJSONGraph([JSONFILE, JSONFILE]);
-    // unused variables is required in this test
-    // eslint-disable-next-line no-unused-vars
-    const obj2 = new NetJSONGraph([JSONFILE, JSONFILE], {
-      el: document.getElementsByTagName("body")[0],
+    expect(obj1.config.el).toBeUndefined();
+    obj1.setConfig({});
+    expect(obj1.el).toBe(document.body);
+
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const obj2 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    obj2.setConfig({
+      el: container,
     });
-    // eslint-disable-next-line no-unused-vars
-    const obj3 = new NetJSONGraph([JSONFILE, JSONFILE], {
-      el: "error",
+    expect(obj2.config.el).toBe(container);
+    obj2.setConfig({});
+    expect(obj2.el).toBe(container);
+
+    const obj3 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    obj3.setConfig();
+    expect(obj3.el).toBe(document.body);
+
+    container.setAttribute("id", "container");
+    const obj4 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    obj4.setConfig({
+      el: "container",
     });
+    expect(obj4.el).toBe(container);
+    document.body.removeChild(container);
+
     obj1.setConfig({
-      el: "error",
+      el: "container",
     });
+    expect(obj1.el).toBe(document.body);
   });
 });
 
@@ -98,7 +116,7 @@ describe("Test netjsongraph JSONDataUpdate", () => {
     });
   });
 
-  test("Callback function executed when data update.Update Information and view.", () => {
+  test("Callback function executed when data update. Update Information and view.", () => {
     graph.utils.JSONDataUpdate.call(graph, {
       metadata: {},
       date: "2019-04-03T09:06:54.000Z",

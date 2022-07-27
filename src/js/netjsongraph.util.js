@@ -1,3 +1,5 @@
+import NetJSONGraphGUI from "./netjsongraph.gui";
+
 class NetJSONGraphUtil {
   /**
    * @function
@@ -215,37 +217,6 @@ class NetJSONGraphUtil {
 
   /**
    * @function
-   * @name NetJSONMetadata
-   * Display metadata of NetJSONGraph.
-   *
-   * @this   {object}   NetJSONGraph object
-   *
-   * @return {object} metadataContainer DOM
-   */
-
-  NetJSONMetadata() {
-    const metadataContainer = document.createElement("div");
-    const innerDiv = document.createElement("div");
-    const closeA = document.createElement("a");
-    metadataContainer.setAttribute("class", "njg-metadata njg-container");
-    metadataContainer.setAttribute("style", "display: block");
-    innerDiv.setAttribute("class", "njg-inner");
-    innerDiv.setAttribute("id", "metadata-innerDiv");
-    closeA.setAttribute("class", "njg-close");
-    closeA.setAttribute("id", "metadata-close");
-
-    closeA.onclick = () => {
-      metadataContainer.style.visibility = "hidden";
-    };
-    innerDiv.innerHTML = this.utils.getMetadata.call(this);
-    metadataContainer.appendChild(innerDiv);
-    metadataContainer.appendChild(closeA);
-
-    return metadataContainer;
-  }
-
-  /**
-   * @function
    * @name updateMetadata
    *
    * @this  {object}   NetJSONGraph object
@@ -253,10 +224,27 @@ class NetJSONGraphUtil {
    */
   updateMetadata() {
     if (this.config.metadata) {
-      document.getElementsByClassName("njg-metadata")[0].style.visibility =
-        "visible";
-      document.getElementById("metadata-innerDiv").innerHTML =
-        this.utils.getMetadata.call(this);
+      const metaData = this.utils.getMetadata(this.data);
+      const metadataContainer = document.querySelector(".njg-metaData");
+      const metadataChildren = document.querySelectorAll(".njg-metaDataItems");
+
+      for (let i = 0; i < metadataChildren.length; i += 1) {
+        metadataChildren[i].remove();
+      }
+
+      Object.keys(metaData).forEach((key) => {
+        const metaDataItems = document.createElement("div");
+        metaDataItems.classList.add("njg-metaDataItems");
+        const keyLabel = document.createElement("span");
+        keyLabel.setAttribute("class", "njg-keyLabel");
+        const valueLabel = document.createElement("span");
+        valueLabel.setAttribute("class", "njg-valueLabel");
+        keyLabel.innerHTML = key;
+        valueLabel.innerHTML = metaData[key];
+        metaDataItems.appendChild(keyLabel);
+        metaDataItems.appendChild(valueLabel);
+        metadataContainer.appendChild(metaDataItems);
+      });
     }
   }
 
@@ -269,7 +257,7 @@ class NetJSONGraphUtil {
    * @this   {object}   NetJSONGraph object
    * @return {string}   Dom string
    */
-  getMetadata() {
+  getMetadata(data) {
     const attrs = [
       "protocol",
       "version",
@@ -278,67 +266,162 @@ class NetJSONGraphUtil {
       "router_id",
       "topology_id",
     ];
-    const metadata = this.data;
-    let html = "";
+    const metadata = data;
+    const metaDataObj = {};
 
     if (metadata.label) {
-      html += `<h3>${metadata.label}</h3>`;
+      metaDataObj.label = metadata.label;
     }
     attrs.forEach((attr) => {
       if (metadata[attr]) {
-        html += `<p><b>${attr}</b>: <span>${metadata[attr]}</span></p>`;
+        metaDataObj[attr] = metadata[attr];
       }
     });
-    html += `
-      <p><b>nodes</b>: <span id='metadataNodesLength'>${metadata.nodes.length}</span></p>
-      <p><b>links</b>: <span id='metadataLinksLength'>${metadata.links.length}</span></p>
-    `;
 
-    return html;
+    metaDataObj.nodes = metadata.nodes.length;
+    metaDataObj.links = metadata.links.length;
+    return metaDataObj;
   }
 
   /**
    * @function
    * @name nodeInfo
    *
-   * Parse the infomation of incoming node data.
+   * Parse the information of incoming node data.
    * @param  {object}    node
    *
    * @return {string}    html dom string
    */
 
   nodeInfo(node) {
-    let html = `<p><b>id</b>: ${node.id}</p>`;
+    const nodeInfo = {};
+    nodeInfo.id = node.id;
     if (node.label && typeof node.label === "string") {
-      html += `<p><b>label</b>: ${node.label}</p>`;
+      nodeInfo.label = node.label;
     }
+    if (node.name) {
+      nodeInfo.name = node.name;
+    }
+    if (node.location) {
+      nodeInfo.location = node.location;
+    }
+
     if (node.properties) {
       Object.keys(node.properties).forEach((key) => {
         if (key === "location") {
-          html += `<p><b>location</b>:<br />lat: ${node.properties.location.lat}<br />lng: ${node.properties.location.lng}<br /></p>`;
+          nodeInfo[key] = {
+            lat: node.properties.location.lat,
+            lng: node.properties.location.lng,
+          };
         } else if (key === "time") {
-          html += `<p><b>time</b>: ${this.dateParse({
+          const time = this.dateParse({
             dateString: node.properties[key],
-          })}</p>`;
+          });
+          nodeInfo[key] = time;
         } else {
-          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-            node.properties[key]
-          }</p>`;
+          nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
         }
       });
     }
     if (node.linkCount) {
-      html += `<p><b>links</b>: ${node.linkCount}</p>`;
+      nodeInfo.links = node.linkCount;
     }
     if (node.local_addresses) {
-      html += `<p><b>local addresses</b>:<br />${node.local_addresses.join(
-        "<br />",
-      )}</p>`;
+      nodeInfo.localAddresses = node.local_addresses;
     }
 
-    return html;
+    return nodeInfo;
   }
 
+  createTooltipItem(key, value) {
+    const item = document.createElement("div");
+    item.classList.add("njg-tooltip-item");
+    const keyLabel = document.createElement("span");
+    keyLabel.setAttribute("class", "njg-tooltip-key");
+    const valueLabel = document.createElement("span");
+    valueLabel.setAttribute("class", "njg-tooltip-value");
+    keyLabel.innerHTML = key;
+    valueLabel.innerHTML = value;
+    item.appendChild(keyLabel);
+    item.appendChild(valueLabel);
+    return item;
+  }
+
+  getNodeTooltipInfo(node) {
+    const container = document.createElement("div");
+    container.classList.add("njg-tooltip-inner");
+    if (node.id) {
+      container.appendChild(this.createTooltipItem("id", node.id));
+    }
+    if (node.label && typeof node.label === "string") {
+      container.appendChild(this.createTooltipItem("label", node.label));
+    }
+
+    if (node.properties) {
+      Object.keys(node.properties).forEach((key) => {
+        if (key === "location") {
+          container.appendChild(
+            this.createTooltipItem(
+              "location",
+              `${Math.round(node.properties.location.lat * 1000) / 1000}, ${
+                Math.round(node.properties.location.lng * 1000) / 1000
+              }`,
+            ),
+          );
+        } else if (key === "time") {
+          const time = this.dateParse({
+            dateString: node.properties[key],
+          });
+          container.appendChild(this.createTooltipItem("time", time));
+        } else {
+          container.appendChild(
+            this.createTooltipItem(
+              `${key.replace(/_/g, " ")}`,
+              node.properties[key],
+            ),
+          );
+        }
+      });
+    }
+    if (node.linkCount) {
+      container.appendChild(this.createTooltipItem("Links", node.linkCount));
+    }
+    if (node.local_addresses) {
+      container.appendChild(
+        this.createTooltipItem(
+          "Local Addresses",
+          node.local_addresses.join("<br/>"),
+        ),
+      );
+    }
+    return container;
+  }
+
+  getLinkTooltipInfo(link) {
+    const container = document.createElement("div");
+    container.classList.add("njg-tooltip-inner");
+    container.appendChild(this.createTooltipItem("source", link.source));
+    container.appendChild(this.createTooltipItem("target", link.target));
+    container.appendChild(this.createTooltipItem("cost", link.cost));
+    if (link.properties) {
+      Object.keys(link.properties).forEach((key) => {
+        if (key === "time") {
+          const time = this.dateParse({
+            dateString: link.properties[key],
+          });
+          container.appendChild(this.createTooltipItem("time", time));
+        } else {
+          container.appendChild(
+            this.createTooltipItem(
+              `${key.replace(/_/g, " ")}`,
+              link.properties[key],
+            ),
+          );
+        }
+      });
+    }
+    return container;
+  }
   /**
    * @function
    * @name linkInfo
@@ -350,22 +433,114 @@ class NetJSONGraphUtil {
    */
 
   linkInfo(link) {
-    let html = `<p><b>source</b>: ${link.source}</p><p><b>target</b>: ${link.target}</p><p><b>cost</b>: ${link.cost}</p>`;
+    const linkInfo = {};
+    linkInfo.source = link.source;
+    linkInfo.target = link.target;
+    linkInfo.cost = link.cost;
     if (link.properties) {
       Object.keys(link.properties).forEach((key) => {
         if (key === "time") {
-          html += `<p><b>time</b>: ${this.dateParse({
+          const time = this.dateParse({
             dateString: link.properties[key],
-          })}</p>`;
+          });
+          linkInfo[key] = time;
         } else {
-          html += `<p><b>${key.replace(/_/g, " ")}</b>: ${
-            link.properties[key]
-          }</p>`;
+          linkInfo[key.replace(/_/g, " ")] = link.properties[key];
         }
       });
     }
 
-    return html;
+    return linkInfo;
+  }
+
+  generateStyle(styleConfig, item) {
+    const styles =
+      typeof styleConfig === "function" ? styleConfig(item) : styleConfig;
+    return styles;
+  }
+
+  getNodeStyle(node, config, type) {
+    let nodeStyleConfig;
+    let nodeSizeConfig = {};
+    let nodeEmphasisConfig = {};
+    if (node.category && config.nodeCategories.length) {
+      const category = config.nodeCategories.find(
+        (cat) => cat.name === node.category,
+      );
+
+      nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
+
+      nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
+
+      nodeEmphasisConfig = {
+        ...nodeEmphasisConfig,
+        nodeStyle: category.emphasis
+          ? this.generateStyle(category.emphasis.nodeStyle || {}, node)
+          : {},
+      };
+
+      nodeEmphasisConfig = {
+        ...nodeEmphasisConfig,
+        nodeSize: category.empahsis
+          ? this.generateStyle(category.emphasis.nodeSize || {}, node)
+          : {},
+      };
+    } else if (type === "map") {
+      nodeStyleConfig = this.generateStyle(
+        config.mapOptions.nodeConfig.nodeStyle,
+        node,
+      );
+      nodeSizeConfig = this.generateStyle(
+        config.mapOptions.nodeConfig.nodeSize,
+        node,
+      );
+    } else {
+      nodeStyleConfig = this.generateStyle(
+        config.graphConfig.series.nodeStyle,
+        node,
+      );
+      nodeSizeConfig = this.generateStyle(
+        config.graphConfig.series.nodeSize,
+        node,
+      );
+    }
+    return {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig};
+  }
+
+  getLinkStyle(link, config, type) {
+    let linkStyleConfig;
+    let linkEmphasisConfig = {};
+    if (link.category && config.linkCategories.length) {
+      const category = config.linkCategories.find(
+        (cat) => cat.name === link.category,
+      );
+
+      linkStyleConfig = this.generateStyle(category.linkStyle || {}, link);
+
+      linkEmphasisConfig = {
+        ...linkEmphasisConfig,
+        linkStyle: category.emphasis
+          ? this.generateStyle(category.emphasis.linkStyle || {}, link)
+          : {},
+      };
+    } else if (type === "map") {
+      linkStyleConfig = this.generateStyle(
+        config.mapOptions.linkConfig.linkStyle,
+        link,
+      );
+    } else {
+      linkStyleConfig = this.generateStyle(
+        config.graphConfig.series.linkStyle,
+        link,
+      );
+    }
+
+    return {linkStyleConfig, linkEmphasisConfig};
+  }
+
+  getGUI(graph) {
+    const gui = new NetJSONGraphGUI(graph);
+    return gui;
   }
 
   /**

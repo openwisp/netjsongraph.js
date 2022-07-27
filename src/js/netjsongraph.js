@@ -21,13 +21,14 @@ class NetJSONGraph {
       config.render = NetJSONGraphRender.prototype.graphRender;
     }
 
-    const graph = new NetJSONGraphCore(JSONParam);
+    let graph = new NetJSONGraphCore(JSONParam);
 
     Object.setPrototypeOf(NetJSONGraphRender.prototype, graph.utils);
     graph.utils = new NetJSONGraphRender();
     graph.setUtils();
 
     graph.event = graph.utils.createEvent();
+
     graph.setConfig({
       /**
        * @function
@@ -93,8 +94,38 @@ class NetJSONGraph {
        * @return {object}         this.config
        */
       onLoad() {
+        const gui = this.utils.getGUI(this);
+        gui.init();
+        if (this.config.metadata) {
+          gui.createAboutContainer(graph);
+          this.utils.updateMetadata.call(this);
+        }
+        if (this.config.switchMode) {
+          gui.renderModeSelector.onclick = () => {
+            if (this.config.render === this.utils.mapRender) {
+              this.config.render = this.utils.graphRender;
+              this.echarts.dispose();
+              graph = new NetJSONGraph(this.data, {
+                ...this.config,
+              });
+              graph.render();
+            } else {
+              this.config.render = this.utils.mapRender;
+              this.config.render(this.data, this);
+            }
+          };
+        }
+        this.config.onClickElement = (type, data) => {
+          let nodeLinkData;
+          if (type === "node") {
+            nodeLinkData = this.utils.nodeInfo(data);
+          } else {
+            nodeLinkData = this.utils.linkInfo(data);
+          }
+          gui.getNodeLinkInfo(type, nodeLinkData);
+          gui.sideBar.classList.remove("hidden");
+        };
         this.utils.hideLoading.call(this);
-
         return this.config;
       },
       ...config,

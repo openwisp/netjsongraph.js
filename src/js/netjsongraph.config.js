@@ -31,18 +31,8 @@
 const NetJSONGraphDefaultConfig = {
   metadata: true,
   svgRender: false,
+  switchMode: false,
   echartsOption: {
-    title: {
-      text: "NetJSONGraph",
-      link: "",
-      textStyle: {
-        color: "grey",
-        fontWeight: "bold",
-        fontSize: 30,
-      },
-      left: "center",
-      top: "5%",
-    },
     aria: {
       show: true,
       description:
@@ -50,6 +40,9 @@ const NetJSONGraphDefaultConfig = {
     },
     toolbox: {
       show: true,
+      iconStyle: {
+        borderColor: "#fff",
+      },
       feature: {
         restore: {
           show: true,
@@ -61,162 +54,94 @@ const NetJSONGraphDefaultConfig = {
         },
       },
     },
-    color: ["#d66b30", "#a3c7dd", "#5c9660", "#d66b30"],
   },
 
   graphConfig: {
-    layout: "force",
-    label: {
-      show: true,
-      color: "#000000",
-      position: "top",
+    series: {
+      layout: "force",
+      label: {
+        show: true,
+        color: "#fff",
+        position: "top",
+      },
+      force: {
+        gravity: 0.1,
+        edgeLength: [20, 60],
+        repulsion: 120,
+      },
+      roam: true,
+      draggable: true,
+      legendHoverLink: true,
+      emphasis: {
+        focus: "none",
+        lineStyle: {
+          color: "#3acc38",
+          opacity: 1,
+        },
+      },
+      nodeStyle: {
+        color: "#ffebc4",
+      },
+      linkStyle: {
+        width: 6,
+        color: "#1ba619",
+      },
+      nodeSize: "15",
     },
-    force: {
-      gravity: 0.1,
-      edgeLength: [20, 60],
-      repulsion: 120,
+    baseOptions: {
+      backgroundColor: "#282222",
     },
-    roam: true,
-    draggable: true,
-    focusNodeAdjacency: false,
-    hoverAnimation: true,
-    legendHoverLink: true,
   },
 
   mapOptions: {
     roam: true,
-  },
-  mapTileConfig: [],
-  mapLinkConfig: [{}],
-  mapNodeConfig: {
-    label: {
-      show: true,
-      color: "#000000",
-      position: "top",
-      formatter: "{b}",
+    nodeConfig: {
+      type: "scatter",
+      label: {
+        show: true,
+        color: "#000000",
+        position: "top",
+        formatter: "{b}",
+      },
+      nodeStyle: {
+        color: "#1566a9",
+      },
+      nodeSize: "17",
+    },
+    linkConfig: {
+      linkStyle: {
+        width: 5,
+        color: "#1ba619",
+      },
+      emphasis: {
+        focus: "none",
+        lineStyle: {
+          color: "#3acc38",
+          opacity: 1,
+        },
+      },
+    },
+    baseOptions: {
+      toolbox: {
+        show: false,
+      },
     },
   },
+  mapTileConfig: [
+    {
+      urlTemplate:
+        "https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
+      options: {
+        minZoom: 3,
+        maxZoom: 32,
+        attribution:
+          '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+      },
+    },
+  ],
+  nodeCategories: [],
+  linkCategories: [],
 
-  nodeSize: 25,
-  nodeStyleProperty: (() => {
-    const styles = [
-      {
-        color: {
-          type: "radial",
-          x: 0.5,
-          y: 0.5,
-          r: 0.5,
-          colorStops: [
-            {
-              offset: 0,
-              color: "#d66b30",
-            },
-            {
-              offset: 0.7,
-              color: "#d66b30",
-            },
-            {
-              offset: 0.71,
-              color: "#ebb598",
-            },
-            {
-              offset: 1,
-              color: "#ebb598",
-            },
-          ],
-        },
-      },
-      {
-        color: {
-          type: "radial",
-          x: 0.5,
-          y: 0.5,
-          r: 0.5,
-          colorStops: [
-            {
-              offset: 0,
-              color: "#a3c7dd",
-            },
-            {
-              offset: 0.7,
-              color: "#a3c7dd",
-            },
-            {
-              offset: 0.71,
-              color: "#e3edf6",
-            },
-            {
-              offset: 1,
-              color: "#e3edf6",
-            },
-          ],
-        },
-      },
-      {
-        color: {
-          type: "radial",
-          x: 0.5,
-          y: 0.5,
-          r: 0.5,
-          colorStops: [
-            {
-              offset: 0,
-              color: "#5c9660",
-            },
-            {
-              offset: 0.7,
-              color: "#5c9660",
-            },
-            {
-              offset: 0.71,
-              color: "#aecbb0",
-            },
-            {
-              offset: 1,
-              color: "#aecbb0",
-            },
-          ],
-        },
-      },
-      {
-        color: {
-          type: "radial",
-          x: 0.5,
-          y: 0.5,
-          r: 0.5,
-          colorStops: [
-            {
-              offset: 0,
-              color: "#d66b30",
-            },
-            {
-              offset: 0.7,
-              color: "#d66b30",
-            },
-            {
-              offset: 0.71,
-              color: "#ebb598",
-            },
-            {
-              offset: 1,
-              color: "#ebb598",
-            },
-          ],
-        },
-      },
-    ];
-    let i = 0;
-    return () => {
-      i += 1;
-      return styles[i % styles.length];
-    };
-  })(),
-  linkStyleProperty: () => ({
-    width: 5,
-    color: "#999",
-    shadowColor: "rgba(0, 0, 0, 0.5)",
-    shadowBlur: 10,
-  }),
   /**
    * @function
    * @name prepareData
@@ -229,6 +154,7 @@ const NetJSONGraphDefaultConfig = {
    */
   // eslint-disable-next-line no-unused-vars
   prepareData(JSONData) {},
+
   /**
    * @function
    * @name onClickElement
@@ -240,28 +166,8 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  onClickElement(type, data) {
-    const nodeLinkOverlay = document.getElementsByClassName("njg-overlay")[0];
-    nodeLinkOverlay.style.visibility = "visible";
-    nodeLinkOverlay.innerHTML = `
-        <div class="njg-inner">
-            ${
-              type === "link"
-                ? this.utils.linkInfo(data)
-                : this.utils.nodeInfo(data)
-            }
-        </div>
-    `;
-
-    const closeA = document.createElement("a");
-    closeA.setAttribute("class", "njg-close");
-    closeA.setAttribute("id", "nodelinkOverlay-close");
-    closeA.onclick = () => {
-      nodeLinkOverlay.style.visibility = "hidden";
-    };
-
-    nodeLinkOverlay.appendChild(closeA);
-  },
+  // eslint-disable-next-line no-unused-vars
+  onClickElement(type, data) {},
 };
 
 export default {...NetJSONGraphDefaultConfig};

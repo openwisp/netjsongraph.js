@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   outline: none;
+  box-sizing: border-box;
 }
 html,
 body {
@@ -73,7 +74,6 @@ body {
   height: 100%;
   width: 100%;
   z-index: 100;
-  /* background-color: red; */
 }
 
 .loadingElement {
@@ -99,7 +99,53 @@ body {
   text-align: center;
 }
 
-.njg-tooltip {
-  background: rgba(251, 251, 251, 0.9) !important;
+.leaflet-control-zoom {
+  top: 5px;
+  border: 0 !important;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  background: rgba(217, 79, 52, 0.85) !important;
+  color: #fff !important;
+}
+
+.leaflet-control-zoom-in {
+  border-top-left-radius: 5px !important;
+  border-top-right-radius: 5px !important;
+}
+
+.leaflet-control-zoom-out {
+  border-bottom-left-radius: 5px !important;
+  border-bottom-right-radius: 5px !important;
+}
+
+.leaflet-control-layers {
+  background: rgba(217, 79, 52, 0.85) !important;
+  color: #fff !important;
   border: none !important;
+  right: 3px !important;
+}
+
+.leaflet-control-layers-toggle {
+  height: 35px !important;
+  width: 35px !important;
+  background-size: 20px 20px !important;
+}
+
+.leaflet-zoom-animated {
+  transform-origin: 0 0 !important;
+}
+
+.leaflet-zoom-anim > .leaflet-zoom-animated {
+  transition: transform 0.25s cubic-bezier(0, 0, 0.25, 1) !important;
+  will-change: transform !important;
+}
+
+.leaflet-zoom-anim > .leaflet-zoom-hide {
+  visibility: hidden !important;
+}
+
+.leaflet-zoom-anim > .leaflet-tile {
+  transition: none !important;
 }

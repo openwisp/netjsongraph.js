@@ -1,19 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <title>netjsongraph.js: basic example</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <!-- theme can be easily customized via css -->
-    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
-    <link href="../src/css/netjsongraph.css" rel="stylesheet">
-</head>
-<body>
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../src/css/netjsongraph.css" rel="stylesheet" />
+    <style>
+      #legend h4 {
+        margin: 10px 0;
+        text-align: center;
+      }
+      #legend {
+        position: absolute;
+        right: 25px;
+        bottom: 25px;
+        width: auto;
+        height: auto;
+        max-width: 250px;
+        padding: 8px 15px;
+        background: #fbfbfb;
+        border-radius: 8px;
+        color: #000;
+        font-family: Arial, sans-serif;
+        font-family: sans-serif;
+        font-size: 14px;
+        z-index: 2;
+        user-select: text;
+      }
+      #legend p {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+      }
+      #legend span {
+        width: 16px;
+        margin-right: 5px;
+      }
+      #legend .link-up,
+      #legend .link-down {
+        display: inline-block;
+        height: 5px;
+        border-bottom-width: 6px;
+        border-bottom-style: solid;
+      }
+      #legend .link-up {
+        color: #3acc38;
+        margin-right: 10px;
+      }
+      #legend .link-down {
+        color: red;
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
-        // `graph` render defaultly.
-        // We can add data gradually by array.
-        const graph = new NetJSONGraph("./data/netjsonmap.json");
+      // `graph` render defaultly.
+      // We can add data gradually by array.
+      const graph = new NetJSONGraph("./data/netjsonmap.json", {
+        linkCategories: [
+          {
+            name: "down",
+            linkStyle: {
+              color: "#c92517",
+              width: 5,
+            },
+            emphasis: {
+              linkStyle: {
+                color: "#FD0101",
+                opacity: 1,
+              },
+            },
+          },
+        ],
+        prepareData: (data) => {
+          data.links.map((link) => {
+            link.properties = link.properties || {};
+            if (link.properties.status) {
+              link.category = link.properties.status;
+            }
+          });
+        },
+      });
+      const createLegend = (key, name) => {
+        const legendItem = document.createElement("p");
+        const legendIcon = document.createElement("span");
 
-        graph.render();
+        legendIcon.setAttribute("class", name);
+
+        legends.appendChild(legendItem);
+        legendItem.appendChild(legendIcon);
+
+        legendItem.innerHTML += key;
+        return legendItem;
+      };
+      const legends = document.createElement("div");
+      const legendsHeader = document.createElement("h4");
+      legends.setAttribute("id", "legend");
+      legendsHeader.innerHTML = "Legend";
+      legends.appendChild(legendsHeader);
+      legends.appendChild(createLegend("Up", "link-up"));
+      legends.appendChild(createLegend("Down", "link-down"));
+
+      document.body.appendChild(legends);
+
+      graph.render();
     </script>
+  </body>
 </html>

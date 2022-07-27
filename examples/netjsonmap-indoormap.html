@@ -30,11 +30,6 @@
         */
       const graph = new NetJSONGraph("./data/netjsonmap-indoormap.json", {
         render: "map",
-        mapNodeConfig: {
-          label: {
-            offset: [0, -10],
-          },
-        },
         // set map tiles config, can set multiple values.
         mapTileConfig: [
           {
@@ -51,11 +46,12 @@
         mapOptions: {
           center: [48.577, 18.539],
           zoom: 6,
+          nodeConfig: {
+            label: {
+              offset: [0, -10],
+            },
+          },
         },
-        linkStyleProperty: () => ({
-          width: 5,
-          color: "black",
-        }),
 
         // Convert to internal json format
         prepareData: function (data) {
@@ -68,6 +64,38 @@
         },
 
         onLoad: function presentIndoormap() {
+          const gui = this.utils.getGUI(this);
+          gui.init();
+          if (this.config.metadata) {
+            gui.createAboutContainer(graph);
+            this.utils.updateMetadata.call(this);
+          }
+          if (this.config.switchMode) {
+            gui.renderModeSelector.onclick = () => {
+              if (this.config.render === this.utils.mapRender) {
+                this.config.render = this.utils.graphRender;
+                this.echarts.dispose();
+                graph = new NetJSONGraph(this.data, {
+                  ...this.config,
+                });
+                graph.render();
+              } else {
+                this.config.render = this.utils.mapRender;
+                this.config.render(this.data, this);
+              }
+            };
+          }
+          this.config.onClickElement = (type, data) => {
+            let nodeLinkData;
+            if (type === "node") {
+              nodeLinkData = this.utils.nodeInfo(data);
+            } else {
+              nodeLinkData = this.utils.linkInfo(data);
+            }
+            gui.getNodeLinkInfo(type, nodeLinkData);
+            gui.sideBar.classList.remove("hidden");
+          };
+
           let netjsonmap = this.leaflet,
             image = new Image();
 

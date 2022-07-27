@@ -52,21 +52,24 @@ class NetJSONGraphRender {
             }
             return position;
           },
-          padding: [5, 16],
+          padding: [5, 12],
+          textStyle: {
+            lineHeight: 5,
+          },
           renderMode: "html",
           className: "njg-tooltip",
           formatter: (params) => {
             if (params.componentSubType === "graph") {
               return params.dataType === "edge"
-                ? self.utils.linkInfo(params.data)
-                : self.utils.nodeInfo(params.data);
+                ? self.utils.getLinkTooltipInfo(params.data)
+                : self.utils.getNodeTooltipInfo(params.data);
             }
             if (params.componentSubType === "graphGL") {
-              return self.utils.nodeInfo(params.data);
+              return self.utils.getNodeTooltipInfo(params.data);
             }
             return params.componentSubType === "lines"
-              ? self.utils.linkInfo(params.data.link)
-              : self.utils.nodeInfo(params.data.node);
+              ? self.utils.getLinkTooltipInfo(params.data.link)
+              : self.utils.getNodeTooltipInfo(params.data.node);
           },
         },
       },
@@ -76,10 +79,8 @@ class NetJSONGraphRender {
     echartsLayer.setOption(self.utils.deepMergeObj(commonOption, customOption));
     echartsLayer.on(
       "click",
-
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
-
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -116,48 +117,43 @@ class NetJSONGraphRender {
     const configs = self.config;
     const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
+      const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
+        self.utils.getNodeStyle(node, configs, "graph");
 
-      nodeResult.itemStyle =
-        typeof configs.nodeStyleProperty === "function"
-          ? configs.nodeStyleProperty(node)
-          : configs.nodeStyleProperty;
-      nodeResult.symbolSize =
-        typeof configs.nodeSize === "function"
-          ? configs.nodeSize(node)
-          : configs.nodeSize;
+      nodeResult.itemStyle = nodeStyleConfig;
+      nodeResult.symbolSize = nodeSizeConfig;
+      nodeResult.emphasis = {
+        itemStyle: nodeEmphasisConfig.nodeStyle,
+        symbolSize: nodeEmphasisConfig.nodeSize,
+      };
       nodeResult.name = typeof node.label === "string" ? node.label : node.id;
-      if (node.properties && node.properties.category) {
-        nodeResult.category = String(node.properties.category);
-      }
-      if (
-        nodeResult.category &&
-        categories.indexOf(nodeResult.category) === -1
-      ) {
-        categories.push(nodeResult.category);
-      }
 
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
       const linkResult = JSON.parse(JSON.stringify(link));
+      const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
+        link,
+        configs,
+        "graph",
+      );
 
-      linkResult.lineStyle =
-        typeof configs.linkStyleProperty === "function"
-          ? configs.linkStyleProperty(link)
-          : configs.linkStyleProperty;
+      linkResult.lineStyle = linkStyleConfig;
+      linkResult.emphasis = {lineStyle: linkEmphasisConfig.linkStyle};
 
       return linkResult;
     });
+
     const series = [
-      Object.assign(configs.graphConfig, {
-        type: configs.graphConfig.type === "graphGL" ? "graphGL" : "graph",
+      Object.assign(configs.graphConfig.series, {
+        type:
+          configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
-          configs.graphConfig.type === "graphGL"
+          configs.graphConfig.series.type === "graphGL"
             ? "forceAtlas2"
-            : configs.graphConfig.layout,
+            : configs.graphConfig.series.layout,
         nodes,
         links,
-        categories: categories.map((category) => ({name: category})),
       }),
     ];
     const legend = categories.length
@@ -169,6 +165,7 @@ class NetJSONGraphRender {
     return {
       legend,
       series,
+      ...configs.graphConfig.baseOptions,
     };
   }
 
@@ -200,17 +197,18 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
+          const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
+            self.utils.getNodeStyle(node, configs, "map");
+
           nodesData.push({
             name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
-            symbolSize:
-              typeof configs.nodeSize === "function"
-                ? configs.nodeSize(node)
-                : configs.nodeSize,
-            itemStyle:
-              typeof configs.nodeStyleProperty === "function"
-                ? configs.nodeStyleProperty(node)
-                : configs.nodeStyleProperty,
+            symbolSize: nodeSizeConfig,
+            itemStyle: nodeStyleConfig,
+            emphasis: {
+              itemStyle: nodeEmphasisConfig.nodeStyle,
+              symbolSize: nodeEmphasisConfig.nodeSize,
+            },
             node,
           });
           if (!JSONData.flatNodes) {
@@ -225,6 +223,11 @@ class NetJSONGraphRender {
       } else if (!flatNodes[link.target]) {
         console.error(`Node ${link.target} is not exist!`);
       } else {
+        const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
+          link,
+          configs,
+          "map",
+        );
         linesData.push({
           coords: [
             [
@@ -236,32 +239,28 @@ class NetJSONGraphRender {
               flatNodes[link.target].properties.location.lat,
             ],
           ],
-          lineStyle:
-            typeof configs.linkStyleProperty === "function"
-              ? configs.linkStyleProperty(link)
-              : configs.linkStyleProperty,
+          lineStyle: linkStyleConfig,
+          emphasis: {lineStyle: linkEmphasisConfig.linkStyle},
           link,
         });
       }
     });
 
     const series = [
-      Object.assign(configs.mapNodeConfig, {
+      Object.assign(configs.mapOptions.nodeConfig, {
         type:
-          configs.mapNodeConfig.type === "effectScatter"
+          configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
             : "scatter",
         coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
       }),
-      ...configs.mapLinkConfig.map((lineConfig) =>
-        Object.assign(lineConfig, {
-          type: "lines",
-          coordinateSystem: "leaflet",
-          data: linesData,
-        }),
-      ),
+      Object.assign(configs.mapOptions.linkConfig, {
+        type: "lines",
+        coordinateSystem: "leaflet",
+        data: linesData,
+      }),
     ];
 
     return {
@@ -269,10 +268,8 @@ class NetJSONGraphRender {
         tiles: configs.mapTileConfig,
         mapOptions: configs.mapOptions,
       },
-      toolbox: {
-        show: false,
-      },
       series,
+      ...configs.mapOptions.baseOptions,
     };
   }
 
