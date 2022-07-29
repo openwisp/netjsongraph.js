@@ -34,7 +34,7 @@ class NetJSONGraph {
       } else if (this.utils.isElement(this.config.el)) {
         this.el = this.config.el;
       } else {
-        this.el = document.getElementById(this.config.el);
+        this.el = document.querySelector(this.config.el);
       }
       if (this.el === document.body) {
         this.el.classList.add("njg-relativePosition");

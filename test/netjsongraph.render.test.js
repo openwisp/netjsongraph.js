@@ -89,13 +89,13 @@ describe("Test netjsongraph setConfig", () => {
     container.setAttribute("id", "container");
     const obj4 = new NetJSONGraph([JSONFILE, JSONFILE]);
     obj4.setConfig({
-      el: "container",
+      el: "#container",
     });
     expect(obj4.el).toBe(container);
     document.body.removeChild(container);
 
     obj1.setConfig({
-      el: "container",
+      el: "#container",
     });
     expect(obj1.el).toBe(document.body);
   });
