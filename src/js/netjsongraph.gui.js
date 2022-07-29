@@ -28,15 +28,13 @@ class NetJSONGraphGUI {
   createSideBar() {
     const sideBar = document.createElement("div");
     sideBar.setAttribute("class", "njg-sideBar");
-    const {body} = document;
     const button = document.createElement("button");
     sideBar.appendChild(button);
-
     button.classList.add("sideBarHandle");
     button.onclick = () => {
       sideBar.classList.toggle("hidden");
     };
-    body.appendChild(sideBar);
+    this.self.el.appendChild(sideBar);
     return sideBar;
   }
 
