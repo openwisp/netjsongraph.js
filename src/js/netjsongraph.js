@@ -21,7 +21,7 @@ class NetJSONGraph {
       config.render = NetJSONGraphRender.prototype.graphRender;
     }
 
-    let graph = new NetJSONGraphCore(JSONParam);
+    const graph = new NetJSONGraphCore(JSONParam);
 
     Object.setPrototypeOf(NetJSONGraphRender.prototype, graph.utils);
     graph.utils = new NetJSONGraphRender();
@@ -104,14 +104,18 @@ class NetJSONGraph {
           gui.renderModeSelector.onclick = () => {
             if (this.config.render === this.utils.mapRender) {
               this.config.render = this.utils.graphRender;
-              this.echarts.dispose();
-              graph = new NetJSONGraph(this.data, {
-                ...this.config,
-              });
-              graph.render();
+              const canvasContainer = this.echarts
+                .getZr()
+                .painter.getViewportRoot().parentNode;
+              this.echarts.clear();
+              this.utils.graphRender(this.data, this);
+              canvasContainer.style.background =
+                // eslint-disable-next-line no-underscore-dangle
+                this.echarts.getZr()._backgroundColor;
             } else {
+              this.echarts.clear();
               this.config.render = this.utils.mapRender;
-              this.config.render(this.data, this);
+              this.utils.mapRender(this.data, this);
             }
           };
         }
