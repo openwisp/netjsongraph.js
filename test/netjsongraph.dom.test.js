@@ -191,7 +191,7 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a container for node and link info", () => {
     const container =
-      '<div class="njg-nodeLinkInfoContainer" style="visibility: hidden;"></div>';
+      '<div class="njg-nodeLinkInfoContainer" style="display: none;"></div>';
     graph.gui.sideBar = graph.gui.createSideBar();
     expect(graph.gui.createNodeLinkInfoContainer).toBeInstanceOf(Function);
     expect(graph.gui.createNodeLinkInfoContainer()).toBeInTheDocument(
@@ -291,8 +291,8 @@ describe("Test netjsongraph dom operate", () => {
   });
 
   test("Click a node", () => {
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
-    graph.config.onClickElement.call(graph, "node", {
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
+    graph.config.onClickElement("node", {
       id: "33",
     });
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("33");
@@ -301,15 +301,15 @@ describe("Test netjsongraph dom operate", () => {
     });
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("21");
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).not.toContain("33");
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("visible");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
     const closeBtn = document.getElementById("closeButton");
     closeBtn.click();
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
   });
 
   test("Click a link", () => {
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
-    graph.config.onClickElement.call(graph, "link", {
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
+    graph.config.onClickElement("link", {
       source: "192.168.0.01",
       target: "192.168.1.01",
     });
@@ -329,10 +329,10 @@ describe("Test netjsongraph dom operate", () => {
       "192.168.4.02",
       "192.168.5.03",
     );
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("visible");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
     const closeBtn = document.getElementById("closeButton");
     closeBtn.click();
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
   });
 
   test("Toggle the sidebar", () => {

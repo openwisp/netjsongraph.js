@@ -58,10 +58,32 @@ describe("NetJSONGraph Specification", () => {
     },
     baseOptions: {
       backgroundColor: "#282222",
+      media: [
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 500,
+          },
+          option: {
+            series: [
+              {
+                zoom: 0.7,
+                labelLayout: {
+                  hideOverlap: true,
+                },
+              },
+            ],
+            toolbox: {
+              itemSize: 18,
+            },
+          },
+        },
+      ],
     },
   };
   const NetJSONGraphMapOptions = {
     roam: true,
+    zoomAnimation: false,
     nodeConfig: {
       type: "scatter",
       label: {

@@ -58,7 +58,7 @@ class NetJSONGraphGUI {
   createNodeLinkInfoContainer() {
     const nodeLinkInfoContainer = document.createElement("div");
     nodeLinkInfoContainer.classList.add("njg-nodeLinkInfoContainer");
-    nodeLinkInfoContainer.style.visibility = "hidden";
+    nodeLinkInfoContainer.style.display = "none";
     this.sideBar.appendChild(nodeLinkInfoContainer);
     return nodeLinkInfoContainer;
   }
@@ -85,7 +85,7 @@ class NetJSONGraphGUI {
     infoContainer.classList.add("njg-infoContainer");
     headerContainer.classList.add("njg-headerContainer");
     closeButton.setAttribute("id", "closeButton");
-    this.nodeLinkInfoContainer.style.visibility = "visible";
+    this.nodeLinkInfoContainer.style.display = "flex";
     header.innerHTML = `${type} Info`;
     closeButton.innerHTML = " &#x2715;";
 
@@ -119,7 +119,7 @@ class NetJSONGraphGUI {
     this.nodeLinkInfoContainer.appendChild(infoContainer);
 
     closeButton.onclick = () => {
-      this.nodeLinkInfoContainer.style.visibility = "hidden";
+      this.nodeLinkInfoContainer.style.display = "none";
     };
   }
 

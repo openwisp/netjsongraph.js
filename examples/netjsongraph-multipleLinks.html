@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <title>netjsongraph.js: basic example</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- theme can be easily customized via css -->
-    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet">
-    <link href="../src/css/netjsongraph.css" rel="stylesheet">
-</head>
+    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../src/css/netjsongraph.css" rel="stylesheet" />
+  </head>
 
-<body>
+  <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
-        /*
+      /*
             The demo is used to show the multiple links render.
             Currently only supports up to two links.
         */
-        // `graph` render defaultly.
-        const graph = new NetJSONGraph("./data/netjsongraph-multipleLinks.json", {
-            graphConfig: {
-                // set force layout params
-                force: {
-                    edgeLength: [200, 600],
-                },
-            },
-        });
+      // `graph` render defaultly.
+      const graph = new NetJSONGraph("./data/netjsongraph-multipleLinks.json", {
+        graphConfig: {
+          // set force layout params
+          force: {
+            edgeLength: [200, 600],
+          },
+        },
+      });
 
-        graph.render();
+      graph.render();
     </script>
-
+  </body>
 </html>

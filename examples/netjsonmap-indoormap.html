@@ -3,6 +3,7 @@
   <head>
     <title>Indoor map</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -23,6 +24,12 @@
       .njg-tooltip-key,
       .njg-tooltip-value {
         color: #fff;
+      }
+
+      @media only screen and (max-width: 500px) {
+        .hidden {
+          left: 0;
+        }
       }
     </style>
   </head>
@@ -58,6 +65,25 @@
             },
             animation: false,
           },
+          baseOptions: {
+            media: [
+              {
+                query: {
+                  minWidth: 320,
+                  maxWidth: 400,
+                },
+                option: {
+                  series: [
+                    {
+                      label: {
+                        fontSize: "12px",
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
         },
 
         // Convert to internal json format
@@ -80,6 +106,11 @@
           const aspectRatio = image.width / image.height;
           const height = 700;
           const width = aspectRatio * height;
+          netjsonmap.on("resize", () => {
+            if (netjsonmap.getBoundsZoom(bounds) <= netjsonmap.getMaxZoom()) {
+              netjsonmap.setZoom(netjsonmap.getBoundsZoom(bounds));
+            }
+          });
           const southWest = {lat: 53, lng: 2};
           const swPixel = netjsonmap.latLngToContainerPoint(southWest);
           const nePixel = swPixel.add(new L.Point(width, height));
@@ -87,6 +118,9 @@
 
           const bounds = new L.LatLngBounds(southWest, northEast);
           netjsonmap.setMaxBounds(bounds);
+          if (netjsonmap.getBoundsZoom(bounds) <= netjsonmap.getMaxZoom()) {
+            netjsonmap.setZoom(netjsonmap.getBoundsZoom(bounds));
+          }
 
           // remove the geographic map
           netjsonmap.eachLayer((layer) => {

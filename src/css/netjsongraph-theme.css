@@ -152,7 +152,6 @@ p {
 }
 .njg-searchContainer {
   position: absolute;
-  left: 550px;
   top: 10px;
   z-index: 1;
 }
@@ -169,6 +168,7 @@ p {
   display: flex;
   flex-direction: column;
   user-select: text;
+  overflow-y: scroll;
 }
 
 .hidden {
@@ -288,7 +288,7 @@ p {
   cursor: pointer;
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 850px) {
   .njg-sideBar {
     margin-top: -60px;
     top: unset;
@@ -298,5 +298,11 @@ p {
 
   .sideBarHandle {
     display: none;
+  }
+}
+
+@media only screen and (max-width: 850px) and (min-width: 500px) {
+  .njg-valueLabel {
+    text-align: end;
   }
 }

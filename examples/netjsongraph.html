@@ -54,7 +54,7 @@
         margin-right: 10px;
       }
 
-      @media only screen and (max-width: 500px) {
+      @media only screen and (max-width: 850px) {
         #legend {
           margin-bottom: 50px;
           right: 10px;
@@ -69,28 +69,6 @@
       // `graph` render defaultly.
       // We can add data gradually by array.
       const graph = new NetJSONGraph("./data/netjsonmap.json", {
-        graphConfig: {
-          baseOptions: {
-            media: [
-              {
-                query: {
-                  minWidth: 320,
-                  maxWidth: 500,
-                },
-                option: {
-                  series: [
-                    {
-                      zoom: 0.7,
-                    },
-                  ],
-                  toolbox: {
-                    itemSize: 18,
-                  },
-                },
-              },
-            ],
-          },
-        },
         linkCategories: [
           {
             name: "down",
