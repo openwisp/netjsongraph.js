@@ -70,43 +70,8 @@
           });
         },
 
-        onLoad: function presentIndoormap() {
-          const gui = this.utils.getGUI(this);
-          gui.init();
-          if (this.config.metadata) {
-            gui.createAboutContainer(graph);
-            gui.sideBar.classList.add("hidden");
-            this.utils.updateMetadata.call(this);
-          }
-          if (this.config.switchMode) {
-            gui.renderModeSelector.onclick = () => {
-              if (this.config.render === this.utils.mapRender) {
-                this.config.render = this.utils.graphRender;
-                const canvasContainer = this.echarts
-                  .getZr()
-                  .painter.getViewportRoot().parentNode;
-                this.echarts.clear();
-                this.utils.graphRender(this.data, this);
-                canvasContainer.style.background =
-                  // eslint-disable-next-line no-underscore-dangle
-                  this.echarts.getZr()._backgroundColor;
-              } else {
-                this.echarts.clear();
-                this.config.render = this.utils.mapRender;
-                this.utils.mapRender(this.data, this);
-              }
-            };
-          }
-          this.config.onClickElement = (type, data) => {
-            let nodeLinkData;
-            if (type === "node") {
-              nodeLinkData = this.utils.nodeInfo(data);
-            } else {
-              nodeLinkData = this.utils.linkInfo(data);
-            }
-            gui.getNodeLinkInfo(type, nodeLinkData);
-            gui.sideBar.classList.remove("hidden");
-          };
+        onReady: function presentIndoormap() {
+          this.gui.sideBar.classList.add("hidden");
 
           const netjsonmap = this.leaflet;
           const image = new Image();
@@ -131,7 +96,6 @@
           });
           // add indoormap image
           L.imageOverlay(image, bounds).addTo(netjsonmap);
-          this.utils.hideLoading();
         },
       });
 

@@ -1,5 +1,3 @@
-import NetJSONGraphGUI from "./netjsongraph.gui";
-
 class NetJSONGraphUtil {
   /**
    * @function
@@ -536,11 +534,6 @@ class NetJSONGraphUtil {
     }
 
     return {linkStyleConfig, linkEmphasisConfig};
-  }
-
-  getGUI(graph) {
-    const gui = new NetJSONGraphGUI(graph);
-    return gui;
   }
 
   /**

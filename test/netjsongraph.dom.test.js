@@ -14,6 +14,7 @@ const graph = new NetJSONGraph({
 
 // Package NetJSONGraph instance object.
 graph.event = graph.utils.createEvent();
+graph.gui = new NetJSONGraphGUI(graph);
 graph.setConfig({
   onRender() {
     return this.config;
@@ -140,77 +141,86 @@ describe("Test netjsongraph utils dom functions", () => {
 });
 
 describe("Test netjsongraph gui", () => {
-  let gui;
   beforeEach(() => {
-    gui = new NetJSONGraphGUI(graph);
+    graph.gui = new NetJSONGraphGUI(graph);
   });
 
   afterEach(() => {
-    gui = null;
+    graph.gui = null;
   });
 
   test("Creating a gui instance", () => {
-    expect(gui.self).toEqual(graph);
-    expect(gui.renderModeSelector).toBe(null);
-    expect(gui.controls).toBe(null);
-    expect(gui.sideBar).toBe(null);
-    expect(gui.aboutContainer).toBe(null);
-    expect(gui.nodeLinkInfoContainer).toBe(null);
+    expect(graph.gui.self).toEqual(graph);
+    expect(graph.gui.renderModeSelector).toBe(null);
+    expect(graph.gui.controls).toBe(null);
+    expect(graph.gui.sideBar).toBe(null);
+    expect(graph.gui.aboutContainer).toBe(null);
+    expect(graph.gui.nodeLinkInfoContainer).toBe(null);
   });
 
   test("Create a controls container", () => {
     const controls = '<div class="njg-controls"></div>';
-    expect(gui.createControls).toBeInstanceOf(Function);
-    expect(gui.createControls()).toBeInstanceOf(HTMLElement);
-    expect(graph.el).toContainElement(gui.createControls());
-    expect(gui.createControls().outerHTML).toEqual(controls);
+    expect(graph.gui.createControls).toBeInstanceOf(Function);
+    expect(graph.gui.createControls()).toBeInstanceOf(HTMLElement);
+    expect(graph.el).toContainElement(graph.gui.createControls());
+    expect(graph.gui.createControls().outerHTML).toEqual(controls);
   });
 
   test("Create a render mode selector button", () => {
     const button =
       '<div class="njg-selectIcon"><span class="iconfont icon-eye"></span></div>';
-    const controls = gui.createControls();
-    gui.controls = controls;
-    expect(gui.createRenderModeSelector).toBeInstanceOf(Function);
-    expect(gui.createRenderModeSelector()).toBeInstanceOf(HTMLElement);
-    expect(graph.el).toContainElement(gui.createRenderModeSelector());
-    expect(gui.controls).toContainElement(gui.createRenderModeSelector());
-    expect(gui.createRenderModeSelector().outerHTML).toEqual(button);
+    const controls = graph.gui.createControls();
+    graph.gui.controls = controls;
+    expect(graph.gui.createRenderModeSelector).toBeInstanceOf(Function);
+    expect(graph.gui.createRenderModeSelector()).toBeInstanceOf(HTMLElement);
+    expect(graph.el).toContainElement(graph.gui.createRenderModeSelector());
+    expect(graph.gui.controls).toContainElement(
+      graph.gui.createRenderModeSelector(),
+    );
+    expect(graph.gui.createRenderModeSelector().outerHTML).toEqual(button);
   });
 
   test("Create a side bar", () => {
     const sidebar =
       '<div class="njg-sideBar"><button class="sideBarHandle"></button></div>';
-    expect(gui.createSideBar).toBeInstanceOf(Function);
-    expect(gui.createSideBar()).toBeInstanceOf(HTMLElement);
-    expect(graph.el).toContainElement(gui.createSideBar());
-    expect(gui.createSideBar().outerHTML).toEqual(sidebar);
+    expect(graph.gui.createSideBar).toBeInstanceOf(Function);
+    expect(graph.gui.createSideBar()).toBeInstanceOf(HTMLElement);
+    expect(graph.el).toContainElement(graph.gui.createSideBar());
+    expect(graph.gui.createSideBar().outerHTML).toEqual(sidebar);
   });
 
   test("Create a container for node and link info", () => {
     const container =
       '<div class="njg-nodeLinkInfoContainer" style="visibility: hidden;"></div>';
-    gui.sideBar = gui.createSideBar();
-    expect(gui.createNodeLinkInfoContainer).toBeInstanceOf(Function);
-    expect(gui.createNodeLinkInfoContainer()).toBeInTheDocument(HTMLElement);
-    expect(graph.el).toContainElement(gui.createNodeLinkInfoContainer());
-    expect(gui.sideBar).toContainElement(gui.createNodeLinkInfoContainer());
-    expect(gui.createNodeLinkInfoContainer().outerHTML).toEqual(container);
+    graph.gui.sideBar = graph.gui.createSideBar();
+    expect(graph.gui.createNodeLinkInfoContainer).toBeInstanceOf(Function);
+    expect(graph.gui.createNodeLinkInfoContainer()).toBeInTheDocument(
+      HTMLElement,
+    );
+    expect(graph.el).toContainElement(graph.gui.createNodeLinkInfoContainer());
+    expect(graph.gui.sideBar).toContainElement(
+      graph.gui.createNodeLinkInfoContainer(),
+    );
+    expect(graph.gui.createNodeLinkInfoContainer().outerHTML).toEqual(
+      container,
+    );
   });
 
   test("Create a container for meta data", () => {
     const container =
       '<div class="njg-aboutContainer"><h2>About</h2><div class="njg-metaData"></div></div>';
-    gui.sideBar = gui.createSideBar();
-    expect(gui.nodeLinkInfoContainer).toBe(null);
-    expect(gui.createAboutContainer).toBeInstanceOf(Function);
-    expect(gui.createAboutContainer()).toBeInstanceOf(HTMLElement);
-    expect(graph.el).toContainElement(gui.createAboutContainer());
-    expect(gui.sideBar).toContainElement(gui.createAboutContainer());
-    expect(gui.createAboutContainer().outerHTML).toEqual(container);
+    graph.gui.sideBar = graph.gui.createSideBar();
+    expect(graph.gui.nodeLinkInfoContainer).toBe(null);
+    expect(graph.gui.createAboutContainer).toBeInstanceOf(Function);
+    expect(graph.gui.createAboutContainer()).toBeInstanceOf(HTMLElement);
+    expect(graph.el).toContainElement(graph.gui.createAboutContainer());
+    expect(graph.gui.sideBar).toContainElement(
+      graph.gui.createAboutContainer(),
+    );
+    expect(graph.gui.createAboutContainer().outerHTML).toEqual(container);
 
-    gui.aboutContainer = gui.createAboutContainer();
-    expect(gui.nodeLinkInfoContainer).not.toBe(null);
+    graph.gui.aboutContainer = graph.gui.createAboutContainer();
+    expect(graph.gui.nodeLinkInfoContainer).not.toBe(null);
   });
 
   test("Display node and link data", () => {
@@ -226,16 +236,16 @@ describe("Test netjsongraph gui", () => {
       name: "Node",
     };
 
-    gui.sideBar = gui.createSideBar();
-    gui.nodeLinkInfoContainer = gui.createNodeLinkInfoContainer();
-    expect(gui.getNodeLinkInfo).toBeInstanceOf(Function);
-    expect(gui.nodeLinkInfoContainer).not.toBe(null);
-    gui.getNodeLinkInfo("node", nodeData);
+    graph.gui.sideBar = graph.gui.createSideBar();
+    graph.gui.nodeLinkInfoContainer = graph.gui.createNodeLinkInfoContainer();
+    expect(graph.gui.getNodeLinkInfo).toBeInstanceOf(Function);
+    expect(graph.gui.nodeLinkInfoContainer).not.toBe(null);
+    graph.gui.getNodeLinkInfo("node", nodeData);
 
     const infoContainer = document.querySelector(".njg-infoContainer");
     const header = document.querySelector(".njg-headerContainer");
-    expect(gui.nodeLinkInfoContainer).toContainElement(infoContainer);
-    expect(gui.nodeLinkInfoContainer).toContainElement(header);
+    expect(graph.gui.nodeLinkInfoContainer).toContainElement(infoContainer);
+    expect(graph.gui.nodeLinkInfoContainer).toContainElement(header);
     expect(header.innerHTML).toContain("node");
     expect(header).toContainElement(document.getElementById("closeButton"));
     expect(infoContainer.innerHTML).toContain(
@@ -260,82 +270,69 @@ describe("Test netjsongraph gui", () => {
   });
 
   test("Create sidebar on loading", () => {
-    expect(gui.sideBar).toBe(null);
-    gui.init();
-    expect(gui.sideBar).not.toBe(null);
-    expect(gui.controls).toBe(null);
-    expect(gui.renderModeSelector).toBe(null);
+    expect(graph.gui.sideBar).toBe(null);
+    graph.gui.init();
+    expect(graph.gui.sideBar).not.toBe(null);
+    expect(graph.gui.controls).toBe(null);
+    expect(graph.gui.renderModeSelector).toBe(null);
     graph.setConfig({
       switchMode: true,
     });
-    gui.init();
-    expect(gui.controls).not.toBe(null);
-    expect(gui.renderModeSelector).not.toBe(null);
+    graph.gui.init();
+    expect(graph.gui.controls).not.toBe(null);
+    expect(graph.gui.renderModeSelector).not.toBe(null);
   });
 });
 describe("Test netjsongraph dom operate", () => {
-  let gui;
   beforeEach(() => {
-    gui = new NetJSONGraphGUI(graph);
-    gui.init();
-    gui.createAboutContainer();
-    graph.setConfig({
-      onClickElement: (type, data) => {
-        let nodeLinkData;
-        if (type === "node") {
-          nodeLinkData = graph.utils.nodeInfo(data);
-        } else {
-          nodeLinkData = graph.utils.linkInfo(data);
-        }
-        gui.getNodeLinkInfo(type, nodeLinkData);
-        gui.sideBar.classList.remove("hidden");
-      },
-    });
+    graph.gui = new NetJSONGraphGUI(graph);
+    graph.gui.init();
+    graph.gui.createAboutContainer();
   });
 
   test("Click a node", () => {
-    expect(gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
-    graph.config.onClickElement("node", {
+    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    graph.config.onClickElement.call(graph, "node", {
       id: "33",
     });
-    expect(gui.nodeLinkInfoContainer.innerHTML).toContain("33");
-    graph.config.onClickElement("node", {
+    expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("33");
+    graph.config.onClickElement.call(graph, "node", {
       id: "21",
     });
-    expect(gui.nodeLinkInfoContainer.innerHTML).toContain("21");
-    expect(gui.nodeLinkInfoContainer.innerHTML).not.toContain("33");
-    expect(gui.nodeLinkInfoContainer.style.visibility).toEqual("visible");
+    expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("21");
+    expect(graph.gui.nodeLinkInfoContainer.innerHTML).not.toContain("33");
+    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("visible");
     const closeBtn = document.getElementById("closeButton");
     closeBtn.click();
-    expect(gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
   });
 
   test("Click a link", () => {
-    expect(gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
-    graph.config.onClickElement("link", {
+    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    graph.config.onClickElement.call(graph, "link", {
       source: "192.168.0.01",
       target: "192.168.1.01",
     });
-    expect(gui.nodeLinkInfoContainer.innerHTML).toContain(
+    expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain(
       "192.168.0.01",
       "192.168.1.01",
     );
-    graph.config.onClickElement("link", {
+    graph.config.onClickElement.call(graph, "link", {
       source: "192.168.4.02",
       target: "192.168.5.03",
     });
-    expect(gui.nodeLinkInfoContainer.innerHTML).not.toContain(
+    expect(graph.gui.nodeLinkInfoContainer.innerHTML).not.toContain(
       "192.168.0.01",
       "192.168.1.01",
     );
-    expect(gui.nodeLinkInfoContainer.innerHTML).toContain(
+    expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain(
       "192.168.4.02",
       "192.168.5.03",
     );
-    expect(gui.nodeLinkInfoContainer.style.visibility).toEqual("visible");
+    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("visible");
     const closeBtn = document.getElementById("closeButton");
     closeBtn.click();
-    expect(gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
   });
 
   test("Toggle the sidebar", () => {

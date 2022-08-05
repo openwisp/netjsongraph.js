@@ -56,42 +56,7 @@
             });
           },
 
-          onLoad: function () {
-            const gui = this.utils.getGUI(this);
-            gui.init();
-            if (this.config.metadata) {
-              gui.createAboutContainer(map);
-              this.utils.updateMetadata.call(this);
-            }
-            if (this.config.switchMode) {
-              gui.renderModeSelector.onclick = () => {
-                if (this.config.render === this.utils.mapRender) {
-                  this.config.render = this.utils.graphRender;
-                  const canvasContainer = this.echarts
-                    .getZr()
-                    .painter.getViewportRoot().parentNode;
-                  this.echarts.clear();
-                  this.utils.graphRender(this.data, this);
-                  canvasContainer.style.background =
-                    // eslint-disable-next-line no-underscore-dangle
-                    this.echarts.getZr()._backgroundColor;
-                } else {
-                  this.echarts.clear();
-                  this.config.render = this.utils.mapRender;
-                  this.utils.mapRender(this.data, this);
-                }
-              };
-            }
-            this.config.onClickElement = (type, data) => {
-              let nodeLinkData;
-              if (type === "node") {
-                nodeLinkData = this.utils.nodeInfo(data);
-              } else {
-                nodeLinkData = this.utils.linkInfo(data);
-              }
-              gui.getNodeLinkInfo(type, nodeLinkData);
-              gui.sideBar.classList.remove("hidden");
-            };
+          onReady: function () {
             /* 
                         The map has this property only after the map is rendered, 
                         so we have to put the relevant function in `onLoad` life cycle  
@@ -133,8 +98,6 @@
                 }
               }
             });
-
-            this.utils.hideLoading();
           },
         });
 

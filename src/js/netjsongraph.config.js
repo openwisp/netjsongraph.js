@@ -24,7 +24,7 @@
  * @param  {function}          onRender                        Callback function executed on render start.
  * @param  {function}          onUpdate                        Callback function executed on update.
  * @param  {function}          afterUpdate                     Callback function executed after update.
- * @param  {function}          onLoad                          Callback function executed when rendered.
+ * @param  {function}          onReady                         Callback function executed when rendered.
  * @param  {function}          prepareData                     Callback function executed after data has been loaded. Used to convert data to NetJSONGraph Data.
  * @param  {function}          onClickElement                  Called when a node or link is clicked.
  */
@@ -166,8 +166,26 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  // eslint-disable-next-line no-unused-vars
-  onClickElement(type, data) {},
+  onClickElement(type, data) {
+    let nodeLinkData;
+    if (type === "node") {
+      nodeLinkData = this.utils.nodeInfo(data);
+    } else {
+      nodeLinkData = this.utils.linkInfo(data);
+    }
+    this.gui.getNodeLinkInfo(type, nodeLinkData);
+    this.gui.sideBar.classList.remove("hidden");
+  },
+
+  /**
+   * @function
+   * @name onReady
+   * Callback function executed when rendered.
+   *
+   * @this  {object}        The instantiated object of NetJSONGraph
+   *
+   */
+  onReady() {},
 };
 
 export default {...NetJSONGraphDefaultConfig};

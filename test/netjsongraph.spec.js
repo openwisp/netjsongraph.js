@@ -174,6 +174,7 @@ describe("NetJSONGraph Specification", () => {
     expect(graph.config.afterUpdate.call(graph)).toBe(graph.config);
     expect(graph.config.onLoad).toBeInstanceOf(Function);
     expect(graph.config.onLoad.call(graph)).toBe(graph.config);
+    expect(graph.config.onReady).toBeInstanceOf(Function);
     expect(graph.config.prepareData).toBeInstanceOf(Function);
     expect(graph.config.onClickElement).toBeInstanceOf(Function);
 
@@ -197,7 +198,6 @@ describe("NetJSONGraph Specification", () => {
     expect(graph.utils.createEvent).toBeInstanceOf(Function);
     expect(graph.utils.numberMinDigit).toBeInstanceOf(Function);
     expect(graph.utils.generateStyle).toBeInstanceOf(Function);
-    expect(graph.utils.getGUI).toBeInstanceOf(Function);
     expect(graph.utils.getLinkStyle).toBeInstanceOf(Function);
     expect(graph.utils.getMetadata).toBeInstanceOf(Function);
     expect(graph.utils.getNodeStyle).toBeInstanceOf(Function);

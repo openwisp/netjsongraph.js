@@ -11,55 +11,20 @@
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
-            The demo is used to show the use of the `searchElements` function.
-            For test, you can input `test` and click the `search` button.
-            See the following comments for details.
-        */
+                  The demo is used to show the use of the `searchElements` function.
+                  For test, you can input `test` and click the `search` button.
+                  See the following comments for details.
+              */
       // `graph` render defaultly.
       let graph = new NetJSONGraph("./data/netjsonmap.json", {
-        onLoad: function () {
-          const gui = this.utils.getGUI(this);
-          gui.init();
-          if (this.config.metadata) {
-            gui.createAboutContainer(graph);
-            this.utils.updateMetadata.call(this);
-          }
-          if (this.config.switchMode) {
-            gui.renderModeSelector.onclick = () => {
-              if (this.config.render === this.utils.mapRender) {
-                this.config.render = this.utils.graphRender;
-                const canvasContainer = this.echarts
-                  .getZr()
-                  .painter.getViewportRoot().parentNode;
-                this.echarts.clear();
-                this.utils.graphRender(this.data, this);
-                canvasContainer.style.background =
-                  // eslint-disable-next-line no-underscore-dangle
-                  this.echarts.getZr()._backgroundColor;
-              } else {
-                this.echarts.clear();
-                this.config.render = this.utils.mapRender;
-                this.utils.mapRender(this.data, this);
-              }
-            };
-          }
-          this.config.onClickElement = (type, data) => {
-            let nodeLinkData;
-            if (type === "node") {
-              nodeLinkData = this.utils.nodeInfo(data);
-            } else {
-              nodeLinkData = this.utils.linkInfo(data);
-            }
-            gui.getNodeLinkInfo(type, nodeLinkData);
-            gui.sideBar.classList.remove("hidden");
-          };
+        onReady: function () {
           let searchContainer = document.createElement("div"),
             searchInput = document.createElement("input"),
             searchBtn = document.createElement("button"),
             /*
-                        Pass in the url to listen to, and save the returned function.
-                        Please ensure that the return value of the api is the specified json format.
-                    */
+                              Pass in the url to listen to, and save the returned function.
+                              Please ensure that the return value of the api is the specified json format.
+                          */
             searchFunc = this.utils.searchElements.call(
               this,
               "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=",
@@ -83,9 +48,9 @@
             let inputValue = searchInput.value.trim();
 
             /*
-                        Pass in the relevant search value,
-                        which will re-render automatically according to the request result within the function.
-                    */
+                              Pass in the relevant search value,
+                              which will re-render automatically according to the request result within the function.
+                          */
             if (inputValue === "appendData") {
               // appendData
               searchFunc(inputValue, false);
@@ -95,8 +60,6 @@
 
             searchInput.value = "";
           };
-
-          this.utils.hideLoading();
         },
       });
 
