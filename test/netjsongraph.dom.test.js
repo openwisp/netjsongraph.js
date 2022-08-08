@@ -108,6 +108,16 @@ describe("Test netjsongraph utils dom functions", () => {
       "192.168.0.03",
       "2019.04.03 .5:06:54.000",
     );
+    const tooltip = document.createElement("div");
+    tooltip.classList.add("njg-tooltip");
+    tooltip.appendChild(graph.utils.getNodeTooltipInfo(node));
+    document.body.appendChild(tooltip);
+    const closeBtn = document.querySelector(".njg-tooltip-inner #closeButton");
+    closeBtn.click();
+    expect(document.querySelector(".njg-tooltip").style.display).toEqual(
+      "none",
+    );
+    document.body.removeChild(tooltip);
   });
 
   test("Create a tooltip element for link info ", () => {
@@ -137,6 +147,16 @@ describe("Test netjsongraph utils dom functions", () => {
       "Link",
       "2019.04.03 .5:06:54.000",
     );
+    const tooltip = document.createElement("div");
+    tooltip.classList.add("njg-tooltip");
+    tooltip.appendChild(graph.utils.getLinkTooltipInfo(link));
+    document.body.appendChild(tooltip);
+    const closeBtn = document.querySelector(".njg-tooltip-inner #closeButton");
+    closeBtn.click();
+    expect(document.querySelector(".njg-tooltip").style.display).toEqual(
+      "none",
+    );
+    document.body.removeChild(tooltip);
   });
 });
 
@@ -208,7 +228,7 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a container for meta data", () => {
     const container =
-      '<div class="njg-aboutContainer"><h2>About</h2><div class="njg-metaData"></div></div>';
+      '<div class="njg-aboutContainer"><h2>About<span id="closeButton"> ✕</span></h2><div class="njg-metaData"></div></div>';
     graph.gui.sideBar = graph.gui.createSideBar();
     expect(graph.gui.nodeLinkInfoContainer).toBe(null);
     expect(graph.gui.createAboutContainer).toBeInstanceOf(Function);
@@ -220,6 +240,9 @@ describe("Test netjsongraph gui", () => {
     expect(graph.gui.createAboutContainer().outerHTML).toEqual(container);
 
     graph.gui.aboutContainer = graph.gui.createAboutContainer();
+    const closeBtn = document.querySelector(".njg-aboutContainer #closeButton");
+    closeBtn.click();
+    expect(graph.gui.aboutContainer.style.display).toEqual("none");
     expect(graph.gui.nodeLinkInfoContainer).not.toBe(null);
   });
 
@@ -247,7 +270,9 @@ describe("Test netjsongraph gui", () => {
     expect(graph.gui.nodeLinkInfoContainer).toContainElement(infoContainer);
     expect(graph.gui.nodeLinkInfoContainer).toContainElement(header);
     expect(header.innerHTML).toContain("node");
-    expect(header).toContainElement(document.getElementById("closeButton"));
+    expect(header).toContainElement(
+      document.querySelector(".njg-headerContainer #closeButton"),
+    );
     expect(infoContainer.innerHTML).toContain(
       "id",
       "label",
@@ -292,7 +317,7 @@ describe("Test netjsongraph dom operate", () => {
 
   test("Click a node", () => {
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
-    graph.config.onClickElement("node", {
+    graph.config.onClickElement.call(graph, "node", {
       id: "33",
     });
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("33");
@@ -302,14 +327,16 @@ describe("Test netjsongraph dom operate", () => {
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("21");
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).not.toContain("33");
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
-    const closeBtn = document.getElementById("closeButton");
+    const closeBtn = document.querySelector(
+      ".njg-headerContainer #closeButton",
+    );
     closeBtn.click();
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
   });
 
   test("Click a link", () => {
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
-    graph.config.onClickElement("link", {
+    graph.config.onClickElement.call(graph, "link", {
       source: "192.168.0.01",
       target: "192.168.1.01",
     });
@@ -330,7 +357,9 @@ describe("Test netjsongraph dom operate", () => {
       "192.168.5.03",
     );
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
-    const closeBtn = document.getElementById("closeButton");
+    const closeBtn = document.querySelector(
+      ".njg-headerContainer #closeButton",
+    );
     closeBtn.click();
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
   });

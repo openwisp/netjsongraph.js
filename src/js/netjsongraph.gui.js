@@ -45,10 +45,18 @@ class NetJSONGraphGUI {
 
     metadataContainer.classList.add("njg-metaData");
     aboutContainer.classList.add("njg-aboutContainer");
+    const closeButton = document.createElement("span");
+    closeButton.setAttribute("id", "closeButton");
     header.innerHTML = "About";
+    closeButton.innerHTML = " &#x2715;";
+    header.appendChild(closeButton);
     aboutContainer.appendChild(header);
     aboutContainer.appendChild(metadataContainer);
+    this.aboutContainer = aboutContainer;
 
+    closeButton.onclick = () => {
+      this.aboutContainer.style.display = "none";
+    };
     this.sideBar.appendChild(aboutContainer);
     this.aboutContainer = aboutContainer;
     this.nodeLinkInfoContainer = this.createNodeLinkInfoContainer();

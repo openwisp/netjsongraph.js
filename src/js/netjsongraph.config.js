@@ -110,6 +110,18 @@ const NetJSONGraphDefaultConfig = {
             },
           },
         },
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 850,
+          },
+          option: {
+            tooltip: {
+              alwaysShowContent: true,
+              enterable: true,
+            },
+          },
+        },
       ],
     },
   },
@@ -147,6 +159,20 @@ const NetJSONGraphDefaultConfig = {
       toolbox: {
         show: false,
       },
+      media: [
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 850,
+          },
+          option: {
+            tooltip: {
+              alwaysShowContent: true,
+              enterable: true,
+            },
+          },
+        },
+      ],
     },
   },
   mapTileConfig: [

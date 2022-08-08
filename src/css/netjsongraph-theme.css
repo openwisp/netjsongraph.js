@@ -246,6 +246,11 @@ p {
 .njg-tooltip {
   background: #fff !important;
   border: none !important;
+  user-select: text !important;
+}
+
+.njg-tooltip #closeButton {
+  display: none;
 }
 
 .njg-tooltip-item {
@@ -282,10 +287,12 @@ p {
   position: relative;
 }
 
-.njg-headerContainer #closeButton {
+.njg-headerContainer #closeButton,
+.njg-aboutContainer #closeButton {
   position: absolute;
   right: 20px;
   cursor: pointer;
+  font-size: 18px;
 }
 
 @media only screen and (max-width: 850px) {
@@ -294,6 +301,25 @@ p {
     top: unset;
     width: 100%;
     height: fit-content;
+    display: none;
+  }
+
+  .njg-aboutContainer {
+    background: #ffffff;
+    width: 100%;
+    height: fit-content;
+    overflow-y: scroll;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
+  .njg-tooltip #closeButton {
+    display: block;
+    width: 100%;
+    text-align: end;
+    font-size: 16px;
   }
 
   .sideBarHandle {

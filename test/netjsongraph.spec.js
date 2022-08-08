@@ -78,6 +78,18 @@ describe("NetJSONGraph Specification", () => {
             },
           },
         },
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 850,
+          },
+          option: {
+            tooltip: {
+              alwaysShowContent: true,
+              enterable: true,
+            },
+          },
+        },
       ],
     },
   };
@@ -114,6 +126,20 @@ describe("NetJSONGraph Specification", () => {
       toolbox: {
         show: false,
       },
+      media: [
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 850,
+          },
+          option: {
+            tooltip: {
+              alwaysShowContent: true,
+              enterable: true,
+            },
+          },
+        },
+      ],
     },
   };
 
