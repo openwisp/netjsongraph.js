@@ -1,6 +1,4 @@
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
-import NetJSONGraphGUI from "../src/js/netjsongraph.gui";
-import NetJSONGraph from "../src/js/netjsongraph.core";
 
 const configs = {
   nodeCategories: [],
@@ -426,11 +424,5 @@ describe("Test netjsongraph function utils", () => {
       },
       linkEmphasisConfig: {},
     });
-  });
-
-  test("Get the GUI instance", () => {
-    const graph = new NetJSONGraph({});
-    const gui = util.getGUI(graph);
-    expect(gui).toBeInstanceOf(NetJSONGraphGUI);
   });
 });
