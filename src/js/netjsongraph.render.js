@@ -322,6 +322,14 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
+    if (Object.keys(self.geoData).length) {
+      L.geoJSON(self.geoData, {
+        ...self.config.geoOptions,
+        pointToLayer: (feature, latlng) =>
+          L.circleMarker(latlng, self.config.geoOptions.style),
+      }).addTo(self.leaflet);
+    }
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");

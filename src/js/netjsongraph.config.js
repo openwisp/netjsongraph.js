@@ -224,6 +224,16 @@ const NetJSONGraphDefaultConfig = {
       },
     },
   ],
+  geoOptions: {
+    style: {
+      fillColor: "#d94f34",
+      color: "#d94f34",
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.3,
+      radius: 10,
+    },
+  },
   nodeCategories: [],
   linkCategories: [],
 

@@ -14,7 +14,8 @@ class NetJSONGraph {
    * @param {string} JSONParam    The NetJSON file param
    * @param {Object} config
    */
-  constructor(JSONParam, config) {
+
+  constructor(JSONParam, config, GeoJSONParam = {}) {
     if (config && config.render === "map") {
       config.render = NetJSONGraphRender.prototype.mapRender;
     } else if (!config || !config.render || config.render === "graph") {
@@ -22,7 +23,7 @@ class NetJSONGraph {
       config.render = NetJSONGraphRender.prototype.graphRender;
     }
 
-    const graph = new NetJSONGraphCore(JSONParam);
+    let graph = new NetJSONGraphCore(JSONParam, GeoJSONParam);
 
     Object.setPrototypeOf(NetJSONGraphRender.prototype, graph.utils);
     graph.gui = new NetJSONGraphGUI(graph);
