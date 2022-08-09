@@ -75,19 +75,6 @@
             },
           },
         },
-        // set map tiles config, can set multiple values.
-        mapTileConfig: [
-          {
-            label: "Blue Street",
-            urlTemplate:
-              "http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}",
-            options: {
-              minZoom: 0.25,
-              maxZoom: 18,
-            },
-          },
-        ],
-
         // Convert to internal json format
         prepareData: (data) => {
           data.nodes.map((node) => {

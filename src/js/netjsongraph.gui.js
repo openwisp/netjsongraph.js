@@ -50,6 +50,7 @@ class NetJSONGraphGUI {
     aboutContainer.appendChild(metadataContainer);
 
     this.sideBar.appendChild(aboutContainer);
+    this.aboutContainer = aboutContainer;
     this.nodeLinkInfoContainer = this.createNodeLinkInfoContainer();
     return aboutContainer;
   }

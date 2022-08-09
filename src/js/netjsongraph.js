@@ -1,6 +1,7 @@
 import NetJSONGraphCore from "./netjsongraph.core";
 import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
 import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
+import NetJSONGraphGUI from "./netjsongraph.gui";
 
 const colorTool = require("zrender/lib/tool/color");
 const {each} = require("zrender/lib/core/util");
@@ -21,9 +22,10 @@ class NetJSONGraph {
       config.render = NetJSONGraphRender.prototype.graphRender;
     }
 
-    let graph = new NetJSONGraphCore(JSONParam);
+    const graph = new NetJSONGraphCore(JSONParam);
 
     Object.setPrototypeOf(NetJSONGraphRender.prototype, graph.utils);
+    graph.gui = new NetJSONGraphGUI(graph);
     graph.utils = new NetJSONGraphRender();
     graph.setUtils();
 
@@ -54,6 +56,10 @@ class NetJSONGraph {
        */
       onRender() {
         this.utils.showLoading.call(this);
+        this.gui.init();
+        if (this.config.metadata) {
+          this.gui.createAboutContainer(graph);
+        }
 
         return this.config;
       },
@@ -94,37 +100,29 @@ class NetJSONGraph {
        * @return {object}         this.config
        */
       onLoad() {
-        const gui = this.utils.getGUI(this);
-        gui.init();
         if (this.config.metadata) {
-          gui.createAboutContainer(graph);
           this.utils.updateMetadata.call(this);
         }
         if (this.config.switchMode) {
-          gui.renderModeSelector.onclick = () => {
+          this.gui.renderModeSelector.onclick = () => {
             if (this.config.render === this.utils.mapRender) {
               this.config.render = this.utils.graphRender;
-              this.echarts.dispose();
-              graph = new NetJSONGraph(this.data, {
-                ...this.config,
-              });
-              graph.render();
+              const canvasContainer = this.echarts
+                .getZr()
+                .painter.getViewportRoot().parentNode;
+              this.echarts.clear();
+              this.utils.graphRender(this.data, this);
+              canvasContainer.style.background =
+                // eslint-disable-next-line no-underscore-dangle
+                this.echarts.getZr()._backgroundColor;
             } else {
+              this.echarts.clear();
               this.config.render = this.utils.mapRender;
-              this.config.render(this.data, this);
+              this.utils.mapRender(this.data, this);
             }
           };
         }
-        this.config.onClickElement = (type, data) => {
-          let nodeLinkData;
-          if (type === "node") {
-            nodeLinkData = this.utils.nodeInfo(data);
-          } else {
-            nodeLinkData = this.utils.linkInfo(data);
-          }
-          gui.getNodeLinkInfo(type, nodeLinkData);
-          gui.sideBar.classList.remove("hidden");
-        };
+
         this.utils.hideLoading.call(this);
         return this.config;
       },

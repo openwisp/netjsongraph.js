@@ -41,40 +41,16 @@
           });
         },
 
-        onLoad: function () {
-          const gui = this.utils.getGUI(this);
-          gui.init();
-          if (this.config.metadata) {
-            gui.createAboutContainer(graph);
-            this.utils.updateMetadata.call(this);
+        onClickElement: function (type, data) {
+          let nodeLinkData;
+          if (type === "node") {
+            nodeLinkData = this.utils.nodeInfo(data);
+          } else {
+            nodeLinkData = this.utils.linkInfo(data);
           }
-          if (this.config.switchMode) {
-            gui.renderModeSelector.onclick = () => {
-              if (this.config.render === this.utils.mapRender) {
-                this.config.render = this.utils.graphRender;
-                this.echarts.dispose();
-                graph = new NetJSONGraph(this.data, {
-                  ...this.config,
-                });
-                graph.render();
-              } else {
-                this.config.render = this.utils.mapRender;
-                this.config.render(this.data, this);
-              }
-            };
-          }
-          this.config.onClickElement = (type, data) => {
-            let nodeLinkData;
-            if (type === "node") {
-              nodeLinkData = this.utils.nodeInfo(data);
-            } else {
-              nodeLinkData = this.utils.linkInfo(data);
-            }
-            gui.getNodeLinkInfo(type, nodeLinkData);
-            clickElement.call(this, type, data);
-            gui.sideBar.classList.remove("hidden");
-          };
-          this.utils.hideLoading();
+          this.gui.getNodeLinkInfo(type, nodeLinkData);
+          clickElement.call(this, type, data);
+          this.gui.sideBar.classList.remove("hidden");
         },
       });
 

@@ -293,6 +293,7 @@ class NetJSONGraphRender {
     };
 
     self.event.emit("onLoad");
+    self.event.emit("onReady");
     self.event.emit("renderArray");
   }
 
@@ -322,6 +323,7 @@ class NetJSONGraphRender {
     self.leaflet._zoomAnimated = false;
 
     self.event.emit("onLoad");
+    self.event.emit("onReady");
     self.event.emit("renderArray");
   }
 
