@@ -6,9 +6,10 @@
 ![NPM](https://img.shields.io/npm/v/netjsongraph.js.svg)
 ![Language](https://img.shields.io/badge/language-javascript-orange.svg)
 
-![img](/docs/netjsongraph.png)
-![img](/docs/netjsonmap.png)
-![img](/docs/netjsonmap-indoormap.png)
+![img](/docs/graph.png)
+![img](/docs/graph-open.png)
+![img](/docs/map.png)
+![img](/docs/indoor-map.png)
 
 Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) and [LeafletJS](https://github.com/Leaflet/Leaflet) to visualize network topology using the
 [NetJSON](http://netjson.org) `NetworkGraph` format.
@@ -29,8 +30,8 @@ yarn start
 
 netjsongraph.js accepts two arguments.
 
-- url (required, string|array): URL(s) to fetch the JSON data from.
-  JSON format used internally based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4), but a little different: more occupied property names internally as follows：
+1. **url (required, string|array)**: URL(s) to fetch the JSON data from.
+   JSON format used internally based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4), but a little different: more occupied property names internally as follows：
 
 ```JS
 {
@@ -64,51 +65,219 @@ netjsongraph.js accepts two arguments.
 }
 ```
 
-- options (optional, object): custom options described below
+2. **options (optional, object)**: custom options described below
 
-  - el: Container element. "body" defaultly.
-  - render: Render function. "graph" defaultly.
-  - metadata: Whether to show NetJSON NetworkGraph metadata or not, defaults to true
-  - svgRender: Use SVG render? Canvas defaultly.
-  - dealDataByWorker: WebWorker file url.
+- `el`
 
-  - echartsOption: A global configuration of Echarts.
+  **Default**: `body`
 
-  - graphConfig: Configuration of graph series(graphRender).
+  The element which the graph or map is rendered. You can pass any valid element name or class name or id.
 
-  - mapOption: Map init option.
-  - mapTileConfig: Map tiles config array, whose format is [{label, urlTemplate, options}].
-  - mapLinkConfig: Support multiple lines superimposed style.
-  - mapNodeConfig: Map node style.
+- `render`
 
-  - nodeSize: The size of nodes in pixel.
-  - nodeStyleProperty: Used to custom node style.
-  - linkStyleProperty: Used to custom link style.
+  **Default**: `graph`
 
-  - onInit: Callback function executed on initialization.
-  - onRender: Callback function executed when **first** render start.
-  - onUpdate: Callback function executed on update start.
-  - afterUpdate: Callback function executed after update.
-  - onLoad: Callback function executed when **first** rendered.
-  - prepareData: Callback function executed after data has been loaded. Used to convert data to NetJSON Data normally.
-  - onClickElement: Callback function executed when a node or link is clicked.
+  The rendering mode. You can render the map by setting it as `map`.
+
+- `metadata`
+
+  **Default**: `true`
+
+  Whether to show [NetJSON](https://netjson.org) NetworkGraph metadata or not. You can also set it `false` to disable it.
+
+- `svgRender`
+
+  **Default**: `false`
+
+  Whether to render it as SVG or not. You can also set it `true` to enable it. Canvas is used when it is set to `false`.
+
+- `switchMode`
+
+  **Default**: `false`
+
+  Whether to allow switching between graph and map render or not. You can also set it `true` to enable it.
+
+- `dealDataByWorker`
+
+  The url to the worker file if you want to deal the data by a worker.
+
+- `echartsOption`
+
+  The global configuration for Echarts. You can pass any valid Echarts [options](https://echarts.apache.org/en/option.html#title).
+
+- `graphConfig`
+
+  The configuration for the graph render.
+  It consists of the following properties:
+
+  ```JS
+    graphConfig:{
+        series:{
+            nodeStyle:{
+                // The style of the nodes
+            },
+            linkStyle:{
+                // The style of the links
+            },
+            nodeSize: string|number,
+        },
+        baseOptions:{
+            // The global configuration for Echarts specifically for the graph.
+        }
+    }
+
+  ```
+
+  You can see the list available options which can be used in the `series` property of the `graphConfig` in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph).
+
+  The `nodeStyle` and `linkStyle` properties are used to customize the style of the nodes and links. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.itemStyle).
+
+  The `nodeSize` property is used to customize the size of the nodes.
+
+  The `baseOptions` property is used to customize the global configuration for Echarts specifically for the graph. This is useful when you have set `switchMode` to `true` and you have to set separate configuration for the graph and the map.
+
+- `mapOptions`
+
+  The configuration for the map render.
+  It consists of the following properties:
+
+  ```JS
+    mapOptions:{
+        nodeConfig:{
+            nodeStyle:{
+                // The style of the nodes
+            },
+            nodeSize: string|number,
+        },
+        linkConfig:{
+            linkStyle:{
+                // The style of the links
+            },
+        },
+        baseOptions:{
+            // The global configuration for Echarts specifically for the map.
+        }
+    }
+  ```
+
+  We use [Leaflet](https://leafletjs.com) to render the map. You can also pass any valid [Leaflet options](https://leafletjs.com/reference.html#map-option) in `mapOptions`.
+
+  It is mandatory to set `center` in `mapOptions` when you are using the map render which is used to set the initial geographic center of the map. You can learn more about it in the [Leaflet documentation](https://leafletjs.com/reference.html#map-center).
+
+  `nodeConfig` deals with the configuration of the nodes. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-scatter) in `nodeConfig`.
+
+  The `nodeStyle` property is used to customize the style of the nodes. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-scatter.itemStyle).
+
+  The `nodeSize` property is used to customize the size of the nodes.
+
+  `linkConfig` deals with the configuration of the links. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-lines) in `linkConfig`.
+
+  The `linkStyle` property is used to customize the style of the links. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-lines.lineStyle).
+
+- `mapTileConfig`
+
+  The configuration for the map tiles. You can use multiple tiles by passing an array of tile configurations.
+
+  ```JS
+    mapTileConfig:[
+        ...,
+        {
+            label: string,
+            urlTemplate: string,
+            options:{
+                minZoom: number,
+                maxZoom: number,
+                attribution: string,
+            }
+        },
+        ...
+    ]
+
+  ```
+
+  `urlTemplate` is the URL template of the tile provider. You can learn more about the options in the [Leaflet documentation](https://leafletjs.com/reference.html#tilelayer-minzoom).
+
+- `nodeCategories`
+
+  The configuration for different categories of nodes if your data contain nodes of various categories. You can pass an array of categories.
+  Each category is an object with the following properties:
+
+  ```JS
+      nodeCategories:[
+          ...,
+          {
+              name: string,
+              nodeStyle: {
+                  // The style of the nodes
+              },
+              nodeSize: string|number,
+          },
+          ...
+      ]
+  ```
+
+  `name` is the name of the category. You can also pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-graph.itemStyle) in `nodeStyle`.
+
+- `linkCategories`
+
+  The configuration for different categories of links if your data contain links of various categories. You can pass an array of categories.
+  Each category is an object with the following properties:
+
+  ```JS
+      linkCategories:[
+          ...,
+          {
+              name: string,
+              linkStyle: {
+                  // The style of the links
+              },
+          },
+          ...
+      ]
+  ```
+
+  `name` is the name of the category. You can also pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-graph.lineStyle) in
+  `linkStyle`.
+
+- `onInit`
+
+  The callback function executed on initialization of `NetJSONGraph` instance.
+
+- `onRender`
+
+  The callback function executed at the start of initial render.
+
+- `onUpdate`
+
+  The callback function executed at the start of update.
+
+- `afterUpdate`
+
+  The callback function executed after update.
+
+- `onReady`
+
+  The Callback function executed after initial render.
+
+- `prepareData`
+
+  The callback function executed after data has been loaded. Used to convert data to NetJSON Data normally. You can also use this function to categorize the data based on certain properties in your dataset.
+
+- `onClickElement`
+
+  The callback function executed when a node or link is clicked.
 
 ### Configuration instructions
 
-`NetJSONGraph.js` mainly relies on the `Echarts` for rendering, so the related configuration is mainly inherited from [echarts](https://echarts.apache.org/en/option.html).
+netjsongraph.js mainly relies on the Echarts for rendering, so the related configuration is mainly inherited from [Echarts](https://echarts.apache.org/en/option.html).
 
-`NetJSONGraph.js` mainly support two rendering modes -- `graph` or `map`, you must set it as the `render` property of `options`.
-In extreme cases, you can also pass your own render function if you don't need `echarts` to render.We will pass in the processed `netjson` data and `netjsongraph` object.
+The library mainly supports two rendering modes -- `graph` and `map`. You can choose either of these and set it in `render` property in options.
 
-For `graph`, you need to configure `graphConfig` property mainly.
-We only support [`graph`](https://echarts.apache.org/en/option.html#series-graph) or [`graphGL`](https://echarts.apache.org/zh/option-gl.html#series-graphGL)(Sorry for no english document yet, the biggest difference from graph is the [`forceAtlas2`](https://echarts.apache.org/zh/option-gl.html#series-graphGL.forceAtlas2) param) series in `echarts`.
-The latter is mainly used for big data rendering. You can select them by `graphConfig.type` property.
-We use `graph` series and `force` layout by default. You can modify them freely according to the documentation.
+In extreme cases, you can also pass your own render function if you don't want Echarts to render. We will pass in the processed netjson data and netjsongraph object.
 
-For `map`, you need to configure map related options.
-The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer)(note：It's an array) are needed when map render.
-You can customize the nodes and links with [`mapLinkConfig`](https://echarts.apache.org/en/option.html#series-lines)(note：It's an array) and [`mapNodeConfig`](https://echarts.apache.org/en/option.html#series-scatter) optionally.For `map node`, you can also change the `type` to [`effectScatter`](https://echarts.apache.org/en/option.html#series-effectScatter) series.
-The difference between them and `nodeStyleProperty`、`linkStyleProperty` is that the latter two are just the style properties of the former.
+For graph, you need to configure `graphConfig` property. We only support [graph](https://echarts.apache.org/en/option.html#series-graph) and [graphGL](https://echarts.apache.org/zh/option-gl.html#series-graphGL). The main difference between **graph** and **graphGL** is the [`forceAtlas2`](https://echarts.apache.org/zh/option-gl.html#series-graphGL.forceAtlas2) param series in Echarts. The latter is mainly used for big data rendering. You can use **graphGL** by setting `graphConfig.type` to `graphGL`. We use **graph** series and **force** layout by default. You can modify them freely according to the documentation.
+
+For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer) are required for the map render. You can customize the nodes and links with [`nodeConfig`](https://echarts.apache.org/en/option.html#series-scatter) and [`linkConfig`](https://echarts.apache.org/en/option.html#series-lines) optionally. For map nodes, you can also change the `type` to [`effectScatter`](https://echarts.apache.org/en/option.html#series-effectScatter) series to enable animation effects.
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
 
@@ -116,9 +285,17 @@ You can also customize some global properties with [`echartsOption`](https://ech
 
 #### Core
 
-- setConfig: modify config
-- setUtils: add new utils
-- render: netjsongraph.js render function
+- `setConfig`
+
+  Method to set the configuration of the graph. You can use this function to add, update or modify the configuration of the graph.
+
+- `setUtils`
+
+  Method to set the utils of the graph. You can use this function to add, update the utils.
+
+- `render`
+
+  Method to render the graph.
 
 #### Realtime Update
 
@@ -291,25 +468,95 @@ Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateP
 
 #### Render
 
-- generateGraphOption: generate graph option in echarts by JSONData.
-- generateMapOption: generate map option in echarts by JSONData.
-- graphRender: Render the final graph view based on JSONData.
-- mapRender: Render the final map view based on JSONData.
+- `generateGraphOption`
+
+  Method to generate graph option in echarts by JSONData.
+
+- `generateMapOption`
+
+  Method to generate map option in echarts by JSONData.
+
+- `graphRender`
+
+  Render the final graph view based on JSONData.
+
+- `mapRender`
+
+  Render the final map view based on JSONData.
 
 #### Utils
 
-- JSONParamParse: parse JSONParam(string|object), return Promise object.
-- isObject
-- isArray
-- isElement: judge parameter is a dom element.
-- deepMergeObj: merge multiple objects deeply.
-- NetJSONMetadata: generate metadata info container, return DOM.
-- updateMetadata
-- nodeInfo: generate node info html string.
-- linkInfo: generate link info html string.
-- showLoading: display loading animation. Used in onRender defaultly.
-- hideLoading: hide loading animation. Used in onLoad defaultly.
-- createEvent: create event listener.
+- `JSONParamParse`
+
+  Parse JSONParam (string|object), return Promise object.
+
+- `isObject`
+
+  Check if the param is object.
+
+- `isArray`
+
+  Check if the param is array.
+
+- `isElement`
+
+  Check if the param is dom element.
+
+- `deepMergeObj`
+
+  Merge multiple objects deeply.
+
+- `updateMetadata`
+
+  Update metadata of JSONData.
+
+- `getMetadata`
+
+  Get the metadata object from JSONData.
+
+- `nodeInfo`
+
+  Get the node info object.
+
+- `linkInfo`
+
+  Get link info object.
+
+- `createTooltipItem`
+
+  Create tooltip item with a key and value in the tooltip modal.
+
+- `getNodeTooltipInfo`
+
+  Get node tooltip info html string.
+
+- `getLinkTooltipInfo`
+
+  Get link tooltip info html string.
+
+- `generateStyle`
+
+  Generate the style configuration of the node or link.
+
+- `getNodeStyle`
+
+  Get node style configuration.
+
+- `getLinkStyle`
+
+  Get link style configuration.
+
+- `showLoading`
+
+  Show loading animation. Used in onRender by default.
+
+- `hideLoading`
+
+  Hide loading animation. Used in onLoad defaultly.
+
+- `createEvent`
+
+  Create an event listener.
 
 ### Example Usage
 
@@ -338,88 +585,75 @@ Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateP
 ### Different Demos
 
 The demo shows default `graph` render.  
-[NetJSON graph base Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
+[Basic graph demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
 
 The demo shows `map` render.  
-[NetJSON map base Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap.html)
+[Map demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap.html)
 
 The demo shows how to use `graphGL` to render big data.  
-[NetJSON graphGL(bigData) Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-graphGL.html)
+[graphGL(bigData) demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-graphGL.html)
 
-The demo shows how to set colorful elements.  
-[NetJSON graph elements legend Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)
+The demo shows how to set custom attributes.  
+[Custom attributes demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)
 
 The demo shows the multiple links render.  
 Currently only supports up to two links.  
-[NetJSON graph multiple links Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-multipleLinks.html)
+[Multiple links demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-multipleLinks.html)
 
 The demo is used to show how to deal with the `multiple interfaces` in the NetJSON data.
 We provide a work file to process the data before rendering.  
 This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, add node links, add flatNodes and so on.  
 You can also define related files yourself.  
-[NetJSON multiple interfaces Demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-multipleInterfaces.html)
+[Multiple interfaces demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-multipleInterfaces.html)
 
-The demo is used to show the use of the `dataParse` function.  
+The demo is used to show the use of the `dateParse` function.  
 You can set the node or link property value `time`, we will call this function to parse the string in the element details defaultly.  
 Of course you can also call directly.  
-[NetJSON dataParse Demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateParse.html)
-
-The demo is used to show how to use the `JSONDataUpdate` function to update data.  
-In this example we use socket.io to listen for server messages.  
-Adopted the default parameters of function --  
-overrride old data and deal with the new data with the processing function set in config.
-See other examples：  
-netjsonmap-appendData.html: It chooses append data.  
-netjsonmap-nodeTiles.html: override data by different zoom value.  
-[NetJSON updateData realtime Demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-updateData.html)
+[dateParse demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateParse.html)
 
 The demo shows how to switch the netjsongraph render mode -- `svg` or `canvas`.  
-[NetJSON switch render mode Demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchRenderMode.html)
+[Switch render mode demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchRenderMode.html)
 
 The demo shows how to switch the netjsongraph render mode -- `graph` or `map`.  
-[NetJSON switch graph mode Demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchGraphMode.html)
+[Switch graph mode demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchGraphMode.html)
 
 The demo is used to show the use of the `searchElements` function.  
 For test, you can input `test` or `appendData` and click the `search` button.  
-[NetJSON search elements Demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-searchElements.html)
+[Search elements demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-searchElements.html)
 
-The demo shows hwo to interact with elements.  
-[NetJSON nodes expand or fold Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-nodeExpand.html)
+The demo shows how to interact with elements.  
+[Nodes expand or fold demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-nodeExpand.html)
 
 The demo is used to show how to use the `JSONDataUpdate` function to update data.  
 See other examples：  
 netjson-updateData.html: It chooses override data.  
 netjsonmap-appendData.html: It chooses append data.  
-[NetJSON map nodes zoom tiles Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-nodeTiles.html)
+[JSONDataUpdate using override option demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-nodeTiles.html)
 
 The demo shows hwo to set path animation.  
-[NetJSON map animation lines Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-animation.html)
+[Geographic map animated links demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-animation.html)
 
 The demo is used to show how to set indoor map.  
 Mainly the operation of leaflet.  
-[NetJSON indoormap Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
-
-The demo is used to show how to set indoor map.  
-Similiar to the first method, the difference is the setting of image's position.  
-[NetJSON indoormap 2 Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap2.html)
+[Indoor map demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
 
 The demo is used to show how to use the leaflet plugins.  
 Mainly the operation of leaflet.  
-[NetJSON map plugins Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-plugins.html)
+[ Leaflet plugins demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-plugins.html)
 
 The demo shows the multiple tiles render.  
-[NetJSON map multiple tiles Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-multipleTiles.html)
+[ Map with multiple tiles demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-multipleTiles.html)
 
 The demo is used to show how to use the `JSONDataUpdate` function to update data.  
 Here we choose to append data by modify the default parameter.  
 See other examples：  
 netjson-updateData.html: It chooses override data.  
 netjsonmap-nodeTiles.html: override data by different zoom value.  
-[NetJSON map append data Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData.html)
+[JSONDataUpdate using append option demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData.html)
 
 Using array files to append data step by step at start.  
 Similiar to the first method, but easier.  
-[NetJSON map append data 2 Demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
+[ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
 
 ### Contributing
 
