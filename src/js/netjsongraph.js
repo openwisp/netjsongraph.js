@@ -23,7 +23,7 @@ class NetJSONGraph {
       config.render = NetJSONGraphRender.prototype.graphRender;
     }
 
-    let graph = new NetJSONGraphCore(JSONParam, GeoJSONParam);
+    const graph = new NetJSONGraphCore(JSONParam, GeoJSONParam);
 
     Object.setPrototypeOf(NetJSONGraphRender.prototype, graph.utils);
     graph.gui = new NetJSONGraphGUI(graph);

@@ -239,6 +239,20 @@ netjsongraph.js accepts two arguments.
   `name` is the name of the category. You can also pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-graph.lineStyle) in
   `linkStyle`.
 
+- `geoOptions`
+
+  The configuration for the GeoJSON render. It consists of the following properties:
+
+  ```JS
+      geoOptions:{
+         style:{
+             // The style GeoJSON features
+         },
+      }
+  ```
+
+  You can customize the style of GeoJSON features using `style` property. The list of all available properties can be found in the [Leaflet documentation](https://leafletjs.com/reference.html#geojson).
+
 - `onInit`
 
   The callback function executed on initialization of `NetJSONGraph` instance.
@@ -266,6 +280,8 @@ netjsongraph.js accepts two arguments.
 - `onClickElement`
 
   The callback function executed when a node or link is clicked.
+
+3. **GeoJSON url (optional, string|array)**: URL to fetch the GeoJSON data from.
 
 ### Configuration instructions
 

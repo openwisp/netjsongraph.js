@@ -4,6 +4,7 @@
   outline: none;
   box-sizing: border-box;
 }
+
 html,
 body {
   width: 100%;
@@ -76,6 +77,10 @@ p {
   font-size: 18px;
   font-weight: bold;
   text-align: center;
+}
+
+.leaflet-map-pane svg {
+  z-index: 99;
 }
 
 .leaflet-control-zoom {

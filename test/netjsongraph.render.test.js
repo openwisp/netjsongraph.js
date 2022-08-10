@@ -6,6 +6,19 @@ const JSONData = {
   nodes: [],
   links: [],
 };
+const GEOJSONDATA = {
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "Point",
+        coordinates: [17.764892578124996, 46.01222384063236],
+      },
+    },
+  ],
+};
 const graph = new NetJSONGraph([JSONFILE, JSONFILE]);
 graph.event = graph.utils.createEvent();
 graph.setConfig({
@@ -231,9 +244,7 @@ describe("Test netjsongraph searchElements", () => {
 });
 
 describe("Test netjsongraph properties", () => {
-  const map = new NetJSONGraph(JSONFILE, {
-    render: "map",
-  });
+  const map = new NetJSONGraph(JSONFILE, GEOJSONDATA);
   const jsonData = {
     nodes: [],
     links: [],
@@ -283,6 +294,23 @@ describe("Test netjsongraph properties", () => {
     searchFunc(JSONFILE).then(() => {
       expect(map.JSONParam).toEqual([JSONFILE]);
       expect(map.data).toEqual(JSONData);
+    });
+  });
+
+  test("NetJSONGraph instance should have geoData and GeoJSONParam property", () => {
+    expect(map.GeoJSONParam).toBeDefined();
+    expect(map.geoData).toEqual({
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "Point",
+            coordinates: [17.764892578124996, 46.01222384063236],
+          },
+        },
+      ],
     });
   });
 });
