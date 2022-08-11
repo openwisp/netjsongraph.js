@@ -112,13 +112,40 @@ const NetJSONGraphDefaultConfig = {
         },
         {
           query: {
+            minWidth: 501,
+          },
+          option: {
+            series: [
+              {
+                zoom: 1,
+                labelLayout: {
+                  hideOverlap: false,
+                },
+              },
+            ],
+            toolbox: {
+              itemSize: 15,
+            },
+          },
+        },
+        {
+          query: {
             minWidth: 320,
             maxWidth: 850,
           },
           option: {
             tooltip: {
-              alwaysShowContent: true,
-              enterable: true,
+              show: false,
+            },
+          },
+        },
+        {
+          query: {
+            minWidth: 851,
+          },
+          option: {
+            tooltip: {
+              show: true,
             },
           },
         },
@@ -167,8 +194,17 @@ const NetJSONGraphDefaultConfig = {
           },
           option: {
             tooltip: {
-              alwaysShowContent: true,
-              enterable: true,
+              show: false,
+            },
+          },
+        },
+        {
+          query: {
+            minWidth: 851,
+          },
+          option: {
+            tooltip: {
+              show: true,
             },
           },
         },
@@ -222,6 +258,7 @@ const NetJSONGraphDefaultConfig = {
       nodeLinkData = this.utils.linkInfo(data);
     }
     this.gui.getNodeLinkInfo(type, nodeLinkData);
+    this.gui.aboutContainer.style.display = "flex";
     this.gui.sideBar.classList.remove("hidden");
   },
 

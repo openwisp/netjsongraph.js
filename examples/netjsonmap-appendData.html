@@ -13,11 +13,6 @@
     <!-- theme can be easily customized via css -->
     <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../src/css/netjsongraph.css" rel="stylesheet" />
-    <style type="text/css">
-      .njg-metadata {
-        left: 50px;
-      }
-    </style>
   </head>
   <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
@@ -56,44 +51,7 @@
             });
           },
 
-<<<<<<< HEAD
           onReady: function () {
-=======
-          onLoad: function () {
-            const gui = this.utils.getGUI(this);
-            gui.init();
-            if (this.config.metadata) {
-              gui.createAboutContainer(map);
-              this.utils.updateMetadata.call(this);
-            }
-            if (this.config.switchMode) {
-              gui.renderModeSelector.onclick = () => {
-                if (this.config.render === this.utils.mapRender) {
-                  this.config.render = this.utils.graphRender;
-                  this.echarts.dispose();
-                  graph = new NetJSONGraph(this.data, {
-                    ...this.config,
-                  });
-                  graph.render();
-                } else {
-                  this.config.render = this.utils.mapRender;
-                  this.config.render(this.data, this);
-                  const sidebar = gui.sideBar;
-                  this.el.appendChild(sidebar);
-                }
-              };
-            }
-            this.config.onClickElement = (type, data) => {
-              let nodeLinkData;
-              if (type === "node") {
-                nodeLinkData = this.utils.nodeInfo(data);
-              } else {
-                nodeLinkData = this.utils.linkInfo(data);
-              }
-              gui.getNodeLinkInfo(type, nodeLinkData);
-              gui.sideBar.classList.remove("hidden");
-            };
->>>>>>> a8dfcb0 ([change] Add support to narrow screen #115)
             /* 
                       The map has this property only after the map is rendered, 
                       so we have to put the relevant function in `onLoad` life cycle  

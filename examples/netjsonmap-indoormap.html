@@ -29,12 +29,6 @@
       .njg-tooltip-value {
         color: #fff;
       }
-
-      @media only screen and (max-width: 500px) {
-        .hidden {
-          left: 0;
-        }
-      }
     </style>
   </head>
   <body>
@@ -74,6 +68,27 @@
               {
                 query: {
                   minWidth: 320,
+                  maxWidth: 850,
+                },
+                option: {
+                  tooltip: {
+                    show: false,
+                  },
+                },
+              },
+              {
+                query: {
+                  minWidth: 851,
+                },
+                option: {
+                  tooltip: {
+                    show: true,
+                  },
+                },
+              },
+              {
+                query: {
+                  minWidth: 320,
                   maxWidth: 400,
                 },
                 option: {
@@ -101,8 +116,6 @@
         },
 
         onReady: function presentIndoormap() {
-          this.gui.sideBar.classList.add("hidden");
-
           const netjsonmap = this.leaflet;
           const image = new Image();
           image.src = "./data/floorplan.png";
