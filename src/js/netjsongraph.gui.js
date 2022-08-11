@@ -34,7 +34,7 @@ class NetJSONGraphGUI {
     button.classList.add("sideBarHandle");
     button.onclick = () => {
       sideBar.classList.toggle("hidden");
-      this.aboutContainer.style.display = "flex";
+      document.querySelector(".njg-aboutContainer").style.display = "flex";
     };
     this.self.el.appendChild(sideBar);
     return sideBar;
@@ -55,6 +55,7 @@ class NetJSONGraphGUI {
     aboutContainer.appendChild(header);
     aboutContainer.appendChild(metadataContainer);
     this.aboutContainer = aboutContainer;
+    this.sideBar.appendChild(aboutContainer);
 
     closeButton.onclick = () => {
       this.aboutContainer.style.display = "none";
@@ -62,8 +63,6 @@ class NetJSONGraphGUI {
         this.sideBar.classList.add("hidden");
       }
     };
-    this.sideBar.appendChild(aboutContainer);
-    this.aboutContainer = aboutContainer;
     this.nodeLinkInfoContainer = this.createNodeLinkInfoContainer();
     return aboutContainer;
   }

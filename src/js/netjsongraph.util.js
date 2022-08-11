@@ -348,14 +348,7 @@ class NetJSONGraphUtil {
   getNodeTooltipInfo(node) {
     const container = document.createElement("div");
     container.classList.add("njg-tooltip-inner");
-    const closeButton = document.createElement("span");
-    closeButton.setAttribute("id", "closeButton");
-    closeButton.innerHTML = " &#x2715;";
-    container.appendChild(closeButton);
 
-    closeButton.onclick = () => {
-      document.querySelector(".njg-tooltip").style.display = "none";
-    };
     if (node.id) {
       container.appendChild(this.createTooltipItem("id", node.id));
     }
@@ -406,14 +399,7 @@ class NetJSONGraphUtil {
   getLinkTooltipInfo(link) {
     const container = document.createElement("div");
     container.classList.add("njg-tooltip-inner");
-    const closeButton = document.createElement("span");
-    closeButton.setAttribute("id", "closeButton");
-    closeButton.innerHTML = " &#x2715;";
-    container.appendChild(closeButton);
 
-    closeButton.onclick = () => {
-      document.querySelector(".njg-tooltip").style.display = "none";
-    };
     container.appendChild(this.createTooltipItem("source", link.source));
     container.appendChild(this.createTooltipItem("target", link.target));
     container.appendChild(this.createTooltipItem("cost", link.cost));

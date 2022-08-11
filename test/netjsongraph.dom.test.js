@@ -108,16 +108,6 @@ describe("Test netjsongraph utils dom functions", () => {
       "192.168.0.03",
       "2019.04.03 .5:06:54.000",
     );
-    const tooltip = document.createElement("div");
-    tooltip.classList.add("njg-tooltip");
-    tooltip.appendChild(graph.utils.getNodeTooltipInfo(node));
-    document.body.appendChild(tooltip);
-    const closeBtn = document.querySelector(".njg-tooltip-inner #closeButton");
-    closeBtn.click();
-    expect(document.querySelector(".njg-tooltip").style.display).toEqual(
-      "none",
-    );
-    document.body.removeChild(tooltip);
   });
 
   test("Create a tooltip element for link info ", () => {
@@ -147,16 +137,6 @@ describe("Test netjsongraph utils dom functions", () => {
       "Link",
       "2019.04.03 .5:06:54.000",
     );
-    const tooltip = document.createElement("div");
-    tooltip.classList.add("njg-tooltip");
-    tooltip.appendChild(graph.utils.getLinkTooltipInfo(link));
-    document.body.appendChild(tooltip);
-    const closeBtn = document.querySelector(".njg-tooltip-inner #closeButton");
-    closeBtn.click();
-    expect(document.querySelector(".njg-tooltip").style.display).toEqual(
-      "none",
-    );
-    document.body.removeChild(tooltip);
   });
 });
 
@@ -202,7 +182,7 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a side bar", () => {
     const sidebar =
-      '<div class="njg-sideBar"><button class="sideBarHandle"></button></div>';
+      '<div class="njg-sideBar hidden"><button class="sideBarHandle"></button></div>';
     expect(graph.gui.createSideBar).toBeInstanceOf(Function);
     expect(graph.gui.createSideBar()).toBeInstanceOf(HTMLElement);
     expect(graph.el).toContainElement(graph.gui.createSideBar());
@@ -228,7 +208,7 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a container for meta data", () => {
     const container =
-      '<div class="njg-aboutContainer"><h2>About<span id="closeButton"> ✕</span></h2><div class="njg-metaData"></div></div>';
+      '<div class="njg-aboutContainer"><h2>Info<span id="closeButton"> ✕</span></h2><div class="njg-metaData"></div></div>';
     graph.gui.sideBar = graph.gui.createSideBar();
     expect(graph.gui.nodeLinkInfoContainer).toBe(null);
     expect(graph.gui.createAboutContainer).toBeInstanceOf(Function);
@@ -362,13 +342,26 @@ describe("Test netjsongraph dom operate", () => {
     );
     closeBtn.click();
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
+    graph.gui.aboutContainer.style.display = "none";
+    graph.gui.nodeLinkInfoContainer.style.display = "flex";
+    closeBtn.click();
+    expect(graph.gui.sideBar).toHaveClass("hidden");
+  });
+
+  test("Should close sidebar if there are no children", () => {
+    const closeBtn = document.querySelector(".njg-aboutContainer #closeButton");
+    graph.gui.nodeLinkInfoContainer.style.display = "none";
+    closeBtn.click();
+    expect(graph.gui.sideBar).toHaveClass("hidden");
   });
 
   test("Toggle the sidebar", () => {
-    const sidebar = document.querySelector(".njg-sideBar");
     const handle = document.querySelector(".sideBarHandle");
-    expect(sidebar).not.toHaveClass("hidden");
+    expect(graph.gui.sideBar).toHaveClass("hidden");
     handle.click();
-    expect(sidebar).toHaveClass("njg-sideBar hidden");
+    expect(graph.gui.sideBar).toHaveClass("hidden");
+    expect(document.querySelector(".njg-aboutContainer").style.display).toEqual(
+      "flex",
+    );
   });
 });
