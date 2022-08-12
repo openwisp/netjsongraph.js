@@ -69,7 +69,7 @@
 
 @media only screen and (max-width: 850px) {
   .njg-sideBar {
-    background: #000000cc;
-    color: #fff;
+    background: rgba(255, 255, 255, 0.96);
+    color: #000;
   }
 }

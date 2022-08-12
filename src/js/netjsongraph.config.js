@@ -32,6 +32,7 @@ const NetJSONGraphDefaultConfig = {
   metadata: true,
   svgRender: false,
   switchMode: false,
+  showMetaOnNarrowScreens: false,
   echartsOption: {
     aria: {
       show: true,
@@ -258,7 +259,9 @@ const NetJSONGraphDefaultConfig = {
       nodeLinkData = this.utils.linkInfo(data);
     }
     this.gui.getNodeLinkInfo(type, nodeLinkData);
-    this.gui.aboutContainer.style.display = "flex";
+    if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
+      this.gui.metaInfoContainer.style.display = "flex";
+    }
     this.gui.sideBar.classList.remove("hidden");
   },
 

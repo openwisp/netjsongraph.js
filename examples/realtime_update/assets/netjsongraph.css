@@ -276,7 +276,7 @@ p {
   transform: rotateY(0deg);
 }
 
-.njg-aboutContainer,
+.njg-metaInfoContainer,
 .njg-nodeLinkInfoContainer {
   display: flex;
   flex-direction: column;

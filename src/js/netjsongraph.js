@@ -58,7 +58,7 @@ class NetJSONGraph {
         this.utils.showLoading.call(this);
         this.gui.init();
         if (this.config.metadata) {
-          this.gui.createAboutContainer(graph);
+          this.gui.createMetaInfoContainer(graph);
         }
 
         return this.config;

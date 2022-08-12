@@ -4,7 +4,7 @@ class NetJSONGraphGUI {
     this.renderModeSelector = null;
     this.controls = null;
     this.sideBar = null;
-    this.aboutContainer = null;
+    this.metaInfoContainer = null;
     this.nodeLinkInfoContainer = null;
   }
 
@@ -34,37 +34,61 @@ class NetJSONGraphGUI {
     button.classList.add("sideBarHandle");
     button.onclick = () => {
       sideBar.classList.toggle("hidden");
-      document.querySelector(".njg-aboutContainer").style.display = "flex";
+      if (
+        this.self.config.showMetaOnNarrowScreens ||
+        this.self.el.clientWidth > 850
+      ) {
+        document.querySelector(".njg-metaInfoContainer").style.display = "flex";
+      }
     };
     this.self.el.appendChild(sideBar);
     return sideBar;
   }
 
-  createAboutContainer() {
-    const aboutContainer = document.createElement("div");
+  hideInfoOnNarrowScreen() {
+    if (
+      !this.self.config.showMetaOnNarrowScreens &&
+      this.self.el.clientWidth < 850
+    ) {
+      this.metaInfoContainer.style.display = "none";
+    }
+
+    if (
+      this.metaInfoContainer.style.display === "none" &&
+      this.nodeLinkInfoContainer.style.display === "none"
+    ) {
+      this.sideBar.classList.add("hidden");
+    }
+  }
+
+  createMetaInfoContainer() {
+    const metaInfoContainer = document.createElement("div");
     const header = document.createElement("h2");
     const metadataContainer = document.createElement("div");
 
     metadataContainer.classList.add("njg-metaData");
-    aboutContainer.classList.add("njg-aboutContainer");
+    metaInfoContainer.classList.add("njg-metaInfoContainer");
     const closeButton = document.createElement("span");
     closeButton.setAttribute("id", "closeButton");
     header.innerHTML = "Info";
     closeButton.innerHTML = " &#x2715;";
     header.appendChild(closeButton);
-    aboutContainer.appendChild(header);
-    aboutContainer.appendChild(metadataContainer);
-    this.aboutContainer = aboutContainer;
-    this.sideBar.appendChild(aboutContainer);
+    metaInfoContainer.appendChild(header);
+    metaInfoContainer.appendChild(metadataContainer);
+    this.metaInfoContainer = metaInfoContainer;
+    this.sideBar.appendChild(metaInfoContainer);
+    this.nodeLinkInfoContainer = this.createNodeLinkInfoContainer();
+    this.hideInfoOnNarrowScreen();
+    window.addEventListener("resize", this.hideInfoOnNarrowScreen.bind(this));
 
     closeButton.onclick = () => {
-      this.aboutContainer.style.display = "none";
+      this.metaInfoContainer.style.display = "none";
       if (this.nodeLinkInfoContainer.style.display === "none") {
         this.sideBar.classList.add("hidden");
       }
     };
-    this.nodeLinkInfoContainer = this.createNodeLinkInfoContainer();
-    return aboutContainer;
+
+    return metaInfoContainer;
   }
 
   createNodeLinkInfoContainer() {
@@ -132,7 +156,7 @@ class NetJSONGraphGUI {
 
     closeButton.onclick = () => {
       this.nodeLinkInfoContainer.style.display = "none";
-      if (this.aboutContainer.style.display === "none") {
+      if (this.metaInfoContainer.style.display === "none") {
         this.sideBar.classList.add("hidden");
       }
     };

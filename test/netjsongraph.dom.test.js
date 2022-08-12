@@ -154,7 +154,7 @@ describe("Test netjsongraph gui", () => {
     expect(graph.gui.renderModeSelector).toBe(null);
     expect(graph.gui.controls).toBe(null);
     expect(graph.gui.sideBar).toBe(null);
-    expect(graph.gui.aboutContainer).toBe(null);
+    expect(graph.gui.metaInfoContainer).toBe(null);
     expect(graph.gui.nodeLinkInfoContainer).toBe(null);
   });
 
@@ -208,21 +208,23 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a container for meta data", () => {
     const container =
-      '<div class="njg-aboutContainer"><h2>Info<span id="closeButton"> ✕</span></h2><div class="njg-metaData"></div></div>';
+      '<div class="njg-metaInfoContainer"><h2>Info<span id="closeButton"> ✕</span></h2><div class="njg-metaData"></div></div>';
     graph.gui.sideBar = graph.gui.createSideBar();
     expect(graph.gui.nodeLinkInfoContainer).toBe(null);
-    expect(graph.gui.createAboutContainer).toBeInstanceOf(Function);
-    expect(graph.gui.createAboutContainer()).toBeInstanceOf(HTMLElement);
-    expect(graph.el).toContainElement(graph.gui.createAboutContainer());
+    expect(graph.gui.createMetaInfoContainer).toBeInstanceOf(Function);
+    expect(graph.gui.createMetaInfoContainer()).toBeInstanceOf(HTMLElement);
+    expect(graph.el).toContainElement(graph.gui.createMetaInfoContainer());
     expect(graph.gui.sideBar).toContainElement(
-      graph.gui.createAboutContainer(),
+      graph.gui.createMetaInfoContainer(),
     );
-    expect(graph.gui.createAboutContainer().outerHTML).toEqual(container);
+    expect(graph.gui.createMetaInfoContainer().outerHTML).toEqual(container);
 
-    graph.gui.aboutContainer = graph.gui.createAboutContainer();
-    const closeBtn = document.querySelector(".njg-aboutContainer #closeButton");
+    graph.gui.metaInfoContainer = graph.gui.createMetaInfoContainer();
+    const closeBtn = document.querySelector(
+      ".njg-metaInfoContainer #closeButton",
+    );
     closeBtn.click();
-    expect(graph.gui.aboutContainer.style.display).toEqual("none");
+    expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
     expect(graph.gui.nodeLinkInfoContainer).not.toBe(null);
   });
 
@@ -292,7 +294,7 @@ describe("Test netjsongraph dom operate", () => {
   beforeEach(() => {
     graph.gui = new NetJSONGraphGUI(graph);
     graph.gui.init();
-    graph.gui.createAboutContainer();
+    graph.gui.createMetaInfoContainer();
   });
 
   test("Click a node", () => {
@@ -342,14 +344,16 @@ describe("Test netjsongraph dom operate", () => {
     );
     closeBtn.click();
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
-    graph.gui.aboutContainer.style.display = "none";
+    graph.gui.metaInfoContainer.style.display = "none";
     graph.gui.nodeLinkInfoContainer.style.display = "flex";
     closeBtn.click();
     expect(graph.gui.sideBar).toHaveClass("hidden");
   });
 
   test("Should close sidebar if there are no children", () => {
-    const closeBtn = document.querySelector(".njg-aboutContainer #closeButton");
+    const closeBtn = document.querySelector(
+      ".njg-metaInfoContainer #closeButton",
+    );
     graph.gui.nodeLinkInfoContainer.style.display = "none";
     closeBtn.click();
     expect(graph.gui.sideBar).toHaveClass("hidden");
@@ -360,8 +364,8 @@ describe("Test netjsongraph dom operate", () => {
     expect(graph.gui.sideBar).toHaveClass("hidden");
     handle.click();
     expect(graph.gui.sideBar).toHaveClass("hidden");
-    expect(document.querySelector(".njg-aboutContainer").style.display).toEqual(
-      "flex",
-    );
+    expect(
+      document.querySelector(".njg-metaInfoContainer").style.display,
+    ).toEqual("flex");
   });
 });
