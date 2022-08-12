@@ -225,11 +225,9 @@ describe("NetJSONGraph Specification", () => {
     // NetJSON Config
     expect(graph.config).toHaveProperty("metadata", true);
     expect(graph.config).toHaveProperty("svgRender", false);
-
+    expect(graph.config).toHaveProperty("showMetaOnNarrowScreens", false);
     expect(graph.config.echartsOption).toEqual(NetJSONGraphOption);
-
     expect(graph.config.graphConfig).toEqual(NetJSONGraphConfig);
-
     expect(graph.config.mapOptions).toEqual(NetJSONGraphMapOptions);
     expect(graph.config.mapTileConfig).toEqual([
       {
@@ -247,7 +245,6 @@ describe("NetJSONGraph Specification", () => {
     expect(graph.config.mapOptions.linkConfig).toBeInstanceOf(Object);
     expect(graph.config.nodeCategories).toEqual([]);
     expect(graph.config.linkCategories).toEqual([]);
-
     expect(graph.config.onInit).toBeInstanceOf(Function);
     expect(graph.config.onInit.call(graph)).toBe(graph.config);
     expect(graph.config.onRender).toBeInstanceOf(Function);

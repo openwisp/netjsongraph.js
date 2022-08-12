@@ -22,6 +22,7 @@ graph.setConfig({
   onLoad() {
     return this.config;
   },
+  showMetaOnNarrowScreens: true,
 });
 graph.setUtils();
 graph.render();
@@ -361,11 +362,51 @@ describe("Test netjsongraph dom operate", () => {
 
   test("Toggle the sidebar", () => {
     const handle = document.querySelector(".sideBarHandle");
-    expect(graph.gui.sideBar).toHaveClass("hidden");
+    const sideBar = document.querySelector(".njg-sideBar");
+    expect(sideBar).toHaveClass("hidden");
     handle.click();
-    expect(graph.gui.sideBar).toHaveClass("hidden");
+    expect(sideBar).not.toHaveClass("hidden");
     expect(
       document.querySelector(".njg-metaInfoContainer").style.display,
     ).toEqual("flex");
+  });
+});
+
+describe("Test GUI on narrow screens", () => {
+  beforeEach(() => {
+    graph.setConfig({
+      showMetaOnNarrowScreens: false,
+    });
+    Object.defineProperty(graph.el, "clientWidth", {
+      writable: true,
+      configurable: true,
+      value: 750,
+    });
+    graph.gui = new NetJSONGraphGUI(graph);
+    graph.gui.init();
+    graph.gui.createMetaInfoContainer();
+  });
+
+  test("Should not show meta info container on narrow screens", () => {
+    expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
+  });
+
+  test("Should show meta data info if the screen is resized to wide", () => {
+    graph.el.clientWidth = 1000;
+    const sideBarHandle = document.querySelector(".sideBarHandle");
+    expect(graph.gui.sideBar).toHaveClass("hidden");
+    expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
+    sideBarHandle.click();
+    expect(
+      document.querySelector(".njg-metaInfoContainer").style.display,
+    ).toEqual("flex");
+  });
+
+  test("Should not show meta info on element click", () => {
+    graph.config.onClickElement.call(graph, "node", {
+      id: "33",
+    });
+    graph.el.clientWidth = 750;
+    expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
   });
 });
