@@ -8,13 +8,9 @@ class NetJSONGraph {
    * @param {string} JSONParam    The NetJSON file param
    * @param {Object} config
    */
-  constructor(JSONParam, GeoJSONParam) {
+  constructor(JSONParam) {
     this.utils = new NetJSONGraphUpdate();
-
     this.config = {...NetJSONGraphDefaultConfig};
-
-    this.GeoJSONParam = GeoJSONParam;
-
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
   }
 
@@ -64,13 +60,19 @@ class NetJSONGraph {
     this.event.once("onLoad", this.config.onLoad.bind(this));
 
     this.utils
-      .JSONParamParse(this.GeoJSONParam)
-      .then((data) => {
-        this.geoData = data;
-        return this.utils.JSONParamParse(JSONParam);
-      })
+      .JSONParamParse(JSONParam)
       .then((JSONData) => {
-        this.config.prepareData.call(this, JSONData);
+        if (this.utils.isNetJSON(JSONData)) {
+          this.type = "netjson";
+        } else if (this.utils.isGeoJSON(JSONData)) {
+          this.type = "geojson";
+        } else {
+          throw new Error("Invalid data format!");
+        }
+
+        if (this.type === "netjson") {
+          this.config.prepareData.call(this, JSONData);
+        }
         this.data = JSONData;
 
         if (this.config.dealDataByWorker) {

@@ -30,8 +30,9 @@ yarn start
 
 netjsongraph.js accepts two arguments.
 
-1. **url (required, string|array)**: URL(s) to fetch the JSON data from.
-   JSON format used internally based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4), but a little different: more occupied property names internally as follows：
+1. **url (required, string|array)**: URL(s) to fetch the JSON data from. It supports both [NetJSON](http://netjson.org) and GeoJSON data formats.
+
+NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4) but with a slight difference. More occupied property names used internally as follows：
 
 ```JS
 {
@@ -280,8 +281,6 @@ netjsongraph.js accepts two arguments.
 - `onClickElement`
 
   The callback function executed when a node or link is clicked.
-
-3. **GeoJSON url (optional, string|array)**: URL to fetch the GeoJSON data from.
 
 ### Configuration instructions
 

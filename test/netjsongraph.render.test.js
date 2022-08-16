@@ -6,19 +6,7 @@ const JSONData = {
   nodes: [],
   links: [],
 };
-const GEOJSONDATA = {
-  type: "FeatureCollection",
-  features: [
-    {
-      type: "Feature",
-      properties: {},
-      geometry: {
-        type: "Point",
-        coordinates: [17.764892578124996, 46.01222384063236],
-      },
-    },
-  ],
-};
+
 const graph = new NetJSONGraph([JSONFILE, JSONFILE]);
 graph.event = graph.utils.createEvent();
 graph.setConfig({
@@ -244,7 +232,7 @@ describe("Test netjsongraph searchElements", () => {
 });
 
 describe("Test netjsongraph properties", () => {
-  const map = new NetJSONGraph(JSONFILE, GEOJSONDATA);
+  const map = new NetJSONGraph(JSONFILE);
   const jsonData = {
     nodes: [],
     links: [],
@@ -296,21 +284,51 @@ describe("Test netjsongraph properties", () => {
       expect(map.data).toEqual(JSONData);
     });
   });
+});
 
-  test("NetJSONGraph instance should have geoData and GeoJSONParam property", () => {
-    expect(map.GeoJSONParam).toBeDefined();
-    expect(map.geoData).toEqual({
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "Point",
-            coordinates: [17.764892578124996, 46.01222384063236],
-          },
+describe("Test netjsongraph properties", () => {
+  const geoJSONData = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Point",
+          coordinates: [17.764892578124996, 46.01222384063236],
         },
-      ],
+      },
+    ],
+  };
+  const map = new NetJSONGraph(geoJSONData);
+
+  beforeAll(() => {
+    map.event = map.utils.createEvent();
+    map.setConfig({
+      render: () => {},
+      onInit() {
+        return this.config;
+      },
+      onRender() {
+        return this.config;
+      },
+      onUpdate() {
+        return this.config;
+      },
+      afterUpdate() {
+        return this.config;
+      },
+      onLoad() {
+        return this.config;
+      },
     });
+    map.setUtils();
+    map.render();
+  });
+
+  test("Parse the data in correct format", () => {
+    expect(map.JSONParam).toEqual([geoJSONData]);
+    expect(map.data).toEqual(geoJSONData);
+    expect(map.type).toEqual("geojson");
   });
 });

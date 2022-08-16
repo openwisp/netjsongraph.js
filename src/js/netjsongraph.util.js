@@ -176,6 +176,39 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * Judge parameter is a NetJSON network graph object.
+   *
+   * @return {bool}
+   */
+  isNetJSON(param) {
+    if (param.nodes && param.links) {
+      return (
+        this.isObject(param) &&
+        this.isArray(param.nodes) &&
+        this.isArray(param.links)
+      );
+    }
+
+    return false;
+  }
+
+  /**
+   * Judge parameter is GeoJSON object.
+   *
+   * @return {bool}
+   */
+  isGeoJSON(param) {
+    if (
+      param.type &&
+      (param.type === "FeatureCollection" || param.type === "Feature")
+    ) {
+      return this.isObject(param) && this.isArray(param.features);
+    }
+
+    return false;
+  }
+
+  /**
    * merge two object deeply
    *
    * @param  {object}

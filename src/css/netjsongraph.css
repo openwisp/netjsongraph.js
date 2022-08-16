@@ -79,10 +79,6 @@ p {
   text-align: center;
 }
 
-.leaflet-map-pane svg {
-  z-index: 99;
-}
-
 .leaflet-control-zoom {
   top: 5px;
   border: 0 !important;

@@ -15,7 +15,7 @@ class NetJSONGraph {
    * @param {Object} config
    */
 
-  constructor(JSONParam, config, GeoJSONParam = {}) {
+  constructor(JSONParam, config) {
     if (config && config.render === "map") {
       config.render = NetJSONGraphRender.prototype.mapRender;
     } else if (!config || !config.render || config.render === "graph") {
@@ -23,7 +23,7 @@ class NetJSONGraph {
       config.render = NetJSONGraphRender.prototype.graphRender;
     }
 
-    const graph = new NetJSONGraphCore(JSONParam, GeoJSONParam);
+    const graph = new NetJSONGraphCore(JSONParam);
 
     Object.setPrototypeOf(NetJSONGraphRender.prototype, graph.utils);
     graph.gui = new NetJSONGraphGUI(graph);
@@ -58,10 +58,6 @@ class NetJSONGraph {
       onRender() {
         this.utils.showLoading.call(this);
         this.gui.init();
-        if (this.config.metadata) {
-          this.gui.createMetaInfoContainer(graph);
-        }
-
         return this.config;
       },
 
@@ -101,10 +97,15 @@ class NetJSONGraph {
        * @return {object}         this.config
        */
       onLoad() {
-        if (this.config.metadata) {
+        if (this.config.metadata && this.type === "netjson") {
+          this.gui.createAboutContainer(graph);
           this.utils.updateMetadata.call(this);
+        } else {
+          this.gui.nodeLinkInfoContainer =
+            this.gui.createNodeLinkInfoContainer();
         }
-        if (this.config.switchMode) {
+
+        if (this.config.switchMode && this.type === "netjson") {
           this.gui.renderModeSelector.onclick = () => {
             if (this.config.render === this.utils.mapRender) {
               this.config.render = this.utils.graphRender;

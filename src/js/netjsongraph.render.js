@@ -312,10 +312,22 @@ class NetJSONGraphRender {
       return;
     }
 
-    self.utils.echartsSetOption(
-      self.utils.generateMapOption(JSONData, self),
-      self,
-    );
+    if (self.type === "netjson") {
+      self.utils.echartsSetOption(
+        self.utils.generateMapOption(JSONData, self),
+        self,
+      );
+    } else if (self.type === "geojson") {
+      const {nodeConfig, linkConfig, baseOptions, ...options} =
+        self.config.mapOptions;
+
+      self.echarts.setOption({
+        leaflet: {
+          tiles: self.config.mapTileConfig,
+          mapOptions: options,
+        },
+      });
+    }
 
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
@@ -327,10 +339,22 @@ class NetJSONGraphRender {
         ...self.config.geoOptions,
         pointToLayer: (feature, latlng) =>
           L.circleMarker(latlng, self.config.geoOptions.style),
+        onEachFeature: (feature, layer) => {
+          layer.on("click", () => {
+            const properties = {
+              ...feature.properties,
+              type: feature.geometry.type,
+            };
+            self.config.onClickElement.call(self, "Feature", properties);
+          });
+        },
       };
     }
-    if (Object.keys(self.geoData).length) {
-      L.geoJSON(self.geoData, self.config.geoOptions).addTo(self.leaflet);
+
+    if (self.type === "geojson") {
+      self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions).addTo(
+        self.leaflet,
+      );
     }
 
     self.event.emit("onLoad");
@@ -352,12 +376,24 @@ class NetJSONGraphRender {
       console.error("AppendData function can only be used for map render!");
       return;
     }
-    const opts = self.utils.generateMapOption(JSONData, self);
-    opts.series.forEach((obj, index) => {
-      self.echarts.appendData({seriesIndex: index, data: obj.data});
-    });
-    // modify this.data
-    self.utils.mergeData(JSONData, self);
+
+    if (self.type === "netjson") {
+      const opts = self.utils.generateMapOption(JSONData, self);
+      opts.series.forEach((obj, index) => {
+        self.echarts.appendData({seriesIndex: index, data: obj.data});
+      });
+      // modify this.data
+      self.utils.mergeData(JSONData, self);
+    }
+
+    if (self.type === "geojson") {
+      self.data = {
+        ...self.data,
+        features: self.data.features.concat(JSONData.features),
+      };
+
+      self.utils.render();
+    }
 
     self.config.afterUpdate.call(self);
   }
