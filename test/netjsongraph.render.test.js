@@ -331,4 +331,61 @@ describe("Test netjsongraph properties", () => {
     expect(map.data).toEqual(geoJSONData);
     expect(map.type).toEqual("geojson");
   });
+
+  test("Update GeoJSON data dynamically", () => {
+    expect(map.data).toEqual(geoJSONData);
+    map.utils.JSONDataUpdate.call(
+      map,
+      {
+        type: "FeatureCollection",
+        features: [],
+      },
+      true,
+    ).then(() => {
+      expect(map.data).toEqual({
+        type: "FeatureCollection",
+        features: [],
+      });
+    });
+  });
+});
+
+describe("Test when invalid data is passed", () => {
+  const map = new NetJSONGraph({});
+  beforeAll(() => {
+    map.event = map.utils.createEvent();
+    map.setConfig({
+      render: () => {},
+      onInit() {
+        return this.config;
+      },
+      onRender() {
+        return this.config;
+      },
+      onUpdate() {
+        return this.config;
+      },
+      afterUpdate() {
+        return this.config;
+      },
+      onLoad() {
+        return this.config;
+      },
+    });
+    map.setUtils();
+    map.render();
+    global.console.error = jest.fn();
+  });
+
+  afterEach(() => {
+    console.error.mockClear();
+  });
+
+  test("Handle the error", () => {
+    expect(map.render).toThrow();
+    expect(console.error).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith(
+      new Error("Invalid data format!"),
+    );
+  });
 });
