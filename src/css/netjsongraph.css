@@ -318,10 +318,7 @@ p {
 
 .njg-tooltip {
   user-select: text !important;
-}
-
-.njg-tooltip #closeButton {
-  display: none;
+  z-index: 1000 !important;
 }
 
 .njg-tooltip-item {
@@ -368,13 +365,6 @@ p {
     top: 0;
     z-index: 1001;
     width: 100%;
-  }
-
-  .njg-tooltip #closeButton {
-    display: block;
-    width: 100%;
-    text-align: end;
-    font-size: 16px;
   }
 
   .sideBarHandle {

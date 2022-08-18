@@ -96,27 +96,6 @@ describe("NetJSONGraph Specification", () => {
             },
           },
         },
-        {
-          query: {
-            minWidth: 320,
-            maxWidth: 850,
-          },
-          option: {
-            tooltip: {
-              show: false,
-            },
-          },
-        },
-        {
-          query: {
-            minWidth: 851,
-          },
-          option: {
-            tooltip: {
-              show: true,
-            },
-          },
-        },
       ],
     },
   };
@@ -153,29 +132,6 @@ describe("NetJSONGraph Specification", () => {
       toolbox: {
         show: false,
       },
-      media: [
-        {
-          query: {
-            minWidth: 320,
-            maxWidth: 850,
-          },
-          option: {
-            tooltip: {
-              show: false,
-            },
-          },
-        },
-        {
-          query: {
-            minWidth: 851,
-          },
-          option: {
-            tooltip: {
-              show: true,
-            },
-          },
-        },
-      ],
     },
   };
 
