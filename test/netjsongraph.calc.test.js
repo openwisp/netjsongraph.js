@@ -475,5 +475,11 @@ describe("Test netjsongraph function utils", () => {
     };
     expect(util.isGeoJSON(data)).toBeFalsy();
     expect(util.isNetJSON(data)).toBeFalsy();
+    data = {
+      type: "Feature",
+      properties: {},
+      geometry: [],
+    };
+    expect(util.isGeoJSON(data)).toBeTruthy();
   });
 });

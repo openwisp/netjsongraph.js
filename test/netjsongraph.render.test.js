@@ -286,7 +286,7 @@ describe("Test netjsongraph properties", () => {
   });
 });
 
-describe("Test netjsongraph properties", () => {
+describe("Test netjsongraph GeoJSON properties", () => {
   const geoJSONData = {
     type: "FeatureCollection",
     features: [

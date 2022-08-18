@@ -198,11 +198,12 @@ class NetJSONGraphUtil {
    * @return {bool}
    */
   isGeoJSON(param) {
-    if (
-      param.type &&
-      (param.type === "FeatureCollection" || param.type === "Feature")
-    ) {
+    if (param.type && param.type === "FeatureCollection") {
       return this.isObject(param) && this.isArray(param.features);
+    }
+
+    if (param.type && param.type === "Feature") {
+      return this.isObject(param) && this.isArray(param.geometry);
     }
 
     return false;

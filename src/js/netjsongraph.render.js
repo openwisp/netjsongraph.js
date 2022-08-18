@@ -334,9 +334,8 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
-    if (!self.config.geoOptions.pointToLayer) {
-      self.config.geoOptions = {
-        ...self.config.geoOptions,
+    self.config.geoOptions = self.utils.deepMergeObj(
+      {
         pointToLayer: (feature, latlng) =>
           L.circleMarker(latlng, self.config.geoOptions.style),
         onEachFeature: (feature, layer) => {
@@ -348,8 +347,9 @@ class NetJSONGraphRender {
             self.config.onClickElement.call(self, "Feature", properties);
           });
         },
-      };
-    }
+      },
+      self.config.geoOptions,
+    );
 
     if (self.type === "geojson") {
       self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions).addTo(
