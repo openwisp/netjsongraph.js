@@ -191,6 +191,38 @@ describe("Test netjsongraph JSONDataUpdate", () => {
   });
 });
 
+describe("Test deal data by worker", () => {
+  const eventData = {
+    data: JSONData,
+  };
+
+  window.Worker = jest.fn((url) => {
+    if (url === "worker.js") {
+      return {
+        postMessage: jest.fn(),
+        onmessage: jest.fn(),
+        addEventListener: jest.fn((event, callback) => {
+          if (event === "message") {
+            callback(eventData);
+          }
+        }),
+      };
+    }
+    return null;
+  });
+
+  beforeAll(() => {
+    graph.setConfig({
+      dealDataByWorker: "worker.js",
+    });
+    graph.render();
+  });
+
+  test("Should set the data property using worker", () => {
+    expect(graph.data).toEqual(eventData.data);
+  });
+});
+
 describe("Test netjsongraph JSONParamParse", () => {
   test("Perform different operations to call NetJSONDataParse function according to different Param types.", () => {
     const {JSONParamParse} = graph.utils;

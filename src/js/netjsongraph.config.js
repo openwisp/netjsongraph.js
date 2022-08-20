@@ -226,12 +226,10 @@ const NetJSONGraphDefaultConfig = {
   ],
   geoOptions: {
     style: {
-      fillColor: "#d94f34",
-      color: "#d94f34",
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.3,
-      radius: 10,
+      fillColor: "#1566a9",
+      weight: 0,
+      fillOpacity: 0.8,
+      radius: 8,
     },
   },
   nodeCategories: [],
@@ -288,6 +286,7 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
+  /* istanbul ignore next */
   onReady() {},
 };
 
