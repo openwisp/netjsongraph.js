@@ -4,7 +4,7 @@ class NetJSONGraphGUI {
     this.renderModeSelector = null;
     this.controls = null;
     this.sideBar = null;
-    this.aboutContainer = null;
+    this.metaInfoContainer = null;
     this.nodeLinkInfoContainer = null;
   }
 
@@ -28,37 +28,73 @@ class NetJSONGraphGUI {
   createSideBar() {
     const sideBar = document.createElement("div");
     sideBar.setAttribute("class", "njg-sideBar");
+    sideBar.classList.add("hidden");
     const button = document.createElement("button");
     sideBar.appendChild(button);
     button.classList.add("sideBarHandle");
     button.onclick = () => {
       sideBar.classList.toggle("hidden");
+      if (
+        this.self.config.showMetaOnNarrowScreens ||
+        this.self.el.clientWidth > 850
+      ) {
+        document.querySelector(".njg-metaInfoContainer").style.display = "flex";
+      }
     };
     this.self.el.appendChild(sideBar);
     return sideBar;
   }
 
-  createAboutContainer() {
-    const aboutContainer = document.createElement("div");
+  hideInfoOnNarrowScreen() {
+    if (
+      !this.self.config.showMetaOnNarrowScreens &&
+      this.self.el.clientWidth < 850
+    ) {
+      this.metaInfoContainer.style.display = "none";
+    }
+
+    if (
+      this.metaInfoContainer.style.display === "none" &&
+      this.nodeLinkInfoContainer.style.display === "none"
+    ) {
+      this.sideBar.classList.add("hidden");
+    }
+  }
+
+  createMetaInfoContainer() {
+    const metaInfoContainer = document.createElement("div");
     const header = document.createElement("h2");
     const metadataContainer = document.createElement("div");
 
     metadataContainer.classList.add("njg-metaData");
-    aboutContainer.classList.add("njg-aboutContainer");
-    header.innerHTML = "About";
-    aboutContainer.appendChild(header);
-    aboutContainer.appendChild(metadataContainer);
-
-    this.sideBar.appendChild(aboutContainer);
-    this.aboutContainer = aboutContainer;
+    metaInfoContainer.classList.add("njg-metaInfoContainer");
+    const closeButton = document.createElement("span");
+    closeButton.setAttribute("id", "closeButton");
+    header.innerHTML = "Info";
+    closeButton.innerHTML = " &#x2715;";
+    header.appendChild(closeButton);
+    metaInfoContainer.appendChild(header);
+    metaInfoContainer.appendChild(metadataContainer);
+    this.metaInfoContainer = metaInfoContainer;
+    this.sideBar.appendChild(metaInfoContainer);
     this.nodeLinkInfoContainer = this.createNodeLinkInfoContainer();
-    return aboutContainer;
+    this.hideInfoOnNarrowScreen();
+    window.addEventListener("resize", this.hideInfoOnNarrowScreen.bind(this));
+
+    closeButton.onclick = () => {
+      this.metaInfoContainer.style.display = "none";
+      if (this.nodeLinkInfoContainer.style.display === "none") {
+        this.sideBar.classList.add("hidden");
+      }
+    };
+
+    return metaInfoContainer;
   }
 
   createNodeLinkInfoContainer() {
     const nodeLinkInfoContainer = document.createElement("div");
     nodeLinkInfoContainer.classList.add("njg-nodeLinkInfoContainer");
-    nodeLinkInfoContainer.style.visibility = "hidden";
+    nodeLinkInfoContainer.style.display = "none";
     this.sideBar.appendChild(nodeLinkInfoContainer);
     return nodeLinkInfoContainer;
   }
@@ -85,7 +121,7 @@ class NetJSONGraphGUI {
     infoContainer.classList.add("njg-infoContainer");
     headerContainer.classList.add("njg-headerContainer");
     closeButton.setAttribute("id", "closeButton");
-    this.nodeLinkInfoContainer.style.visibility = "visible";
+    this.nodeLinkInfoContainer.style.display = "flex";
     header.innerHTML = `${type} Info`;
     closeButton.innerHTML = " &#x2715;";
 
@@ -119,7 +155,10 @@ class NetJSONGraphGUI {
     this.nodeLinkInfoContainer.appendChild(infoContainer);
 
     closeButton.onclick = () => {
-      this.nodeLinkInfoContainer.style.visibility = "hidden";
+      this.nodeLinkInfoContainer.style.display = "none";
+      if (this.metaInfoContainer.style.display === "none") {
+        this.sideBar.classList.add("hidden");
+      }
     };
   }
 

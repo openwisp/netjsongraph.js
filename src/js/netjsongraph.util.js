@@ -348,6 +348,7 @@ class NetJSONGraphUtil {
   getNodeTooltipInfo(node) {
     const container = document.createElement("div");
     container.classList.add("njg-tooltip-inner");
+
     if (node.id) {
       container.appendChild(this.createTooltipItem("id", node.id));
     }
@@ -398,6 +399,7 @@ class NetJSONGraphUtil {
   getLinkTooltipInfo(link) {
     const container = document.createElement("div");
     container.classList.add("njg-tooltip-inner");
+
     container.appendChild(this.createTooltipItem("source", link.source));
     container.appendChild(this.createTooltipItem("target", link.target));
     container.appendChild(this.createTooltipItem("cost", link.cost));
