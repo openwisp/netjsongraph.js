@@ -129,6 +129,27 @@ const NetJSONGraphDefaultConfig = {
             },
           },
         },
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 850,
+          },
+          option: {
+            tooltip: {
+              show: false,
+            },
+          },
+        },
+        {
+          query: {
+            minWidth: 851,
+          },
+          option: {
+            tooltip: {
+              show: true,
+            },
+          },
+        },
       ],
     },
   },
@@ -166,6 +187,29 @@ const NetJSONGraphDefaultConfig = {
       toolbox: {
         show: false,
       },
+      media: [
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 850,
+          },
+          option: {
+            tooltip: {
+              show: false,
+            },
+          },
+        },
+        {
+          query: {
+            minWidth: 851,
+          },
+          option: {
+            tooltip: {
+              show: true,
+            },
+          },
+        },
+      ],
     },
   },
   mapTileConfig: [
@@ -218,14 +262,6 @@ const NetJSONGraphDefaultConfig = {
     if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
       this.gui.metaInfoContainer.style.display = "flex";
     }
-
-    /* istanbul ignore next */
-    if (this.echarts) {
-      this.echarts.dispatchAction({
-        type: "hideTip",
-      });
-    }
-
     this.gui.sideBar.classList.remove("hidden");
   },
 
