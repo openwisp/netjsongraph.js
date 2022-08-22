@@ -3,6 +3,7 @@
   <head>
     <title>Indoor map</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -18,6 +19,10 @@
       .njg-tooltip {
         background: rgba(0, 0, 0, 0.75) !important;
         border: none !important;
+      }
+
+      .njg-tooltip #closeButton {
+        color: #fff !important;
       }
 
       .njg-tooltip-key,
@@ -58,6 +63,46 @@
             },
             animation: false,
           },
+          baseOptions: {
+            media: [
+              {
+                query: {
+                  minWidth: 320,
+                  maxWidth: 850,
+                },
+                option: {
+                  tooltip: {
+                    show: false,
+                  },
+                },
+              },
+              {
+                query: {
+                  minWidth: 851,
+                },
+                option: {
+                  tooltip: {
+                    show: true,
+                  },
+                },
+              },
+              {
+                query: {
+                  minWidth: 320,
+                  maxWidth: 400,
+                },
+                option: {
+                  series: [
+                    {
+                      label: {
+                        fontSize: "12px",
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
         },
 
         // Convert to internal json format
@@ -71,8 +116,6 @@
         },
 
         onReady: function presentIndoormap() {
-          this.gui.sideBar.classList.add("hidden");
-
           const netjsonmap = this.leaflet;
           const image = new Image();
           image.src = "./data/floorplan.png";
@@ -80,6 +123,11 @@
           const aspectRatio = image.width / image.height;
           const height = 700;
           const width = aspectRatio * height;
+          netjsonmap.on("resize", () => {
+            if (netjsonmap.getBoundsZoom(bounds) <= netjsonmap.getMaxZoom()) {
+              netjsonmap.setZoom(netjsonmap.getBoundsZoom(bounds));
+            }
+          });
           const southWest = {lat: 53, lng: 2};
           const swPixel = netjsonmap.latLngToContainerPoint(southWest);
           const nePixel = swPixel.add(new L.Point(width, height));
@@ -87,6 +135,9 @@
 
           const bounds = new L.LatLngBounds(southWest, northEast);
           netjsonmap.setMaxBounds(bounds);
+          if (netjsonmap.getBoundsZoom(bounds) <= netjsonmap.getMaxZoom()) {
+            netjsonmap.setZoom(netjsonmap.getBoundsZoom(bounds));
+          }
 
           // remove the geographic map
           netjsonmap.eachLayer((layer) => {

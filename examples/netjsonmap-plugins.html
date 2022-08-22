@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: Leaflet plugins</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -15,24 +16,22 @@
     <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../src/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
-      .njg-metadata {
-        left: 50px;
-      }
       .leaflet-control-zoom {
         top: 55px;
       }
     </style>
   </head>
+
   <body>
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript" src="../lib/js/leaflet-draw.js"></script>
     <script type="text/javascript" src="../lib/js/leaflet-measure.js"></script>
     <script type="module">
       /*
-            The demo is used to show how to use the leaflet plugins.
-            Mainly the operation of leaflet.
-            See below for details.
-        */
+          The demo is used to show how to use the leaflet plugins.
+          Mainly the operation of leaflet.
+          See below for details.
+      */
       const graph = new NetJSONGraph("./data/netjsonmap.json", {
         render: "map",
         // set map initial state.
@@ -60,9 +59,9 @@
         // Load related plugins after the map is rendered
         onReady: function () {
           /* 
-                The map has this property only after the map is rendered, 
-                so we have to put the relevant function in `onLoad` life cycle  
-              */
+              The map has this property only after the map is rendered, 
+              so we have to put the relevant function in `onLoad` life cycle  
+            */
           let map = this.leaflet,
             editableLayers = new L.FeatureGroup(),
             // Plugin related configuration

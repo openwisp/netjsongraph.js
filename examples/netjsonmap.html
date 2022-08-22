@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -57,6 +58,12 @@
       #legend .link-down {
         color: red;
         margin-right: 10px;
+      }
+
+      @media only screen and (max-width: 850px) {
+        #legend {
+          right: 15px;
+        }
       }
     </style>
   </head>

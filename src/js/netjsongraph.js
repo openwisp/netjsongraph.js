@@ -58,7 +58,7 @@ class NetJSONGraph {
         this.utils.showLoading.call(this);
         this.gui.init();
         if (this.config.metadata) {
-          this.gui.createAboutContainer(graph);
+          this.gui.createMetaInfoContainer(graph);
         }
 
         return this.config;
@@ -115,10 +115,20 @@ class NetJSONGraph {
               canvasContainer.style.background =
                 // eslint-disable-next-line no-underscore-dangle
                 this.echarts.getZr()._backgroundColor;
+              document.querySelector(
+                ".leaflet-control-attribution",
+              ).style.display = "none";
+              document.querySelector(".leaflet-control-zoom").style.display =
+                "none";
             } else {
               this.echarts.clear();
               this.config.render = this.utils.mapRender;
               this.utils.mapRender(this.data, this);
+              document.querySelector(
+                ".leaflet-control-attribution",
+              ).style.display = "block";
+              document.querySelector(".leaflet-control-zoom").style.display =
+                "block";
             }
           };
         }

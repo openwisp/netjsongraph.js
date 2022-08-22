@@ -58,10 +58,71 @@ describe("NetJSONGraph Specification", () => {
     },
     baseOptions: {
       backgroundColor: "#282222",
+      media: [
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 500,
+          },
+          option: {
+            series: [
+              {
+                zoom: 0.7,
+                labelLayout: {
+                  hideOverlap: true,
+                },
+              },
+            ],
+            toolbox: {
+              itemSize: 18,
+            },
+          },
+        },
+        {
+          query: {
+            minWidth: 501,
+          },
+          option: {
+            series: [
+              {
+                zoom: 1,
+                labelLayout: {
+                  hideOverlap: false,
+                },
+              },
+            ],
+            toolbox: {
+              itemSize: 15,
+            },
+          },
+        },
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 850,
+          },
+          option: {
+            tooltip: {
+              show: false,
+            },
+          },
+        },
+        {
+          query: {
+            minWidth: 851,
+          },
+          option: {
+            tooltip: {
+              show: true,
+            },
+          },
+        },
+      ],
     },
   };
   const NetJSONGraphMapOptions = {
     roam: true,
+    zoomAnimation: false,
     nodeConfig: {
       type: "scatter",
       label: {
@@ -92,6 +153,29 @@ describe("NetJSONGraph Specification", () => {
       toolbox: {
         show: false,
       },
+      media: [
+        {
+          query: {
+            minWidth: 320,
+            maxWidth: 850,
+          },
+          option: {
+            tooltip: {
+              show: false,
+            },
+          },
+        },
+        {
+          query: {
+            minWidth: 851,
+          },
+          option: {
+            tooltip: {
+              show: true,
+            },
+          },
+        },
+      ],
     },
   };
 
@@ -141,11 +225,9 @@ describe("NetJSONGraph Specification", () => {
     // NetJSON Config
     expect(graph.config).toHaveProperty("metadata", true);
     expect(graph.config).toHaveProperty("svgRender", false);
-
+    expect(graph.config).toHaveProperty("showMetaOnNarrowScreens", false);
     expect(graph.config.echartsOption).toEqual(NetJSONGraphOption);
-
     expect(graph.config.graphConfig).toEqual(NetJSONGraphConfig);
-
     expect(graph.config.mapOptions).toEqual(NetJSONGraphMapOptions);
     expect(graph.config.mapTileConfig).toEqual([
       {
@@ -163,7 +245,6 @@ describe("NetJSONGraph Specification", () => {
     expect(graph.config.mapOptions.linkConfig).toBeInstanceOf(Object);
     expect(graph.config.nodeCategories).toEqual([]);
     expect(graph.config.linkCategories).toEqual([]);
-
     expect(graph.config.onInit).toBeInstanceOf(Function);
     expect(graph.config.onInit.call(graph)).toBe(graph.config);
     expect(graph.config.onRender).toBeInstanceOf(Function);

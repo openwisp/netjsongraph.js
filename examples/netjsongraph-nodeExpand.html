@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- theme can be easily customized via css -->
     <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../src/css/netjsongraph.css" rel="stylesheet" />
@@ -11,8 +12,8 @@
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
-            The demo is used to show hwo to interact with elements.
-        */
+          The demo is used to show hwo to interact with elements.
+      */
       // `graph` render defaultly.
       const graph = new NetJSONGraph("./data/netjsongraph-foldNodes.json", {
         dealDataByWorker: "../src/js/netjsonWorker.js",
@@ -49,6 +50,12 @@
             nodeLinkData = this.utils.linkInfo(data);
           }
           this.gui.getNodeLinkInfo(type, nodeLinkData);
+          if (
+            this.config.showMetaOnNarrowScreens ||
+            this.el.clientWidth > 850
+          ) {
+            this.gui.metaInfoContainer.style.display = "flex";
+          }
           clickElement.call(this, type, data);
           this.gui.sideBar.classList.remove("hidden");
         },

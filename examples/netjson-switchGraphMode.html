@@ -3,6 +3,7 @@
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -14,9 +15,6 @@
     <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../src/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
-      .njg-metadata {
-        left: 50px;
-      }
       .leaflet-control-zoom {
         top: 55px;
         right: 1px;
@@ -27,8 +25,8 @@
     <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
-            The demo is used to show how to switch the netjsongraph render mode -- `graph` or `map`.
-        */
+          The demo is used to show how to switch the netjsongraph render mode -- `graph` or `map`.
+      */
       const map = new NetJSONGraph("./data/netjsonmap.json", {
         render: "map",
         switchMode: true,

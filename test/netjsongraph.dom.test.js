@@ -22,6 +22,7 @@ graph.setConfig({
   onLoad() {
     return this.config;
   },
+  showMetaOnNarrowScreens: true,
 });
 graph.setUtils();
 graph.render();
@@ -154,7 +155,7 @@ describe("Test netjsongraph gui", () => {
     expect(graph.gui.renderModeSelector).toBe(null);
     expect(graph.gui.controls).toBe(null);
     expect(graph.gui.sideBar).toBe(null);
-    expect(graph.gui.aboutContainer).toBe(null);
+    expect(graph.gui.metaInfoContainer).toBe(null);
     expect(graph.gui.nodeLinkInfoContainer).toBe(null);
   });
 
@@ -182,7 +183,7 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a side bar", () => {
     const sidebar =
-      '<div class="njg-sideBar"><button class="sideBarHandle"></button></div>';
+      '<div class="njg-sideBar hidden"><button class="sideBarHandle"></button></div>';
     expect(graph.gui.createSideBar).toBeInstanceOf(Function);
     expect(graph.gui.createSideBar()).toBeInstanceOf(HTMLElement);
     expect(graph.el).toContainElement(graph.gui.createSideBar());
@@ -191,7 +192,7 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a container for node and link info", () => {
     const container =
-      '<div class="njg-nodeLinkInfoContainer" style="visibility: hidden;"></div>';
+      '<div class="njg-nodeLinkInfoContainer" style="display: none;"></div>';
     graph.gui.sideBar = graph.gui.createSideBar();
     expect(graph.gui.createNodeLinkInfoContainer).toBeInstanceOf(Function);
     expect(graph.gui.createNodeLinkInfoContainer()).toBeInTheDocument(
@@ -208,18 +209,23 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a container for meta data", () => {
     const container =
-      '<div class="njg-aboutContainer"><h2>About</h2><div class="njg-metaData"></div></div>';
+      '<div class="njg-metaInfoContainer"><h2>Info<span id="closeButton"> ✕</span></h2><div class="njg-metaData"></div></div>';
     graph.gui.sideBar = graph.gui.createSideBar();
     expect(graph.gui.nodeLinkInfoContainer).toBe(null);
-    expect(graph.gui.createAboutContainer).toBeInstanceOf(Function);
-    expect(graph.gui.createAboutContainer()).toBeInstanceOf(HTMLElement);
-    expect(graph.el).toContainElement(graph.gui.createAboutContainer());
+    expect(graph.gui.createMetaInfoContainer).toBeInstanceOf(Function);
+    expect(graph.gui.createMetaInfoContainer()).toBeInstanceOf(HTMLElement);
+    expect(graph.el).toContainElement(graph.gui.createMetaInfoContainer());
     expect(graph.gui.sideBar).toContainElement(
-      graph.gui.createAboutContainer(),
+      graph.gui.createMetaInfoContainer(),
     );
-    expect(graph.gui.createAboutContainer().outerHTML).toEqual(container);
+    expect(graph.gui.createMetaInfoContainer().outerHTML).toEqual(container);
 
-    graph.gui.aboutContainer = graph.gui.createAboutContainer();
+    graph.gui.metaInfoContainer = graph.gui.createMetaInfoContainer();
+    const closeBtn = document.querySelector(
+      ".njg-metaInfoContainer #closeButton",
+    );
+    closeBtn.click();
+    expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
     expect(graph.gui.nodeLinkInfoContainer).not.toBe(null);
   });
 
@@ -247,7 +253,9 @@ describe("Test netjsongraph gui", () => {
     expect(graph.gui.nodeLinkInfoContainer).toContainElement(infoContainer);
     expect(graph.gui.nodeLinkInfoContainer).toContainElement(header);
     expect(header.innerHTML).toContain("node");
-    expect(header).toContainElement(document.getElementById("closeButton"));
+    expect(header).toContainElement(
+      document.querySelector(".njg-headerContainer #closeButton"),
+    );
     expect(infoContainer.innerHTML).toContain(
       "id",
       "label",
@@ -287,11 +295,11 @@ describe("Test netjsongraph dom operate", () => {
   beforeEach(() => {
     graph.gui = new NetJSONGraphGUI(graph);
     graph.gui.init();
-    graph.gui.createAboutContainer();
+    graph.gui.createMetaInfoContainer();
   });
 
   test("Click a node", () => {
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
     graph.config.onClickElement.call(graph, "node", {
       id: "33",
     });
@@ -301,14 +309,16 @@ describe("Test netjsongraph dom operate", () => {
     });
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("21");
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).not.toContain("33");
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("visible");
-    const closeBtn = document.getElementById("closeButton");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
+    const closeBtn = document.querySelector(
+      ".njg-headerContainer #closeButton",
+    );
     closeBtn.click();
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
   });
 
   test("Click a link", () => {
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
     graph.config.onClickElement.call(graph, "link", {
       source: "192.168.0.01",
       target: "192.168.1.01",
@@ -329,17 +339,74 @@ describe("Test netjsongraph dom operate", () => {
       "192.168.4.02",
       "192.168.5.03",
     );
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("visible");
-    const closeBtn = document.getElementById("closeButton");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
+    const closeBtn = document.querySelector(
+      ".njg-headerContainer #closeButton",
+    );
     closeBtn.click();
-    expect(graph.gui.nodeLinkInfoContainer.style.visibility).toEqual("hidden");
+    expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
+    graph.gui.metaInfoContainer.style.display = "none";
+    graph.gui.nodeLinkInfoContainer.style.display = "flex";
+    closeBtn.click();
+    expect(graph.gui.sideBar).toHaveClass("hidden");
+  });
+
+  test("Should close sidebar if there are no children", () => {
+    const closeBtn = document.querySelector(
+      ".njg-metaInfoContainer #closeButton",
+    );
+    graph.gui.nodeLinkInfoContainer.style.display = "none";
+    closeBtn.click();
+    expect(graph.gui.sideBar).toHaveClass("hidden");
   });
 
   test("Toggle the sidebar", () => {
-    const sidebar = document.querySelector(".njg-sideBar");
     const handle = document.querySelector(".sideBarHandle");
-    expect(sidebar).not.toHaveClass("hidden");
+    const sideBar = document.querySelector(".njg-sideBar");
+    expect(sideBar).toHaveClass("hidden");
     handle.click();
-    expect(sidebar).toHaveClass("njg-sideBar hidden");
+    expect(sideBar).not.toHaveClass("hidden");
+    expect(
+      document.querySelector(".njg-metaInfoContainer").style.display,
+    ).toEqual("flex");
+  });
+});
+
+describe("Test GUI on narrow screens", () => {
+  beforeEach(() => {
+    graph.setConfig({
+      showMetaOnNarrowScreens: false,
+    });
+    Object.defineProperty(graph.el, "clientWidth", {
+      writable: true,
+      configurable: true,
+      value: 750,
+    });
+    graph.gui = new NetJSONGraphGUI(graph);
+    graph.gui.init();
+    graph.gui.createMetaInfoContainer();
+  });
+
+  test("Should not show meta info container on narrow screens", () => {
+    expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
+  });
+
+  test("Should show meta data info if the screen is resized to wide", () => {
+    graph.el.clientWidth = 1000;
+    const sideBarHandle = document.querySelector(".sideBarHandle");
+    expect(graph.gui.sideBar).toHaveClass("hidden");
+    expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
+    sideBarHandle.click();
+    expect(
+      document.querySelector(".njg-metaInfoContainer").style.display,
+    ).toEqual("flex");
+  });
+
+  test("Should not show meta info on element click", () => {
+    graph.config.onClickElement.call(graph, "node", {
+      id: "33",
+    });
+    graph.el.clientWidth = 750;
+    expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
   });
 });
