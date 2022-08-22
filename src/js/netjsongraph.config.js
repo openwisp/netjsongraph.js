@@ -267,14 +267,15 @@ const NetJSONGraphDefaultConfig = {
       } else {
         nodeLinkData = this.utils.linkInfo(data);
       }
+
+      if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
+        this.gui.metaInfoContainer.style.display = "flex";
+      }
     } else {
       nodeLinkData = data;
     }
 
     this.gui.getNodeLinkInfo(type, nodeLinkData);
-    if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
-      this.gui.metaInfoContainer.style.display = "flex";
-    }
     this.gui.sideBar.classList.remove("hidden");
   },
 

@@ -3,6 +3,7 @@
   <head>
     <title>GeoJSON Example</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -22,9 +23,6 @@
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,
-        },
-        onReady: function () {
-          this.gui.sideBar.classList.add("hidden");
         },
       });
 

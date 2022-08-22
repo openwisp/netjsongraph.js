@@ -342,7 +342,6 @@ class NetJSONGraphRender {
           layer.on("click", () => {
             const properties = {
               ...feature.properties,
-              type: feature.geometry.type,
             };
             self.config.onClickElement.call(self, "Feature", properties);
           });

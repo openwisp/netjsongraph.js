@@ -98,7 +98,7 @@ class NetJSONGraph {
        */
       onLoad() {
         if (this.config.metadata && this.type === "netjson") {
-          this.gui.createAboutContainer(graph);
+          this.gui.createMetaInfoContainer(graph);
           this.utils.updateMetadata.call(this);
         } else {
           this.gui.nodeLinkInfoContainer =
