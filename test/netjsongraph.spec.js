@@ -243,6 +243,15 @@ describe("NetJSONGraph Specification", () => {
     ]);
     expect(graph.config.mapOptions.nodeConfig).toBeInstanceOf(Object);
     expect(graph.config.mapOptions.linkConfig).toBeInstanceOf(Object);
+    expect(graph.config.geoOptions).toBeInstanceOf(Object);
+    expect(graph.config.geoOptions).toEqual({
+      style: {
+        fillColor: "#1566a9",
+        weight: 0,
+        fillOpacity: 0.8,
+        radius: 8,
+      },
+    });
     expect(graph.config.nodeCategories).toEqual([]);
     expect(graph.config.linkCategories).toEqual([]);
     expect(graph.config.onInit).toBeInstanceOf(Function);

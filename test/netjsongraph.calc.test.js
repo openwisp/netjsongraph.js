@@ -425,4 +425,61 @@ describe("Test netjsongraph function utils", () => {
       linkEmphasisConfig: {},
     });
   });
+
+  test("Check if the data is in NetJSON format or not", () => {
+    let data = {
+      nodes: [
+        {
+          id: "21",
+        },
+      ],
+      links: [],
+    };
+    expect(util.isNetJSON(data)).toBeTruthy();
+    expect(util.isGeoJSON(data)).toBeFalsy();
+    data = {
+      nodes: {},
+      links: [],
+    };
+    expect(util.isNetJSON(data)).toBeFalsy();
+    expect(util.isGeoJSON(data)).toBeFalsy();
+  });
+
+  test("Check if the data is in GeoJSON format or not", () => {
+    let data = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "Point",
+            coordinates: [17.764892578124996, 46.01222384063236],
+          },
+        },
+      ],
+    };
+    expect(util.isGeoJSON(data)).toBeTruthy();
+    expect(util.isNetJSON(data)).toBeFalsy();
+    data = {
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "Point",
+            coordinates: [17.764892578124996, 46.01222384063236],
+          },
+        },
+      ],
+    };
+    expect(util.isGeoJSON(data)).toBeFalsy();
+    expect(util.isNetJSON(data)).toBeFalsy();
+    data = {
+      type: "Feature",
+      properties: {},
+      geometry: [],
+    };
+    expect(util.isGeoJSON(data)).toBeTruthy();
+  });
 });

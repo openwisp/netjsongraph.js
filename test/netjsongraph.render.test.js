@@ -6,6 +6,7 @@ const JSONData = {
   nodes: [],
   links: [],
 };
+
 const graph = new NetJSONGraph([JSONFILE, JSONFILE]);
 graph.event = graph.utils.createEvent();
 graph.setConfig({
@@ -190,6 +191,38 @@ describe("Test netjsongraph JSONDataUpdate", () => {
   });
 });
 
+describe("Test deal data by worker", () => {
+  const eventData = {
+    data: JSONData,
+  };
+
+  window.Worker = jest.fn((url) => {
+    if (url === "worker.js") {
+      return {
+        postMessage: jest.fn(),
+        onmessage: jest.fn(),
+        addEventListener: jest.fn((event, callback) => {
+          if (event === "message") {
+            callback(eventData);
+          }
+        }),
+      };
+    }
+    return null;
+  });
+
+  beforeAll(() => {
+    graph.setConfig({
+      dealDataByWorker: "worker.js",
+    });
+    graph.render();
+  });
+
+  test("Should set the data property using worker", () => {
+    expect(graph.data).toEqual(eventData.data);
+  });
+});
+
 describe("Test netjsongraph JSONParamParse", () => {
   test("Perform different operations to call NetJSONDataParse function according to different Param types.", () => {
     const {JSONParamParse} = graph.utils;
@@ -231,9 +264,7 @@ describe("Test netjsongraph searchElements", () => {
 });
 
 describe("Test netjsongraph properties", () => {
-  const map = new NetJSONGraph(JSONFILE, {
-    render: "map",
-  });
+  const map = new NetJSONGraph(JSONFILE);
   const jsonData = {
     nodes: [],
     links: [],
@@ -284,5 +315,109 @@ describe("Test netjsongraph properties", () => {
       expect(map.JSONParam).toEqual([JSONFILE]);
       expect(map.data).toEqual(JSONData);
     });
+  });
+});
+
+describe("Test netjsongraph GeoJSON properties", () => {
+  const geoJSONData = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Point",
+          coordinates: [17.764892578124996, 46.01222384063236],
+        },
+      },
+    ],
+  };
+  const map = new NetJSONGraph(geoJSONData);
+
+  beforeAll(() => {
+    map.event = map.utils.createEvent();
+    map.setConfig({
+      render: () => {},
+      onInit() {
+        return this.config;
+      },
+      onRender() {
+        return this.config;
+      },
+      onUpdate() {
+        return this.config;
+      },
+      afterUpdate() {
+        return this.config;
+      },
+      onLoad() {
+        return this.config;
+      },
+    });
+    map.setUtils();
+    map.render();
+  });
+
+  test("Parse the data in correct format", () => {
+    expect(map.JSONParam).toEqual([geoJSONData]);
+    expect(map.data).toEqual(geoJSONData);
+    expect(map.type).toEqual("geojson");
+  });
+
+  test("Update GeoJSON data dynamically", () => {
+    expect(map.data).toEqual(geoJSONData);
+    map.utils.JSONDataUpdate.call(
+      map,
+      {
+        type: "FeatureCollection",
+        features: [],
+      },
+      true,
+    ).then(() => {
+      expect(map.data).toEqual({
+        type: "FeatureCollection",
+        features: [],
+      });
+    });
+  });
+});
+
+describe("Test when invalid data is passed", () => {
+  const map = new NetJSONGraph({});
+  beforeAll(() => {
+    map.event = map.utils.createEvent();
+    map.setConfig({
+      render: () => {},
+      onInit() {
+        return this.config;
+      },
+      onRender() {
+        return this.config;
+      },
+      onUpdate() {
+        return this.config;
+      },
+      afterUpdate() {
+        return this.config;
+      },
+      onLoad() {
+        return this.config;
+      },
+    });
+    map.setUtils();
+    map.render();
+    global.console.error = jest.fn();
+  });
+
+  afterEach(() => {
+    console.error.mockClear();
+  });
+
+  test("Handle the error", () => {
+    expect(map.render).toThrow();
+    expect(console.error).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith(
+      new Error("Invalid data format!"),
+    );
   });
 });
