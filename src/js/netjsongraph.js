@@ -14,6 +14,7 @@ class NetJSONGraph {
    * @param {string} JSONParam    The NetJSON file param
    * @param {Object} config
    */
+
   constructor(JSONParam, config) {
     if (config && config.render === "map") {
       config.render = NetJSONGraphRender.prototype.mapRender;
@@ -57,10 +58,6 @@ class NetJSONGraph {
       onRender() {
         this.utils.showLoading.call(this);
         this.gui.init();
-        if (this.config.metadata) {
-          this.gui.createMetaInfoContainer(graph);
-        }
-
         return this.config;
       },
 
@@ -100,10 +97,15 @@ class NetJSONGraph {
        * @return {object}         this.config
        */
       onLoad() {
-        if (this.config.metadata) {
+        if (this.config.metadata && this.type === "netjson") {
+          this.gui.createMetaInfoContainer(graph);
           this.utils.updateMetadata.call(this);
+        } else {
+          this.gui.nodeLinkInfoContainer =
+            this.gui.createNodeLinkInfoContainer();
         }
-        if (this.config.switchMode) {
+
+        if (this.config.switchMode && this.type === "netjson") {
           this.gui.renderModeSelector.onclick = () => {
             if (this.config.render === this.utils.mapRender) {
               this.config.render = this.utils.graphRender;

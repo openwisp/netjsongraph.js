@@ -409,4 +409,20 @@ describe("Test GUI on narrow screens", () => {
     graph.el.clientWidth = 750;
     expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
   });
+
+  test("Click event on a GeoJSON feature", () => {
+    graph.type = "geojson";
+    const data = {
+      type: "Feature",
+      properties: {
+        region: "Europe",
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [0, 0],
+      },
+    };
+    graph.config.onClickElement.call(graph, "feature", data.properties);
+    expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("region");
+  });
 });

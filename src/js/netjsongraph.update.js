@@ -99,10 +99,15 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
             }
           }
           // update metadata
-          self.utils.updateMetadata.call(self);
+          if (self.type === "netjson") {
+            self.utils.updateMetadata.call(self);
+          }
         }
         if (isRaw) {
-          self.config.prepareData.call(self, JSONData);
+          if (self.type === "netjson") {
+            self.config.prepareData.call(self, JSONData);
+          }
+
           if (self.config.dealDataByWorker) {
             self.utils.dealDataByWorker.call(
               self,
@@ -152,7 +157,9 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         callback();
       } else {
         self.utils.overrideData(e.data, self);
-        // self.utils.updateMetadata.call(self);
+        if (self.type === "netjson") {
+          self.utils.updateMetadata.call(self);
+        }
       }
     });
   }
@@ -168,6 +175,9 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
   overrideData(JSONData, self) {
     self.data = JSONData;
+    if (self.type === "geojson") {
+      self.leaflet.geoJSON.removeFrom(self.leaflet);
+    }
     self.utils.render();
     self.config.afterUpdate.call(self);
   }

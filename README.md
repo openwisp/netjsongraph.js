@@ -30,8 +30,9 @@ yarn start
 
 netjsongraph.js accepts two arguments.
 
-1. **url (required, string|array)**: URL(s) to fetch the JSON data from.
-   JSON format used internally based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4), but a little different: more occupied property names internally as follows：
+1. **url (required, string|array)**: URL(s) to fetch the JSON data from. It supports both [NetJSON](http://netjson.org) and GeoJSON data formats.
+
+NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4) but with a slight difference. More occupied property names used internally as follows：
 
 ```JS
 {
@@ -238,6 +239,20 @@ netjsongraph.js accepts two arguments.
 
   `name` is the name of the category. You can also pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-graph.lineStyle) in
   `linkStyle`.
+
+- `geoOptions`
+
+  The configuration for the GeoJSON render. It consists of the following properties:
+
+  ```JS
+      geoOptions:{
+         style:{
+             // The style GeoJSON features
+         },
+      }
+  ```
+
+  You can customize the style of GeoJSON features using `style` property. The list of all available properties can be found in the [Leaflet documentation](https://leafletjs.com/reference.html#geojson).
 
 - `onInit`
 

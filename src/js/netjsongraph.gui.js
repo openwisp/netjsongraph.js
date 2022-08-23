@@ -34,11 +34,13 @@ class NetJSONGraphGUI {
     button.classList.add("sideBarHandle");
     button.onclick = () => {
       sideBar.classList.toggle("hidden");
+      const metaInfo = document.querySelector(".njg-metaInfoContainer");
       if (
-        this.self.config.showMetaOnNarrowScreens ||
-        this.self.el.clientWidth > 850
+        (this.self.config.showMetaOnNarrowScreens ||
+          this.self.el.clientWidth > 850) &&
+        metaInfo
       ) {
-        document.querySelector(".njg-metaInfoContainer").style.display = "flex";
+        metaInfo.style.display = "flex";
       }
     };
     this.self.el.appendChild(sideBar);
@@ -156,7 +158,10 @@ class NetJSONGraphGUI {
 
     closeButton.onclick = () => {
       this.nodeLinkInfoContainer.style.display = "none";
-      if (this.metaInfoContainer.style.display === "none") {
+      if (
+        this.metaInfoContainer === null ||
+        this.metaInfoContainer.style.display === "none"
+      ) {
         this.sideBar.classList.add("hidden");
       }
     };

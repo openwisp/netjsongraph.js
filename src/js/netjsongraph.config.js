@@ -224,6 +224,14 @@ const NetJSONGraphDefaultConfig = {
       },
     },
   ],
+  geoOptions: {
+    style: {
+      fillColor: "#1566a9",
+      weight: 0,
+      fillOpacity: 0.8,
+      radius: 8,
+    },
+  },
   nodeCategories: [],
   linkCategories: [],
 
@@ -253,15 +261,21 @@ const NetJSONGraphDefaultConfig = {
    */
   onClickElement(type, data) {
     let nodeLinkData;
-    if (type === "node") {
-      nodeLinkData = this.utils.nodeInfo(data);
+    if (this.type === "netjson") {
+      if (type === "node") {
+        nodeLinkData = this.utils.nodeInfo(data);
+      } else {
+        nodeLinkData = this.utils.linkInfo(data);
+      }
+
+      if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
+        this.gui.metaInfoContainer.style.display = "flex";
+      }
     } else {
-      nodeLinkData = this.utils.linkInfo(data);
+      nodeLinkData = data;
     }
+
     this.gui.getNodeLinkInfo(type, nodeLinkData);
-    if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
-      this.gui.metaInfoContainer.style.display = "flex";
-    }
     this.gui.sideBar.classList.remove("hidden");
   },
 
@@ -273,6 +287,7 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
+  /* istanbul ignore next */
   onReady() {},
 };
 
