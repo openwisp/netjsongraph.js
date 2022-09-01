@@ -32,6 +32,7 @@ const NetJSONGraphDefaultConfig = {
   metadata: true,
   svgRender: false,
   switchMode: false,
+  maxPointsFetched: 10000,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 7,
   echartsOption: {

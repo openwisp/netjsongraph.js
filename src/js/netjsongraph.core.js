@@ -58,9 +58,8 @@ class NetJSONGraph {
     this.config.onRender.call(this);
     this.event.once("onReady", this.config.onReady.bind(this));
     this.event.once("onLoad", this.config.onLoad.bind(this));
-
-    this.utils
-      .JSONParamParse(JSONParam)
+    this.utils.paginatedDataParse
+      .call(this, JSONParam)
       .then((JSONData) => {
         if (this.utils.isNetJSON(JSONData)) {
           this.type = "netjson";

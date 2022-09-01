@@ -18,17 +18,38 @@ class NetJSONGraphUtil {
           Accept: "application/json",
         },
       })
-        .then((response) => {
-          if (response.json) {
-            return response.json();
-          }
-          return response;
-        })
+        .then((response) => response)
         .catch((msg) => {
           console.error(msg);
         });
     }
     return Promise.resolve(JSONParam);
+  }
+
+  async paginatedDataParse(JSONParam) {
+    let res;
+    let data;
+    try {
+      let paginatedResponse = await this.utils.JSONParamParse(JSONParam);
+      if (paginatedResponse.json) {
+        res = await paginatedResponse.json();
+        data = res.results ? res.results : res;
+        while (res.next && data.nodes.length <= this.config.maxPointsFetched) {
+          // eslint-disable-next-line no-await-in-loop
+          paginatedResponse = await this.utils.JSONParamParse(res.next);
+          // eslint-disable-next-line no-await-in-loop
+          res = await paginatedResponse.json();
+          data.nodes = data.nodes.concat(res.results.nodes);
+          data.links = data.links.concat(res.results.links);
+        }
+      } else {
+        data = paginatedResponse;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    return data;
   }
 
   /**

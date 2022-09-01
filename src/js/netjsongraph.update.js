@@ -80,8 +80,8 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
     const self = this;
     self.config.onUpdate.call(self);
 
-    return self.utils
-      .JSONParamParse(Data)
+    return self.utils.paginatedDataParse
+      .call(self, Data)
       .then((JSONData) => {
         function update() {
           // override data.
