@@ -70,6 +70,10 @@ class NetJSONGraph {
         }
 
         if (this.type === "netjson") {
+          JSONData.nodes.splice(
+            this.config.maxPointsFetched - 1,
+            JSONData.nodes.length - this.config.maxPointsFetched,
+          );
           this.config.prepareData.call(this, JSONData);
         }
         this.data = JSONData;
