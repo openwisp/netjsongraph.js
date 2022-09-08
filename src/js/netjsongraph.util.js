@@ -1,3 +1,5 @@
+import KDBush from "kdbush";
+
 class NetJSONGraphUtil {
   /**
    * @function
@@ -287,6 +289,82 @@ class NetJSONGraphUtil {
     }
 
     return objs[len - 1];
+  }
+
+  makeCluster(self) {
+    const {nodes, links} = self.data;
+    const nonClusterNodes = [];
+    const nonClusterLinks = [];
+    const clusters = [];
+    const nodeMap = new Map();
+    let clusterId = 0;
+
+    nodes.forEach((node) => {
+      node.y = self.leaflet.latLngToContainerPoint([
+        node.location.lat,
+        node.location.lng,
+      ]).y;
+      node.x = self.leaflet.latLngToContainerPoint([
+        node.location.lat,
+        node.location.lng,
+      ]).x;
+      node.visited = false;
+    });
+
+    const index = new KDBush(
+      nodes,
+      (p) => p.x,
+      (p) => p.y,
+    );
+
+    nodes.forEach((node) => {
+      let cluster;
+      if (!node.visited) {
+        let centroid = [0, 0];
+        const results = index
+          .within(node.x, node.y, self.config.clusterRadius)
+          .map((id) => {
+            nodes[id].visited = true;
+            nodes[id].cluster = clusterId;
+            nodeMap.set(nodes[id].id, nodes[id].cluster);
+            centroid[0] += nodes[id].location.lng;
+            centroid[1] += nodes[id].location.lat;
+            return nodes[id];
+          });
+        if (results.length > 1) {
+          centroid = [
+            centroid[0] / results.length,
+            centroid[1] / results.length,
+          ];
+          cluster = {
+            id: clusterId,
+            cluster: true,
+            name: results.length,
+            value: centroid,
+            childNodes: results,
+            ...self.config.mapOptions.clusterConfig,
+          };
+
+          clusters.push(cluster);
+        } else {
+          results[0].clusterId = null;
+          nodeMap.set(results[0].id, null);
+          nonClusterNodes.push(results[0]);
+        }
+        clusterId += 1;
+      }
+    });
+
+    links.forEach((link) => {
+      if (
+        nodeMap.get(link.source) === null &&
+        nodeMap.get(link.target) === null
+      ) {
+        nonClusterLinks.push(link);
+      }
+    });
+
+    return {clusters, nonClusterNodes, nonClusterLinks};
   }
 
   /**
