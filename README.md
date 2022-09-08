@@ -117,6 +117,30 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The zoom level at which more nodes are loaded from the server when the total number of nodes are greater than `maxPointsFetched`. These nodes are loaded based on the geographic extent of the map.
 
+- `clustering`
+
+  **Default**: `false`
+
+  Whether to enable clustering of nodes or not. You can also set it `true` to enable it.
+
+- `clusteringThreshold`
+
+  **Default**: `100`
+
+  The threshold of clustering. When the number of nodes is greater than this value, the clustering will be enabled.
+
+- `disableClusteringAtLevel`
+
+  **Default**: `8`
+
+  The zoom level at which clustering is disabled. When the zoom level is greater than this value, all the clusters will be expanded.
+
+- `clusterRadius`
+
+  **Default**: `80`
+
+  The maximum radius that a cluster will cover. Decreasing will make more, smaller clusters and vice versa.
+
 - `dealDataByWorker`
 
   The url to the worker file if you want to deal the data by a worker.
@@ -568,6 +592,12 @@ yarn start
       }
   });
   ```
+
+- `makeCluster`
+
+  Accepts NetJSONGraph instance as parameter and returns an object containing the cluster nodes, other individual nodes and links.
+
+> > > > > > > 168b103 ([docs] Update docs)
 
 - `isObject`
 
