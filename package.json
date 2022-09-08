@@ -62,6 +62,7 @@
   "dependencies": {
     "echarts": "^5.3.3",
     "echarts-gl": "^2.0.8",
+    "kdbush": "^3.0.0",
     "leaflet": "^1.8.0",
     "zrender": "^5.3.2"
   }

@@ -34,6 +34,10 @@ const NetJSONGraphDefaultConfig = {
   switchMode: false,
   maxPointsFetched: 10000,
   loadMoreAtZoomLevel: 9,
+  clustering: false,
+  clusteringThreshold: 100,
+  disableClusteringAtLevel: 8,
+  clusterRadius: 80,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 7,
   echartsOption: {
@@ -181,6 +185,21 @@ const NetJSONGraphDefaultConfig = {
           color: "#3acc38",
           opacity: 1,
         },
+      },
+    },
+    clusterConfig: {
+      symbolSize: 30,
+      itemStyle: {
+        color: "#1566a9",
+      },
+      tooltip: {
+        show: false,
+      },
+      label: {
+        show: true,
+        position: "inside",
+        color: "#fff",
+        offset: [0, 0],
       },
     },
     baseOptions: {

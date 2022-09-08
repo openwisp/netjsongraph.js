@@ -146,6 +146,21 @@ describe("NetJSONGraph Specification", () => {
         },
       },
     },
+    clusterConfig: {
+      symbolSize: 30,
+      itemStyle: {
+        color: "#1566a9",
+      },
+      tooltip: {
+        show: false,
+      },
+      label: {
+        show: true,
+        position: "inside",
+        color: "#fff",
+        offset: [0, 0],
+      },
+    },
     baseOptions: {
       toolbox: {
         show: false,
@@ -223,6 +238,10 @@ describe("NetJSONGraph Specification", () => {
     expect(graph.config).toHaveProperty("metadata", true);
     expect(graph.config).toHaveProperty("svgRender", false);
     expect(graph.config).toHaveProperty("showMetaOnNarrowScreens", false);
+    expect(graph.config).toHaveProperty("clustering", false);
+    expect(graph.config).toHaveProperty("clusteringThreshold", 100);
+    expect(graph.config).toHaveProperty("disableClusteringAtLevel", 8);
+    expect(graph.config).toHaveProperty("clusterRadius", 80);
     expect(graph.config.echartsOption).toEqual(NetJSONGraphOption);
     expect(graph.config.graphConfig).toEqual(NetJSONGraphConfig);
     expect(graph.config.mapOptions).toEqual(NetJSONGraphMapOptions);

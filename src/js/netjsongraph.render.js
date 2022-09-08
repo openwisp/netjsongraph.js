@@ -6,6 +6,7 @@ import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";
 import "echarts/lib/component/toolbox";
 import "echarts/lib/component/legend";
+import KDBush from "kdbush";
 
 import "zrender/lib/svg/svg";
 
@@ -92,7 +93,7 @@ class NetJSONGraphRender {
         }
         return params.componentSubType === "lines"
           ? clickElement("link", params.data.link)
-          : clickElement("node", params.data.node);
+          : !params.data.cluster && clickElement("node", params.data.node);
       },
       {passive: true},
     );
@@ -181,12 +182,12 @@ class NetJSONGraphRender {
    * @return {object}  map option
    *
    */
-  generateMapOption(JSONData, self) {
+  generateMapOption(JSONData, self, clusters = []) {
     const configs = self.config;
     const {nodes, links} = JSONData;
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
-    const nodesData = [];
+    let nodesData = [];
 
     nodes.forEach((node) => {
       if (!node.properties) {
@@ -219,9 +220,9 @@ class NetJSONGraphRender {
     });
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
-        console.error(`Node ${link.source} is not exist!`);
+        console.warn(`Node ${link.source} is not exist!`);
       } else if (!flatNodes[link.target]) {
-        console.error(`Node ${link.target} is not exist!`);
+        console.warn(`Node ${link.target} is not exist!`);
       } else {
         const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
           link,
@@ -245,6 +246,8 @@ class NetJSONGraphRender {
         });
       }
     });
+
+    nodesData = nodesData.concat(clusters);
 
     const series = [
       Object.assign(configs.mapOptions.nodeConfig, {
@@ -495,6 +498,70 @@ class NetJSONGraphRender {
         removeBBoxData();
       }
     });
+    if (
+      self.config.clustering &&
+      self.config.clusteringThreshold < JSONData.nodes.length
+    ) {
+      let {clusters, nonClusterNodes, nonClusterLinks} =
+        self.utils.makeCluster(self);
+
+      self.echarts.setOption(
+        self.utils.generateMapOption(
+          {
+            ...JSONData,
+            nodes: nonClusterNodes,
+            links: nonClusterLinks,
+          },
+          self,
+          clusters,
+        ),
+      );
+
+      self.echarts.on("mouseover", (params) => {
+        if (
+          (params.componentSubType === "scatter" ||
+            params.componentSubType === "effectScatter") &&
+          params.data.cluster
+        ) {
+          nonClusterNodes = nonClusterNodes.concat(params.data.childNodes);
+          clusters = clusters.filter(
+            (cluster) => cluster.id !== params.data.id,
+          );
+          self.echarts.setOption(
+            self.utils.generateMapOption(
+              {
+                ...JSONData,
+                nodes: nonClusterNodes,
+              },
+              self,
+              clusters,
+            ),
+          );
+        }
+      });
+
+      self.leaflet.on("zoomend", () => {
+        if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
+          const nodeData = self.utils.makeCluster(self);
+          clusters = nodeData.clusters;
+          nonClusterNodes = nodeData.nonClusterNodes;
+          nonClusterLinks = nodeData.nonClusterLinks;
+          self.echarts.setOption(
+            self.utils.generateMapOption(
+              {
+                ...JSONData,
+                nodes: nonClusterNodes,
+                links: nonClusterLinks,
+              },
+              self,
+              clusters,
+            ),
+          );
+        } else {
+          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        }
+      });
+    }
 
     self.event.emit("onLoad");
     self.event.emit("onReady");
@@ -569,6 +636,82 @@ class NetJSONGraphRender {
       nodes,
       links,
     });
+  }
+
+  makeCluster(self) {
+    const {nodes, links} = self.data;
+    const nonClusterNodes = [];
+    const nonClusterLinks = [];
+    const clusters = [];
+    const nodeMap = new Map();
+    let clusterId = 0;
+
+    nodes.forEach((node) => {
+      node.y = self.leaflet.latLngToContainerPoint([
+        node.location.lat,
+        node.location.lng,
+      ]).y;
+      node.x = self.leaflet.latLngToContainerPoint([
+        node.location.lat,
+        node.location.lng,
+      ]).x;
+      node.visited = false;
+    });
+
+    const index = new KDBush(
+      nodes,
+      (p) => p.x,
+      (p) => p.y,
+    );
+
+    nodes.forEach((node) => {
+      let cluster;
+      if (!node.visited) {
+        let centroid = [0, 0];
+        const results = index
+          .within(node.x, node.y, self.config.clusterRadius)
+          .map((id) => {
+            nodes[id].visited = true;
+            nodes[id].cluster = clusterId;
+            nodeMap.set(nodes[id].id, nodes[id].cluster);
+            centroid[0] += nodes[id].location.lng;
+            centroid[1] += nodes[id].location.lat;
+            return nodes[id];
+          });
+        if (results.length > 1) {
+          centroid = [
+            centroid[0] / results.length,
+            centroid[1] / results.length,
+          ];
+          cluster = {
+            id: clusterId,
+            cluster: true,
+            name: results.length,
+            value: centroid,
+            childNodes: results,
+            ...self.config.mapOptions.clusterConfig,
+          };
+
+          clusters.push(cluster);
+        } else {
+          results[0].clusterId = null;
+          nodeMap.set(results[0].id, null);
+          nonClusterNodes.push(results[0]);
+        }
+        clusterId += 1;
+      }
+    });
+
+    links.forEach((link) => {
+      if (
+        nodeMap.get(link.source) === null &&
+        nodeMap.get(link.target) === null
+      ) {
+        nonClusterLinks.push(link);
+      }
+    });
+
+    return {clusters, nonClusterNodes, nonClusterLinks};
   }
 }
 
