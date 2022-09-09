@@ -198,6 +198,9 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
                 // The style of the links
             },
         },
+        clusterConfig:{
+          // The configuration for the clusters
+        },
         baseOptions:{
             // The global configuration for Echarts specifically for the map.
         }
@@ -213,6 +216,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   The `nodeStyle` property is used to customize the style of the nodes. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-scatter.itemStyle).
 
   The `nodeSize` property is used to customize the size of the nodes.
+
+  The `clusterConfig` property is used to customize the clusters. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-scatter.data) in `clusterConfig`.
 
   `linkConfig` deals with the configuration of the links. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-lines) in `linkConfig`.
 
@@ -763,6 +768,9 @@ netjsonmap-nodeTiles.html: override data by different zoom value.
 Using array files to append data step by step at start.  
 Similiar to the first method, but easier.  
 [ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
+
+The demo shows the clustering of nodes.  
+[ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
 
 ### Contributing
 
