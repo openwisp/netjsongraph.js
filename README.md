@@ -523,6 +523,14 @@ Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateP
   Parse paginated response from the server. It accepts `JSONParam` as a parameter. It uses cursor-based pagination by default. If you want to parse from the server that uses some other pagination logic, you can override this method using `setUtils`
   method.
 
+  ```JS
+  graph.setUtils({
+      paginatedDataParse: async function(JSONParam){
+          // Implement your custom logic here
+      }
+  });
+  ```
+
 - `isObject`
 
   Check if the param is object.
