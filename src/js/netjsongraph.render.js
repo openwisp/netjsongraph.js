@@ -6,12 +6,14 @@ import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";
 import "echarts/lib/component/toolbox";
 import "echarts/lib/component/legend";
+import L from "leaflet/dist/leaflet";
+import "leaflet.markercluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 import "zrender/lib/svg/svg";
 
 import "../../lib/js/echarts-gl.min";
-
-import L from "leaflet/dist/leaflet";
 
 class NetJSONGraphRender {
   /**
@@ -361,9 +363,19 @@ class NetJSONGraphRender {
     );
 
     if (self.type === "geojson") {
-      self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions).addTo(
-        self.leaflet,
-      );
+      self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
+
+      if (self.config.clustering) {
+        self.leaflet.markerClusterGroup = L.markerClusterGroup({
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: false,
+          maxClusterRadius: self.config.clusterRadius,
+          disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
+        }).addTo(self.leaflet);
+        self.leaflet.markerClusterGroup.addLayer(self.leaflet.geoJSON);
+      } else {
+        self.leaflet.geoJSON.addTo(self.leaflet);
+      }
     }
 
     if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
@@ -498,6 +510,7 @@ class NetJSONGraphRender {
       }
     });
     if (
+      self.type === "netjson" &&
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {

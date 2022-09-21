@@ -67,6 +67,18 @@
   color: #000;
 }
 
+.marker-cluster div {
+  color: #fff;
+}
+
+.marker-cluster-small {
+  background-color: unset !important;
+}
+
+.marker-cluster-small div {
+  background-color: rgba(21, 102, 169, 0.8) !important;
+}
+
 @media only screen and (max-width: 850px) {
   .njg-sideBar {
     background: rgba(255, 255, 255, 0.96);
