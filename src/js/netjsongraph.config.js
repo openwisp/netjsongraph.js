@@ -33,6 +33,7 @@ const NetJSONGraphDefaultConfig = {
   svgRender: false,
   switchMode: false,
   showMetaOnNarrowScreens: false,
+  showLabelsAtZoomLevel: 7,
   echartsOption: {
     aria: {
       show: true,
@@ -64,6 +65,9 @@ const NetJSONGraphDefaultConfig = {
         show: true,
         color: "#fff",
         position: "top",
+      },
+      labelLayout: {
+        hideOverlap: true,
       },
       force: {
         gravity: 0.1,
@@ -101,9 +105,6 @@ const NetJSONGraphDefaultConfig = {
             series: [
               {
                 zoom: 0.7,
-                labelLayout: {
-                  hideOverlap: true,
-                },
               },
             ],
             toolbox: {
@@ -119,9 +120,6 @@ const NetJSONGraphDefaultConfig = {
             series: [
               {
                 zoom: 1,
-                labelLayout: {
-                  hideOverlap: false,
-                },
               },
             ],
             toolbox: {

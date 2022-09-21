@@ -356,6 +356,42 @@ class NetJSONGraphRender {
       );
     }
 
+    if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
+      self.echarts.setOption({
+        series: [
+          {
+            label: {
+              show: false,
+            },
+          },
+        ],
+      });
+    }
+
+    self.leaflet.on("zoomend", () => {
+      if (self.leaflet.getZoom() >= self.config.showLabelsAtZoomLevel) {
+        self.echarts.setOption({
+          series: [
+            {
+              label: {
+                show: true,
+              },
+            },
+          ],
+        });
+      } else {
+        self.echarts.setOption({
+          series: [
+            {
+              label: {
+                show: false,
+              },
+            },
+          ],
+        });
+      }
+    });
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
