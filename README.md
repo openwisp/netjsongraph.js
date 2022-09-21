@@ -102,7 +102,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Default**: `7`
 
-  The zoom level at which the labels are shown. This only works when `render` is set to `map`.
+  The zoom level at which the labels are shown. This only works when `render` is set to `map`. In the graph mode, the overlapping labels are hidden automatically when zooming.
 
 - `dealDataByWorker`
 
