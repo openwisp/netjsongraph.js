@@ -32,6 +32,9 @@ describe("NetJSONGraph Specification", () => {
         color: "#fff",
         position: "top",
       },
+      labelLayout: {
+        hideOverlap: true,
+      },
       force: {
         gravity: 0.1,
         edgeLength: [20, 60],
@@ -68,9 +71,6 @@ describe("NetJSONGraph Specification", () => {
             series: [
               {
                 zoom: 0.7,
-                labelLayout: {
-                  hideOverlap: true,
-                },
               },
             ],
             toolbox: {
@@ -86,9 +86,6 @@ describe("NetJSONGraph Specification", () => {
             series: [
               {
                 zoom: 1,
-                labelLayout: {
-                  hideOverlap: false,
-                },
               },
             ],
             toolbox: {

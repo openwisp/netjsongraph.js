@@ -98,6 +98,13 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   Whether to allow switching between graph and map render or not. You can also set it `true` to enable it.
 
+- `showLabelsAtZoomLevel`
+
+  **Default**: `7`
+
+  The zoom level at which the labels are shown. This only works when `render` is set to `map`.
+  In graph mode, the overlapping labels are hidden automatically when zooming.
+
 - `dealDataByWorker`
 
   The url to the worker file if you want to deal the data by a worker.
