@@ -217,7 +217,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The `nodeSize` property is used to customize the size of the nodes.
 
-  The `clusterConfig` property is used to customize the clusters. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-scatter.data) in `clusterConfig`. If you are using GeoJSON data, you can customize the cluster styles by using the CSS classes `marker-cluster` and `.marker-cluster-small`.
+  The `clusterConfig` property is used to customize the clusters. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-scatter.data) in `clusterConfig`. If you are using GeoJSON data, you can customize the cluster styles by using the CSS classes `marker-cluster`, `marker-cluster-small`, `marker-cluster-medium` and
+  `marker-cluster-large`.
 
   `linkConfig` deals with the configuration of the links. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-lines) in `linkConfig`.
 

@@ -69,14 +69,13 @@
 
 .marker-cluster div {
   color: #fff;
-}
-
-.marker-cluster-small {
-  background-color: unset !important;
-}
-
-.marker-cluster-small div {
   background-color: rgba(21, 102, 169, 0.8) !important;
+}
+
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-color: unset !important;
 }
 
 @media only screen and (max-width: 850px) {
