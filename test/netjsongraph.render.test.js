@@ -6,6 +6,23 @@ const JSONData = {
   nodes: [],
   links: [],
 };
+const param = "data1.json";
+const nextParam = "data2.json";
+const data1 = {
+  results: {
+    nodes: [{id: "1"}, {id: "2"}],
+    links: [],
+  },
+  next: "data2.json",
+  prev: null,
+};
+const data2 = {
+  results: {
+    nodes: [{id: "3"}, {id: "4"}],
+    links: [],
+  },
+  next: null,
+};
 
 const graph = new NetJSONGraph([JSONFILE, JSONFILE]);
 graph.event = graph.utils.createEvent();
@@ -29,11 +46,22 @@ graph.setConfig({
 });
 graph.setUtils();
 
-window.fetch = jest.fn((url) =>
-  url === JSONFILE
-    ? Promise.resolve(JSONData)
-    : Promise.reject(new Error("Fetch json file wrong!")),
-);
+window.fetch = jest.fn((url) => {
+  if (url === JSONFILE) {
+    return Promise.resolve(JSONData);
+  }
+  if (url === param) {
+    return Promise.resolve({
+      json: () => Promise.resolve(data1),
+    });
+  }
+  if (url === nextParam) {
+    return Promise.resolve({
+      json: () => Promise.resolve(data2),
+    });
+  }
+  return Promise.reject(new Error("Fetch json file wrong!"));
+});
 
 describe("Test netjsongraph render", () => {
   beforeAll(() => {
@@ -240,6 +268,18 @@ describe("Test netjsongraph JSONParamParse", () => {
 
     JSONParamParse(json).then((data) => {
       expect(data).toBe(json);
+    });
+  });
+});
+
+describe("Test paginatedDataParse", () => {
+  const {paginatedDataParse} = graph.utils;
+  test("Should return the data", () => {
+    paginatedDataParse.call(graph, param).then((data) => {
+      expect(data).toEqual({
+        nodes: [{id: "1"}, {id: "2"}, {id: "3"}, {id: "4"}],
+        links: [],
+      });
     });
   });
 });
