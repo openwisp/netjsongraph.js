@@ -79,8 +79,8 @@
 
                 if (typeof tilesMap[curZoom] === "string") {
                   // json update function
-                  this.utils
-                    .JSONParamParse(folderName + tilesMap[curZoom])
+                  this.utils.paginatedDataParse
+                    .call(this, folderName + tilesMap[curZoom])
                     .then((JSONData) => {
                       // store the data.
                       tilesMap[curZoom] = JSONData;

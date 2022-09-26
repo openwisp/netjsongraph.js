@@ -105,6 +105,12 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   The zoom level at which the labels are shown. This only works when `render` is set to `map`.
   In graph mode, the overlapping labels are hidden automatically when zooming.
 
+- `maxPointsFetched`
+
+  **Default**: `10000`
+
+  The maximum number of nodes to fetch from the server.
+
 - `dealDataByWorker`
 
   The url to the worker file if you want to deal the data by a worker.
@@ -511,6 +517,23 @@ Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateP
 - `JSONParamParse`
 
   Parse JSONParam (string|object), return Promise object.
+
+- `paginatedDataParse`
+
+  Parse paginated response from the server. It accepts `JSONParam` as a parameter.  
+  It uses cursor-based pagination by default.  
+  If you want to parse from the server that uses some other pagination logic,  
+  you can override this method using `setUtils` method.
+
+  ```JS
+  graph.setUtils({
+      paginatedDataParse: async function(JSONParam){
+          // Implement your custom logic here
+      }
+  });
+  ```
+
+  You can see the default implementation [here](https://github.com/openwisp/netjsongraph.js/blob/a83c2ee97a2d377f0e4818774ffbbb0dd297ef0e/src/js/netjsongraph.util.js#L29).
 
 - `isObject`
 
