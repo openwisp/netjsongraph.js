@@ -41,6 +41,12 @@ class NetJSONGraphUtil {
           res = await paginatedResponse.json();
           data.nodes = data.nodes.concat(res.results.nodes);
           data.links = data.links.concat(res.results.links);
+
+          if (res.next) {
+            this.hasMoreData = true;
+          } else {
+            this.hasMoreData = false;
+          }
         }
       } else {
         data = paginatedResponse;
@@ -49,6 +55,21 @@ class NetJSONGraphUtil {
       console.error(e);
     }
 
+    return data;
+  }
+
+  async getBBoxData(JSONParam, bounds) {
+    let data;
+    try {
+      // eslint-disable-next-line prefer-destructuring
+      JSONParam = JSONParam[0].split("?")[0];
+      // eslint-disable-next-line no-underscore-dangle
+      const url = `${JSONParam}bbox?swLat=${bounds._southWest.lat}&swLng=${bounds._southWest.lng}&neLat=${bounds._northEast.lat}&neLng=${bounds._northEast.lng}`;
+      const res = await this.utils.JSONParamParse(url);
+      data = await res.json();
+    } catch (e) {
+      console.error(e);
+    }
     return data;
   }
 
