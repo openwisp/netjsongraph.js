@@ -33,6 +33,7 @@ const NetJSONGraphDefaultConfig = {
   svgRender: false,
   switchMode: false,
   maxPointsFetched: 10000,
+  loadMoreAtZoomLevel: 9,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 7,
   echartsOption: {

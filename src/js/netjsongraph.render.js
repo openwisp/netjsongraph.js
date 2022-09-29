@@ -392,6 +392,56 @@ class NetJSONGraphRender {
       }
     });
 
+    self.leaflet.on("moveend", async () => {
+      const bounds = self.leaflet.getBounds();
+      if (
+        self.leaflet.getZoom() >= self.config.loadMoreAtZoomLevel &&
+        self.hasMoreData
+      ) {
+        const data = await self.utils.getBBoxData.call(
+          self,
+          self.JSONParam,
+          bounds,
+        );
+
+        if (
+          !self.bboxData ||
+          JSON.stringify(self.bboxData) !== JSON.stringify(data)
+        ) {
+          const dataNodeSet = new Set(self.data.nodes);
+          const dataLinkSet = new Set(self.data.links);
+          data.nodes = data.nodes.filter((node) => !dataNodeSet.has(node));
+          data.links = data.links.filter((link) => !dataLinkSet.has(link));
+          self.bboxData = data;
+          self.utils.appendData(data, self);
+        }
+      } else if (
+        self.leaflet.getZoom() <= self.config.loadMoreAtZoomLevel &&
+        self.hasMoreData
+      ) {
+        if (self.type === "netjson" && self.bboxData) {
+          const removeNodes = new Set(self.bboxData.nodes);
+          const removeLinks = new Set(self.bboxData.links);
+          const updatedNodes = JSONData.nodes.filter(
+            (node) => !removeNodes.has(node),
+          );
+          const updatedLinks = JSONData.links.filter(
+            (link) => !removeLinks.has(link),
+          );
+          self.echarts.setOption(
+            self.utils.generateMapOption(
+              {
+                ...JSONData,
+                nodes: updatedNodes,
+                links: updatedLinks,
+              },
+              self,
+            ),
+          );
+        }
+      }
+    });
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
