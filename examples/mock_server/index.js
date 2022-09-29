@@ -1,0 +1,437 @@
+const express = require("express");
+const app = express();
+
+const bodyParser = require("body-parser");
+const RBush = require("rbush");
+
+app.use(bodyParser.json());
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "POST, GET, OPTIONS, PUT, PATCH, DELETE",
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
+const JSONData = {
+  type: "NetworkGraph",
+  label: "Ninux Roma",
+  protocol: "OLSR",
+  version: "0.6.6.2",
+  metric: "ETX",
+  date: "2019-04-03T05:06:54.000Z",
+  nodes: [
+    {
+      id: "172.16.146.6",
+      name: "l8dt6nqh",
+      location: {lng: 24.905, lat: 46.499750000000006},
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+    },
+    {
+      id: "10.177.0.10",
+      name: "l133is73",
+      location: {lng: 24.78, lat: 49.182249999999996},
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+    },
+    {
+      id: "172.16.139.4",
+      name: "yyjd696o",
+      location: {lng: 17.217, lat: 49.63475},
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+    },
+    {
+      id: "172.16.135.15",
+      name: "2f6hxcfe",
+      location: {lng: 27.607999999999997, lat: 45.965500000000006},
+    },
+    {
+      id: "192.168.145.145",
+      name: "knga632p",
+      location: {lng: 20.582, lat: 47.290499999999994},
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+    },
+    {
+      id: "172.16.186.249",
+      name: "mesgopn5",
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+      location: {lng: 12.552999999999997, lat: 43.33775},
+    },
+    {
+      id: "172.16.12.10",
+      name: "sj6l3pbj",
+      location: {lng: 28.119, lat: 48.798},
+    },
+    {
+      id: "172.16.177.31",
+      name: "3a5dfwvo",
+      location: {lng: 12.222999999999999, lat: 45.493750000000006},
+    },
+    {
+      id: "10.183.1.11",
+      name: "ww65tgqj",
+      location: {lng: 26.959000000000003, lat: 44.34375},
+    },
+    {
+      id: "172.16.200.67",
+      name: "13mbktrw",
+      location: {lng: 24.588, lat: 48.481750000000005},
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+    },
+    {
+      id: "192.168.23.3",
+      name: "dmjjzmzt",
+      location: {lng: 18.813000000000002, lat: 48.108999999999995},
+    },
+    {
+      id: "172.16.185.11",
+      name: "fo3t1uii",
+      location: {lng: 18.610999999999997, lat: 48.87975},
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+    },
+    {
+      id: "172.16.159.187",
+      name: "pqhht9a8",
+      location: {lng: 26.037, lat: 50.52975000000001},
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+    },
+    {
+      id: "172.16.132.132",
+      name: "qjw3dpr1",
+      location: {lng: 21.122, lat: 47.129000000000005},
+    },
+    {
+      id: "10.254.254.4",
+      name: "e9ail6v2",
+      location: {lng: 14.770000000000003, lat: 48.56999999999999},
+    },
+    {
+      id: "10.123.10.10",
+      name: "0h231xnp",
+      location: {lng: 15.593000000000004, lat: 49.93025},
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+    },
+    {
+      id: "172.16.12.12",
+      name: "fhg2nc2r",
+      location: {lng: 22.595, lat: 43.695},
+    },
+    {
+      id: "172.16.40.24",
+      name: "8jlyhr2z",
+      location: {lng: 10.206000000000003, lat: 47.18375},
+    },
+    {
+      id: "172.16.171.1",
+      name: "de97plx1",
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+      location: {lng: 18.183, lat: 47.64149999999999},
+    },
+    {
+      id: "172.16.159.65",
+      name: "jffz9552",
+      location: {lng: 25.357999999999997, lat: 47.919},
+    },
+    {
+      id: "172.16.155.5",
+      name: "z2fdpra4",
+      location: {lng: 21.823, lat: 47.169250000000005},
+    },
+    {
+      id: "172.16.145.3",
+      name: "mqcsteqt",
+      location: {lng: 18.302, lat: 47.379999999999995},
+    },
+    {
+      id: "172.16.159.50",
+      name: "ffx05sy8",
+      location: {lng: 18.348999999999997, lat: 46.72725},
+    },
+    {
+      id: "172.16.138.1",
+      properties: {time: "2019-04-03T05:06:54.000Z"},
+      name: "r4obvzk8",
+      location: {lng: 12.021, lat: 46.8245},
+    },
+    {
+      id: "172.16.44.12",
+      name: "0sm2wp5r",
+      location: {lng: 19.948, lat: 52.403499999999994},
+    },
+    {
+      id: "172.16.186.254",
+      name: "4q81b62m",
+      location: {lng: 25.75, lat: 43.22925},
+    },
+    {
+      id: "172.16.10.192",
+      name: "tttdvxaq",
+      location: {lng: 13.447000000000003, lat: 44.494749999999996},
+    },
+    {
+      id: "10.0.7.2",
+      name: "imbuityj",
+      location: {lng: 14.512, lat: 44.528000000000006},
+    },
+    {
+      id: "172.16.185.12",
+      name: "angh9ea1",
+      location: {lng: 29.366, lat: 49.70099999999999},
+    },
+    {
+      id: "10.149.3.3",
+      name: "hf5e7qee",
+      location: {lng: 12.168, lat: 45.134},
+    },
+    {
+      id: "172.16.169.1",
+      name: "f7ueng33",
+      location: {lng: 22.546, lat: 49.47024999999999},
+    },
+    {
+      id: "10.254.254.2",
+      name: "uyoj6lhg",
+      location: {lng: 12.219999999999999, lat: 50.2495},
+    },
+    {
+      id: "172.16.177.33",
+      name: "cifeeb9d",
+      location: {lng: 24.706000000000003, lat: 52.3905},
+    },
+    {
+      id: "172.16.39.31",
+      name: "p6ahwas2",
+      location: {lng: 20.177, lat: 47.790499999999994},
+    },
+    {
+      id: "172.16.185.13",
+      name: "5hs0svyn",
+      location: {lng: 20.490000000000002, lat: 51.00675},
+    },
+    {
+      id: "172.16.146.4",
+      name: "boim64l0",
+      location: {lng: 16.116, lat: 43.53725},
+    },
+    {
+      id: "172.16.151.11",
+      name: "n3udnu06",
+      location: {lng: 17.091, lat: 50.394499999999994},
+    },
+    {
+      id: "10.185.1.11",
+      name: "1enzn0zx",
+      location: {lng: 29.966, lat: 46.819500000000005},
+    },
+    {
+      id: "172.16.181.10",
+      name: "2kzhij6o",
+      location: {lng: 14.384999999999998, lat: 47.92375},
+    },
+    {
+      id: "172.16.200.2",
+      name: "uxwqg8r5",
+      location: {lng: 21.912, lat: 45.147999999999996},
+    },
+    {
+      id: "172.16.168.1",
+      name: "9gb3cmxz",
+      location: {lng: 17.523000000000003, lat: 51.31},
+    },
+    {
+      id: "172.16.49.3",
+      name: "gm772381",
+      location: {lng: 28.918999999999997, lat: 47.50749999999999},
+    },
+    {
+      id: "172.16.133.11",
+      name: "mosxwxj7",
+      location: {lng: 19.936, lat: 50.93600000000001},
+    },
+    {
+      id: "10.45.0.1",
+      name: "biqccv60",
+      location: {lng: 23.628999999999998, lat: 48.4585},
+    },
+    {
+      id: "172.16.151.1",
+      name: "06j5jew7",
+      location: {lng: 28.07, lat: 43.26075},
+    },
+    {
+      id: "10.139.13.1",
+      name: "4bwbdn6h",
+      location: {lng: 26.42, lat: 51.119249999999994},
+    },
+    {
+      id: "172.16.139.10",
+      name: "4p6xp1i9",
+      location: {lng: 19.215000000000003, lat: 43.26325},
+    },
+    {
+      id: "172.16.155.4",
+      name: "kgta0r2b",
+      location: {lng: 23.072000000000003, lat: 42.83775},
+    },
+    {
+      id: "172.16.171.15",
+      name: "768k9t7a",
+      location: {lng: 10.497999999999998, lat: 52.409499999999994},
+    },
+    {
+      id: "172.16.141.3",
+      name: "t8cisonf",
+      location: {lng: 22.825000000000003, lat: 48.91875},
+    },
+    {
+      id: "192.168.176.10",
+      name: "qqgq9lpk",
+      location: {lng: 24.555999999999997, lat: 45.3895},
+    },
+    {
+      id: "172.16.49.20",
+      name: "ygyai4ym",
+      location: {lng: 25.683, lat: 49.616},
+    },
+    {
+      id: "172.16.44.10",
+      name: "ne5ut31o",
+      location: {lng: 18.464, lat: 43.922},
+    },
+    {
+      id: "10.185.1.1",
+      name: "j8s03ili",
+      location: {lng: 11.250999999999998, lat: 45.407250000000005},
+    },
+    {
+      id: "10.168.177.1",
+      name: "mcgv10nt",
+      location: {lng: 16.799999999999997, lat: 44.4135},
+    },
+  ],
+  links: [
+    {
+      source: "172.16.146.6",
+      target: "172.16.146.4",
+      cost: 1,
+    },
+    {source: "172.16.139.4", target: "172.16.138.1", cost: 1.02734375},
+    {source: "172.16.135.15", target: "10.123.10.10", cost: 1},
+    {source: "192.168.145.145", target: "10.254.254.2", cost: 1},
+    {source: "172.16.186.249", target: "172.16.159.187", cost: 1},
+    {source: "172.16.186.249", target: "172.16.159.50", cost: 1},
+    {source: "172.16.12.10", target: "172.16.12.12", cost: 1},
+    {
+      source: "172.16.177.31",
+      target: "172.16.155.4",
+      cost: 1.1796875,
+    },
+    {
+      source: "10.183.1.11",
+      target: "172.16.145.3",
+      cost: 1,
+      properties: {
+        status: "down",
+      },
+    },
+    {source: "172.16.200.67", target: "172.16.200.2", cost: 1},
+    {source: "172.16.185.11", target: "192.168.176.10", cost: 1},
+    {source: "172.16.159.187", target: "172.16.159.50", cost: 1},
+    {source: "172.16.159.187", target: "172.16.39.31", cost: 1.36328125},
+    {
+      source: "10.254.254.2",
+      target: "10.254.254.4",
+      cost: 1.3,
+      properties: {
+        status: "down",
+      },
+    },
+    {source: "172.16.171.1", target: "172.16.169.1", cost: 1.1181640625},
+    {source: "172.16.155.5", target: "172.16.155.4", cost: 1},
+    {source: "172.16.155.5", target: "172.16.44.10", cost: 1.1328125},
+    {source: "172.16.185.12", target: "10.185.1.1", cost: 1},
+    {source: "172.16.185.12", target: "172.16.185.13", cost: 1},
+    {source: "172.16.185.12", target: "10.185.1.11", cost: 1},
+    {source: "10.149.3.3", target: "172.16.146.4", cost: 1.26171875},
+    {source: "172.16.185.13", target: "10.185.1.1", cost: 1},
+    {source: "172.16.185.13", target: "10.185.1.11", cost: 1},
+    {
+      source: "10.185.1.11",
+      target: "10.185.1.1",
+      cost: 1,
+      properties: {
+        status: "down",
+      },
+    },
+    {
+      source: "172.16.133.11",
+      target: "192.168.176.10",
+      cost: 1.3779296875,
+    },
+  ],
+};
+
+const nodes = JSONData.nodes.map((node) => {
+  return {
+    minX: node.location.lng,
+    maxX: node.location.lng,
+    minY: node.location.lat,
+    maxY: node.location.lat,
+    node,
+  };
+});
+const tree = new RBush();
+tree.load(nodes);
+
+app.use("/api/data/bbox", (req, res) => {
+  const swLat = req.query.swLat;
+  const swLng = req.query.swLng;
+  const neLat = req.query.neLat;
+  const neLng = req.query.neLng;
+
+  const bboxNodes = tree.search({
+    minX: swLng,
+    minY: swLat,
+    maxX: neLng,
+    maxY: neLat,
+  });
+
+  const nodes = bboxNodes.map((p) => p.node);
+  const nodeSet = new Set(nodes.map((n) => n.id));
+  const links = JSONData.links.filter((link) => {
+    return nodeSet.has(link.source) || nodeSet.has(link.target);
+  });
+
+  res.json({
+    nodes,
+    links,
+  });
+});
+
+app.use("/api/data", (req, res) => {
+  const allItems = tree.all();
+  //   console.log(allItems);
+  const size = 3;
+  const page = Number(req.query.page);
+  const startIndex = (page - 1) * size;
+  const endIndex = page * size;
+  let next;
+  if (endIndex >= JSONData.nodes.length) {
+    next = null;
+  } else {
+    next = `${req.protocol}://${req.get("host")}/api/data?page=${page + 1}`;
+  }
+  const data = {
+    results: {
+      ...JSONData,
+      nodes: JSONData.nodes.slice(startIndex, endIndex),
+      links: JSONData.links.slice(startIndex, endIndex),
+    },
+    next,
+  };
+  res.json(data);
+});
+
+app.listen(3000);

@@ -70,6 +70,9 @@ class NetJSONGraph {
         }
 
         if (this.type === "netjson") {
+          if (JSONData.nodes.length > this.config.maxPointsFetched) {
+            this.hasMoreData = true;
+          }
           JSONData.nodes.splice(
             this.config.maxPointsFetched - 1,
             JSONData.nodes.length - this.config.maxPointsFetched,
