@@ -554,7 +554,7 @@ yarn start
   });
   ```
 
-  You can see the default implementation [here](https://github.com/openwisp/netjsongraph.js/blob/a83c2ee97a2d377f0e4818774ffbbb0dd297ef0e/src/js/netjsongraph.util.js#L29).
+  You can see the default implementation [here](https://github.com/openwisp/netjsongraph.js/blob/fb4f79f716996605efe4423cba7604797b7e71ba/src/js/netjsongraph.util.js#L29).
 
 - `getBBoxData`
 
