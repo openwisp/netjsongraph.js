@@ -77,6 +77,18 @@ class NetJSONGraph {
             this.config.maxPointsFetched - 1,
             JSONData.nodes.length - this.config.maxPointsFetched,
           );
+          const nodeSet = new Set(JSONData.nodes.map((node) => node.id));
+          JSONData.links = JSONData.links.filter((link) => {
+            if (nodeSet.has(link.source) && nodeSet.has(link.target)) {
+              return true;
+            }
+            if (!nodeSet.has(link.source)) {
+              console.warn(`Node ${link.source} does not exist!`);
+            } else {
+              console.warn(`Node ${link.target} does not exist!`);
+            }
+            return false;
+          });
           this.config.prepareData.call(this, JSONData);
         }
         this.data = JSONData;

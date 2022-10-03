@@ -317,6 +317,10 @@ class NetJSONGraphRender {
         self.utils.generateMapOption(JSONData, self),
         self,
       );
+      self.bboxData = {
+        nodes: [],
+        links: [],
+      };
     } else if (self.type === "geojson") {
       const {nodeConfig, linkConfig, baseOptions, ...options} =
         self.config.mapOptions;
@@ -327,6 +331,10 @@ class NetJSONGraphRender {
           mapOptions: options,
         },
       });
+
+      self.bboxData = {
+        features: [],
+      };
     }
 
     // eslint-disable-next-line no-underscore-dangle
@@ -394,6 +402,40 @@ class NetJSONGraphRender {
 
     self.leaflet.on("moveend", async () => {
       const bounds = self.leaflet.getBounds();
+      const removeBBoxData = function () {
+        if (self.type === "netjson") {
+          const removeNodes = new Set(self.bboxData.nodes);
+          const removeLinks = new Set(self.bboxData.links);
+          const updatedNodes = JSONData.nodes.filter(
+            (node) => !removeNodes.has(node),
+          );
+          const updatedLinks = JSONData.links.filter(
+            (link) => !removeLinks.has(link),
+          );
+
+          JSONData = {
+            ...JSONData,
+            nodes: updatedNodes,
+            links: updatedLinks,
+          };
+
+          self.data = JSONData;
+          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+          self.bboxData.nodes = [];
+          self.bboxData.links = [];
+        } else {
+          const removeFeatures = new Set(self.bboxData.features);
+          const updatedFeatures = JSONData.features.filter(
+            (feature) => !removeFeatures.has(feature),
+          );
+          JSONData = {
+            ...JSONData,
+            features: updatedFeatures,
+          };
+          self.utils.overrideData(JSONData, self);
+          self.bboxData.features = [];
+        }
+      };
       if (
         self.leaflet.getZoom() >= self.config.loadMoreAtZoomLevel &&
         self.hasMoreData
@@ -403,42 +445,54 @@ class NetJSONGraphRender {
           self.JSONParam,
           bounds,
         );
+        if (self.type === "netjson") {
+          self.config.prepareData.call(this, data);
+          const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
+          const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
+          const targetLinkSet = new Set(self.data.links.map((l) => l.target));
+          const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
+          const links = data.links.filter(
+            (link) =>
+              !sourceLinkSet.has(link.source) &&
+              !targetLinkSet.has(link.target),
+          );
+          const boundsDataSet = new Set(data.nodes.map((n) => n.id));
+          const nonCommonNodes = self.bboxData.nodes.filter(
+            (node) => !boundsDataSet.has(node.id),
+          );
+          const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
 
-        if (
-          !self.bboxData ||
-          JSON.stringify(self.bboxData) !== JSON.stringify(data)
-        ) {
-          const dataNodeSet = new Set(self.data.nodes);
-          const dataLinkSet = new Set(self.data.links);
-          data.nodes = data.nodes.filter((node) => !dataNodeSet.has(node));
-          data.links = data.links.filter((link) => !dataLinkSet.has(link));
-          self.bboxData = data;
-          self.utils.appendData(data, self);
+          JSONData.nodes = JSONData.nodes.filter(
+            (node) => !removableNodes.has(node.id),
+          );
+          self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
+          self.bboxData.links = self.bboxData.links.concat(links);
+          JSONData = {
+            ...JSONData,
+            nodes: JSONData.nodes.concat(nodes),
+            links: JSONData.links.concat(links),
+          };
+          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+          self.data = JSONData;
+        } else {
+          const dataSet = new Set(self.data.features);
+          const features = data.features.filter(
+            (feature) => !dataSet.has(feature),
+          );
+          const boundsDataSet = new Set(data.features);
+          const nonCommonFeatures = self.bboxData.features.filter(
+            (feature) => !boundsDataSet.has(feature),
+          );
+          const removableFeatures = new Set(nonCommonFeatures);
+
+          JSONData.features = JSONData.features.filter(
+            (feature) => !removableFeatures.has(feature),
+          );
+          self.bboxData.features = self.bboxData.features.concat(features);
+          self.utils.appendData(features, self);
         }
-      } else if (
-        self.leaflet.getZoom() <= self.config.loadMoreAtZoomLevel &&
-        self.hasMoreData
-      ) {
-        if (self.type === "netjson" && self.bboxData) {
-          const removeNodes = new Set(self.bboxData.nodes);
-          const removeLinks = new Set(self.bboxData.links);
-          const updatedNodes = JSONData.nodes.filter(
-            (node) => !removeNodes.has(node),
-          );
-          const updatedLinks = JSONData.links.filter(
-            (link) => !removeLinks.has(link),
-          );
-          self.echarts.setOption(
-            self.utils.generateMapOption(
-              {
-                ...JSONData,
-                nodes: updatedNodes,
-                links: updatedLinks,
-              },
-              self,
-            ),
-          );
-        }
+      } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
+        removeBBoxData();
       }
     });
 
