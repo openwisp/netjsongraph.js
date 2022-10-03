@@ -111,6 +111,12 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The maximum number of nodes to fetch from the server.
 
+- `loadMoreAtZoomLevel`
+
+  **Default**: `9`
+
+  The zoom level at which more nodes are loaded from the server when the total number of nodes are greater than `maxPointsFetched`. These nodes are loaded based on the geographic extent of the map.
+
 - `dealDataByWorker`
 
   The url to the worker file if you want to deal the data by a worker.
@@ -494,6 +500,21 @@ If you provide `time` field in node or link's properties, it'll display the pars
 
 Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateParse.html).
 
+#### Load more data using geographic extent
+
+You can load more data from the server even when the total number of nodes are greater than `maxPointsFetched` using geographic extent.
+You can specify the zoom level at which more data is loaded by setting `loadMoreDataZoomLevel` in the config.
+
+You can see this in action by executing the following commands:
+
+```
+cd examples/load_data_geo_extent
+
+yarn install
+
+yarn start
+```
+
 #### Render
 
 - `generateGraphOption`
@@ -534,6 +555,19 @@ Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateP
   ```
 
   You can see the default implementation [here](https://github.com/openwisp/netjsongraph.js/blob/a83c2ee97a2d377f0e4818774ffbbb0dd297ef0e/src/js/netjsongraph.util.js#L29).
+
+- `getBBoxData`
+
+  Load data which is inside the current bounding box of the map from the server. Accepts `JSONParam` and `bounds` as the parameter.  
+   If you want to implement your own logic or use a different API, you can override this method using `setUtils` method.
+
+  ```JS
+  graph.setUtils({
+      getBBoxData: async function(JSONParam,bounds){
+          // Implement your custom logic here
+      }
+  });
+  ```
 
 - `isObject`
 
