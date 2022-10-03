@@ -8,6 +8,7 @@ const JSONData = {
 };
 const param = "data1.json";
 const nextParam = "data2.json";
+const nextParam2 = "data3.json";
 const data1 = {
   results: {
     nodes: [{id: "1"}, {id: "2"}],
@@ -19,6 +20,13 @@ const data1 = {
 const data2 = {
   results: {
     nodes: [{id: "3"}, {id: "4"}],
+    links: [],
+  },
+  next: nextParam2,
+};
+const data3 = {
+  results: {
+    nodes: [{id: "5"}, {id: "6"}],
     links: [],
   },
   next: null,
@@ -50,6 +58,15 @@ window.fetch = jest.fn((url) => {
   if (url === JSONFILE) {
     return Promise.resolve(JSONData);
   }
+  if (url.includes("bbox")) {
+    return Promise.resolve({
+      json: () =>
+        Promise.resolve({
+          nodes: [{id: "1"}, {id: "2"}],
+          links: [],
+        }),
+    });
+  }
   if (url === param) {
     return Promise.resolve({
       json: () => Promise.resolve(data1),
@@ -58,6 +75,11 @@ window.fetch = jest.fn((url) => {
   if (url === nextParam) {
     return Promise.resolve({
       json: () => Promise.resolve(data2),
+    });
+  }
+  if (url === nextParam2) {
+    return Promise.resolve({
+      json: () => Promise.resolve(data3),
     });
   }
   return Promise.reject(new Error("Fetch json file wrong!"));
@@ -277,7 +299,14 @@ describe("Test paginatedDataParse", () => {
   test("Should return the data", () => {
     paginatedDataParse.call(graph, param).then((data) => {
       expect(data).toEqual({
-        nodes: [{id: "1"}, {id: "2"}, {id: "3"}, {id: "4"}],
+        nodes: [
+          {id: "1"},
+          {id: "2"},
+          {id: "3"},
+          {id: "4"},
+          {id: "5"},
+          {id: "6"},
+        ],
         links: [],
       });
     });
@@ -459,5 +488,83 @@ describe("Test when invalid data is passed", () => {
     expect(console.error).toHaveBeenCalledWith(
       new Error("Invalid data format!"),
     );
+  });
+});
+
+describe("Test when more data is present than maxPointsFetched", () => {
+  const data = {
+    nodes: [
+      {
+        id: "1",
+      },
+      {
+        id: "2",
+      },
+      {
+        id: "3",
+      },
+      {
+        id: "4",
+      },
+      {
+        id: "5",
+      },
+    ],
+    links: [
+      {source: "1", target: "2", cost: 1},
+      {source: "2", target: "3", cost: 1},
+      {source: "3", target: "4", cost: 1},
+      {source: "4", target: "5", cost: 1},
+      {source: "5", target: "1", cost: 1},
+    ],
+  };
+  const map = new NetJSONGraph(data);
+  beforeAll(() => {
+    map.event = map.utils.createEvent();
+    map.setConfig({
+      maxPointsFetched: 3,
+      render: () => {},
+      onInit() {
+        return this.config;
+      },
+      onRender() {
+        return this.config;
+      },
+      onUpdate() {
+        return this.config;
+      },
+      afterUpdate() {
+        return this.config;
+      },
+      onLoad() {
+        return this.config;
+      },
+    });
+    map.setUtils();
+    map.render();
+  });
+
+  test("Set hasMoreData to true", () => {
+    expect(map.hasMoreData).toEqual(true);
+    expect(map.data.links.length).toEqual(2);
+  });
+
+  test("Test getBBoxData", async () => {
+    const {getBBoxData} = map.utils;
+    const bounds = {
+      _northEast: {
+        lat: 23,
+        lng: 46,
+      },
+      _southWest: {
+        lat: 22,
+        lng: 45,
+      },
+    };
+    const res = await getBBoxData.call(map, "api/data", bounds);
+    expect(res).toEqual({
+      nodes: [{id: "1"}, {id: "2"}],
+      links: [],
+    });
   });
 });
