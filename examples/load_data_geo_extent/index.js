@@ -1,4 +1,6 @@
 const express = require("express");
+const path = require("path");
+const open = require("open");
 const app = express();
 
 const bodyParser = require("body-parser");
@@ -15,6 +17,8 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
+
+app.use(express.static(path.join(__dirname, "assets")));
 
 const JSONData = {
   type: "NetworkGraph",
@@ -310,6 +314,26 @@ const JSONData = {
       name: "mcgv10nt",
       location: {lng: 16.799999999999997, lat: 44.4135},
     },
+    {
+      id: "10.118.179.2",
+      name: "test-0",
+      location: {lat: 46.86764405052012, lng: 19.675998687744144},
+    },
+    {
+      id: "10.121.179.3",
+      name: "test-1",
+      location: {lat: 46.76764405052012, lng: 19.675998687744144},
+    },
+    {
+      id: "12.120.177.9",
+      name: "test-3",
+      location: {lat: 46.76764405052012, lng: 24.675998687744144},
+    },
+    {
+      id: "110.20.17.199",
+      name: "test-4",
+      location: {lat: 42.76764405052012, lng: 24.675998687744144},
+    },
   ],
   links: [
     {
@@ -370,8 +394,25 @@ const JSONData = {
       target: "192.168.176.10",
       cost: 1.3779296875,
     },
+    {
+      source: "10.118.179.2",
+      target: "10.121.179.3",
+      cost: 1,
+    },
   ],
 };
+
+for (let i = 5; i < 100; i++) {
+  const node = {
+    id: `10.1.1.${i}`,
+    name: `test-${i}`,
+    location: {
+      lat: Math.random() * (50 - 43 + 1) + 43,
+      lng: Math.random() * (24 - 18 + 1) + 18,
+    },
+  };
+  JSONData.nodes.push(node);
+}
 
 const nodes = JSONData.nodes.map((node) => {
   return {
@@ -411,8 +452,6 @@ app.use("/api/data/bbox", (req, res) => {
 });
 
 app.use("/api/data", (req, res) => {
-  const allItems = tree.all();
-  //   console.log(allItems);
   const size = 3;
   const page = Number(req.query.page);
   const startIndex = (page - 1) * size;
@@ -434,4 +473,11 @@ app.use("/api/data", (req, res) => {
   res.json(data);
 });
 
-app.listen(3000);
+app.use("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.listen(3000, () => {
+  console.log("listening on PORT 3000");
+  open("http://localhost:3000");
+});
