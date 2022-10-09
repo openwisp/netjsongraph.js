@@ -603,8 +603,6 @@ yarn start
 
   Accepts NetJSONGraph instance as parameter and returns an object containing the cluster nodes, other individual nodes and links.
 
-> > > > > > > 168b103 ([docs] Update docs)
-
 - `isObject`
 
   Check if the param is object.

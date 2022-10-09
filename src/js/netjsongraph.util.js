@@ -309,6 +309,7 @@ class NetJSONGraphUtil {
         node.location.lng,
       ]).x;
       node.visited = false;
+      node.cluster = null;
     });
 
     const index = new KDBush(
@@ -319,18 +320,38 @@ class NetJSONGraphUtil {
 
     nodes.forEach((node) => {
       let cluster;
+      let centroid = [0, 0];
+      const addNode = (n) => {
+        n.visited = true;
+        n.cluster = clusterId;
+        nodeMap.set(n.id, n.cluster);
+        centroid[0] += n.location.lng;
+        centroid[1] += n.location.lat;
+      };
       if (!node.visited) {
-        let centroid = [0, 0];
-        const results = index
+        const neighbors = index
           .within(node.x, node.y, self.config.clusterRadius)
-          .map((id) => {
-            nodes[id].visited = true;
-            nodes[id].cluster = clusterId;
-            nodeMap.set(nodes[id].id, nodes[id].cluster);
-            centroid[0] += nodes[id].location.lng;
-            centroid[1] += nodes[id].location.lat;
-            return nodes[id];
-          });
+          .map((id) => nodes[id]);
+        const results = neighbors.filter((n) => {
+          if (self.config.clusteringAttribute) {
+            if (
+              n.properties[self.config.clusteringAttribute] ===
+                node.properties[self.config.clusteringAttribute] &&
+              n.cluster === null
+            ) {
+              addNode(n);
+              return true;
+            }
+            return false;
+          }
+
+          if (n.cluster === null) {
+            addNode(n);
+            return true;
+          }
+          return false;
+        });
+
         if (results.length > 1) {
           centroid = [
             centroid[0] / results.length,
@@ -345,9 +366,20 @@ class NetJSONGraphUtil {
             ...self.config.mapOptions.clusterConfig,
           };
 
+          if (self.config.clusteringAttribute) {
+            const {color} = self.config.nodeCategories.find(
+              (cat) =>
+                cat.name === node.properties[self.config.clusteringAttribute],
+            ).nodeStyle;
+
+            cluster.itemStyle = {
+              ...cluster.itemStyle,
+              color,
+            };
+          }
+
           clusters.push(cluster);
-        } else {
-          results[0].clusterId = null;
+        } else if (results.length === 1) {
           nodeMap.set(results[0].id, null);
           nonClusterNodes.push(results[0]);
         }

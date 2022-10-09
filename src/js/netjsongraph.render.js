@@ -366,13 +366,58 @@ class NetJSONGraphRender {
       self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
 
       if (self.config.clustering) {
-        self.leaflet.markerClusterGroup = L.markerClusterGroup({
+        const clusterOptions = {
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: false,
           maxClusterRadius: self.config.clusterRadius,
           disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
-        }).addTo(self.leaflet);
-        self.leaflet.markerClusterGroup.addLayer(self.leaflet.geoJSON);
+        };
+
+        if (self.config.clusteringAttribute) {
+          const clusterTypeSet = new Set();
+          self.data.features.forEach((feature) => {
+            clusterTypeSet.add(
+              feature.properties[self.config.clusteringAttribute] || "default",
+            );
+            if (!feature.properties[self.config.clusteringAttribute]) {
+              feature.properties[self.config.clusteringAttribute] = "default";
+            }
+          });
+          const clusterTypes = Array.from(clusterTypeSet);
+          const clusterGroup = [];
+          clusterTypes.forEach((type) => {
+            const features = self.data.features.filter(
+              (feature) =>
+                feature.properties[self.config.clusteringAttribute] === type,
+            );
+            const layer = L.geoJSON(
+              {
+                ...self.data,
+                features,
+              },
+              self.config.geoOptions,
+            );
+            const cluster = L.markerClusterGroup({
+              ...clusterOptions,
+              iconCreateFunction: (c) => {
+                const childCount = c.getChildCount();
+                return L.divIcon({
+                  html: `<div><span>${childCount}</span></div>`,
+                  className: `marker-cluster ${type}`,
+                  iconSize: L.point(40, 40),
+                });
+              },
+            }).addTo(self.leaflet);
+            clusterGroup.push(cluster);
+            cluster.addLayer(layer);
+          });
+          self.leaflet.clusterGroup = clusterGroup;
+        } else {
+          self.leaflet.markerClusterGroup = L.markerClusterGroup(
+            clusterOptions,
+          ).addTo(self.leaflet);
+          self.leaflet.markerClusterGroup.addLayer(self.leaflet.geoJSON);
+        }
       } else {
         self.leaflet.geoJSON.addTo(self.leaflet);
       }
@@ -529,7 +574,7 @@ class NetJSONGraphRender {
         ),
       );
 
-      self.echarts.on("mouseover", (params) => {
+      self.echarts.on("click", (params) => {
         if (
           (params.componentSubType === "scatter" ||
             params.componentSubType === "effectScatter") &&
@@ -549,6 +594,7 @@ class NetJSONGraphRender {
               clusters,
             ),
           );
+          self.leaflet.setView([params.data.value[1], params.data.value[0]]);
         }
       });
 
