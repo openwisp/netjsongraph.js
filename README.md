@@ -141,6 +141,10 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The maximum radius that a cluster will cover. Decreasing will make more, smaller clusters and vice versa.
 
+- `clusteringAttribute`
+
+  The property used to cluster the nodes. The nodes with the same properties will be clustered together.
+
 - `dealDataByWorker`
 
   The url to the worker file if you want to deal the data by a worker.
@@ -217,8 +221,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The `nodeSize` property is used to customize the size of the nodes.
 
-  The `clusterConfig` property is used to customize the clusters. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-scatter.data) in `clusterConfig`. If you are using GeoJSON data, you can customize the cluster styles by using the CSS classes `marker-cluster`, `marker-cluster-small`, `marker-cluster-medium` and
-  `marker-cluster-large`.
+  The `clusterConfig` property is used to customize the clusters. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-scatter.data) in `clusterConfig`. If you are using GeoJSON data, you can customize the cluster styles by using the CSS class`marker-cluster`. You can also use property values when clustering based on data properties as class names.
 
   `linkConfig` deals with the configuration of the links. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-lines) in `linkConfig`.
 
