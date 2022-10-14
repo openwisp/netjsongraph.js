@@ -16,8 +16,6 @@ Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) a
 
 Build powerful and interoperable visualizations without losing flexibility!
 
-**This library is still in early stages, feedback and contributions are very welcome**.
-
 ### Install and run demo examples
 
 ```
@@ -627,7 +625,7 @@ Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateP
 </html>
 ```
 
-### Different Demos
+### Example Demos
 
 The demo shows default `graph` render.  
 [Basic graph demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
@@ -699,6 +697,46 @@ netjsonmap-nodeTiles.html: override data by different zoom value.
 Using array files to append data step by step at start.  
 Similiar to the first method, but easier.  
 [ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
+
+### Upgrading to newer version
+
+We advise all users of netjsongraph.js to upgrade to the latest version. Follow the following steps to upgrade to the latest version.
+
+1. Download the latest version of netjsongraph.js
+2. Replace the old version of netjsongraph.min.js with the new version
+3. Replace the old version of netjsongraph-theme.css with the new version
+4. Replace the old version of netjsongraph.css with the new version
+5. Replace the deprecated options with the equivalent new options. See the **Arguments** section for more details.
+
+Following is the list of deprecated options:
+
+- `defaultStyle`
+- `scaleExtent`
+- `charge`
+- `linkDistance`
+- `linkStrength`
+- `friction`
+- `gravity`
+- `theta`
+- `chargeDistance`
+- `nodeClassProperty`
+- `linkClassProperty`
+- `circleRadius`
+- `labelDx`
+- `labelDy`
+- `onEnd`
+- `linkDistanceFunc`
+- `redraw`
+- `onClickNode`
+- `onClickLink`
+
+Function definition for `onInit` and `onLoad` has been changed. You don't need to pass any additional arguments to these functions anymore.
+
+`linkDistance` has been renamed to `edgeLength`. Options like `edgeLength`, `friction`, `gravity` are now passed as an object named `force` in `series` property of `graphConfig`. Refer [echarts](https://echarts.apache.org/en/option.html#series-graph.force) and **Arguments** section for more details.
+
+Use `label` instead of `labelDx` and `labelDy` in `series` property of `graphConfig`. Refer **Arguments** section for more details. You can learn more about `label` [here](https://echarts.apache.org/en/option.html#series-graph.label).
+
+Use `onClickElement` instead of `onClickNode` and `onClickLink`. Refer **Arguments** section for more details.
 
 ### Contributing
 
