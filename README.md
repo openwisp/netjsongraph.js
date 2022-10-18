@@ -698,9 +698,12 @@ Using array files to append data step by step at start.
 Similiar to the first method, but easier.  
 [ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
 
-### Upgrading to newer version
+### Upgrading from 0.1.x versions to 0.2.x
 
-We advise all users of netjsongraph.js to upgrade to the latest version. Follow the following steps to upgrade to the latest version.
+We advise all users of netjsongraph.js who are using the 0.1.x version to
+upgrade to the latest version.
+
+The following steps explain how to upgrade.
 
 1. Download the latest version of netjsongraph.js
 2. Replace the old version of netjsongraph.min.js with the new version
@@ -708,7 +711,7 @@ We advise all users of netjsongraph.js to upgrade to the latest version. Follow 
 4. Replace the old version of netjsongraph.css with the new version
 5. Replace the deprecated options with the equivalent new options. See the **Arguments** section for more details.
 
-Following is the list of deprecated options:
+The following list shows the deprecated options:
 
 - `defaultStyle`
 - `scaleExtent`
@@ -730,13 +733,21 @@ Following is the list of deprecated options:
 - `onClickNode`
 - `onClickLink`
 
-Function definition for `onInit` and `onLoad` has been changed. You don't need to pass any additional arguments to these functions anymore.
+The function definition for `onInit` and `onLoad` has been changed:
+passing any additional arguments to these functions is not needed anymore.
 
-`linkDistance` has been renamed to `edgeLength`. Options like `edgeLength`, `friction`, `gravity` are now passed as an object named `force` in `series` property of `graphConfig`. You can learn more about `graphConfig` in **Arguments** section. Refer [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.force) for more details.
+The option `linkDistance` has been renamed to `edgeLength`.
+Options like `edgeLength`, `friction`, `gravity` are now passed as an object
+named `force` in `series` property of `graphConfig`.
+Learn more about `graphConfig` by looking at the [Arguments  section](#arguments). Refer to the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.force) for more details.
 
-Use `label` instead of `labelDx` and `labelDy` in `series` property of `graphConfig`. Refer **Arguments** section for more details. You can learn more about `label` in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.label).
+Use `label` instead of `labelDx` and `labelDy` in the `series` property of `graphConfig`.
+Refer to the [Arguments  section](#arguments) for more details.
+You can learn more about `label` in the
+[Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.label).
 
-Use `onClickElement` instead of `onClickNode` and `onClickLink`. Refer **Arguments** section for more details.
+Use `onClickElement` instead of `onClickNode` and `onClickLink`.
+Refer to the [Arguments  section](#arguments) section for more details.
 
 ### Contributing
 
