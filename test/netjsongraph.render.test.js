@@ -1,3 +1,4 @@
+import L from "leaflet/dist/leaflet";
 import NetJSONGraph from "../src/js/netjsongraph.core";
 
 const JSONFILE = "test";
@@ -566,5 +567,167 @@ describe("Test when more data is present than maxPointsFetched", () => {
       nodes: [{id: "1"}, {id: "2"}],
       links: [],
     });
+  });
+});
+
+describe("Test clustering", () => {
+  let container;
+  const setUp = (map) => {
+    map.event = map.utils.createEvent();
+    map.setConfig({
+      render: () => {},
+      onInit() {
+        return this.config;
+      },
+      onRender() {
+        return this.config;
+      },
+      onUpdate() {
+        return this.config;
+      },
+      afterUpdate() {
+        return this.config;
+      },
+      onLoad() {
+        return this.config;
+      },
+      el: "#map",
+      clustering: true,
+      clusteringThreshold: 2,
+    });
+
+    map.setUtils();
+    map.render();
+    container = document.createElement("div");
+    container.setAttribute("id", "map");
+  };
+  test("Test the created clusters", () => {
+    const data = {
+      nodes: [
+        {
+          id: "1",
+          location: {lng: 24.5, lat: 45.3895},
+        },
+        {
+          id: "2",
+          location: {lng: 24.6, lat: 45.1895},
+        },
+        {
+          id: "3",
+          location: {lng: 28, lat: 47.3895},
+        },
+        {
+          id: "4",
+          location: {lng: 32, lat: 41.3895},
+        },
+      ],
+      links: [
+        {
+          source: "1",
+          target: "3",
+          cost: 1,
+        },
+        {
+          source: "3",
+          target: "4",
+          cost: 1,
+        },
+      ],
+    };
+
+    const map = new NetJSONGraph(data);
+
+    setUp(map);
+
+    document.body.appendChild(container);
+
+    map.leaflet = L.map("map", {
+      center: [51.505, -0.09],
+      zoom: 5,
+    });
+    map.data = data;
+    const clusterObj = map.utils.makeCluster(map);
+
+    expect(clusterObj.clusters.length).toEqual(1);
+    expect(clusterObj.clusters[0].childNodes.length).toEqual(2);
+    expect(clusterObj.nonClusterNodes.length).toEqual(2);
+    expect(clusterObj.nonClusterLinks.length).toEqual(1);
+    document.body.removeChild(container);
+  });
+
+  test("Test the categorization of clusters", () => {
+    const data = {
+      nodes: [
+        {
+          id: "1",
+          location: {lng: 24.5, lat: 45.3895},
+          properties: {
+            status: "up",
+          },
+        },
+        {
+          id: "2",
+          location: {lng: 24.6, lat: 45.1895},
+          properties: {
+            status: "down",
+          },
+        },
+        {
+          id: "3",
+          location: {lng: 28, lat: 47.3895},
+          properties: {
+            status: "up",
+          },
+        },
+        {
+          id: "4",
+          location: {lng: 32, lat: 41.3895},
+          properties: {
+            status: "up",
+          },
+        },
+        {
+          id: "5",
+          location: {lng: 24.5, lat: 45.5915},
+          properties: {
+            status: "down",
+          },
+        },
+      ],
+      links: [],
+    };
+
+    const map = new NetJSONGraph(data);
+
+    setUp(map);
+    map.setConfig({
+      clusteringAttribute: "status",
+      nodeCategories: [
+        {
+          name: "down",
+          nodeStyle: {
+            color: "#c92517",
+          },
+        },
+        {
+          name: "up",
+          nodeStyle: {
+            color: "#1ba619",
+          },
+        },
+      ],
+    });
+    map.render();
+    document.body.appendChild(container);
+    map.leaflet = L.map("map", {
+      center: [51.505, -0.09],
+      zoom: 5,
+    });
+    map.data = data;
+    const clusterObj = map.utils.makeCluster(map);
+    expect(clusterObj.clusters.length).toEqual(1);
+    expect(clusterObj.clusters[0].childNodes.length).toEqual(2);
+    expect(clusterObj.clusters[0].itemStyle.color).toEqual("#c92517");
+    document.body.removeChild(container);
   });
 });

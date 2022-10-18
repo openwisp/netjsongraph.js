@@ -6,12 +6,14 @@ import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";
 import "echarts/lib/component/toolbox";
 import "echarts/lib/component/legend";
+import L from "leaflet/dist/leaflet";
+import "leaflet.markercluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 import "zrender/lib/svg/svg";
 
 import "../../lib/js/echarts-gl.min";
-
-import L from "leaflet/dist/leaflet";
 
 class NetJSONGraphRender {
   /**
@@ -92,7 +94,7 @@ class NetJSONGraphRender {
         }
         return params.componentSubType === "lines"
           ? clickElement("link", params.data.link)
-          : clickElement("node", params.data.node);
+          : !params.data.cluster && clickElement("node", params.data.node);
       },
       {passive: true},
     );
@@ -181,12 +183,12 @@ class NetJSONGraphRender {
    * @return {object}  map option
    *
    */
-  generateMapOption(JSONData, self) {
+  generateMapOption(JSONData, self, clusters = []) {
     const configs = self.config;
     const {nodes, links} = JSONData;
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
-    const nodesData = [];
+    let nodesData = [];
 
     nodes.forEach((node) => {
       if (!node.properties) {
@@ -219,9 +221,9 @@ class NetJSONGraphRender {
     });
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
-        console.error(`Node ${link.source} is not exist!`);
+        console.warn(`Node ${link.source} is not exist!`);
       } else if (!flatNodes[link.target]) {
-        console.error(`Node ${link.target} is not exist!`);
+        console.warn(`Node ${link.target} is not exist!`);
       } else {
         const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
           link,
@@ -245,6 +247,8 @@ class NetJSONGraphRender {
         });
       }
     });
+
+    nodesData = nodesData.concat(clusters);
 
     const series = [
       Object.assign(configs.mapOptions.nodeConfig, {
@@ -359,9 +363,64 @@ class NetJSONGraphRender {
     );
 
     if (self.type === "geojson") {
-      self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions).addTo(
-        self.leaflet,
-      );
+      self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
+
+      if (self.config.clustering) {
+        const clusterOptions = {
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: false,
+          maxClusterRadius: self.config.clusterRadius,
+          disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
+        };
+
+        if (self.config.clusteringAttribute) {
+          const clusterTypeSet = new Set();
+          self.data.features.forEach((feature) => {
+            clusterTypeSet.add(
+              feature.properties[self.config.clusteringAttribute] || "default",
+            );
+            if (!feature.properties[self.config.clusteringAttribute]) {
+              feature.properties[self.config.clusteringAttribute] = "default";
+            }
+          });
+          const clusterTypes = Array.from(clusterTypeSet);
+          const clusterGroup = [];
+          clusterTypes.forEach((type) => {
+            const features = self.data.features.filter(
+              (feature) =>
+                feature.properties[self.config.clusteringAttribute] === type,
+            );
+            const layer = L.geoJSON(
+              {
+                ...self.data,
+                features,
+              },
+              self.config.geoOptions,
+            );
+            const cluster = L.markerClusterGroup({
+              ...clusterOptions,
+              iconCreateFunction: (c) => {
+                const childCount = c.getChildCount();
+                return L.divIcon({
+                  html: `<div><span>${childCount}</span></div>`,
+                  className: `marker-cluster ${type}`,
+                  iconSize: L.point(40, 40),
+                });
+              },
+            }).addTo(self.leaflet);
+            clusterGroup.push(cluster);
+            cluster.addLayer(layer);
+          });
+          self.leaflet.clusterGroup = clusterGroup;
+        } else {
+          self.leaflet.markerClusterGroup = L.markerClusterGroup(
+            clusterOptions,
+          ).addTo(self.leaflet);
+          self.leaflet.markerClusterGroup.addLayer(self.leaflet.geoJSON);
+        }
+      } else {
+        self.leaflet.geoJSON.addTo(self.leaflet);
+      }
     }
 
     if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
@@ -495,6 +554,72 @@ class NetJSONGraphRender {
         removeBBoxData();
       }
     });
+    if (
+      self.type === "netjson" &&
+      self.config.clustering &&
+      self.config.clusteringThreshold < JSONData.nodes.length
+    ) {
+      let {clusters, nonClusterNodes, nonClusterLinks} =
+        self.utils.makeCluster(self);
+
+      self.echarts.setOption(
+        self.utils.generateMapOption(
+          {
+            ...JSONData,
+            nodes: nonClusterNodes,
+            links: nonClusterLinks,
+          },
+          self,
+          clusters,
+        ),
+      );
+
+      self.echarts.on("click", (params) => {
+        if (
+          (params.componentSubType === "scatter" ||
+            params.componentSubType === "effectScatter") &&
+          params.data.cluster
+        ) {
+          nonClusterNodes = nonClusterNodes.concat(params.data.childNodes);
+          clusters = clusters.filter(
+            (cluster) => cluster.id !== params.data.id,
+          );
+          self.echarts.setOption(
+            self.utils.generateMapOption(
+              {
+                ...JSONData,
+                nodes: nonClusterNodes,
+              },
+              self,
+              clusters,
+            ),
+          );
+          self.leaflet.setView([params.data.value[1], params.data.value[0]]);
+        }
+      });
+
+      self.leaflet.on("zoomend", () => {
+        if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
+          const nodeData = self.utils.makeCluster(self);
+          clusters = nodeData.clusters;
+          nonClusterNodes = nodeData.nonClusterNodes;
+          nonClusterLinks = nodeData.nonClusterLinks;
+          self.echarts.setOption(
+            self.utils.generateMapOption(
+              {
+                ...JSONData,
+                nodes: nonClusterNodes,
+                links: nonClusterLinks,
+              },
+              self,
+              clusters,
+            ),
+          );
+        } else {
+          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        }
+      });
+    }
 
     self.event.emit("onLoad");
     self.event.emit("onReady");

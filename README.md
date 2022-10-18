@@ -115,6 +115,34 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The zoom level at which more nodes are loaded from the server when the total number of nodes are greater than `maxPointsFetched`. These nodes are loaded based on the geographic extent of the map.
 
+- `clustering`
+
+  **Default**: `false`
+
+  Whether to enable clustering of nodes or not. You can also set it `true` to enable it.
+
+- `clusteringThreshold`
+
+  **Default**: `100`
+
+  The threshold of clustering. When the number of nodes is greater than this value, the clustering will be enabled.
+
+- `disableClusteringAtLevel`
+
+  **Default**: `8`
+
+  The zoom level at which clustering is disabled. When the zoom level is greater than this value, all the clusters will be expanded.
+
+- `clusterRadius`
+
+  **Default**: `80`
+
+  The maximum radius that a cluster will cover. Decreasing will make more, smaller clusters and vice versa.
+
+- `clusteringAttribute`
+
+  The property used to cluster the nodes. The nodes with the same properties will be clustered together.
+
 - `dealDataByWorker`
 
   The url to the worker file if you want to deal the data by a worker.
@@ -172,6 +200,9 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
                 // The style of the links
             },
         },
+        clusterConfig:{
+          // The configuration for the clusters
+        },
         baseOptions:{
             // The global configuration for Echarts specifically for the map.
         }
@@ -187,6 +218,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   The `nodeStyle` property is used to customize the style of the nodes. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-scatter.itemStyle).
 
   The `nodeSize` property is used to customize the size of the nodes.
+
+  The `clusterConfig` property is used to customize the clusters. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-scatter.data) in `clusterConfig`. If you are using GeoJSON data, you can customize the cluster styles by using the CSS class`marker-cluster`. You can also use property values when clustering based on data properties as class names.
 
   `linkConfig` deals with the configuration of the links. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-lines) in `linkConfig`.
 
@@ -567,6 +600,10 @@ yarn start
   });
   ```
 
+- `makeCluster`
+
+  Accepts NetJSONGraph instance as parameter and returns an object containing the cluster nodes, other individual nodes and links.
+
 - `isObject`
 
   Check if the param is object.
@@ -732,6 +769,9 @@ Using array files to append data step by step at start.
 Similiar to the first method, but easier.  
 [ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
 
+The demo shows the clustering of nodes.  
+[ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
+
 ### Upgrading from 0.1.x versions to 0.2.x
 
 We advise all users of netjsongraph.js who are using the 0.1.x version to
@@ -773,15 +813,16 @@ passing any additional arguments to these functions is not needed anymore.
 The option `linkDistance` has been renamed to `edgeLength`.
 Options like `edgeLength`, `friction`, `gravity` are now passed as an object
 named `force` in `series` property of `graphConfig`.
-Learn more about `graphConfig` by looking at the [Arguments  section](#arguments). Refer to the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.force) for more details.
+Learn more about `graphConfig` by looking at the [Arguments section](#arguments).
+Refer to the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.force) for more details.
 
 Use `label` instead of `labelDx` and `labelDy` in the `series` property of `graphConfig`.
-Refer to the [Arguments  section](#arguments) for more details.
+Refer to the [Arguments section](#arguments) for more details.
 You can learn more about `label` in the
 [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.label).
 
 Use `onClickElement` instead of `onClickNode` and `onClickLink`.
-Refer to the [Arguments  section](#arguments) section for more details.
+Refer to the [Arguments section](#arguments) section for more details.
 
 ### Contributing
 
