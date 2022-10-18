@@ -732,9 +732,9 @@ Following is the list of deprecated options:
 
 Function definition for `onInit` and `onLoad` has been changed. You don't need to pass any additional arguments to these functions anymore.
 
-`linkDistance` has been renamed to `edgeLength`. Options like `edgeLength`, `friction`, `gravity` are now passed as an object named `force` in `series` property of `graphConfig`. Refer [echarts](https://echarts.apache.org/en/option.html#series-graph.force) and **Arguments** section for more details.
+`linkDistance` has been renamed to `edgeLength`. Options like `edgeLength`, `friction`, `gravity` are now passed as an object named `force` in `series` property of `graphConfig`. You can learn more about `graphConfig` in **Arguments** section. Refer [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.force) for more details.
 
-Use `label` instead of `labelDx` and `labelDy` in `series` property of `graphConfig`. Refer **Arguments** section for more details. You can learn more about `label` [here](https://echarts.apache.org/en/option.html#series-graph.label).
+Use `label` instead of `labelDx` and `labelDy` in `series` property of `graphConfig`. Refer **Arguments** section for more details. You can learn more about `label` in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.label).
 
 Use `onClickElement` instead of `onClickNode` and `onClickLink`. Refer **Arguments** section for more details.
 
