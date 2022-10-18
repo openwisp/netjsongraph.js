@@ -813,15 +813,16 @@ passing any additional arguments to these functions is not needed anymore.
 The option `linkDistance` has been renamed to `edgeLength`.
 Options like `edgeLength`, `friction`, `gravity` are now passed as an object
 named `force` in `series` property of `graphConfig`.
-Learn more about `graphConfig` by looking at the [Arguments  section](#arguments). Refer to the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.force) for more details.
+Learn more about `graphConfig` by looking at the [Arguments section](#arguments).
+Refer to the [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.force) for more details.
 
 Use `label` instead of `labelDx` and `labelDy` in the `series` property of `graphConfig`.
-Refer to the [Arguments  section](#arguments) for more details.
+Refer to the [Arguments section](#arguments) for more details.
 You can learn more about `label` in the
 [Echarts documentation](https://echarts.apache.org/en/option.html#series-graph.label).
 
 Use `onClickElement` instead of `onClickNode` and `onClickLink`.
-Refer to the [Arguments  section](#arguments) section for more details.
+Refer to the [Arguments section](#arguments) section for more details.
 
 ### Contributing
 
