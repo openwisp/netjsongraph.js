@@ -14,6 +14,11 @@ const templates = examples.map((example) => {
     template: path.resolve(__dirname, `public/example_templates/${example}`),
   });
 });
+const minimizer = [
+  new TerserPlugin({
+    extractComments: false,
+  }),
+];
 
 module.exports = (env, argv) => ({
   entry: "./src/js/netjsongraph.js",
@@ -24,11 +29,7 @@ module.exports = (env, argv) => ({
   devtool: argv.mode === "development" ? "eval-source-map" : "source-map",
   optimization: {
     minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        extractComments: false,
-      }),
-    ],
+    minimizer: argv.mode === "production" ? minimizer : [],
   },
   module: {
     rules: [
@@ -44,6 +45,7 @@ module.exports = (env, argv) => ({
     },
     historyApiFallback: true,
     open: ["./index.html"],
+    hot: true,
   },
   plugins: [...templates],
   performance: {

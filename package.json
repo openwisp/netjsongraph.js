@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "dev": "webpack serve --open --hot --mode development",
+    "dev": "webpack serve --open --mode development",
     "start": "yarn dev",
     "build": "webpack --progress --mode production",
     "coverage": "jest --coverage",
