@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>netjsongraph.js: basic example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- theme can be easily customized via css -->
+    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
+  </head>
+  <body>
+    <script type="text/javascript">
+      /*
+          The demo is used to show how to use `graphGL` to render big data.
+      */
+      // `graph` render defaultly.
+      const graph = new NetJSONGraph(
+        "../../public/assets/data/netjsongraph-graphGL.json",
+        {
+          graphConfig: {
+            series: {
+              type: "graphGL",
+              modularity: {
+                resolution: 2,
+                sort: true,
+              },
+              nodeSize: (node) => {
+                return Math.sqrt(node.value / 10);
+              },
+              linkStyle: {
+                color: "#1aa422",
+                opacity: 0.05,
+              },
+              nodeStyle: {
+                color: "#CBEF0E",
+                opacity: 1,
+                borderColor: "#fff",
+                borderWidth: 1,
+              },
+              label: {
+                textStyle: {
+                  color: "#fff",
+                },
+                // graphGL render must set it !!!
+                show: false,
+              },
+              focusNodeAdjacency: false,
+              emphasis: {
+                label: {
+                  show: false,
+                },
+                lineStyle: {
+                  opacity: 0.5,
+                  width: 4,
+                },
+              },
+              // set force layout params
+              forceAtlas2: {
+                steps: 5,
+                stopThreshold: 20,
+                jitterTolerence: 10,
+                edgeWeight: [0.2, 1],
+                gravity: 5,
+                edgeWeightInfluence: 0,
+              },
+            },
+            baseOptions: {
+              backgroundColor: "#000",
+            },
+          },
+        },
+      );
+
+      graph.render();
+    </script>
+  </body>
+</html>

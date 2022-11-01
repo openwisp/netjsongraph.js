@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- theme can be easily customized via css -->
-    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../src/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
     <style>
       .switch-wrap input[type="checkbox"] {
         height: 0;
@@ -28,16 +28,18 @@
   </head>
 
   <body>
-    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
           The demo is used to show how to switch the netjsongraph render mode -- `svg` or `canvas`.
       */
-      const graph = new NetJSONGraph("./data/netjsonmap.json", {
-        onReady: function () {
-          switchRenderMode(this);
+      const graph = new NetJSONGraph(
+        "../../public/assets/data/netjsonmap.json",
+        {
+          onReady: function () {
+            switchRenderMode(this);
+          },
         },
-      });
+      );
 
       graph.render();
 
