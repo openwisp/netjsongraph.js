@@ -11,8 +11,8 @@
       crossorigin=""
     />
     <!-- theme can be easily customized via css -->
-    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../src/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
       #legend h4 {
         margin: 10px 0;
@@ -68,9 +68,8 @@
     </style>
   </head>
   <body>
-    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
-      const map = new NetJSONGraph("./data/netjsonmap.json", {
+      const map = new NetJSONGraph("../../public/assets/data/netjsonmap.json", {
         render: "map",
         clustering: true,
         clusteringThreshold: 50,

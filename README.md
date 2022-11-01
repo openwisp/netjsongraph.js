@@ -20,7 +20,6 @@ Build powerful and interoperable visualizations without losing flexibility!
 
 ```
 yarn install
-yarn build
 yarn start
 ```
 

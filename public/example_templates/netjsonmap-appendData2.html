@@ -11,11 +11,10 @@
       crossorigin=""
     />
     <!-- theme can be easily customized via css -->
-    <link href="../src/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../src/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
   </head>
   <body>
-    <script type="text/javascript" src="../dist/netjsongraph.min.js"></script>
     <script type="text/javascript">
       /*
           Using array files to append data step by step at start. 
@@ -23,9 +22,9 @@
       */
       const map = new NetJSONGraph(
         [
-          "./data/netjsonAppendData/1.json",
-          "./data/netjsonAppendData/2.json",
-          "./data/netjsonAppendData/3.json",
+          "../../public/assets/data/netjsonAppendData/1.json",
+          "../../public/assets/data/netjsonAppendData/2.json",
+          "../../public/assets/data/netjsonAppendData/3.json",
         ],
         {
           render: "map",
