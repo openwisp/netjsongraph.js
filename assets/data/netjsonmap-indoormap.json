@@ -1,0 +1,67 @@
+{
+  "type": "NetworkGraph",
+  "label": "Ninux Roma",
+  "protocol": "OLSR",
+  "version": "0.6.6.2",
+  "metric": "ETX",
+  "date": "2019-04-03T05:06:54.000Z",
+  "nodes": [
+    {
+      "id": "i3ehd7",
+      "location": {"lat": 43.89, "lng": 12.098496093750002},
+      "name": "Family room"
+    },
+    {
+      "id": "i74rhs",
+      "location": {"lat": 45.5007394591129, "lng": 28.27153358459473},
+      "name": "Lounge"
+    },
+    {
+      "id": "5vjb7b",
+      "location": {"lat": 44.393304126849265, "lng": 6.094136047363282},
+      "name": "Bedroom 1"
+    },
+    {
+      "id": "liwv7p",
+      "location": {"lat": 39.49718091651456, "lng": 28.644869232177738},
+      "name": "Bedroom 4"
+    },
+    {
+      "id": "m7qhnj",
+      "location": {"lat": 43.930760483351195, "lng": 24.369127044677738},
+      "name": "Study Area"
+    },
+    {
+      "id": "a0mg9w",
+      "location": {"lat": 39.89, "lng": 18.135201263427738},
+      "name": "Dining room"
+    },
+    {
+      "id": "dsm2x7",
+      "location": {"lat": 48.859382175122965, "lng": 13.955840454101564},
+      "name": "Bedroom 2"
+    },
+    {
+      "id": "nwlpcd",
+      "location": {"lat": 48.67788524115151, "lng": 19.039492797851566},
+      "name": "Bedroom 3"
+    },
+    {
+      "id": "9p0bos",
+      "location": {"lat": 49.736490408464164, "lng": 25.516660766601562},
+      "name": "Garage"
+    }
+  ],
+  "links": [
+    {"source": "5vjb7b", "target": "i3ehd7", "cost": 1},
+    {"source": "5vjb7b", "target": "dsm2x7", "cost": 1},
+    {"source": "i3ehd7", "target": "dsm2x7", "cost": 1},
+    {"source": "i3ehd7", "target": "a0mg9w", "cost": 1},
+    {"source": "dsm2x7", "target": "nwlpcd", "cost": 0.9},
+    {"source": "m7qhnj", "target": "9p0bos", "cost": 1},
+    {"source": "m7qhnj", "target": "liwv7p", "cost": 1.2},
+    {"source": "m7qhnj", "target": "i74rhs", "cost": 1.1},
+    {"source": "nwlpcd", "target": "m7qhnj", "cost": 1},
+    {"source": "a0mg9w", "target": "m7qhnj", "cost": 0.7}
+  ]
+}

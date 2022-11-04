@@ -1,0 +1,94 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "country": "Serbia"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.906982421875, 44.36313311380771]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "country": "Austria"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [13.5791015625, 47.45037978769006],
+            [13.743896484375, 46.31658418182218],
+            [15.875244140625, 46.79253827035982],
+            [17.1826171875, 48.151428143221224],
+            [16.677246093749996, 48.828565527993234],
+            [13.5791015625, 47.45037978769006]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "country": "Bulgaria"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [25.1806640625, 42.97250158602597]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "country": "Romania"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [24.949951171875, 45.920587344733654]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "country": "Greece"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [22.8955078125, 38.71980474264237]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "country": "Switzerland"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.1298828125, 47.12995075666307]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "country": "Hungary"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.51171875, 47.42808726171425]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "country": "Poland"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.423828125, 52.29504228453735]
+      }
+    }
+  ]
+}

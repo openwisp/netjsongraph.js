@@ -1,0 +1,81 @@
+<!doctype html><html lang="en"><head><title>netjsongraph.js: basic example</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/><link href="../lib/css/netjsongraph-theme.css" rel="stylesheet"/><link href="../lib/css/netjsongraph.css" rel="stylesheet"/><script src="../netjsongraph.min.js"></script></head><body><script>/*
+          The demo is used to show how to use the `JSONDataUpdate` function to update data.
+          See other examples：
+          netjson-updateData.html: It chooses override data.
+          netjsonmap-appendData.html: It chooses append data.
+      */
+      const folderName = "../assets/data/netjsonNodeTiles/",
+        tilesMap = {
+          2: "1.json",
+          4: "2.json",
+          6: "3.json",
+        },
+        map = new NetJSONGraph("../assets/data/netjsonNodeTiles/1.json", {
+          render: "map",
+          // set map initial state.
+          mapOptions: {
+            center: [46.86764405052012, 19.675998687744144],
+            zoom: 2,
+            nodeConfig: {
+              label: {
+                offset: [0, -10],
+              },
+            },
+          },
+
+          // Convert to internal json format
+          prepareData: (data) => {
+            data.nodes.map((node) => {
+              node.label = node.name;
+              node.properties = Object.assign(node.properties || {}, {
+                location: node.location,
+              });
+            });
+          },
+
+          onReady: function () {
+            /* 
+                      The map has this property only after the map is rendered, 
+                      so we have to put the relevant function in `onLoad` life cycle  
+                  */
+            let baseMap = this.leaflet,
+              preZoom = this.config.mapZoom;
+
+            /*
+                      Monitor the zoom of the leaflet.
+                      New data is updated if the zoom value reaches the relevant threshold.
+                  */
+            baseMap.on("zoomstart", () => {
+              preZoom = baseMap.getZoom();
+            });
+            baseMap.on("zoomend", () => {
+              let curZoom = baseMap.getZoom(),
+                curCenter = baseMap.getCenter();
+              if (preZoom !== curZoom && tilesMap[curZoom]) {
+                // Reset map center and zoom
+                this.setConfig({
+                  mapCenter: [curCenter.lat, curCenter.lng],
+                  mapZoom: curZoom,
+                });
+
+                if (typeof tilesMap[curZoom] === "string") {
+                  // json update function
+                  this.utils.paginatedDataParse
+                    .call(this, folderName + tilesMap[curZoom])
+                    .then((JSONData) => {
+                      // store the data.
+                      tilesMap[curZoom] = JSONData;
+                      this.utils.JSONDataUpdate.call(this, tilesMap[curZoom]);
+                    })
+                    .catch((error) => {
+                      console.error(error);
+                    });
+                } else {
+                  this.utils.JSONDataUpdate.call(this, tilesMap[curZoom]);
+                }
+              }
+            });
+          },
+        });
+
+      map.render();</script></body></html>

@@ -1,0 +1,80 @@
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  background: rgba(217, 79, 52, 0.85) !important;
+  color: #fff !important;
+}
+
+.leaflet-control-layers {
+  background: rgba(217, 79, 52, 0.85) !important;
+  color: #fff !important;
+}
+
+.switch-wrap {
+  color: #fff;
+}
+
+.switch-wrap label {
+  border: 1px solid #dfdfdf;
+  background: #ffffff;
+}
+
+.switch-wrap label::before {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 1);
+  background-color: #fff;
+}
+
+.switch-wrap input[type="checkbox"]:checked + label {
+  background: grey;
+}
+
+.njg-date {
+  color: #fff;
+}
+
+.njg-selectIcon {
+  background: rgba(217, 79, 52, 0.85);
+  color: #ffffff;
+}
+
+.njg-searchBtn {
+  background-color: white;
+}
+
+.njg-sideBar {
+  background-color: #fff;
+}
+
+.sideBarHandle {
+  background: rgba(217, 79, 52, 0.85);
+}
+
+.sideBarHandle::before {
+  color: #fff;
+}
+
+.njg-metaData,
+.njg-infoContainer {
+  background-color: inherit;
+}
+
+.njg-tooltip {
+  background: #fff !important;
+  border: none !important;
+}
+
+.njg-tooltip-key,
+.njg-tooltip-value {
+  color: #000;
+}
+
+.marker-cluster div {
+  color: #fff;
+  background-color: rgba(21, 102, 169, 0.8) !important;
+}
+
+@media only screen and (max-width: 850px) {
+  .njg-sideBar {
+    background: rgba(255, 255, 255, 0.96);
+    color: #000;
+  }
+}

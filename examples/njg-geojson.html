@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><title>GeoJSON Example</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/><link href="../lib/css/netjsongraph-theme.css" rel="stylesheet"/><link href="../lib/css/netjsongraph.css" rel="stylesheet"/><script src="../netjsongraph.min.js"></script></head><body><script>const map = new NetJSONGraph("../assets/data/geojson-sample.json", {
+        render: "map",
+        // set map initial state.
+        mapOptions: {
+          center: [46.86764405052012, 19.675998687744144],
+          zoom: 5,
+        },
+      });
+
+      map.render();</script></body></html>
