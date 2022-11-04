@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- theme can be easily customized via css -->
-    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style>
       .njg-date {
         height: fit-content;
@@ -30,25 +30,22 @@
         Of course you can also call directly.
     */
       // `graph` render defaultly.
-      const graph = new NetJSONGraph(
-        "../../public/assets/data/netjsonmap.json",
-        {
-          // Convert to internal json format，add `time` field.
-          prepareData: (data) => {
-            data.nodes.map((node) => {
-              node.label = node.name;
-              node.properties = node.properties || {};
-              node.properties.time =
-                node.properties.time || "2000-01-01T00:00:00.000Z";
-            });
-            data.links.map((link) => {
-              link.properties = link.properties || {};
-              link.properties.time =
-                link.properties.time || "1999-12-31T23:59:59.999Z";
-            });
-          },
+      const graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
+        // Convert to internal json format，add `time` field.
+        prepareData: (data) => {
+          data.nodes.map((node) => {
+            node.label = node.name;
+            node.properties = node.properties || {};
+            node.properties.time =
+              node.properties.time || "2000-01-01T00:00:00.000Z";
+          });
+          data.links.map((link) => {
+            link.properties = link.properties || {};
+            link.properties.time =
+              link.properties.time || "1999-12-31T23:59:59.999Z";
+          });
         },
-      );
+      });
 
       graph.render();
 

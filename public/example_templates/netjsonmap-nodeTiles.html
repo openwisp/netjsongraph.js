@@ -11,8 +11,8 @@
       crossorigin=""
     />
     <!-- theme can be easily customized via css -->
-    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
   </head>
   <body>
     <script type="text/javascript">
@@ -22,82 +22,79 @@
           netjson-updateData.html: It chooses override data.
           netjsonmap-appendData.html: It chooses append data.
       */
-      const folderName = "../../public/assets/data/netjsonNodeTiles/",
+      const folderName = "../assets/data/netjsonNodeTiles/",
         tilesMap = {
           2: "1.json",
           4: "2.json",
           6: "3.json",
         },
-        map = new NetJSONGraph(
-          "../../public/assets/data/netjsonNodeTiles/1.json",
-          {
-            render: "map",
-            // set map initial state.
-            mapOptions: {
-              center: [46.86764405052012, 19.675998687744144],
-              zoom: 2,
-              nodeConfig: {
-                label: {
-                  offset: [0, -10],
-                },
+        map = new NetJSONGraph("../assets/data/netjsonNodeTiles/1.json", {
+          render: "map",
+          // set map initial state.
+          mapOptions: {
+            center: [46.86764405052012, 19.675998687744144],
+            zoom: 2,
+            nodeConfig: {
+              label: {
+                offset: [0, -10],
               },
             },
+          },
 
-            // Convert to internal json format
-            prepareData: (data) => {
-              data.nodes.map((node) => {
-                node.label = node.name;
-                node.properties = Object.assign(node.properties || {}, {
-                  location: node.location,
-                });
+          // Convert to internal json format
+          prepareData: (data) => {
+            data.nodes.map((node) => {
+              node.label = node.name;
+              node.properties = Object.assign(node.properties || {}, {
+                location: node.location,
               });
-            },
+            });
+          },
 
-            onReady: function () {
-              /* 
+          onReady: function () {
+            /* 
                       The map has this property only after the map is rendered, 
                       so we have to put the relevant function in `onLoad` life cycle  
                   */
-              let baseMap = this.leaflet,
-                preZoom = this.config.mapZoom;
+            let baseMap = this.leaflet,
+              preZoom = this.config.mapZoom;
 
-              /*
+            /*
                       Monitor the zoom of the leaflet.
                       New data is updated if the zoom value reaches the relevant threshold.
                   */
-              baseMap.on("zoomstart", () => {
-                preZoom = baseMap.getZoom();
-              });
-              baseMap.on("zoomend", () => {
-                let curZoom = baseMap.getZoom(),
-                  curCenter = baseMap.getCenter();
-                if (preZoom !== curZoom && tilesMap[curZoom]) {
-                  // Reset map center and zoom
-                  this.setConfig({
-                    mapCenter: [curCenter.lat, curCenter.lng],
-                    mapZoom: curZoom,
-                  });
+            baseMap.on("zoomstart", () => {
+              preZoom = baseMap.getZoom();
+            });
+            baseMap.on("zoomend", () => {
+              let curZoom = baseMap.getZoom(),
+                curCenter = baseMap.getCenter();
+              if (preZoom !== curZoom && tilesMap[curZoom]) {
+                // Reset map center and zoom
+                this.setConfig({
+                  mapCenter: [curCenter.lat, curCenter.lng],
+                  mapZoom: curZoom,
+                });
 
-                  if (typeof tilesMap[curZoom] === "string") {
-                    // json update function
-                    this.utils.paginatedDataParse
-                      .call(this, folderName + tilesMap[curZoom])
-                      .then((JSONData) => {
-                        // store the data.
-                        tilesMap[curZoom] = JSONData;
-                        this.utils.JSONDataUpdate.call(this, tilesMap[curZoom]);
-                      })
-                      .catch((error) => {
-                        console.error(error);
-                      });
-                  } else {
-                    this.utils.JSONDataUpdate.call(this, tilesMap[curZoom]);
-                  }
+                if (typeof tilesMap[curZoom] === "string") {
+                  // json update function
+                  this.utils.paginatedDataParse
+                    .call(this, folderName + tilesMap[curZoom])
+                    .then((JSONData) => {
+                      // store the data.
+                      tilesMap[curZoom] = JSONData;
+                      this.utils.JSONDataUpdate.call(this, tilesMap[curZoom]);
+                    })
+                    .catch((error) => {
+                      console.error(error);
+                    });
+                } else {
+                  this.utils.JSONDataUpdate.call(this, tilesMap[curZoom]);
                 }
-              });
-            },
+              }
+            });
           },
-        );
+        });
 
       map.render();
     </script>

@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- theme can be easily customized via css -->
-    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
   </head>
   <body>
     <script type="text/javascript">
@@ -15,9 +15,9 @@
       */
       // `graph` render defaultly.
       const graph = new NetJSONGraph(
-        "../../public/assets/data/netjsongraph-foldNodes.json",
+        "../assets/data/netjsongraph-foldNodes.json",
         {
-          dealDataByWorker: "../../src/js/netjsonWorker.js",
+          dealDataByWorker: "../lib/js/netjsonWorker.js",
           echartsOption: {
             legend: {
               left: 10,
