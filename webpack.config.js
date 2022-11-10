@@ -3,6 +3,7 @@ const fs = require("fs");
 const TerserPlugin = require("terser-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const Dotenv = require("dotenv-webpack");
 
 const examples = fs.readdirSync(
   path.resolve(__dirname, "public/example_templates"),
@@ -75,6 +76,7 @@ module.exports = (env, argv) => ({
         },
       ],
     }),
+    new Dotenv({systemvars: true}),
   ],
   performance: {
     hints: false,
