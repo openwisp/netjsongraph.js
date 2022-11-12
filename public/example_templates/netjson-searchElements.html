@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
     <!-- theme can be easily customized via css -->
-    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style>
       .njg-searchBtn {
         border: none;
@@ -59,7 +59,7 @@
                   See the following comments for details.
               */
       // `graph` render defaultly.
-      let graph = new NetJSONGraph("../../public/assets/data/netjsonmap.json", {
+      let graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
         onReady: function () {
           let searchContainer = document.createElement("div"),
             searchInput = document.createElement("input"),
