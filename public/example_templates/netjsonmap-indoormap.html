@@ -11,14 +11,10 @@
       crossorigin=""
     />
     <!-- theme can be easily customized via css -->
-    <link href="../../src/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../../src/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
 
-    <link
-      rel="preload"
-      href="../../public/assets/images/floorplan.png"
-      as="image"
-    />
+    <link rel="preload" href="../assets/images/floorplan.png" as="image" />
     <style>
       .njg-tooltip {
         background: rgba(0, 0, 0, 0.75) !important;
@@ -43,7 +39,7 @@
           See `onLoad` below for details.
       */
       const graph = new NetJSONGraph(
-        "../../public/assets/data/netjsonmap-indoormap.json",
+        "../assets/data/netjsonmap-indoormap.json",
         {
           render: "map",
           // set map initial state.
@@ -123,7 +119,7 @@
           onReady: function presentIndoormap() {
             const netjsonmap = this.leaflet;
             const image = new Image();
-            image.src = "../../public/assets/images/floorplan.png";
+            image.src = "../assets/images/floorplan.png";
 
             const aspectRatio = image.width / image.height;
             const height = 700;

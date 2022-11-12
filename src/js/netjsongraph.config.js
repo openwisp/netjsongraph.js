@@ -234,12 +234,13 @@ const NetJSONGraphDefaultConfig = {
   mapTileConfig: [
     {
       urlTemplate:
-        "https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png",
+        process.env.MAPBOX_URL_TEMPLATE ||
+        "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       options: {
         minZoom: 3,
         maxZoom: 32,
-        attribution:
-          '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+        attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,
+         tiles offered by <a href="https://www.mapbox.com">Mapbox</a>`,
       },
     },
   ],
