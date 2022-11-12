@@ -461,7 +461,7 @@ class NetJSONGraphRender {
 
     self.leaflet.on("moveend", async () => {
       const bounds = self.leaflet.getBounds();
-      const removeBBoxData = function () {
+      const removeBBoxData = () => {
         if (self.type === "netjson") {
           const removeNodes = new Set(self.bboxData.nodes);
           const removeLinks = new Set(self.bboxData.links);
