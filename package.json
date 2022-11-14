@@ -11,7 +11,7 @@
     "coverage": "jest --coverage",
     "coveralls": "test -f ./coverage/lcov.info && cat ./coverage/lcov.info | coveralls || echo 'no coverage file found'",
     "precommit": "lint-staged",
-    "lint": "eslint '**/*.js'",
+    "lint": "eslint --quiet '**/*.js'",
     "lint:fix": "eslint '**/*.js' --fix",
     "format": "prettier --write \"**/*.+(js|json|css|md)\"",
     "format:check": "prettier -c \"**/*.+(js|json|css|md)\""
