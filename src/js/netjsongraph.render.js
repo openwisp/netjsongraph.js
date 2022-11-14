@@ -221,9 +221,9 @@ class NetJSONGraphRender {
     });
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
-        console.warn(`Node ${link.source} is not exist!`);
+        console.warn(`Node ${link.source} does not exist!`);
       } else if (!flatNodes[link.target]) {
-        console.warn(`Node ${link.target} is not exist!`);
+        console.warn(`Node ${link.target} does not exist!`);
       } else {
         const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
           link,
@@ -312,8 +312,7 @@ class NetJSONGraphRender {
    */
   mapRender(JSONData, self) {
     if (!self.config.mapTileConfig[0]) {
-      console.error(`You must add the tiles via the "mapTileConfig" param!`);
-      return;
+      throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
 
     if (self.type === "netjson") {
@@ -637,8 +636,7 @@ class NetJSONGraphRender {
    */
   appendData(JSONData, self) {
     if (self.config.render !== self.utils.mapRender) {
-      console.error("AppendData function can only be used for map render!");
-      return;
+      throw new Error("AppendData function can only be used for map render!");
     }
 
     if (self.type === "netjson") {

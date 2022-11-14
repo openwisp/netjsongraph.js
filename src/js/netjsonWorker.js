@@ -58,9 +58,9 @@ const operations = {
         nodeLinks[sourceNode.id] += 1;
         nodeLinks[targetNode.id] += 1;
       } else if (!sourceNode) {
-        console.error(`Node ${link.source} is not exist!`);
+        console.error(`Node ${link.source} does not exist!`);
       } else {
-        console.error(`Node ${link.target} is not exist!`);
+        console.error(`Node ${link.target} does not exist!`);
       }
     });
     Object.keys(JSONData.flatNodes).forEach((nodeID) => {
