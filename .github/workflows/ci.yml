@@ -3,10 +3,10 @@ name: netjsongraph.js CI BUILD
 on:
   push:
     branches:
-      - gsoc22
+      - master
   pull_request:
     branches:
-      - gsoc22
+      - master
 
 jobs:
   qa-checks:
