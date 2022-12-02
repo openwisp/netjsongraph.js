@@ -27,9 +27,9 @@ yarn start
 
 netjsongraph.js accepts two arguments.
 
-1. **url (required, string|array)**: URL(s) to fetch the JSON data from. It supports both [NetJSON](http://netjson.org) and GeoJSON data formats.
+1. **url (required, string|array|object)**: URL(s) to fetch the JSON data from. It supports both [NetJSON](http://netjson.org) and GeoJSON data formats. You can also pass a NetJSON or GeoJSON object directly.
 
-NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4) but with a slight difference. More occupied property names used internally as follows：
+NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc.html#rfc.section.4) but with a slight difference as follows：
 
 ```JS
 {
