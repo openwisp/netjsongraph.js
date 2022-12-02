@@ -1,13 +1,16 @@
 Changelog
 =========
 
-Version 0.1
------------
+Version 0.1 [2015-08-14]
+------------------------
 
 * first release
 
-Version 0.2
------------
+Version 0.2 [unreleased]
+------------------------
+
+The library has been rewritten completely. The new version is not backward compatible with
+the previous versions. Refer the `migration guide <https://github.com/openwisp/netjsongraph.js/blob/master/README.md#upgrading-from-01x-versions-to-02x>`_ for more details.
 
 Features
 ~~~~~~~~
@@ -30,19 +33,3 @@ Changes
 - Improved the UI on narrow screens
 - Improved indoor map example
 - Show element info on hover
-
-Dependencies
-^^^^^^^^^^^^
-
-- Updated all dependencies to latest versions
-
-Bugfixes
-~~~~~~~~
-
-- Fixed `zoom animation
-  <https://github.com/openwisp/netjsongraph.js/issues/120>`_
-- Fixed `realtime data update example demo
-  <https://github.com/openwisp/netjsongraph.js/issues/140>`_
-- Fixed `realtime data update when switched from geographic map to
-  topology map
-  <https://github.com/openwisp/netjsongraph.js/issues/157>`_
