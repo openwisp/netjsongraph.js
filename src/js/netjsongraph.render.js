@@ -296,6 +296,38 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
+    if (
+      self.echarts.getOption().series[0].zoom <
+      self.config.showLabelsAtZoomLevel
+    ) {
+      self.echarts.setOption({
+        series: [
+          {
+            label: {
+              show: false,
+            },
+          },
+        ],
+      });
+    }
+
+    self.echarts.on("graphRoam", (e) => {
+      if (
+        self.echarts.getOption().series[0].zoom >=
+        self.config.showLabelsAtZoomLevel
+      ) {
+        self.echarts.setOption({
+          series: [
+            {
+              label: {
+                show: true,
+              },
+            },
+          ],
+        });
+      }
+    });
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
@@ -421,7 +453,6 @@ class NetJSONGraphRender {
         self.leaflet.geoJSON.addTo(self.leaflet);
       }
     }
-
     if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
       self.echarts.setOption({
         series: [
