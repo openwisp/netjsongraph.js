@@ -287,43 +287,46 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, self) {
-    self.utils.echartsSetOption(
-      self.utils.generateGraphOption(JSONData, self),
-      self,
-    );
+    const echartOptions = self.utils.generateGraphOption(JSONData, self);
+    if (echartOptions.series[0].label === undefined) {
+      echartOptions.series[0].label = {};
+    }
+    if (
+      !echartOptions.series[0].zoom ||
+      echartOptions.series[0].zoom < self.config.showLabelsAtZoomLevel
+    ) {
+      echartOptions.series[0].label.show = false;
+    } else {
+      echartOptions.series[0].label.show = true;
+    }
+    self.utils.echartsSetOption(echartOptions, self);
 
     window.onresize = () => {
       self.echarts.resize();
     };
 
-    if (
-      self.echarts.getOption().series[0].zoom <
-      self.config.showLabelsAtZoomLevel
-    ) {
-      self.echarts.setOption({
-        series: [
-          {
-            label: {
-              show: false,
-            },
-          },
-        ],
-      });
-    }
-
-    self.echarts.on("graphRoam", (e) => {
+    self.echarts.on("graphRoam", () => {
+      const customOptions = self.echarts.getOption();
       if (
-        self.echarts.getOption().series[0].zoom >=
-        self.config.showLabelsAtZoomLevel
+        customOptions.series[0].zoom >= self.config.showLabelsAtZoomLevel &&
+        !customOptions.series[0].label.show
       ) {
-        self.echarts.setOption({
-          series: [
-            {
-              label: {
-                show: true,
-              },
-            },
-          ],
+        customOptions.series[0].label.show = true;
+        self.echarts.setOption(customOptions, {
+          notMerge: {
+            silent: true,
+          },
+          lazyUpdate: true,
+        });
+      } else if (
+        customOptions.series[0].zoom < self.config.showLabelsAtZoomLevel &&
+        customOptions.series[0].label.show
+      ) {
+        customOptions.series[0].label.show = false;
+        self.echarts.setOption(customOptions, {
+          notMerge: {
+            silent: true,
+          },
         });
       }
     });
