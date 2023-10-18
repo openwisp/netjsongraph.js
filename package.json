@@ -23,7 +23,11 @@
     ]
   },
   "jest": {
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(kdbush)/)",
+      "\\.pnp\\.[^\\/]+$"
+    ]
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
   "author": "Federico Capoano <federico.capoano@gmail.com> (http://nemesisdesign.net/)",

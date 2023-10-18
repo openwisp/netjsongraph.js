@@ -312,11 +312,11 @@ class NetJSONGraphUtil {
       node.cluster = null;
     });
 
-    const index = new KDBush(
-      nodes,
-      (p) => p.x,
-      (p) => p.y,
-    );
+    const index = new KDBush(nodes.length);
+    /* eslint-disable no-restricted-syntax */
+    for (const {x, y} of nodes) index.add(x, y);
+    /* eslint-enable no-restricted-syntax */
+    index.finish();
 
     nodes.forEach((node) => {
       let cluster;
