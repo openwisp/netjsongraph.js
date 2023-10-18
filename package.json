@@ -30,9 +30,10 @@
     ]
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
-  "author": "Federico Capoano <federico.capoano@gmail.com> (http://nemesisdesign.net/)",
+  "author": "Federico Capoano <f.capoano@openwisp.io> (https://openwisp.io)",
   "contributors": [
-    "GeekPlux <geekplux@gmail.com> (http://geekplux.com/)"
+    "GeekPlux <geekplux@gmail.com> (http://geekplux.com/)",
+    "Vaishnav Nair <vaishnavnair365@gmail.com>"
   ],
   "license": "BSD-3-Clause",
   "keywords": [
