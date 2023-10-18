@@ -27,7 +27,8 @@
     "transformIgnorePatterns": [
       "/node_modules/(?!(kdbush)/)",
       "\\.pnp\\.[^\\/]+$"
-    ]
+    ],
+    "globalSetup": "./jest.global-setup.js"
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
   "author": "Federico Capoano <f.capoano@openwisp.io> (https://openwisp.io)",
