@@ -1,9 +1,7 @@
 # netjsongraph.js
 
-[![Travis (.org) branch](https://img.shields.io/travis/openwisp/netjsongraph.js/gsoc2019.svg)](https://travis-ci.org/openwisp/netjsongraph.js)
+[![Travis (.org) branch](https://github.com/openwisp/netjsongraph.js/workflows/netjsongraph.js%20CI%20BUILD/badge.svg?branch=master)]([https://travis-ci.org/openwisp/netjsongraph.js](https://github.com/openwisp/netjsongraph.js/actions/workflows/ci.yml))
 [![Coverage Status](https://coveralls.io/repos/github/openwisp/netjsongraph.js/badge.svg?branch=gsoc2019)](https://coveralls.io/github/openwisp/netjsongraph.js?branch=gsoc2019)
-![Download](https://img.shields.io/npm/dt/netjsongraph.js.svg)
-![NPM](https://img.shields.io/npm/v/netjsongraph.js.svg)
 ![Language](https://img.shields.io/badge/language-javascript-orange.svg)
 
 ![img](/docs/graph.png)
