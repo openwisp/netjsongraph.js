@@ -340,6 +340,7 @@ class NetJSONGraphUtil {
               n.cluster === null
             ) {
               addNode(n);
+              jitterNode(n);
               return true;
             }
             return false;
@@ -351,7 +352,11 @@ class NetJSONGraphUtil {
           }
           return false;
         });
-
+        function jitterNode(node) {
+          const jitterAmount = 0.0001;
+          node.x += (Math.random() - 0.5) * jitterAmount;
+          node.y += (Math.random() - 0.5) * jitterAmount;
+        }
         if (results.length > 1) {
           centroid = [
             centroid[0] / results.length,
