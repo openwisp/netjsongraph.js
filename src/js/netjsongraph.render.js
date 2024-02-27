@@ -314,6 +314,36 @@ class NetJSONGraphRender {
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
+    // Add the following lines to set the default maxZoom and make it configurable
+    self.config.maxZoom = self.config.maxZoom || 12;
+
+    if (self.type === "netjson") {
+      self.utils.echartsSetOption(
+        self.utils.generateMapOption(JSONData, self),
+        self,
+      );
+      self.bboxData = {
+        nodes: [],
+        links: [],
+      };
+    } else if (self.type === "geojson") {
+      const {nodeConfig, linkConfig, baseOptions, ...options} =
+        self.config.mapOptions;
+
+      // Limit the maxZoom option of Leaflet
+      options.maxZoom = self.config.maxZoom;
+
+      self.echarts.setOption({
+        leaflet: {
+          tiles: self.config.mapTileConfig,
+          mapOptions: options,
+        },
+      });
+
+      self.bboxData = {
+        features: [],
+      };
+    }
 
     if (self.type === "netjson") {
       self.utils.echartsSetOption(
