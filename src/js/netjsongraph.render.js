@@ -1,4 +1,5 @@
 import * as echarts from "echarts/lib/echarts";
+import {ScatterChart} from "echarts/charts";
 import "echarts/lib/chart/graph";
 import "echarts/lib/chart/effectScatter";
 import "echarts/lib/chart/lines";
@@ -78,6 +79,7 @@ class NetJSONGraphRender {
       configs.echartsOption,
     );
 
+    echarts.use([ScatterChart]);
     echartsLayer.setOption(self.utils.deepMergeObj(commonOption, customOption));
     echartsLayer.on(
       "click",
