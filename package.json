@@ -71,11 +71,11 @@
     "webpack-dev-server": "^5.0.2"
   },
   "dependencies": {
-    "echarts": "^5.5.0",
+    "echarts": "^5.3.3",
     "echarts-gl": "^2.0.8",
     "kdbush": "^4.0.2",
     "leaflet": "^1.8.0",
     "leaflet.markercluster": "^1.5.3",
-    "zrender": "^5.5.0"
+    "zrender": "^5.3.2"
   }
 }
