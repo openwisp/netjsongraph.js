@@ -1,5 +1,5 @@
-import L from "leaflet/dist/leaflet";
 import NetJSONGraph from "../src/js/netjsongraph.core";
+import {NetJSONGraphRender, L} from "../src/js/netjsongraph.render";
 
 const JSONFILE = "test";
 const JSONData = {
@@ -573,9 +573,18 @@ describe("Test when more data is present than maxPointsFetched", () => {
 describe("Test clustering", () => {
   let container;
   const setUp = (map) => {
+    Object.setPrototypeOf(NetJSONGraphRender.prototype, map.utils);
+    map.utils = new NetJSONGraphRender();
+    map.echarts = {
+      setOption: () => {},
+      _api: {
+        getCoordinateSystems: () => [{getLeaflet: () => map.leaflet}],
+      },
+    };
+    map.utils.echarts = map.echarts;
     map.event = map.utils.createEvent();
     map.setConfig({
-      render: () => {},
+      render: map.utils.mapRender,
       onInit() {
         return this.config;
       },
@@ -595,7 +604,6 @@ describe("Test clustering", () => {
       clustering: true,
       clusteringThreshold: 2,
     });
-
     map.setUtils();
     map.render();
     container = document.createElement("div");
@@ -644,6 +652,7 @@ describe("Test clustering", () => {
     map.leaflet = L.map("map", {
       center: [51.505, -0.09],
       zoom: 5,
+      maxZoom: 5,
     });
     map.data = data;
     const clusterObj = map.utils.makeCluster(map);
@@ -722,6 +731,7 @@ describe("Test clustering", () => {
     map.leaflet = L.map("map", {
       center: [51.505, -0.09],
       zoom: 5,
+      maxZoom: 5,
     });
     map.data = data;
     const clusterObj = map.utils.makeCluster(map);
@@ -729,5 +739,30 @@ describe("Test clustering", () => {
     expect(clusterObj.clusters[0].childNodes.length).toEqual(2);
     expect(clusterObj.clusters[0].itemStyle.color).toEqual("#c92517");
     document.body.removeChild(container);
+  });
+
+  test("appendData removes plotted points from leaflet", () => {
+    const data = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "Point",
+            coordinates: [27.764892578124996, 46.01222384063236],
+          },
+        },
+      ],
+    };
+    const map = new NetJSONGraph(data);
+    setUp(map);
+    document.body.appendChild(container);
+    map.leaflet = L.map("map", {
+      center: [51.505, -0.09],
+      zoom: 5,
+      maxZoom: 5,
+    });
+    map.utils.appendData(data, map);
   });
 });

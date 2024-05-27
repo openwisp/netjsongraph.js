@@ -654,6 +654,9 @@ class NetJSONGraphRender {
         features: self.data.features.concat(JSONData.features),
       };
 
+      // Remove the existing points from the map. Otherwise,
+      // the original points are duplicated on the map.
+      self.leaflet.geoJSON.removeFrom(self.leaflet);
       self.utils.render();
     }
 
