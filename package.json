@@ -25,10 +25,13 @@
   "jest": {
     "testEnvironment": "jsdom",
     "transformIgnorePatterns": [
-      "/node_modules/(?!(kdbush)/)",
+      "/node_modules/(?!(kdbush|echarts|zrender)/)",
       "\\.pnp\\.[^\\/]+$"
     ],
-    "globalSetup": "./jest.global-setup.js"
+    "globalSetup": "./jest.global-setup.js",
+    "moduleNameMapper": {
+      "\\.(css)$": "identity-obj-proxy"
+    }
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
   "author": "Federico Capoano <f.capoano@openwisp.io> (https://openwisp.io)",
@@ -60,6 +63,7 @@
     "eslint-plugin-react": "^7.33.2",
     "html-webpack-plugin": "^5.6.0",
     "husky": "^9.0.11",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "^15.2.2",
