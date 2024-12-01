@@ -2,14 +2,13 @@ const operations = {
   /**
    * @function
    * @name addFlatNodes
-   * @description Flattens an array of nodes by their IDs and maps local addresses to nodes.
-   * @param {Array} nodes - Array of node objects.
-   * @returns {Object} An object containing flatNodes and nodeInterfaces.
-   * @example
-   * const result = addFlatNodes([{ id: '1', local_addresses: ['192.168.1.1'] }]);
+   *
+   * Flattened nodes array by id
+   * @param  {array}  nodes  NetJSONData.nodes
+   *
+   * @return {object}  {flatNodes, nodeInterfaces}
    */
   addFlatNodes(nodes) {
-    this.validateNodes(nodes);
     const flatNodes = {};
     const nodeInterfaces = {};
 
@@ -22,15 +21,18 @@ const operations = {
         });
       }
     });
-    return { flatNodes, nodeInterfaces };
+    return {flatNodes, nodeInterfaces};
   },
 
   /**
    * @function
    * @name addNodeLinks
-   * @description Adds node linkCount field based on links in JSONData.
-   * @param {Object} JSONData - NetJSONData containing nodes and links.
-   * @returns {Array} Updated nodes with linkCount.
+   *
+   * Add node linkCount field
+   * @param  {object}  JSONData     NetJSONData
+   *
+   * @return {array}  nodes
+   *
    */
   addNodeLinks(JSONData) {
     const nodeLinks = {};
@@ -41,37 +43,46 @@ const operations = {
       const targetNode = JSONData.flatNodes[link.target];
       if (sourceNode && targetNode) {
         if (sourceNode.id === targetNode.id) {
-          throw new Error(`Link source and target (${sourceNode.id}) are duplicated!`);
+          console.error(
+            `Link source and target (${sourceNode.id}) are duplicated!`,
+          );
+          return;
         }
 
-        nodeLinks[sourceNode.id] = (nodeLinks[sourceNode.id] || 0) + 1;
-        nodeLinks[targetNode.id] = (nodeLinks[targetNode.id] || 0) + 1;
+        if (!nodeLinks[sourceNode.id]) {
+          nodeLinks[sourceNode.id] = 0;
+        }
+        if (!nodeLinks[targetNode.id]) {
+          nodeLinks[targetNode.id] = 0;
+        }
+        nodeLinks[sourceNode.id] += 1;
+        nodeLinks[targetNode.id] += 1;
       } else if (!sourceNode) {
-        throw new Error(`Node ${link.source} does not exist!`);
+        console.error(`Node ${link.source} does not exist!`);
       } else {
-        throw new Error(`Node ${link.target} does not exist!`);
+        console.error(`Node ${link.target} does not exist!`);
       }
     });
-
     Object.keys(JSONData.flatNodes).forEach((nodeID) => {
       const copyNode = JSONData.flatNodes[nodeID];
       copyNode.linkCount = nodeLinks[nodeID] || 0;
       resultNodes.push(copyNode);
     });
-    
     return resultNodes;
   },
 
   /**
    * @function
    * @name changeInterfaceID
-   * @description Processes NetJSON multi-interface IDs.
-   * @param {Object} JSONData - NetJSONData containing links and interfaces.
-   * @returns {Array} Updated links with changed interface IDs.
+   *
+   * Netjson multi-interface id process.
+   * @param  {object}  JSONData     NetJSONData
+   *
+   * @return {array}  links
+   *
    */
   changeInterfaceID(JSONData) {
     const copyLinks = JSON.parse(JSON.stringify(JSONData.links));
-    
     for (let i = copyLinks.length - 1; i >= 0; i -= 1) {
       const link = copyLinks[i];
 
@@ -87,79 +98,66 @@ const operations = {
         }
       }
     }
-    
     return copyLinks;
   },
 
   /**
    * @function
    * @name arrayDeduplication
-   * @description Data deduplication and detection of dirty data by eigenvalues.
-   * Supports nested properties using dot notation.
-   * @param {Array} arrData - Array of objects to deduplicate.
-   * @param {Array} eigenvalues - Keys used for deduplication.
-   * @param {boolean} ordered - Are eigenvalues ordered?
-   * @param {Function|null} keyGenerator - Optional custom key generation function.
-   * @returns {Array} Deduplicated array with metadata about duplicates found.
+   *
+   * Data deduplication and detection of dirty data by eigenvalues
+   * @param  {array}  arrData
+   * @param  {array}  eigenvalues     arrData performs deduplication based on these eigenvalues
+   * @param {boolean} ordered         eigenvalues are ordered ?
+   *
+   * @return {array}  result
+   *
    */
-  arrayDeduplication(arrData, eigenvalues = [], ordered = true, keyGenerator = null) {
-    const seen = new Set();
-    const result = [];
+  arrayDeduplication(arrData, eigenvalues = [], ordered = true) {
+    const copyArr = JSON.parse(JSON.stringify(arrData));
+    const tempStack = [];
+    for (let i = copyArr.length - 1; i >= 0; i -= 1) {
+      const tempValueArr = [];
+      let flag = 0;
 
-    // Early exit for empty input
-    if (arrData.length === 0 || eigenvalues.length === 0) {
-      return arrData;
-    }
-
-    arrData.forEach(item => {
-      const generateKey = keyGenerator || ((item) => eigenvalues.map(ev => this.getValueByPath(item, ev)).join(ordered ? '' : ','));
-      const key = generateKey(item);
-
-      if (!seen.has(key)) {
-        seen.add(key);
-        result.push(item);
+      // eslint-disable-next-line no-restricted-syntax
+      for (const key of eigenvalues) {
+        if (!copyArr[i][key]) {
+          console.error(`The array doesn't have "${key}"`);
+          flag = 1;
+          break;
+        }
+        tempValueArr.push(copyArr[i][key]);
+      }
+      if (flag) {
+        copyArr.splice(i, 1);
       } else {
-        console.warn(`Duplicate item found based on keys ${eigenvalues}:`, item);
+        const value = ordered
+          ? tempValueArr.join("")
+          : tempValueArr.sort().join("");
+        if (tempStack.indexOf(value) !== -1) {
+          copyArr.splice(i, 1);
+        } else {
+          tempStack.push(value);
+        }
       }
-    });
-
-    return result;
-  },
-
-  /**
-   * Helper function to get a value from an object using dot notation for nested properties.
-   */
-  getValueByPath(obj, path) {
-    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-  },
-
-  /**
-   * Validates that the input nodes are in the expected format.
-   */
-  validateNodes(nodes) {
-    if (!Array.isArray(nodes)) {
-      throw new TypeError('Expected an array of nodes');
     }
-    
-    nodes.forEach(node => {
-      if (typeof node.id !== 'string') {
-        throw new TypeError('Each node must have a string id');
-      }
-    });
+    return copyArr;
   },
 };
-
 /**
  * @function
  * @name dealJSONData
- * @description Generate the data needed for graph rendering based on NetJSON data.
- * @param {Object} JSONData - The NetJSON data object containing nodes and links.
+ *
+ * Generate the data needed for graph rendering
+ * @param  {object}  JSONData     NetJSONData
+ * @param  {object}  operations
+ *
  */
 function dealJSONData(JSONData) {
   JSONData.nodes = operations.arrayDeduplication(JSONData.nodes, ["id"]);
 
-  const { flatNodes, nodeInterfaces } = operations.addFlatNodes(JSONData.nodes);
-  
+  const {flatNodes, nodeInterfaces} = operations.addFlatNodes(JSONData.nodes);
   JSONData.flatNodes = flatNodes;
   JSONData.nodeInterfaces = nodeInterfaces;
 
@@ -185,4 +183,4 @@ self.addEventListener("message", (e) => {
   close();
 });
 
-module.exports = { operations, dealJSONData };
+module.exports = {operations, dealJSONData};
