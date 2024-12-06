@@ -75,7 +75,7 @@
     "webpack-dev-server": "^5.0.2"
   },
   "dependencies": {
-    "echarts": "^5.5.1",
+    "echarts": "^5.3.3",
     "echarts-gl": "^2.0.8",
     "kdbush": "^4.0.2",
     "leaflet": "^1.8.0",
