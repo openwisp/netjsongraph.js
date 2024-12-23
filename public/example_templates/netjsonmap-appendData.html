@@ -13,8 +13,32 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+     <style>
+        html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .netjsongraph-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #graphChartContainer {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
   </head>
   <body>
+     <div class="netjsongraph-container">
+     <div id="graphChartContainer"></div>
+   </div>
     <script type="text/javascript">
       /*
           The demo is used to show how to use the `JSONDataUpdate` function to update data.
@@ -29,6 +53,7 @@
         },
         map = new NetJSONGraph("../assets/data/netjsonAppendData/1.json", {
           render: "map",
+          container: "#graphChartContainer",
           // set map initial state.
           mapOptions: {
             center: [46.86764405052012, 19.675998687744144],
