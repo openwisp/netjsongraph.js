@@ -7,12 +7,25 @@
   <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
   <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
   <style>
-    #container {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      overflow-y: scroll;
-    }
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .netjsongraph-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #graphChartContainer {
+        width: 100%;
+        height: 100%;
+      }
 
     #legend h4 {
       margin: 10px 0;
@@ -85,21 +98,22 @@
     }
   </style>
 </head>
-<body>
-  <div id="legend">
-    <h4>Legends</h4>
-    <p><span class="circle node">&nbsp;</span> ordinary node</p>
-    <p><span class="circle gateway">&nbsp;</span> gateway node</p>
-    <p><span class="link wireless">&nbsp;</span> wireless link</p>
-    <p><span class="link ethernet">&nbsp;</span> ethernet link</p>
+ <div class="netjsongraph-container">
+    <div id="graphChartContainer"></div>
+    <div id="legend">
+      <h4>Legends</h4>
+      <p><span class="circle node">&nbsp;</span> ordinary node</p>
+      <p><span class="circle gateway">&nbsp;</span> gateway node</p>
+      <p><span class="link wireless">&nbsp;</span> wireless link</p>
+      <p><span class="link ethernet">&nbsp;</span> ethernet link</p>
+    </div>
   </div>
-  <div id="container"></div>
   <script type="text/javascript">
     /*
           The demo is used to show how to set colorful nodes.
       */
     const graph = new NetJSONGraph("../assets/data/netjson-elementsLegend.json", {
-      el: "#container",
+      container: "#graphChartContainer",
       graphConfig: {
         series: {
           force: {
