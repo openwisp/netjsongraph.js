@@ -1443,22 +1443,7 @@
   version "1.4.15"
   resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.15.tgz#d7c6e6755c78567a951e04ab52ef0fd26de59f32"
 
-"@jridgewell/trace-mapping@^0.3.12", "@jridgewell/trace-mapping@^0.3.17", "@jridgewell/trace-mapping@^0.3.9":
-  version "0.3.20"
-  resolved "https://registry.yarnpkg.com/@jridgewell/trace-mapping/-/trace-mapping-0.3.20.tgz#72e45707cf240fa6b081d0366f8265b0cd10197f"
-  dependencies:
-    "@jridgewell/resolve-uri" "^3.1.0"
-    "@jridgewell/sourcemap-codec" "^1.4.14"
-
-"@jridgewell/trace-mapping@^0.3.18", "@jridgewell/trace-mapping@^0.3.20":
-  version "0.3.23"
-  resolved "https://registry.yarnpkg.com/@jridgewell/trace-mapping/-/trace-mapping-0.3.23.tgz#afc96847f3f07841477f303eed687707a5aacd80"
-  integrity sha512-9/4foRoUKp8s96tSkh8DlAAc5A0Ty8vLXld+l9gjKKY6ckwI8G15f0hskGmuLZu78ZlGa1vtsfOa+lnB4vG6Jg==
-  dependencies:
-    "@jridgewell/resolve-uri" "^3.1.0"
-    "@jridgewell/sourcemap-codec" "^1.4.14"
-
-"@jridgewell/trace-mapping@^0.3.24", "@jridgewell/trace-mapping@^0.3.25":
+"@jridgewell/trace-mapping@^0.3.12", "@jridgewell/trace-mapping@^0.3.17", "@jridgewell/trace-mapping@^0.3.18", "@jridgewell/trace-mapping@^0.3.24", "@jridgewell/trace-mapping@^0.3.25", "@jridgewell/trace-mapping@^0.3.9":
   version "0.3.25"
   resolved "https://registry.yarnpkg.com/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz#15f190e98895f3fc23276ee14bc76b675c2e50f0"
   integrity sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==
@@ -6104,7 +6089,7 @@ saxes@^6.0.0:
   dependencies:
     xmlchars "^2.2.0"
 
-schema-utils@^3.1.1, schema-utils@^3.2.0:
+schema-utils@^3.2.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-3.3.0.tgz#f50a88877c3c01652a15b622ae9e9795df7a60fe"
   dependencies:
@@ -6112,10 +6097,10 @@ schema-utils@^3.1.1, schema-utils@^3.2.0:
     ajv "^6.12.5"
     ajv-keywords "^3.5.2"
 
-schema-utils@^4.0.0, schema-utils@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-4.2.0.tgz#70d7c93e153a273a805801882ebd3bff20d89c8b"
-  integrity sha512-L0jRsrPpjdckP3oPug3/VxNKt2trR8TcabrM6FOAAlvC/9Phcmm+cuAgTlxBqdBR1WJx7Naj9WHw+aOmheSVbw==
+schema-utils@^4.0.0, schema-utils@^4.2.0, schema-utils@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-4.3.0.tgz#3b669f04f71ff2dfb5aba7ce2d5a9d79b35622c0"
+  integrity sha512-Gf9qqc58SpCA/xdziiHz35F4GNIWYWZrEshUc/G/r5BnLph6xpKuLeoJoQuj5WfBIx/eQLf+hmVPYHaxJu7V2g==
   dependencies:
     "@types/json-schema" "^7.0.9"
     ajv "^8.9.0"
@@ -6164,7 +6149,7 @@ send@0.19.0:
     range-parser "~1.2.1"
     statuses "2.0.1"
 
-serialize-javascript@^6.0.1, serialize-javascript@^6.0.2:
+serialize-javascript@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-6.0.2.tgz#defa1e055c83bf6d59ea805d8da862254eb6a6c2"
   integrity sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==
@@ -6589,29 +6574,20 @@ tapable@^2.0.0, tapable@^2.1.1, tapable@^2.2.0:
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-2.2.1.tgz#1967a73ef4060a82f12ab96af86d52fdb76eeca0"
 
 terser-webpack-plugin@^5.3.10:
-  version "5.3.10"
-  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/-/terser-webpack-plugin-5.3.10.tgz#904f4c9193c6fd2a03f693a2150c62a92f40d199"
-  integrity sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==
+  version "5.3.11"
+  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/-/terser-webpack-plugin-5.3.11.tgz#93c21f44ca86634257cac176f884f942b7ba3832"
+  integrity sha512-RVCsMfuD0+cTt3EwX8hSl2Ks56EbFHWmhluwcqoPKtBnfjiT6olaq7PRIRfhyU8nnC2MrnDrBLfrD/RGE+cVXQ==
   dependencies:
-    "@jridgewell/trace-mapping" "^0.3.20"
+    "@jridgewell/trace-mapping" "^0.3.25"
     jest-worker "^27.4.5"
-    schema-utils "^3.1.1"
-    serialize-javascript "^6.0.1"
-    terser "^5.26.0"
+    schema-utils "^4.3.0"
+    serialize-javascript "^6.0.2"
+    terser "^5.31.1"
 
-terser@^5.10.0:
-  version "5.22.0"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-5.22.0.tgz#4f18103f84c5c9437aafb7a14918273310a8a49d"
-  dependencies:
-    "@jridgewell/source-map" "^0.3.3"
-    acorn "^8.8.2"
-    commander "^2.20.0"
-    source-map-support "~0.5.20"
-
-terser@^5.26.0:
-  version "5.28.1"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-5.28.1.tgz#bf00f7537fd3a798c352c2d67d67d65c915d1b28"
-  integrity sha512-wM+bZp54v/E9eRRGXb5ZFDvinrJIOaTapx3WUokyVGZu5ucVCK55zEgGd5Dl2fSr3jUo5sDiERErUWLY6QPFyA==
+terser@^5.10.0, terser@^5.31.1:
+  version "5.37.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-5.37.0.tgz#38aa66d1cfc43d0638fab54e43ff8a4f72a21ba3"
+  integrity sha512-B8wRRkmre4ERucLM/uXx4MOV5cbnOlVAqUst+1+iLKPI0dOgFO28f84ptoQt9HEI537PMzfYa/d+GEPKTRXmYA==
   dependencies:
     "@jridgewell/source-map" "^0.3.3"
     acorn "^8.8.2"
