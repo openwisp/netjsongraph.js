@@ -16,6 +16,26 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .netjsongraph-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #graphChartContainer {
+        width: 100%;
+        height: 100%;
+      }
+      
       .leaflet-control-zoom {
         top: 55px;
       }
@@ -23,6 +43,10 @@
   </head>
 
   <body>
+    <div class="netjsongraph-container">
+      <div id="graphChartContainer"></div>
+    </div>
+
     <script type="text/javascript" src="../lib/js/leaflet-draw.js"></script>
     <script type="text/javascript" src="../lib/js/leaflet-measure.js"></script>
     <script type="module">
@@ -33,6 +57,7 @@
       */
       const graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
+        container: "#graphChartContainer",
         // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
@@ -127,3 +152,4 @@
     </script>
   </body>
 </html>
+
