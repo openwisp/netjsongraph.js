@@ -1,3 +1,5 @@
+import { max } from "zrender/lib/core/vector";
+
 /**
  * Default options
  *
@@ -33,6 +35,8 @@ const NetJSONGraphDefaultConfig = {
   svgRender: false,
   switchMode: false,
   maxPointsFetched: 10000,
+  maxZoom : 18,
+  minZoom : 3,
   loadMoreAtZoomLevel: 9,
   clustering: false,
   clusteringThreshold: 100,
@@ -161,6 +165,7 @@ const NetJSONGraphDefaultConfig = {
   mapOptions: {
     roam: true,
     zoomAnimation: false,
+    maxZoom: 18,
     nodeConfig: {
       type: "scatter",
       label: {

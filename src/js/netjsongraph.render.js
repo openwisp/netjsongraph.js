@@ -14,6 +14,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "zrender/lib/svg/svg";
 
 import "../../lib/js/echarts-gl.min";
+import { max } from "zrender/lib/core/vector";
 
 class NetJSONGraphRender {
   /**
@@ -270,7 +271,7 @@ class NetJSONGraphRender {
     return {
       leaflet: {
         tiles: configs.mapTileConfig,
-        mapOptions: configs.mapOptions,
+        mapOptions: {...configs.mapOptions , maxZoom : configs.maxZoom },
       },
       series,
       ...configs.mapOptions.baseOptions,
@@ -596,6 +597,19 @@ class NetJSONGraphRender {
           self.leaflet.setView([params.data.value[1], params.data.value[0]]);
         }
       });
+
+
+      self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
+      self.leaflet._zoomAnimated = false;
+  
+      self.leaflet.options.maxZoom = self.config.maxZoomLevel; 
+  
+      self.leaflet.on("zoomend", () => {
+        if (self.leaflet.getZoom() > self.config.maxZoomLevel) {
+          self.leaflet.setZoom(self.config.maxZoomLevel);
+        }
+      });
+  
 
       self.leaflet.on("zoomend", () => {
         if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
