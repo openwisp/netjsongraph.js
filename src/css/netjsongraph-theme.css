@@ -60,7 +60,9 @@
 .njg-tooltip {
   background: #fff !important;
   border: none !important;
+  color: #000 !important;
 }
+
 
 .njg-tooltip-key,
 .njg-tooltip-value {

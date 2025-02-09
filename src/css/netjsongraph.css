@@ -321,8 +321,15 @@ p {
 }
 
 .njg-tooltip {
+  max-width: 300px; /* Prevents very wide tooltips */
+  word-wrap: break-word;
+  white-space: normal;
+  padding: 8px;
+  line-height: 1.5;
+  font-size: 12px;
   user-select: text !important;
 }
+
 
 .njg-tooltip #closeButton {
   display: none;
