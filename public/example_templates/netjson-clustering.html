@@ -14,6 +14,26 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .netjsongraph-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #graphChartContainer {
+        width: 100%;
+        height: 100%;
+      }
+
       #legend h4 {
         margin: 10px 0;
         text-align: center;
@@ -68,9 +88,13 @@
     </style>
   </head>
   <body>
+    <div class="netjsongraph-container">
+     <div id="graphChartContainer"></div>
+    </div>
     <script type="text/javascript">
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
+        container: "#graphChartContainer",
         clustering: true,
         clusteringThreshold: 50,
         // set map initial state.
