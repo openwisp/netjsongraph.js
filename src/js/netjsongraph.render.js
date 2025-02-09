@@ -38,40 +38,60 @@ class NetJSONGraphRender {
         tooltip: {
           confine: true,
           position: (pos, params, dom, rect, size) => {
-            let position = "right";
-            if (size.viewSize[0] - pos[0] < size.contentSize[0]) {
-              position = "left";
-            }
+            let x = pos[0];
+            let y = pos[1];
+        
+            // Ensure tooltip stays inside viewport
+            const maxX = size.viewSize[0] - size.contentSize[0] - 10;
+            const maxY = size.viewSize[1] - size.contentSize[1] - 10;
+        
+            // If tooltip overflows on the right, shift it left
+            if (x > maxX) x = maxX;
+            
+            // If tooltip overflows at the bottom, shift it up
+            if (y > maxY) y = maxY;
+            
+            // Prevent negative positions (stays inside viewport)
+            x = Math.max(x, 10);
+            y = Math.max(y, 10);
+        
+            // Special case for "lines" elements
             if (params.componentSubType === "lines") {
-              position = [
-                pos[0] + size.contentSize[0] / 8,
-                pos[1] - size.contentSize[1] / 2,
-              ];
-
-              if (size.viewSize[0] - position[0] < size.contentSize[0]) {
-                position[0] -= 1.25 * size.contentSize[0];
-              }
+                x = pos[0] + size.contentSize[0] / 8;
+                y = pos[1] - size.contentSize[1] / 2;
+        
+                // Adjust again after shifting
+                if (x > maxX) x = maxX;
+                if (y > maxY) y = maxY;
+                x = Math.max(x, 10);
+                y = Math.max(y, 10);
             }
-            return position;
+        
+            return [x, y];
           },
-          padding: [5, 12],
+        
+          padding: [8, 12], // Slightly increase padding for better spacing,
           textStyle: {
-            lineHeight: 5,
+            fontSize: 12,
+            lineHeight: 20,  // Ensures text doesn't overlap
+            whiteSpace: "normal",
+            wordBreak: "break-word", // Proper word wrapping
           },
           renderMode: "html",
           className: "njg-tooltip",
           formatter: (params) => {
+            if (!params.data) return ""; // Prevents crashes on missing data
             if (params.componentSubType === "graph") {
               return params.dataType === "edge"
-                ? self.utils.getLinkTooltipInfo(params.data)
-                : self.utils.getNodeTooltipInfo(params.data);
+                ? self.utils.getLinkTooltipInfo(params.data).replace(/\n/g, "<br>")
+                : self.utils.getNodeTooltipInfo(params.data).replace(/\n/g, "<br>");
             }
             if (params.componentSubType === "graphGL") {
-              return self.utils.getNodeTooltipInfo(params.data);
+              return self.utils.getNodeTooltipInfo(params.data).replace(/\n/g, "<br>");
             }
             return params.componentSubType === "lines"
-              ? self.utils.getLinkTooltipInfo(params.data.link)
-              : self.utils.getNodeTooltipInfo(params.data.node);
+              ? self.utils.getLinkTooltipInfo(params.data.link).replace(/\n/g, "<br>")
+              : self.utils.getNodeTooltipInfo(params.data.node).replace(/\n/g, "<br>");
           },
         },
       },
