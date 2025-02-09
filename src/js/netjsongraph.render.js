@@ -14,7 +14,6 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "zrender/lib/svg/svg";
 
 import "../../lib/js/echarts-gl.min";
-import { max } from "zrender/lib/core/vector";
 
 class NetJSONGraphRender {
   /**

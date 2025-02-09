@@ -1,5 +1,3 @@
-import { max } from "zrender/lib/core/vector";
-
 /**
  * Default options
  *
