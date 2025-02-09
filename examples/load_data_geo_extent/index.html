@@ -73,7 +73,7 @@
       const map = new NetJSONGraph("http://localhost:3000/api/data/?page=1", {
         render: "map",
         // set map initial state.
-        
+        maxPointsFetched: 35,
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,
