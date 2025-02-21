@@ -16,6 +16,13 @@
 
     <link rel="preload" href="../assets/images/floorplan.png" as="image" />
     <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+      
       .njg-tooltip {
         background: rgba(0, 0, 0, 0.75) !important;
         border: none !important;
@@ -35,6 +42,9 @@
     </style>
   </head>
   <body>
+    <div class="netjsongraph-container">
+     <div id="graphChartContainer"></div>
+   </div>
     <script>
       /*
           The demo is used to show how to set indoor map.
@@ -45,6 +55,7 @@
         "../assets/data/netjsonmap-indoormap.json",
         {
           render: "map",
+          container: "#graphChartContainer",
           // set map initial state.
           mapOptions: {
             center: [48.577, 18.539],

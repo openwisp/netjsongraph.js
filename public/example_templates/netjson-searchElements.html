@@ -8,6 +8,13 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style>
+       html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+
       .njg-searchBtn {
         border: none;
         border-radius: 5px;
@@ -52,6 +59,10 @@
   </head>
 
   <body>
+     <div class="netjsongraph-container">
+     <div id="graphChartContainer"></div>
+   </div>
+
     <script type="text/javascript">
       /*
                   The demo is used to show the use of the `searchElements` function.
@@ -60,6 +71,7 @@
               */
       // `graph` render defaultly.
       let graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
+        container: "#graphChartContainer",
         onReady: function () {
           let searchContainer = document.createElement("div"),
             searchInput = document.createElement("input"),
