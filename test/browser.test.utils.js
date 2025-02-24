@@ -2,7 +2,7 @@ import {Builder, By, until} from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 import graphData from "../public/assets/data/netjsonmap.json";
 
-const url = "http://localhost:8080/";
+const url = "http://0.0.0.0:8080";
 
 export const getDriver = async () => {
   try {
@@ -10,8 +10,6 @@ export const getDriver = async () => {
       .forBrowser("chrome")
       .setChromeOptions(new chrome.Options().addArguments("--headless"))
       .build();
-
-    await driver.get(url);
     return driver;
   } catch (err) {
     console.error("Failed to initialize driver:", err);
@@ -19,12 +17,9 @@ export const getDriver = async () => {
   }
 };
 
-export const openExample = async (driver, example) => {
-  await driver
-    .findElement(By.xpath(`//div[@class='cards']//a[text()='${example}']`))
-    .click();
-  const tabs = await driver.getAllWindowHandles();
-  await driver.switchTo().window(tabs[1]);
+export const urls = {
+  basicUsage: `${url}/examples/netjsongraph.html`,
+  geographicMap: `${url}/examples/netjsonmap.html`,
 };
 
 export const getElementByCss = async (driver, css, waitTime = 1000) => {
@@ -45,7 +40,7 @@ export const getElementsByCss = async (driver, css, waitTime = 1000) => {
   }
 };
 
-export const getRenderedNodesAndLinks = async (driver) => {
+export const getRenderedNodesAndLinksCount = async (driver) => {
   try {
     const nodes = await driver.executeScript(`
       return document.querySelector('.njg-metaDataItems:nth-child(5) .njg-valueLabel').textContent;
@@ -63,9 +58,11 @@ export const getRenderedNodesAndLinks = async (driver) => {
   }
 };
 
-export const getPresentNodesAndLinks = async (example) => {
+export const getPresentNodesAndLinksCount = async (example) => {
   let data;
-  if (example === "Geographic map") {
+  if (example === "Basic usage") {
+    data = graphData;
+  } else if (example === "Geographic map") {
     data = graphData;
   }
   return {nodesPresent: data.nodes.length, linksPresent: data.links.length};
@@ -81,14 +78,12 @@ export const captureConsoleErrors = async (driver) => {
 
 export const tearDown = async (driver) => {
   const consoleErrors = await captureConsoleErrors(driver);
-
   if (consoleErrors.length > 0) {
     console.error("Console Errors Detected:");
     consoleErrors.forEach((error) =>
       console.error(`${error.level.name}: ${error.message}`),
     );
   }
-
   await driver.executeScript("window.sessionStorage.clear()");
   await driver.executeScript("window.localStorage.clear()");
   await driver.manage().deleteAllCookies();

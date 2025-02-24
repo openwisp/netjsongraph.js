@@ -68,6 +68,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
+    "selenium-webdriver": "^4.29.0",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "webpack": "^5.90.3",
@@ -80,7 +81,6 @@
     "kdbush": "^4.0.2",
     "leaflet": "^1.8.0",
     "leaflet.markercluster": "^1.5.3",
-    "selenium-webdriver": "^4.29.0",
     "zrender": "^5.6.1"
   }
 }
