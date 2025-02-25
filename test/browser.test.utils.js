@@ -1,6 +1,18 @@
 import {Builder, By, until} from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
-import graphData from "../public/assets/data/netjsonmap.json";
+import netJsonMap from "../public/assets/data/netjsonmap.json";
+import netJsonMultipleInterfaces from "../public/assets/data/netjson-multipleInterfaces.json";
+import netJsonGraphFoldNodes from "../public/assets/data/netjsongraph-foldNodes.json";
+import netJsonMapIndoorMap from "../public/assets/data/netjsonmap-indoormap.json";
+import netJsonGraphGraphGL from "../public/assets/data/netjsongraph-graphGL.json";
+import netJsonElementsLegend from "../public/assets/data/netjson-elementsLegend.json";
+import netJsonGraphMultipleLinks from "../public/assets/data/netjsongraph-multipleLinks.json";
+import airplaneRouteMap from "../public/assets/data/airplaneRouteMap.json";
+import geoJsonSample from "../public/assets/data/geojson-sample.json";
+import netJsonNodeTiles1 from "../public/assets/data/netjsonNodeTiles/1.json";
+import netJsonAppendData1 from "../public/assets/data/netjsonAppendData/1.json";
+import netJsonAppendData2 from "../public/assets/data/netjsonAppendData/2.json";
+import netJsonAppendData3 from "../public/assets/data/netjsonAppendData/3.json";
 
 const url = "http://0.0.0.0:8080";
 
@@ -59,12 +71,44 @@ export const getRenderedNodesAndLinksCount = async (driver) => {
 };
 
 export const getPresentNodesAndLinksCount = async (example) => {
-  let data;
-  if (example === "Basic usage") {
-    data = graphData;
-  } else if (example === "Geographic map") {
-    data = graphData;
+  const mapping = {
+    "Basic usage": netJsonMap,
+    "Geographic map": netJsonMap,
+    "Multiple interfaces": netJsonMultipleInterfaces,
+    "Search elements": netJsonMap,
+    "Data parse": netJsonMap,
+    "Switch render mode": netJsonMap,
+    "Switch graph mode": netJsonMap,
+    "Nodes expand or fold": netJsonGraphFoldNodes,
+    "Indoor map": netJsonMapIndoorMap,
+    "Leaflet plugins": netJsonMap,
+    "GraphGL render for big data": netJsonGraphGraphGL,
+    "Custom attributes": netJsonElementsLegend,
+    "Multiple links render": netJsonGraphMultipleLinks,
+    "JSONDataUpdate using override option": netJsonNodeTiles1,
+    "JSONDataUpdate using append option": netJsonAppendData1,
+    "Multiple tiles render": netJsonMap,
+    "Geographic map animated links": airplaneRouteMap,
+    "Append data using arrays": {
+      ...netJsonAppendData1,
+      nodes: [
+        ...netJsonAppendData1.nodes,
+        ...netJsonAppendData2.nodes,
+        ...netJsonAppendData3.nodes,
+      ],
+      links: [
+        ...netJsonAppendData1.links,
+        ...netJsonAppendData2.links,
+        ...netJsonAppendData3.links,
+      ],
+    },
+    "Geographic map with GeoJSON data": geoJsonSample,
+    Clustering: netJsonMap,
+  };
+  if (!(example in mapping)) {
+    throw new Error("Invalid example type");
   }
+  const data = mapping[example];
   return {nodesPresent: data.nodes.length, linksPresent: data.links.length};
 };
 
