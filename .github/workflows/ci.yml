@@ -66,6 +66,22 @@ jobs:
         run: |
           yarn install
 
+      - name: Running Server
+        run: yarn start &
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:8080
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Check chrome and chromedriver version
+        run: |
+          chrome --version
+          which chrome
+          chromedriver --version
+          which chromedriver
+
       - name: Tests
         run: yarn coverage
 
