@@ -23,6 +23,8 @@ export const getDriver = async () => {
     options.addArguments("--no-sandbox");
     options.addArguments("--disable-dev-shm-usage");
     options.addArguments("--disable-gpu");
+    options.addArguments("--disable-extensions");
+    options.addArguments("--disable-infobars");
     options.addArguments("--remote-debugging-port=9222");
     return new Builder().forBrowser("chrome").setChromeOptions(options).build();
   } catch (err) {
