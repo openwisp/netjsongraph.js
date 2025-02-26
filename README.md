@@ -21,6 +21,23 @@ yarn install
 yarn start
 ```
 
+### Run Tests
+
+```
+yarn start &  # or alternatively run this in a separate terminal
+yarn test
+```
+
+To run a specific test suite:
+
+```
+yarn test test/netjsongraph.browser.test.js
+```
+
+The test suite includes browser tests.
+
+Ensure that ChromeDriver is installed.
+
 ### Arguments
 
 netjsongraph.js accepts two arguments.
