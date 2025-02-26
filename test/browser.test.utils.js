@@ -18,11 +18,13 @@ const url = "http://0.0.0.0:8080";
 
 export const getDriver = async () => {
   try {
-    const driver = new Builder()
+    let options = new chrome.Options();
+    options.addArguments("--headless")
+    options.addArguments("--remote-debugging-pipe");
+    return new Builder()
       .forBrowser("chrome")
-      .setChromeOptions(new chrome.Options().addArguments("--headless"))
+      .setChromeOptions(options)
       .build();
-    return driver;
   } catch (err) {
     console.error("Failed to initialize driver:", err);
     throw err;
