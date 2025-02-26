@@ -9,8 +9,6 @@ import {
   urls,
 } from "./browser.test.utils";
 
-jest.setTimeout(20000);
-
 describe("Chart Rendering Test", () => {
   let driver;
 
@@ -24,7 +22,7 @@ describe("Chart Rendering Test", () => {
 
   test("render the Basic usaage example without console errors", async () => {
     driver.get(urls.basicUsage);
-    const canvas = await getElementByCss(driver, "canvas", 5000);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     const {nodesRendered, linksRendered} =
       await getRenderedNodesAndLinksCount(driver);
@@ -41,7 +39,7 @@ describe("Chart Rendering Test", () => {
     const leafletContainer = await getElementByCss(
       driver,
       ".ec-extension-leaflet",
-      5000,
+      2000,
     );
     const canvases = await getElementsByCss(
       driver,
