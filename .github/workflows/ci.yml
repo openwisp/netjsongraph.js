@@ -72,10 +72,11 @@ jobs:
       - name: Wait for server to be ready
         run: npx wait-on http://localhost:8080
 
-      - name: Setup Chrome and ChromeDriver
+      - name: Set up Chrome
         uses: browser-actions/setup-chrome@v1
-        with:
-          install-chromedriver: true
+
+      - name: Set up ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
 
       - name: Check chrome and chromedriver version
         run: |
