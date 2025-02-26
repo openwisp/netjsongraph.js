@@ -11,6 +11,8 @@ updates:
       interval: "monthly"
     open-pull-requests-limit: 10
     versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: "[deps] "
   - package-ecosystem: "github-actions" # Check for GitHub Actions updates
     directory: "/" # The root directory where the Ansible role is located
     schedule:
