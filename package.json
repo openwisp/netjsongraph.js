@@ -31,7 +31,10 @@
     "globalSetup": "./jest.global-setup.js",
     "moduleNameMapper": {
       "\\.(css)$": "identity-obj-proxy"
-    }
+    },
+    "coveragePathIgnorePatterns": [
+      "test/"
+    ]
   },
   "repository": "https://github.com/netjson/netjsongraph.js.git",
   "author": "Federico Capoano <f.capoano@openwisp.io> (https://openwisp.io)",
