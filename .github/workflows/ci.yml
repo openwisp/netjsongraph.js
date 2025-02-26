@@ -30,14 +30,13 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: ${{ runner.os }}-yarn-
 
-      - name: Set up Python 3.7
+      - name: Set up Python
         uses: actions/setup-python@v5
-        with:
-          python-version: 3.7
 
       - name: Installing dependencies
         run: |
           yarn install
+          python --version
           pip install openwisp-utils[qa]
 
       - name: QA checks
