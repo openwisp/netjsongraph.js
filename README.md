@@ -1,7 +1,7 @@
 # netjsongraph.js
 
-[![CI](https://github.com/openwisp/netjsongraph.js/workflows/netjsongraph.js%20CI%20BUILD/badge.svg?branch=master)](<[https://travis-ci.org/openwisp/netjsongraph.js](https://github.com/openwisp/netjsongraph.js/actions/workflows/ci.yml)>)
-[![Coverage Status](https://coveralls.io/repos/github/openwisp/netjsongraph.js/badge.svg?branch=gsoc2019)](https://coveralls.io/github/openwisp/netjsongraph.js?branch=gsoc2019)
+[![netjsongraph.js CI BUILD](https://github.com/openwisp/netjsongraph.js/actions/workflows/ci.yml/badge.svg)](https://github.com/openwisp/netjsongraph.js/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/openwisp/netjsongraph.js/badge.svg?branch=master)](https://coveralls.io/github/openwisp/netjsongraph.js?branch=master)
 ![Language](https://img.shields.io/badge/language-javascript-orange.svg)
 
 ![img](/docs/graph.png)
@@ -23,8 +23,18 @@ yarn start
 
 ### Run Tests
 
+The test suite includes browser tests, so **ensure that ChromeDriver is installed** before running them.
+
+Start the development server first:
+
 ```
-yarn start &  # or alternatively run this in a separate terminal
+# Required for Selenium browser tests
+yarn start
+```
+
+Then, in a separate terminal, run:
+
+```
 yarn test
 ```
 
@@ -33,10 +43,6 @@ To run a specific test suite:
 ```
 yarn test test/netjsongraph.browser.test.js
 ```
-
-The test suite includes browser tests.
-
-Ensure that ChromeDriver is installed.
 
 ### Arguments
 
