@@ -1,19 +1,35 @@
-import * as echarts from "echarts/lib/echarts";
-import "echarts/lib/chart/graph";
-import "echarts/lib/chart/effectScatter";
-import "echarts/lib/chart/lines";
-import "echarts/lib/component/tooltip";
-import "echarts/lib/component/title";
-import "echarts/lib/component/toolbox";
-import "echarts/lib/component/legend";
+import * as echarts from "echarts/core";
+import {
+  GraphChart,
+  EffectScatterChart,
+  LinesChart,
+  ScatterChart,
+} from "echarts/charts";
+import {
+  TooltipComponent,
+  TitleComponent,
+  ToolboxComponent,
+  LegendComponent,
+} from "echarts/components";
+import {SVGRenderer} from "echarts/renderers";
 import L from "leaflet/dist/leaflet";
 import "leaflet.markercluster";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
-import "zrender/lib/svg/svg";
+import "echarts-gl";
 
-import "../../lib/js/echarts-gl.min";
+echarts.use([
+  GraphChart,
+  EffectScatterChart,
+  LinesChart,
+  TooltipComponent,
+  TitleComponent,
+  ToolboxComponent,
+  LegendComponent,
+  SVGRenderer,
+  ScatterChart,
+]);
 
 class NetJSONGraphRender {
   /**
@@ -56,7 +72,7 @@ class NetJSONGraphRender {
           },
           padding: [5, 12],
           textStyle: {
-            lineHeight: 5,
+            lineHeight: 20,
           },
           renderMode: "html",
           className: "njg-tooltip",
@@ -688,6 +704,9 @@ class NetJSONGraphRender {
         features: self.data.features.concat(JSONData.features),
       };
 
+      // Remove the existing points from the map. Otherwise,
+      // the original points are duplicated on the map.
+      self.leaflet.geoJSON.removeFrom(self.leaflet);
       self.utils.render();
     }
 

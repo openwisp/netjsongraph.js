@@ -1,16 +1,13 @@
 Changelog
 =========
 
-Version 0.1 [2015-08-14]
-------------------------
+Version 0.2.0 [2024-12-04]
+--------------------------
 
-* first release
-
-Version 0.2 [unreleased]
-------------------------
-
-The library has been rewritten completely. The new version is not backward compatible with
-the previous versions. Refer the `migration guide <https://github.com/openwisp/netjsongraph.js/blob/master/README.md#upgrading-from-01x-versions-to-02x>`_ for more details.
+The library has been rewritten completely. The new version is not backward
+compatible with the previous versions. Refer the `migration guide
+<https://github.com/openwisp/netjsongraph.js/blob/master/README.md#upgrading-from-01x-versions-to-02x>`_
+for more details.
 
 Features
 ~~~~~~~~
@@ -31,5 +28,16 @@ Changes
 - Improved the `UI of logical and geo map
   <https://github.com/openwisp/netjsongraph.js/issues/113>`_
 - Improved the UI on narrow screens
-- Improved indoor map example
 - Show element info on hover
+- Include credentials in fetch requests
+
+Bugfixes
+~~~~~~~~
+
+- Remove existing points from map in appendData before calling render
+- Fix data update when switched from map to graph
+
+Version 0.1 [2015-08-14]
+------------------------
+
+- first release

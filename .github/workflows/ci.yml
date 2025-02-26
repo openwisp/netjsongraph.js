@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -23,7 +23,7 @@ jobs:
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       - name: Cache yarn
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -31,7 +31,7 @@ jobs:
           restore-keys: ${{ runner.os }}-yarn-
 
       - name: Set up Python 3.7
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.7
 
@@ -48,14 +48,14 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       - name: Cache yarn
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -65,6 +65,22 @@ jobs:
       - name: Installing dependencies
         run: |
           yarn install
+
+      - name: Running Server
+        run: yarn start &
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:8080
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Check chrome and chromedriver version
+        run: |
+          chrome --version
+          which chrome
+          chromedriver --version
+          which chromedriver
 
       - name: Tests
         run: yarn coverage
@@ -83,7 +99,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Installing dependencies
         run: |
@@ -93,7 +109,7 @@ jobs:
         run: yarn build
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist

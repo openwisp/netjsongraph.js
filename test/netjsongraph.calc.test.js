@@ -168,7 +168,7 @@ describe("Test netjsongraph function utils", () => {
       ],
       "2019.03.01 00:59:59.999",
     ],
-    [["23:59:59.999Z"]],
+    [["23:59:59.999Z"], ""],
     [
       [
         {
@@ -251,16 +251,12 @@ describe("Test netjsongraph function utils", () => {
     test(operationText, () => {
       const [operationFunc, operationDataMap] = utilsObj[operationText];
       operationDataMap.forEach((value, key) => {
-        if (value) {
-          expect(util[operationFunc](...key)).toEqual(value);
-        } else {
-          util[operationFunc](...key);
-        }
+        expect(util[operationFunc](...key)).toEqual(value);
       });
     });
   });
 
-  test("Event test.", () => {
+  test("Event test", () => {
     const event = util.createEvent();
     const res = 1;
 
