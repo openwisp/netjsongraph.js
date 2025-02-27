@@ -19,8 +19,9 @@ const url = "http://0.0.0.0:8080";
 export const getDriver = async () => {
   try {
     const options = new chrome.Options();
-    options.addArguments("--headless");
-    options.addArguments("--remote-debugging-pipe");
+    options.addArguments("--headless=new");
+    options.addArguments("--disable-dev-shm-usage");
+    options.addArguments("--no-sandbox");
     return new Builder().forBrowser("chrome").setChromeOptions(options).build();
   } catch (err) {
     console.error("Failed to initialize driver:", err);
