@@ -22,6 +22,7 @@ export const getDriver = async () => {
     options.addArguments("--headless=new");
     options.addArguments("--disable-dev-shm-usage");
     options.addArguments("--no-sandbox");
+    options.addArguments("--remote-debugging-pipe");
     return new Builder().forBrowser("chrome").setChromeOptions(options).build();
   } catch (err) {
     console.error("Failed to initialize driver:", err);
