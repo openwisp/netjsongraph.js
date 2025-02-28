@@ -84,8 +84,12 @@ jobs:
           chromedriver --version
           which chromedriver
 
-      - name: Tests
-        run: yarn coverage
+      - name: Unit tests
+        run: yarn coverage --testPathIgnorePatterns=test/netjsongraph.browser.test.js
+  
+      - name: Browser tests
+        # Test timeout set to 30 seconds in CI since it runs slower
+        run: yarn test --runInBand --testTimeout=30000 test/netjsongraph.browser.test.js
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
