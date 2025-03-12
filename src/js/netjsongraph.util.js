@@ -300,6 +300,7 @@ class NetJSONGraphUtil {
     const nodeMap = new Map();
     let clusterId = 0;
 
+    // First, prepare nodes with coordinates
     nodes.forEach((node) => {
       node.y = self.leaflet.latLngToContainerPoint([
         node.location.lat,
@@ -313,81 +314,94 @@ class NetJSONGraphUtil {
       node.cluster = null;
     });
 
+    // Create spatial index
     const index = new KDBush(nodes.length);
-    /* eslint-disable no-restricted-syntax */
     for (const {x, y} of nodes) index.add(x, y);
-    /* eslint-enable no-restricted-syntax */
     index.finish();
 
+    // Group nodes by location first
+    const locationGroups = new Map();
     nodes.forEach((node) => {
-      let cluster;
-      let centroid = [0, 0];
-      const addNode = (n) => {
-        n.visited = true;
-        n.cluster = clusterId;
-        nodeMap.set(n.id, n.cluster);
-        centroid[0] += n.location.lng;
-        centroid[1] += n.location.lat;
-      };
-      if (!node.visited) {
-        const neighbors = index
-          .within(node.x, node.y, self.config.clusterRadius)
-          .map((id) => nodes[id]);
-        const results = neighbors.filter((n) => {
-          if (self.config.clusteringAttribute) {
-            if (
-              n.properties[self.config.clusteringAttribute] ===
-                node.properties[self.config.clusteringAttribute] &&
-              n.cluster === null
-            ) {
-              addNode(n);
-              return true;
-            }
-            return false;
+      if (node.visited) return;
+      
+      const neighbors = index
+        .within(node.x, node.y, self.config.clusterRadius)
+        .map((id) => nodes[id]);
+      
+      if (neighbors.length > 1) {
+        const key = `${Math.round(node.x)},${Math.round(node.y)}`;
+        if (!locationGroups.has(key)) {
+          locationGroups.set(key, new Map());
+        }
+        const groupByAttribute = locationGroups.get(key);
+        
+        neighbors.forEach((n) => {
+          if (n.visited) return;
+          const attr = self.config.clusteringAttribute 
+            ? n.properties[self.config.clusteringAttribute] 
+            : 'default';
+          if (!groupByAttribute.has(attr)) {
+            groupByAttribute.set(attr, []);
           }
-
-          if (n.cluster === null) {
-            addNode(n);
-            return true;
-          }
-          return false;
+          groupByAttribute.get(attr).push(n);
+          n.visited = true;
         });
+      } else {
+        node.visited = true;
+        nodeMap.set(node.id, null);
+        nonClusterNodes.push(node);
+      }
+    });
 
-        if (results.length > 1) {
+    // Create clusters for each attribute group
+    for (const [, attributeGroups] of locationGroups) {
+      for (const [attr, groupNodes] of attributeGroups) {
+        if (groupNodes.length > 1) {
+          let centroid = [0, 0];
+          groupNodes.forEach((n) => {
+            n.cluster = clusterId;
+            nodeMap.set(n.id, n.cluster);
+            centroid[0] += n.location.lng;
+            centroid[1] += n.location.lat;
+          });
+
           centroid = [
-            centroid[0] / results.length,
-            centroid[1] / results.length,
+            centroid[0] / groupNodes.length,
+            centroid[1] / groupNodes.length,
           ];
-          cluster = {
+
+          const cluster = {
             id: clusterId,
             cluster: true,
-            name: results.length,
+            name: groupNodes.length,
             value: centroid,
-            childNodes: results,
+            childNodes: groupNodes,
             ...self.config.mapOptions.clusterConfig,
           };
 
           if (self.config.clusteringAttribute) {
-            const {color} = self.config.nodeCategories.find(
-              (cat) =>
-                cat.name === node.properties[self.config.clusteringAttribute],
-            ).nodeStyle;
-
-            cluster.itemStyle = {
-              ...cluster.itemStyle,
-              color,
-            };
+            const category = self.config.nodeCategories.find(
+              (cat) => cat.name === attr
+            );
+            if (category) {
+              cluster.itemStyle = {
+                ...cluster.itemStyle,
+                color: category.nodeStyle.color,
+              };
+            }
           }
 
           clusters.push(cluster);
-        } else if (results.length === 1) {
-          nodeMap.set(results[0].id, null);
-          nonClusterNodes.push(results[0]);
+          clusterId++;
+        } else if (groupNodes.length === 1) {
+          const node = groupNodes[0];
+          nodeMap.set(node.id, null);
+          nonClusterNodes.push(node);
         }
-        clusterId += 1;
       }
-    });
+    }
 
+    // Handle links
     links.forEach((link) => {
       if (
         nodeMap.get(link.source) === null &&
