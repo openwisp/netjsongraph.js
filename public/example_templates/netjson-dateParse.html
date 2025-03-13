@@ -8,6 +8,13 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style>
+       html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+
       .njg-date {
         height: fit-content;
         text-align: center;
@@ -23,6 +30,10 @@
   </head>
 
   <body>
+    <div class="netjsongraph-container">
+     <div id="graphChartContainer"></div>
+   </div>
+
     <script type="text/javascript">
       /*
         The demo is used to show the use of the `dataParse` function.
@@ -31,6 +42,7 @@
     */
       // `graph` render defaultly.
       const graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
+        container: "#graphChartContainer",
         // Convert to internal json format，add `time` field.
         prepareData: (data) => {
           data.nodes.map((node) => {

@@ -7,8 +7,19 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <style>
+        html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
+    <div class="netjsongraph-container">
+      <div id="graphChartContainer"></div>
+    </div>
     <script type="text/javascript">
       /*
           The demo is used to show hwo to interact with elements.
@@ -17,6 +28,7 @@
       const graph = new NetJSONGraph(
         "../assets/data/netjsongraph-foldNodes.json",
         {
+          container: "#graphChartContainer",
           dealDataByWorker: "../lib/js/netjsonWorker.js",
           echartsOption: {
             legend: {
