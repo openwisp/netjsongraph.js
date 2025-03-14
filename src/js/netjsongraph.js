@@ -49,7 +49,6 @@ class NetJSONGraph {
       onUpdate: this.onUpdate,
       afterUpdate: this.afterUpdate,
       onLoad: this.onLoad,
-      setupModeSwitching: this.setupModeSwitching,
     };
   }
 
@@ -131,8 +130,10 @@ class NetJSONGraph {
       this.gui.nodeLinkInfoContainer = this.gui.createNodeLinkInfoContainer();
     }
 
+    // If mode switching is enabled and the type is 'netjson', set up the mode switch event
     if (this.config.switchMode && this.type === "netjson") {
       this.gui.renderModeSelector.onclick = () => {
+        // Switch from map to graph mode, first clear canvasContainer and then render
         if (this.config.render === this.utils.mapRender) {
           this.config.render = this.utils.graphRender;
           const canvasContainer = this.echarts
@@ -143,14 +144,19 @@ class NetJSONGraph {
           canvasContainer.style.background =
             // eslint-disable-next-line no-underscore-dangle
             this.echarts.getZr()._backgroundColor;
+
+          // Hide Leaflet UI elements when in graph mode
           document.querySelector(".leaflet-control-attribution").style.display =
             "none";
           document.querySelector(".leaflet-control-zoom").style.display =
             "none";
         } else {
+          // Switch from graph to map mode similarly
           this.echarts.clear();
           this.config.render = this.utils.mapRender;
           this.utils.mapRender(this.data, this);
+
+          // Show Leaflet UI elements when back in map mode
           document.querySelector(".leaflet-control-attribution").style.display =
             "block";
           document.querySelector(".leaflet-control-zoom").style.display =
