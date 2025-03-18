@@ -1,9 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <link href="../assets/css/examples.css" rel="stylesheet" />
@@ -12,7 +13,6 @@
         margin: 10px 0;
         text-align: center;
       }
-
       #legend {
         position: absolute;
         right: 25px;
@@ -24,23 +24,21 @@
         background: #fbfbfb;
         border-radius: 8px;
         color: #000;
-        font-family: "iconfont", Arial, sans-serif;
+        font-family: Arial, sans-serif;
+        font-family: sans-serif;
         font-size: 14px;
         z-index: 2;
         user-select: text;
       }
-
       #legend p {
         margin: 10px 0;
         display: flex;
         align-items: center;
       }
-
       #legend span {
         width: 16px;
         margin-right: 5px;
       }
-
       #legend .link-up,
       #legend .link-down {
         display: inline-block;
@@ -48,12 +46,10 @@
         border-bottom-width: 6px;
         border-bottom-style: solid;
       }
-
       #legend .link-up {
         color: #3acc38;
         margin-right: 10px;
       }
-
       #legend .link-down {
         color: red;
         margin-right: 10px;
@@ -70,6 +66,7 @@
   <body>
     <div id="njg">
       <div class="njg-relativePosition"></div>
+    </div>
 
       <!-- Loading container -->
       <div id="loadingContainer">
@@ -78,9 +75,9 @@
           <div class="loadingTip">Loading...</div>
         </div>
       </div>
-    </div>
-
     <script type="text/javascript">
+      // `graph` render defaultly.
+      // We can add data gradually by array.
       const graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
         el: "#njg",
         linkCategories: [
@@ -107,17 +104,18 @@
           });
         },
       });
-
       const createLegend = (key, name) => {
         const legendItem = document.createElement("p");
         const legendIcon = document.createElement("span");
+
         legendIcon.setAttribute("class", name);
+
         legends.appendChild(legendItem);
         legendItem.appendChild(legendIcon);
+
         legendItem.innerHTML += key;
         return legendItem;
       };
-
       const legends = document.createElement("div");
       const legendsHeader = document.createElement("h4");
       legends.setAttribute("id", "legend");
