@@ -4,17 +4,16 @@
     <title>netjsongraph.js: basic example</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../assets/css/examples.css" rel="stylesheet" />
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-      }
-
       #legend h4 {
         margin: 10px 0;
         text-align: center;
@@ -30,7 +29,7 @@
         background: #fbfbfb;
         border-radius: 8px;
         color: #000;
-        font-family: Arial, sans-serif;
+        font-family: "iconfont", Arial, sans-serif;
         font-size: 14px;
         z-index: 1000;
         user-select: text;
@@ -67,14 +66,22 @@
     </style>
   </head>
   <body>
-    <div class="netjsongraph-container">
-      <div id="graphChartContainer"></div>
+    <div id="njg">
+      <div class="njg-relativePosition"></div>
+
+      <!-- Loading container -->
+      <div id="loadingContainer">
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <div class="loadingTip">Loading...</div>
+        </div>
+      </div>
     </div>
 
     <script type="text/javascript">
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
-        container: "#graphChartContainer",
+        el: "#njg",
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,

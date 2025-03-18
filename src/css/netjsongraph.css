@@ -1,28 +1,15 @@
-.netjsongraph-container {
+#njg {
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-#graphChartContainer {
-  width: 100%;
-  height: 100%;
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
   font-size: 14px;
   overflow: hidden;
 }
 
-h3 {
+#njg h3 {
   display: block;
   font-size: 1.17em;
   margin-block-start: 1em;
@@ -32,7 +19,7 @@ h3 {
   font-weight: bold;
 }
 
-p {
+#njg p {
   display: block;
   margin-block-start: 1em;
   margin-block-end: 1em;
@@ -46,7 +33,7 @@ p {
   right: 0;
 }
 
-#graphChartContainer {
+#njg {
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -72,6 +59,7 @@ p {
   height: 100px;
   text-align: center;
 }
+
 .loadingSprite {
   margin: 0 auto;
   width: 40px;
@@ -88,28 +76,28 @@ p {
 
 .leaflet-control-zoom {
   top: 5px;
-  border: 0 !important;
+  border: 0;
 }
 
 .leaflet-control-zoom-in {
-  border-top-left-radius: 5px !important;
-  border-top-right-radius: 5px !important;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
 .leaflet-control-zoom-out {
-  border-bottom-left-radius: 5px !important;
-  border-bottom-right-radius: 5px !important;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 
 .leaflet-control-layers {
-  border: none !important;
-  right: 3px !important;
+  border: none;
+  right: 3px;
 }
 
 .leaflet-control-layers-toggle {
-  height: 35px !important;
-  width: 35px !important;
-  background-size: 20px 20px !important;
+  height: 35px;
+  width: 35px;
+  background-size: 20px 20px;
 }
 
 #njg-indoorImgInput {
@@ -139,6 +127,7 @@ p {
   z-index: 1;
   cursor: pointer;
 }
+
 .switch-wrap label {
   display: inline-block;
   width: 60px;
@@ -154,6 +143,7 @@ p {
   position: relative;
   margin: 0 5px;
 }
+
 .switch-wrap label::before {
   content: "";
   position: absolute;
@@ -168,6 +158,7 @@ p {
 .switch-wrap input[type="checkbox"]:checked + label:before {
   transform: translateX(34px);
 }
+
 .njg-date {
   position: absolute;
   right: 20px;
@@ -175,38 +166,16 @@ p {
   z-index: 1;
 }
 
-@font-face {
-  font-family: "iconfont";
-  src: url("iconfont.eot?t=1554537125905"); /* IE9 */
-  src:
-    url("iconfont.eot?t=1554537125905#iefix") format("embedded-opentype"),
-    /* IE6-IE8 */
-      url("data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAALUAAsAAAAABoQAAAKGAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCCcAqBEIEuATYCJAMICwYABCAFhG0HLRvRBcguoRzbUaRIzQw73HPLf7QTlBZ2D/IcIqjWsJ69DaJClJGADlmhijCpCBUFUgELGaHg/4X/3P9am73DJNR5j3rniUuYJZWV+Sv+d1DrkBIhatJGhdBMSonZDe5mGYwm3qYronsgVPRfaegmrtP2H/dOG0u7QOYDymWugZ+6AOOtgY41KLISyrjHcAqrwkXmf5xApQ4ZykLfyDjUyWhcIC5sU4W6gk+W5WS5UNqwNItbJcrTdQrcRN+Pf0pRR1JSoLK1814DOr6Kp7H/u+8oQPETcHUJCowBmdhqjK1IC5mSVhmr0gOOVRx81QcGcVStkP86KqwGbcB7Jr4neNTCBDL0jgKLk9zkWpoZV083Lk3aU+QEjguciAOc6rXwcih7x22pDzGBTA58/6i7Kf9X4OyAnUy7Lf+SwMWzebmVOkI2slFyqJCVI4UN6dZul2us9Ehnd6SGqrxTzKCfFY+pPRQE/8sGl1onvrwqg8/d6kiTDXOA8kvZg7+MP7AmW0JSppPz0J6M5rIkVFpOv8jV6GWqquX5LKG8wJchKdMOhXJ96IwfgxJVxqFUuWmoNKp/dZUmUlrkCow4YRDqnUNS6x4K9R7RGf8MJVq9Qqn6SEOlnWjasspA2A3zklQmA7UNtPUwEK6RG+LiUTJXPFXmhRF1kmRiB7GYK5ST/RSQXGJGsmqWmAUKGfrYx04jzwsxkqFDOucs5qiSz4umN+X00IcG8ySiYsSANBuQTRcKiKAxa6h8fhQxrfCoZAeiyTqJSAm7f1SUUxiA7pcFgxCP8kpilamEMQEJUsiH+tgg4vGEUNQ8yEF0LMeaEIlU5Hk9MVSW217h/7pNUInUKXhVobhUAwAAAA==")
-      format("woff2"),
-    url("iconfont.woff?t=1554537125905") format("woff"),
-    url("iconfont.ttf?t=1554537125905") format("truetype"),
-    /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
-      url("iconfont.svg?t=1554537125905#iconfont") format("svg"); /* iOS 4.1- */
-}
-
-.iconfont {
+.njg-iconfont {
   font-family: "iconfont", serif !important;
   font-size: 30px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-.iconfont {
-  font-family: "iconfont", serif !important;
-  font-size: 30px;
-  font-style: normal;
   cursor: pointer;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-eye:before {
+.njg-icon-eye:before {
   content: "\e63f";
   position: relative;
   top: -2px;
@@ -220,6 +189,7 @@ p {
   border-radius: 5px;
   border: 0;
 }
+
 .njg-controls {
   display: flex;
   justify-content: space-between;
@@ -230,14 +200,17 @@ p {
   z-index: 999;
   background-color: inherit;
 }
+
 .njg-searchInput {
   width: 250px;
   height: 20px;
 }
+
 .njg-searchBtn {
   padding: 5px 10px;
   margin-left: 10px;
 }
+
 .njg-searchContainer {
   position: absolute;
   top: 10px;
@@ -350,6 +323,7 @@ p {
   text-transform: capitalize;
   font-weight: 600;
 }
+
 .njg-tooltip-value {
   display: inline-flex;
   align-items: center;

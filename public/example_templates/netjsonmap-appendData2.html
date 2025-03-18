@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>netjsongraph.js: basic example</title>
@@ -13,23 +13,25 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
-     <style>
-        html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-      }
-    </style>
+    <link href="../assets/css/examples.css" rel="stylesheet" />
   </head>
   <body>
-      <div class="netjsongraph-container">
-     <div id="graphChartContainer"></div>
-   </div>
+    <div id="njg">
+      <div class="njg-relativePosition"></div>
+
+      <!-- Loading container -->
+      <div id="loadingContainer">
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <div class="loadingTip">Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <script type="text/javascript">
       /*
           Using array files to append data step by step at start. 
-          Similiar to the first method, but easier.
+          Similar to the first method, but easier.
       */
       const map = new NetJSONGraph(
         [
@@ -39,8 +41,7 @@
         ],
         {
           render: "map",
-          container: "#graphChartContainer",
-          // set map initial state.
+          el: "#njg",
           mapOptions: {
             center: [46.86764405052012, 19.675998687744144],
             zoom: 2,
@@ -50,8 +51,6 @@
               },
             },
           },
-
-          // Convert to internal json format
           prepareData: (data) => {
             data.nodes.map((node) => {
               node.label = node.name;

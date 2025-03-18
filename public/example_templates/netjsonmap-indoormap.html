@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
     <title>Indoor map</title>
     <meta charset="utf-8" />
@@ -13,16 +13,9 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
-
+    <link href="../assets/css/examples.css" rel="stylesheet" />
     <link rel="preload" href="../assets/images/floorplan.png" as="image" />
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-      }
-      
       .njg-tooltip {
         background: rgba(0, 0, 0, 0.75) !important;
         border: none !important;
@@ -36,15 +29,25 @@
       .njg-tooltip-value {
         color: #fff;
       }
+
       .njg-sideBar {
         background-color: #f7f7f7;
       }
     </style>
   </head>
   <body>
-    <div class="netjsongraph-container">
-     <div id="graphChartContainer"></div>
-   </div>
+    <div id="njg">
+      <div class="njg-relativePosition"></div>
+
+      <!-- Loading container -->
+      <div id="loadingContainer">
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <div class="loadingTip">Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <script>
       /*
           The demo is used to show how to set indoor map.
@@ -55,7 +58,7 @@
         "../assets/data/netjsonmap-indoormap.json",
         {
           render: "map",
-          container: "#graphChartContainer",
+          el: "#njg",
           // set map initial state.
           mapOptions: {
             center: [48.577, 18.539],
