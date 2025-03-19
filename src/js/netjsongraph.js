@@ -10,12 +10,11 @@ const env = require("zrender/lib/core/env");
 /**
  * @class
  * Class NetJSONGraph is entry point for NetJSONGraph library.
- * Used as a global object in all examples located in `/public/examples_templates/`.
+ * Used as a global object in the examples_templates.
  */
 class NetJSONGraph {
   /**
    * @constructor
-   * Initializes a new NetJSONGraph instance.
    *
    * @param {string} JSONParam - The NetJSON file parameter.
    * @param {Object} [config={}] - Configuration options for the graph.
@@ -32,12 +31,10 @@ class NetJSONGraph {
   }
 
   /**
-   * Initializes the configuration with values and set render to map or graph.
-   *
    * @param {Object} config - The user-defined configuration.
    * @returns {Object} - The final configuration object.
    */
-  initializeConfig(config) {
+  initializeConfig(config = {}) {
     return {
       ...config,
       render:
@@ -52,9 +49,6 @@ class NetJSONGraph {
     };
   }
 
-  /**
-   * Sets up rendering utilities, GUI, and event handling. Used in constructor
-   */
   setupGraph() {
     Object.setPrototypeOf(NetJSONGraphRender.prototype, this.graph.utils);
     this.graph.gui = new NetJSONGraphGUI(this.graph);
@@ -64,7 +58,7 @@ class NetJSONGraph {
   }
 
   /**
-   * Initializes the ECharts rendering engine. Used in constructor
+   * Used in example Switch render mode
    */
   initializeECharts() {
     this.graph.echarts = echarts.init(this.graph.el, null, {
@@ -72,11 +66,7 @@ class NetJSONGraph {
     });
   }
 
-  // ──────────── Lifecycle Methods ────────────
-
   /**
-   * Callback function executed during initialization.
-   *
    * @this {NetJSONGraph}
    * @returns {Object} - The graph configuration.
    */
@@ -85,8 +75,6 @@ class NetJSONGraph {
   }
 
   /**
-   * Callback function executed when rendering starts.
-   *
    * @this {NetJSONGraph}
    * @returns {Object} - The graph configuration.
    */
@@ -97,8 +85,6 @@ class NetJSONGraph {
   }
 
   /**
-   * Callback function executed when data updates.
-   *
    * @this {NetJSONGraph}
    * @returns {Object} - The graph configuration.
    */
@@ -107,8 +93,6 @@ class NetJSONGraph {
   }
 
   /**
-   * Callback function executed after data updates.
-   *
    * @this {NetJSONGraph}
    * @returns {Object} - The graph configuration.
    */
@@ -117,7 +101,12 @@ class NetJSONGraph {
   }
 
   /**
-   * Callback function executed when the graph is first rendered.
+   * In map mode, two canvas elements are used:
+   * - One canvas displays the map tiles (background).
+   * - The other canvas renders the nodes and links on top of the map.
+   *
+   * When switching to graph mode, the map canvas remains in the DOM,
+   * but its container's background color is updated to match the graph rendering,
    *
    * @this {NetJSONGraph}
    * @returns {Object} - The graph configuration.
@@ -129,11 +118,8 @@ class NetJSONGraph {
     } else {
       this.gui.nodeLinkInfoContainer = this.gui.createNodeLinkInfoContainer();
     }
-
-    // If mode switching is enabled and the type is 'netjson', set up the mode switch event
     if (this.config.switchMode && this.type === "netjson") {
       this.gui.renderModeSelector.onclick = () => {
-        // Switch from map to graph mode, first clear canvasContainer and then render
         if (this.config.render === this.utils.mapRender) {
           this.config.render = this.utils.graphRender;
           const canvasContainer = this.echarts
@@ -145,18 +131,17 @@ class NetJSONGraph {
             // eslint-disable-next-line no-underscore-dangle
             this.echarts.getZr()._backgroundColor;
 
-          // Hide Leaflet UI elements when in graph mode
+          // Hide Openstreetmap credits in the bottom right corner
           document.querySelector(".leaflet-control-attribution").style.display =
             "none";
+          // Hide zoom control buttons in top right corner
           document.querySelector(".leaflet-control-zoom").style.display =
             "none";
         } else {
-          // Switch from graph to map mode similarly
           this.echarts.clear();
           this.config.render = this.utils.mapRender;
           this.utils.mapRender(this.data, this);
 
-          // Show Leaflet UI elements when back in map mode
           document.querySelector(".leaflet-control-attribution").style.display =
             "block";
           document.querySelector(".leaflet-control-zoom").style.display =
@@ -174,8 +159,6 @@ registerLeafletSystem(echarts, L, {
   each,
   env,
 });
-
-// Expose objects globally
 
 window.NetJSONGraph = NetJSONGraph;
 window.echarts = echarts;
