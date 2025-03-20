@@ -11,9 +11,9 @@
       crossorigin=""
     />
     <link href="../lib/css/leaflet-draw.css" rel="stylesheet" />
-    <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../assets/css/examples.css" rel="stylesheet" />
     <style type="text/css">
       .leaflet-control-zoom {
         top: 55px;
@@ -22,14 +22,23 @@
     </style>
   </head>
   <body>
+    <div id="njg">
+      <div class="njg-relativePosition"></div>
+
+      <!-- Loading container -->
+      <div id="loadingContainer">
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <div class="loadingTip">Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <script type="text/javascript">
-      /*
-          The demo is used to show how to switch the netjsongraph render mode -- `graph` or `map`.
-      */
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
+        el: "#njg",
         switchMode: true,
-        // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,
@@ -39,7 +48,6 @@
             },
           },
         },
-        // Convert to internal json format
         prepareData: (data) => {
           data.nodes.map((node) => {
             node.label = node.name;

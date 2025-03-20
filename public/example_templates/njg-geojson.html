@@ -13,12 +13,25 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../assets/css/examples.css" rel="stylesheet" />
   </head>
   <body>
+    <div id="njg">
+      <div class="njg-relativePosition"></div>
+
+      <!-- Loading container -->
+      <div id="loadingContainer">
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <div class="loadingTip">Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <script type="text/javascript">
       const map = new NetJSONGraph("../assets/data/geojson-sample.json", {
         render: "map",
-        // set map initial state.
+        el: "#njg",
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,

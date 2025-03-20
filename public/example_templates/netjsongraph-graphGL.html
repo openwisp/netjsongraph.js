@@ -7,16 +7,29 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../assets/css/examples.css" rel="stylesheet" />
   </head>
   <body>
+    <div id="njg">
+      <div class="njg-relativePosition"></div>
+
+      <!-- Loading container -->
+      <div id="loadingContainer">
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <div class="loadingTip">Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <script type="text/javascript">
       /*
           The demo is used to show how to use `graphGL` to render big data.
       */
-      // `graph` render defaultly.
       const graph = new NetJSONGraph(
         "../assets/data/netjsongraph-graphGL.json",
         {
+          el: "#njg",
           graphConfig: {
             series: {
               type: "graphGL",
@@ -41,7 +54,6 @@
                 textStyle: {
                   color: "#fff",
                 },
-                // graphGL render must set it !!!
                 show: false,
               },
               focusNodeAdjacency: false,
@@ -54,7 +66,6 @@
                   width: 4,
                 },
               },
-              // set force layout params
               forceAtlas2: {
                 steps: 5,
                 stopThreshold: 20,

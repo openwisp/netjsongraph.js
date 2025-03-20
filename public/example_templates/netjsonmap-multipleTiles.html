@@ -13,6 +13,7 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../assets/css/examples.css" rel="stylesheet" />
     <style type="text/css">
       .leaflet-control-zoom {
         right: 5px;
@@ -20,12 +21,25 @@
     </style>
   </head>
   <body>
+    <div id="njg">
+      <div class="njg-relativePosition"></div>
+
+      <!-- Loading container -->
+      <div id="loadingContainer">
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <div class="loadingTip">Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <script type="text/javascript">
       /*
-               The demo is used to show the multiple tiles render.
-           */
+        The demo is used to show the multiple tiles render.
+      */
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
+        el: "#njg",
         // set multiple tiles config, can change them dynamically.
         mapTileConfig: [
           {

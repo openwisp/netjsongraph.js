@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -13,6 +14,7 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../assets/css/examples.css" rel="stylesheet" />
     <style type="text/css">
       #legend h4 {
         margin: 10px 0;
@@ -68,9 +70,14 @@
     </style>
   </head>
   <body>
+    <!-- Replace with the simplified container structure -->
+    <div id="njg"></div>
+    
     <script type="text/javascript">
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
+        // Update to use the new container ID
+        el: "#njg",
         clustering: true,
         clusteringThreshold: 50,
         // set map initial state.

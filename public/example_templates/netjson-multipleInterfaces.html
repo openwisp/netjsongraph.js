@@ -7,20 +7,33 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../assets/css/examples.css" rel="stylesheet" />
   </head>
   <body>
+    <div id="njg">
+      <!-- This is the main container  -->
+      <div class="njg-relativePosition"></div>
+
+      <!-- Loading container  -->
+      <div id="loadingContainer">
+        <div class="loadingElement">
+          <div class="loadingSprite"></div>
+          <div class="loadingTip">Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <script type="text/javascript">
       /*
-            The demo is used to show how to deal with the `multiple interfaces` in the NetJSON data.
-            We provide a work file to process the data before rendering. 
-            This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, add node links, add flatNodes and so on.
-            You can also define related files yourself.
-        */
-      // `graph` render defaultly.
+        The demo is used to show how to deal with the `multiple interfaces` in the NetJSON data.
+        We provide a work file to process the data before rendering. 
+        This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, 
+        add node links, add flatNodes and so on.
+      */
       const graph = new NetJSONGraph(
         "../assets/data/netjson-multipleInterfaces.json",
         {
-          // Asynchronous processing of incoming data formats using WebWorker file.
+          el: "#njg",
           dealDataByWorker: "../lib/js/netjsonWorker.js",
         },
       );
