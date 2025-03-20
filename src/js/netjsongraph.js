@@ -49,6 +49,9 @@ class NetJSONGraph {
     };
   }
 
+  /**
+   * Sets up rendering utilities, GUI, and event handling. Used in constructor
+   */
   setupGraph() {
     Object.setPrototypeOf(NetJSONGraphRender.prototype, this.graph.utils);
     this.graph.gui = new NetJSONGraphGUI(this.graph);
@@ -58,7 +61,7 @@ class NetJSONGraph {
   }
 
   /**
-   * Used in example Switch render mode
+   * Initializes the ECharts rendering engine. Used in constructor
    */
   initializeECharts() {
     this.graph.echarts = echarts.init(this.graph.el, null, {
@@ -120,6 +123,7 @@ class NetJSONGraph {
     }
     if (this.config.switchMode && this.type === "netjson") {
       this.gui.renderModeSelector.onclick = () => {
+        // Switch from map to graph mode, first clear canvasContainer and then render
         if (this.config.render === this.utils.mapRender) {
           this.config.render = this.utils.graphRender;
           const canvasContainer = this.echarts
@@ -141,7 +145,7 @@ class NetJSONGraph {
           this.echarts.clear();
           this.config.render = this.utils.mapRender;
           this.utils.mapRender(this.data, this);
-
+          // Show OpenStreetMap credits and zoom control buttons in map mode
           document.querySelector(".leaflet-control-attribution").style.display =
             "block";
           document.querySelector(".leaflet-control-zoom").style.display =
