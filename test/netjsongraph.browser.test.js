@@ -7,6 +7,7 @@ import {
   getRenderedNodesAndLinksCount,
   getPresentNodesAndLinksCount,
   urls,
+  printConsoleErrors,
 } from "./browser.test.utils";
 
 describe("Chart Rendering Test", () => {
@@ -20,14 +21,15 @@ describe("Chart Rendering Test", () => {
     await tearDown(driver);
   });
 
-  test("render the Basic usaage example without console errors", async () => {
+  test("render the Basic usage example without console errors", async () => {
     driver.get(urls.basicUsage);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
     const {nodesRendered, linksRendered} =
       await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
-      await getPresentNodesAndLinksCount("Geographic map");
+      await getPresentNodesAndLinksCount("Basic usage");
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
     expect(nodesRendered).toBe(nodesPresent);
@@ -50,6 +52,7 @@ describe("Chart Rendering Test", () => {
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Geographic map");
     const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(leafletContainer).not.toBeNull();
     expect(canvases.length).toBeGreaterThan(0);
