@@ -77,15 +77,15 @@
       // Group 1 - Reduced number of nodes at the same location
       {
         id: "1",
-        name: "OK Node 1",
+        name: "Critical Node 1",
         location: { lat: 45.4642, lng: 9.1900 },
-        properties: { status: "ok" }
+        properties: { status: "critical" }
       },
       {
         id: "2",
-        name: "Problem Node 1",
+        name: "Critical Node 2",
         location: { lat: 45.4642, lng: 9.1900 },  // Exact same location
-        properties: { status: "problem" }
+        properties: { status: "critical" }
       },
 
       // Group 2 - Exactly overlapping nodes with different statuses
@@ -251,12 +251,12 @@
   }
 
   console.log('Initializing map...');
-  
+
   try {
     // Render the map (only once!)
     map.render();
     console.log('Map rendered successfully');
-    
+
     // Apply cluster overlap prevention after render with progressive retries
     function applyPreventClusterOverlap() {
       console.log('Applying cluster overlap prevention...');
@@ -266,24 +266,24 @@
       setTimeout(preventClusterOverlap, 1000);
       setTimeout(preventClusterOverlap, 2000);
     }
-    
+
     // Set up event listeners
     window.addEventListener('load', () => {
       console.log('Window loaded, applying cluster overlap prevention');
       applyPreventClusterOverlap();
-      
+
       // Add listeners for map interactions
       document.addEventListener('mousemove', () => setTimeout(preventClusterOverlap, 100));
       document.addEventListener('mouseup', () => setTimeout(preventClusterOverlap, 100));
       document.addEventListener('wheel', () => setTimeout(preventClusterOverlap, 100));
-      
+
       // Also check periodically for the first minute in case of delayed rendering
       const interval = setInterval(() => {
         const markers = document.querySelectorAll('.marker-cluster');
         if (markers.length > 0) {
           preventClusterOverlap();
         }
-        
+
         // Stop checking after 60 seconds
         setTimeout(() => clearInterval(interval), 60000);
       }, 2000);
