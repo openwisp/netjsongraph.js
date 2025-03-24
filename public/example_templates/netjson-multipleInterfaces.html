@@ -30,10 +30,12 @@
         This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, 
         add node links, add flatNodes and so on.
       */
+      // `graph` render defaultly.
       const graph = new NetJSONGraph(
         "../assets/data/netjson-multipleInterfaces.json",
         {
           el: "#njg",
+          // Asynchronous processing of incoming data formats using WebWorker file.
           dealDataByWorker: "../lib/js/netjsonWorker.js",
         },
       );

@@ -35,10 +35,14 @@
     </div>
 
     <script type="text/javascript">
+      /*
+          The demo is used to show how to switch the netjsongraph render mode -- `graph` or `map`.
+      */
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
         el: "#njg",
         switchMode: true,
+        // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,

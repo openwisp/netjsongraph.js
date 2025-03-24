@@ -46,6 +46,7 @@
             },
           },
         },
+        // set map initial state.
         mapOptions: {
           center: [34.86, 112.5],
           zoom: 6,
@@ -79,6 +80,7 @@
             },
           },
         },
+        // Convert to internal json format
         prepareData: (data) => {
           data.nodes.map((node) => {
             node.label = node.name;
