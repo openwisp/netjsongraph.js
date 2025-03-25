@@ -73,7 +73,7 @@
     type: "NetworkGraph",
     label: "Cluster Overlap Test",
     nodes: [
-      // Group 1 - Reduced number of nodes at the same location
+      // Group 1 - Critical nodes cluster
       {
         id: "1",
         name: "Critical Node 1",
@@ -83,48 +83,146 @@
       {
         id: "2",
         name: "Critical Node 2",
-        location: { lat: 45.4642, lng: 9.1900 },  // Exact same location
+        location: { lat: 45.4645, lng: 9.1905 },
         properties: { status: "critical" }
       },
-
-      // Group 2 - Exactly overlapping nodes with different statuses
+      {
+        id: "3",
+        name: "Critical Node 3",
+        location: { lat: 45.4640, lng: 9.1910 },
+        properties: { status: "critical" }
+      },
       {
         id: "4",
-        name: "OK Node 2",
-        location: { lat: 45.4742, lng: 9.1800 },
-        properties: { status: "ok" }
+        name: "Critical Node 4",
+        location: { lat: 45.4638, lng: 9.1895 },
+        properties: { status: "critical" }
       },
       {
         id: "5",
-        name: "Problem Node 2",
-        location: { lat: 45.4742, lng: 9.1800 },  // Exact same location
-        properties: { status: "problem" }
+        name: "Critical Node 5",
+        location: { lat: 45.4650, lng: 9.1890 },
+        properties: { status: "critical" }
       },
       {
         id: "6",
-        name: "Critical Node 2",
-        location: { lat: 45.4742, lng: 9.1800 },  // Exact same location
+        name: "Critical Node 6",
+        location: { lat: 45.4648, lng: 9.1915 },
+        properties: { status: "critical" }
+      },
+      {
+        id: "7",
+        name: "Critical Node 7",
+        location: { lat: 45.4660, lng: 9.1920 },
         properties: { status: "critical" }
       },
 
-      // Group 3 - OK nodes near each other but not exactly overlapping
+      // Group 2 - Problem nodes cluster
       {
-        id: "7",
-        name: "OK Node 3",
+        id: "8",
+        name: "Problem Node 1",
+        location: { lat: 45.4742, lng: 9.1800 },
+        properties: { status: "problem" }
+      },
+      {
+        id: "9",
+        name: "Problem Node 2",
+        location: { lat: 45.4745, lng: 9.1805 },
+        properties: { status: "problem" }
+      },
+      {
+        id: "10",
+        name: "Problem Node 3",
+        location: { lat: 45.4740, lng: 9.1810 },
+        properties: { status: "problem" }
+      },
+      {
+        id: "11",
+        name: "Problem Node 4",
+        location: { lat: 45.4738, lng: 9.1795 },
+        properties: { status: "problem" }
+      },
+      {
+        id: "12",
+        name: "Problem Node 5",
+        location: { lat: 45.4750, lng: 9.1790 },
+        properties: { status: "problem" }
+      },
+      {
+        id: "13",
+        name: "Problem Node 6",
+        location: { lat: 45.4748, lng: 9.1815 },
+        properties: { status: "problem" }
+      },
+      {
+        id: "14",
+        name: "Problem Node 7",
+        location: { lat: 45.4760, lng: 9.1820 },
+        properties: { status: "problem" }
+      },
+
+      // Group 3 - OK nodes cluster
+      {
+        id: "15",
+        name: "OK Node 1",
         location: { lat: 45.4842, lng: 9.1700 },
         properties: { status: "ok" }
       },
       {
-        id: "8",
-        name: "OK Node 4",
-        location: { lat: 45.4842, lng: 9.1710 },  // Slightly different location
+        id: "16",
+        name: "OK Node 2",
+        location: { lat: 45.4845, lng: 9.1705 },
         properties: { status: "ok" }
       },
       {
-        id: "9",
-        name: "Problem Node 3",
-        location: { lat: 45.4842, lng: 9.1700 },  // Same as OK Node 3
+        id: "17",
+        name: "OK Node 3",
+        location: { lat: 45.4840, lng: 9.1710 },
+        properties: { status: "ok" }
+      },
+      {
+        id: "18",
+        name: "OK Node 4",
+        location: { lat: 45.4838, lng: 9.1695 },
+        properties: { status: "ok" }
+      },
+      {
+        id: "19",
+        name: "OK Node 5",
+        location: { lat: 45.4850, lng: 9.1690 },
+        properties: { status: "ok" }
+      },
+      {
+        id: "20",
+        name: "OK Node 6",
+        location: { lat: 45.4848, lng: 9.1715 },
+        properties: { status: "ok" }
+      },
+      {
+        id: "21",
+        name: "OK Node 7",
+        location: { lat: 45.4860, lng: 9.1720 },
+        properties: { status: "ok" }
+      },
+
+      // Additional nodes in distant locations
+      {
+        id: "22",
+        name: "Distant Critical Node",
+        location: { lat: 45.4942, lng: 9.2100 },
+        properties: { status: "critical" }
+      },
+      {
+        id: "23",
+        name: "Distant Problem Node",
+        location: { lat: 45.5042, lng: 9.1500 },
         properties: { status: "problem" }
+      },
+      {
+        id: "24",
+        name: "Distant OK Node",
+        location: { lat: 45.4442, lng: 9.1600 },
+        properties: { status: "ok" }
       }
     ],
     links: []
