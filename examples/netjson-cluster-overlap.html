@@ -257,36 +257,40 @@
     map.render();
     console.log('Map rendered successfully');
 
-    // Apply cluster overlap prevention after render with progressive retries
+    // Get the underlying Leaflet map instance
+    const leafletMap = map.map;
+
+    // Apply cluster overlap prevention after render
     function applyPreventClusterOverlap() {
       console.log('Applying cluster overlap prevention...');
       preventClusterOverlap();
-      // Retry a few times to ensure markers are properly arranged after map initialization
-      setTimeout(preventClusterOverlap, 500);
-      setTimeout(preventClusterOverlap, 1000);
-      setTimeout(preventClusterOverlap, 2000);
     }
 
     // Set up event listeners
     window.addEventListener('load', () => {
       console.log('Window loaded, applying cluster overlap prevention');
       applyPreventClusterOverlap();
-
-      // Add listeners for map interactions
-      document.addEventListener('mousemove', () => setTimeout(preventClusterOverlap, 100));
-      document.addEventListener('mouseup', () => setTimeout(preventClusterOverlap, 100));
-      document.addEventListener('wheel', () => setTimeout(preventClusterOverlap, 100));
-
-      // Also check periodically for the first minute in case of delayed rendering
-      const interval = setInterval(() => {
-        const markers = document.querySelectorAll('.marker-cluster');
-        if (markers.length > 0) {
-          preventClusterOverlap();
-        }
-
-        // Stop checking after 60 seconds
-        setTimeout(() => clearInterval(interval), 60000);
-      }, 2000);
+      
+      // Event listeners to the Leaflet map instance for relevant events
+      if (leafletMap) {
+        // Handle zoom events
+        leafletMap.on('zoomend', applyPreventClusterOverlap);
+        
+        // Handle pan/move events
+        leafletMap.on('moveend', applyPreventClusterOverlap);
+        
+        // Handle when layers are added (which could include clusters)
+        leafletMap.on('layeradd', applyPreventClusterOverlap);
+        
+        // Handle browser resize which might affect the map
+        window.addEventListener('resize', applyPreventClusterOverlap);
+      } else {
+        console.warn('Leaflet map instance not accessible, falling back to limited event handling');
+        // Fallback if we can't access the Leaflet map instance
+        document.addEventListener('mousemove', () => preventClusterOverlap());
+        document.addEventListener('mouseup', () => preventClusterOverlap());
+        document.addEventListener('wheel', () => preventClusterOverlap());
+      }
     });
   } catch (e) {
     console.error('Error initializing NetJSONGraph:', e);
