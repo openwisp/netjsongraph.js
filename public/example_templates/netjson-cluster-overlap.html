@@ -67,13 +67,14 @@
   </style>
 </head>
 <body>
+<script type="text/javascript" src="../../dist/netjsongraph.js"></script>
 <script type="text/javascript">
   // Create test data with overlapping nodes of different statuses
   const testData = {
     type: "NetworkGraph",
     label: "Cluster Overlap Test",
     nodes: [
-      // Group 1 - Critical nodes cluster
+      // Group 1 - Reduced number of nodes at the same location
       {
         id: "1",
         name: "Critical Node 1",
@@ -83,146 +84,48 @@
       {
         id: "2",
         name: "Critical Node 2",
-        location: { lat: 45.4645, lng: 9.1905 },
+        location: { lat: 45.4642, lng: 9.1900 },  // Exact same location
         properties: { status: "critical" }
       },
-      {
-        id: "3",
-        name: "Critical Node 3",
-        location: { lat: 45.4640, lng: 9.1910 },
-        properties: { status: "critical" }
-      },
+
+      // Group 2 - Exactly overlapping nodes with different statuses
       {
         id: "4",
-        name: "Critical Node 4",
-        location: { lat: 45.4638, lng: 9.1895 },
-        properties: { status: "critical" }
+        name: "OK Node 2",
+        location: { lat: 45.4742, lng: 9.1800 },
+        properties: { status: "ok" }
       },
       {
         id: "5",
-        name: "Critical Node 5",
-        location: { lat: 45.4650, lng: 9.1890 },
-        properties: { status: "critical" }
+        name: "Problem Node 2",
+        location: { lat: 45.4742, lng: 9.1800 },  // Exact same location
+        properties: { status: "problem" }
       },
       {
         id: "6",
-        name: "Critical Node 6",
-        location: { lat: 45.4648, lng: 9.1915 },
+        name: "Critical Node 2",
+        location: { lat: 45.4742, lng: 9.1800 },  // Exact same location
         properties: { status: "critical" }
       },
+
+      // Group 3 - OK nodes near each other but not exactly overlapping
       {
         id: "7",
-        name: "Critical Node 7",
-        location: { lat: 45.4660, lng: 9.1920 },
-        properties: { status: "critical" }
-      },
-
-      // Group 2 - Problem nodes cluster
-      {
-        id: "8",
-        name: "Problem Node 1",
-        location: { lat: 45.4742, lng: 9.1800 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "9",
-        name: "Problem Node 2",
-        location: { lat: 45.4745, lng: 9.1805 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "10",
-        name: "Problem Node 3",
-        location: { lat: 45.4740, lng: 9.1810 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "11",
-        name: "Problem Node 4",
-        location: { lat: 45.4738, lng: 9.1795 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "12",
-        name: "Problem Node 5",
-        location: { lat: 45.4750, lng: 9.1790 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "13",
-        name: "Problem Node 6",
-        location: { lat: 45.4748, lng: 9.1815 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "14",
-        name: "Problem Node 7",
-        location: { lat: 45.4760, lng: 9.1820 },
-        properties: { status: "problem" }
-      },
-
-      // Group 3 - OK nodes cluster
-      {
-        id: "15",
-        name: "OK Node 1",
+        name: "OK Node 3",
         location: { lat: 45.4842, lng: 9.1700 },
         properties: { status: "ok" }
       },
       {
-        id: "16",
-        name: "OK Node 2",
-        location: { lat: 45.4845, lng: 9.1705 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "17",
-        name: "OK Node 3",
-        location: { lat: 45.4840, lng: 9.1710 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "18",
+        id: "8",
         name: "OK Node 4",
-        location: { lat: 45.4838, lng: 9.1695 },
+        location: { lat: 45.4842, lng: 9.1710 },  // Slightly different location
         properties: { status: "ok" }
       },
       {
-        id: "19",
-        name: "OK Node 5",
-        location: { lat: 45.4850, lng: 9.1690 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "20",
-        name: "OK Node 6",
-        location: { lat: 45.4848, lng: 9.1715 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "21",
-        name: "OK Node 7",
-        location: { lat: 45.4860, lng: 9.1720 },
-        properties: { status: "ok" }
-      },
-
-      // Additional nodes in distant locations
-      {
-        id: "22",
-        name: "Distant Critical Node",
-        location: { lat: 45.4942, lng: 9.2100 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "23",
-        name: "Distant Problem Node",
-        location: { lat: 45.5042, lng: 9.1500 },
+        id: "9",
+        name: "Problem Node 3",
+        location: { lat: 45.4842, lng: 9.1700 },  // Same as OK Node 3
         properties: { status: "problem" }
-      },
-      {
-        id: "24",
-        name: "Distant OK Node",
-        location: { lat: 45.4442, lng: 9.1600 },
-        properties: { status: "ok" }
       }
     ],
     links: []
@@ -354,14 +257,13 @@
     map.render();
     console.log('Map rendered successfully');
 
-    // Apply cluster overlap prevention after render with progressive retries
+    // Get the underlying Leaflet map instance
+    const leafletMap = map.map;
+
+    // Apply cluster overlap prevention after render
     function applyPreventClusterOverlap() {
       console.log('Applying cluster overlap prevention...');
       preventClusterOverlap();
-      // Retry a few times to ensure markers are properly arranged after map initialization
-      setTimeout(preventClusterOverlap, 500);
-      setTimeout(preventClusterOverlap, 1000);
-      setTimeout(preventClusterOverlap, 2000);
     }
 
     // Set up event listeners
@@ -369,21 +271,26 @@
       console.log('Window loaded, applying cluster overlap prevention');
       applyPreventClusterOverlap();
 
-      // Add listeners for map interactions
-      document.addEventListener('mousemove', () => setTimeout(preventClusterOverlap, 100));
-      document.addEventListener('mouseup', () => setTimeout(preventClusterOverlap, 100));
-      document.addEventListener('wheel', () => setTimeout(preventClusterOverlap, 100));
+      // Event listeners to the Leaflet map instance for relevant events
+      if (leafletMap) {
+        // Handle zoom events
+        leafletMap.on('zoomend', applyPreventClusterOverlap);
 
-      // Also check periodically for the first minute in case of delayed rendering
-      const interval = setInterval(() => {
-        const markers = document.querySelectorAll('.marker-cluster');
-        if (markers.length > 0) {
-          preventClusterOverlap();
-        }
+        // Handle pan/move events
+        leafletMap.on('moveend', applyPreventClusterOverlap);
 
-        // Stop checking after 60 seconds
-        setTimeout(() => clearInterval(interval), 60000);
-      }, 2000);
+        // Handle when layers are added (which could include clusters)
+        leafletMap.on('layeradd', applyPreventClusterOverlap);
+
+        // Handle browser resize which might affect the map
+        window.addEventListener('resize', applyPreventClusterOverlap);
+      } else {
+        console.warn('Leaflet map instance not accessible, falling back to limited event handling');
+        // Fallback if we can't access the Leaflet map instance
+        document.addEventListener('mousemove', () => preventClusterOverlap());
+        document.addEventListener('mouseup', () => preventClusterOverlap());
+        document.addEventListener('wheel', () => preventClusterOverlap());
+      }
     });
   } catch (e) {
     console.error('Error initializing NetJSONGraph:', e);
