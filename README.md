@@ -14,6 +14,44 @@ Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) a
 
 Build powerful and interoperable visualizations without losing flexibility!
 
+## Table of Contents
+
+- [Project Structure](#project-structure)
+- [Installation and Demo](#install-and-run-demo-examples)
+- [Testing](#run-tests)
+- [Configuration](#arguments)
+- [API Reference](#api-introduction)
+  - [Core](#core)
+  - [Realtime Update](#realtime-update)
+  - [Search Elements](#search-elements)
+  - [Web Workers](#deal-data-by-webworker)
+  - [Date Parsing](#dateparse)
+  - [Loading Data](#load-more-data-using-geographic-extent)
+  - [Rendering](#render)
+  - [Utilities](#utils)
+- [Cluster Utilities](#cluster-utilities)
+- [Examples](#example-usage)
+- [Demo Showcase](#example-demos)
+- [Upgrading](#upgrading-from-01x-versions-to-02x)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Project Structure
+
+The codebase is organized as follows:
+
+```
+netjsongraph.js/
+├── dist/                 # Distribution files (minified library)
+├── lib/                  # Library components
+│   ├── css/              # Stylesheets for the library
+│   └── js/               # JavaScript utility modules
+│       └── clusterUtils.js # Cluster handling utilities
+├── public/               # Public assets and example templates
+│   └── example_templates/ # Example HTML pages
+└── README.md             # Project documentation
+```
+
 ### Install and run demo examples
 
 ```
@@ -365,6 +403,67 @@ For graph, you need to configure `graphConfig` property. We only support [graph]
 For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer) are required for the map render. You can customize the nodes and links with [`nodeConfig`](https://echarts.apache.org/en/option.html#series-scatter) and [`linkConfig`](https://echarts.apache.org/en/option.html#series-lines) optionally. For map nodes, you can also change the `type` to [`effectScatter`](https://echarts.apache.org/en/option.html#series-effectScatter) series to enable animation effects.
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
+
+## Cluster Utilities
+
+The library includes utilities for handling cluster visualization and preventing overlap in map views. These utilities are available in the `lib/js/clusterUtils.js` module.
+
+### Functions
+
+#### `preventClusterOverlap()`
+
+Identifies clusters at the same location and arranges them in a circular pattern to prevent overlap. This is particularly useful when you have multiple clusters at the same geographic location, such as nodes with different statuses at the same coordinates.
+
+```javascript
+import { preventClusterOverlap } from "../../lib/js/clusterUtils.js";
+
+// Call the function to arrange overlapping clusters
+preventClusterOverlap();
+```
+
+#### `setupClusterOverlapPrevention(leafletMap)`
+
+Sets up event listeners for cluster overlap prevention. This function automatically applies the `preventClusterOverlap()` function when map events occur that might cause clusters to overlap.
+
+```javascript
+import { setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
+
+// Get the Leaflet map instance
+const leafletMap = map.map;
+
+// Set up overlap prevention
+setupClusterOverlapPrevention(leafletMap);
+```
+
+### Usage Example
+
+To use the cluster utilities in your project:
+
+```javascript
+// Import the cluster utilities
+import { preventClusterOverlap, setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
+
+// Initialize your map
+const map = new NetJSONGraph(data, {
+  render: "map",
+  clustering: true,
+  clusteringThreshold: 1,
+  clusterRadius: 40,
+  clusteringAttribute: "status" // Cluster by status
+});
+
+map.render();
+
+// Get the Leaflet map instance
+const leafletMap = map.map;
+
+// Set up cluster overlap prevention when the map is loaded
+window.addEventListener('load', () => {
+  setupClusterOverlapPrevention(leafletMap);
+});
+```
+
+See the [Cluster Overlap Example](https://openwisp.github.io/netjsongraph.js/examples/netjson-cluster-overlap.html) for a complete demonstration.
 
 ### API Introduction
 
@@ -791,6 +890,9 @@ Similiar to the first method, but easier.
 
 The demo shows the clustering of nodes.  
 [ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
+
+The demo shows how to handle overlapping clusters with different statuses.  
+[ Cluster overlap demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-cluster-overlap.html)
 
 ### Upgrading from 0.1.x versions to 0.2.x
 
