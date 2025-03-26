@@ -68,7 +68,10 @@
 </head>
 <body>
 <script type="text/javascript" src="../../dist/netjsongraph.js"></script>
-<script type="text/javascript">
+<script type="module">
+  // Import cluster utilities
+  import { preventClusterOverlap, setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
+
   // Create test data with overlapping nodes of different statuses
   const testData = {
     type: "NetworkGraph",
@@ -203,53 +206,6 @@
 
   document.body.appendChild(legends);
 
-  /**
-   * Function to prevent cluster overlap
-   * Identifies clusters at the same location and arranges them in a circular pattern
-   */
-  function preventClusterOverlap() {
-    // Find all cluster markers
-    const clusterMarkers = document.querySelectorAll('.marker-cluster');
-    console.log('Found cluster markers:', clusterMarkers.length);
-
-    if (clusterMarkers.length === 0) {
-      return;
-    }
-
-    const positions = {};
-
-    // Group markers by position
-    clusterMarkers.forEach(marker => {
-      const rect = marker.getBoundingClientRect();
-      const key = `${Math.round(rect.left)}-${Math.round(rect.top)}`;
-
-      if (!positions[key]) {
-        positions[key] = [];
-      }
-      positions[key].push(marker);
-    });
-
-    // Arrange overlapping markers in a circle
-    Object.values(positions).forEach(markers => {
-      if (markers.length > 1) {
-        console.log('Arranging', markers.length, 'overlapping markers');
-        const radius = 30; // Distance from center
-        const angleStep = (2 * Math.PI) / markers.length;
-
-        markers.forEach((marker, i) => {
-          if (i > 0) { // Skip the first marker (keep it at center)
-            const angle = angleStep * i;
-            const offsetX = radius * Math.cos(angle);
-            const offsetY = radius * Math.sin(angle);
-
-            marker.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-            marker.style.zIndex = 1000 + i; // Ensure visibility
-          }
-        });
-      }
-    });
-  }
-
   console.log('Initializing map...');
 
   try {
@@ -260,37 +216,10 @@
     // Get the underlying Leaflet map instance
     const leafletMap = map.map;
 
-    // Apply cluster overlap prevention after render
-    function applyPreventClusterOverlap() {
-      console.log('Applying cluster overlap prevention...');
-      preventClusterOverlap();
-    }
-
-    // Set up event listeners
+    // Set up cluster overlap prevention using the utility function
     window.addEventListener('load', () => {
-      console.log('Window loaded, applying cluster overlap prevention');
-      applyPreventClusterOverlap();
-
-      // Event listeners to the Leaflet map instance for relevant events
-      if (leafletMap) {
-        // Handle zoom events
-        leafletMap.on('zoomend', applyPreventClusterOverlap);
-
-        // Handle pan/move events
-        leafletMap.on('moveend', applyPreventClusterOverlap);
-
-        // Handle when layers are added (which could include clusters)
-        leafletMap.on('layeradd', applyPreventClusterOverlap);
-
-        // Handle browser resize which might affect the map
-        window.addEventListener('resize', applyPreventClusterOverlap);
-      } else {
-        console.warn('Leaflet map instance not accessible, falling back to limited event handling');
-        // Fallback if we can't access the Leaflet map instance
-        document.addEventListener('mousemove', () => preventClusterOverlap());
-        document.addEventListener('mouseup', () => preventClusterOverlap());
-        document.addEventListener('wheel', () => preventClusterOverlap());
-      }
+      console.log('Window loaded, setting up cluster overlap prevention');
+      setupClusterOverlapPrevention(leafletMap);
     });
   } catch (e) {
     console.error('Error initializing NetJSONGraph:', e);
