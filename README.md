@@ -14,44 +14,6 @@ Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) a
 
 Build powerful and interoperable visualizations without losing flexibility!
 
-## Table of Contents
-
-- [Project Structure](#project-structure)
-- [Installation and Demo](#install-and-run-demo-examples)
-- [Testing](#run-tests)
-- [Configuration](#arguments)
-- [API Reference](#api-introduction)
-  - [Core](#core)
-  - [Realtime Update](#realtime-update)
-  - [Search Elements](#search-elements)
-  - [Web Workers](#deal-data-by-webworker)
-  - [Date Parsing](#dateparse)
-  - [Loading Data](#load-more-data-using-geographic-extent)
-  - [Rendering](#render)
-  - [Utilities](#utils)
-- [Cluster Utilities](#cluster-utilities)
-- [Examples](#example-usage)
-- [Demo Showcase](#example-demos)
-- [Upgrading](#upgrading-from-01x-versions-to-02x)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Project Structure
-
-The codebase is organized as follows:
-
-```
-netjsongraph.js/
-├── dist/                 # Distribution files (minified library)
-├── lib/                  # Library components
-│   ├── css/              # Stylesheets for the library
-│   └── js/               # JavaScript utility modules
-│       └── clusterUtils.js # Cluster handling utilities
-├── public/               # Public assets and example templates
-│   └── example_templates/ # Example HTML pages
-└── README.md             # Project documentation
-```
-
 ### Install and run demo examples
 
 ```
