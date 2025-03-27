@@ -36,7 +36,7 @@ const NetJSONGraphDefaultConfig = {
   loadMoreAtZoomLevel: 9,
   clustering: false,
   clusteringThreshold: 100,
-  disableClusteringAtLevel: 8,
+  disableClusteringAtLevel: 18,
   clusterRadius: 80,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 7,
