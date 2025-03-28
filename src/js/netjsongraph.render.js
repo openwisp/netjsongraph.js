@@ -380,7 +380,11 @@ class NetJSONGraphRender {
     if (self.type === "geojson") {
       self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
 
-      if (self.config.clustering) {
+      // Check if clustering should be applied based on current zoom level and configuration
+      const shouldApplyClustering = self.config.clustering && 
+          (self.leaflet.getZoom() < self.config.disableClusteringAtLevel);
+      
+      if (shouldApplyClustering) {
         const clusterOptions = {
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: false,
