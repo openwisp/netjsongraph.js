@@ -155,11 +155,40 @@ const operations = {
  *
  */
 function dealJSONData(JSONData) {
+  // First ensure nodes array exists
+  if (!JSONData.nodes) {
+    JSONData.nodes = [];
+  }
+
+  // Deduplicate nodes based on ID
   JSONData.nodes = operations.arrayDeduplication(JSONData.nodes, ["id"]);
+
+  // Add an extra safeguard for duplicate node IDs
+  const uniqueNodes = [];
+  const nodeIds = new Set();
+  
+  JSONData.nodes.forEach(node => {
+    if (node.id && !nodeIds.has(node.id)) {
+      nodeIds.add(node.id);
+      uniqueNodes.push(node);
+    } else if (!node.id) {
+      // Keep nodes without IDs (they should be handled elsewhere)
+      uniqueNodes.push(node);
+    } else {
+      console.warn(`Duplicate node ID detected and skipped: ${node.id}`);
+    }
+  });
+  
+  JSONData.nodes = uniqueNodes;
 
   const {flatNodes, nodeInterfaces} = operations.addFlatNodes(JSONData.nodes);
   JSONData.flatNodes = flatNodes;
   JSONData.nodeInterfaces = nodeInterfaces;
+
+  // Ensure links array exists
+  if (!JSONData.links) {
+    JSONData.links = [];
+  }
 
   JSONData.links = operations.changeInterfaceID(JSONData);
 
