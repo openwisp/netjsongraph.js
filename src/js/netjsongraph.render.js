@@ -690,6 +690,25 @@ class NetJSONGraphRender {
   addData(JSONData, self) {
     // modify this.data
     self.utils.mergeData(JSONData, self);
+
+    // Extra safeguard - ensure nodes are unique by ID to prevent crashes
+    if (self.data.nodes && self.data.nodes.length > 0) {
+      const uniqueNodes = [];
+      const nodeIds = new Set();
+      
+      self.data.nodes.forEach(node => {
+        if (node.id && !nodeIds.has(node.id)) {
+          nodeIds.add(node.id);
+          uniqueNodes.push(node);
+        } else if (!node.id) {
+          // Keep nodes without IDs (they should be handled elsewhere)
+          uniqueNodes.push(node);
+        }
+      });
+      
+      self.data.nodes = uniqueNodes;
+    }
+    
     // `graph` render can't append data. So we have to merge the data and re-render.
     self.utils.render();
 
@@ -705,8 +724,27 @@ class NetJSONGraphRender {
    * @param  {object}         self        NetJSONGraph object
    */
   mergeData(JSONData, self) {
-    const nodes = self.data.nodes.concat(JSONData.nodes);
+    // Create a map of existing node IDs for deduplication
+    const existingNodeIds = new Map();
+    self.data.nodes.forEach(node => {
+      if (node.id) {
+        existingNodeIds.set(node.id, true);
+      }
+    });
+
+    // Only add nodes that don't exist in the current data
+    const newNodes = JSONData.nodes.filter(node => {
+      if (!node.id) return true; // Include nodes without IDs (should be handled elsewhere)
+      if (existingNodeIds.has(node.id)) {
+        console.warn(`Duplicate node ID detected and skipped: ${node.id}`);
+        return false;
+      }
+      return true;
+    });
+
+    const nodes = self.data.nodes.concat(newNodes);
     const links = self.data.links.concat(JSONData.links);
+    
     Object.assign(self.data, JSONData, {
       nodes,
       links,
