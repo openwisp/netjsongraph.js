@@ -230,7 +230,6 @@ const NetJSONGraphDefaultConfig = {
         },
       ],
     },
-    disableClusteringAtLevel: 0,
   },
   mapTileConfig: [
     {
