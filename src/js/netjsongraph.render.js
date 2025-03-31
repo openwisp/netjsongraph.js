@@ -391,8 +391,8 @@ class NetJSONGraphRender {
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: false,
           maxClusterRadius: self.config.clusterRadius,
-          disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
           // We manage visibility manually, so this doesn't strictly matter but set for clarity
+          disableClusteringAtZoom: 1, 
         };
 
         if (self.config.clusteringAttribute) {
@@ -689,6 +689,10 @@ class NetJSONGraphRender {
         return;
       }
       
+      // Ensure original nodes/links are used if needed later
+      nonClusterNodes = [...JSONData.nodes]; 
+      nonClusterLinks = [...JSONData.links];
+      
       // Call makeCluster and assign to the function-scoped variables
       const nodeData = self.utils.makeCluster(self);
       clusters = nodeData.clusters;
@@ -847,7 +851,7 @@ class NetJSONGraphRender {
                 showCoverageOnHover: false,
                 spiderfyOnMaxZoom: false,
                 maxClusterRadius: self.config.clusterRadius,
-                disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
+                disableClusteringAtZoom: 1,
               };
               const cluster = L.markerClusterGroup(clusterOptions).addTo(self.leaflet);
               cluster.addLayer(layer);
