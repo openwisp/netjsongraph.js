@@ -330,11 +330,6 @@ class NetJSONGraphRender {
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
-    
-    // Declare cluster-related state variables for netjson scope
-    let clusters = [];
-    let nonClusterNodes = [];
-    let nonClusterLinks = [];
 
     if (self.type === "netjson") {
       self.utils.echartsSetOption(
@@ -385,18 +380,19 @@ class NetJSONGraphRender {
     if (self.type === "geojson") {
       self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
 
-      // Initialize clustering based on configuration
-      if (self.config.clustering) {
+      // Check if clustering should be applied based on current zoom level and configuration
+      const shouldApplyClustering = self.config.clustering && 
+          (self.leaflet.getZoom() < self.config.disableClusteringAtLevel);
+      
+      if (shouldApplyClustering) {
         const clusterOptions = {
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: false,
           maxClusterRadius: self.config.clusterRadius,
-          // We manage visibility manually, so this doesn't strictly matter but set for clarity
-          disableClusteringAtZoom: 1, 
+          disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
         };
 
         if (self.config.clusteringAttribute) {
-          // Initialize clustered layers by attribute
           const clusterTypeSet = new Set();
           self.data.features.forEach((feature) => {
             clusterTypeSet.add(
@@ -407,8 +403,7 @@ class NetJSONGraphRender {
             }
           });
           const clusterTypes = Array.from(clusterTypeSet);
-          self.leaflet.clusterGroup = [];
-
+          const clusterGroup = [];
           clusterTypes.forEach((type) => {
             const features = self.data.features.filter(
               (feature) =>
@@ -425,31 +420,18 @@ class NetJSONGraphRender {
               ...clusterOptions,
               iconCreateFunction: (c) => {
                 const childCount = c.getChildCount();
-                // Determine cluster size class based on child count
-                let sizeClass = 'small';
-                if (childCount > 100) {
-                  sizeClass = 'large';
-                } else if (childCount > 10) {
-                  sizeClass = 'medium';
-                }
-                
                 return L.divIcon({
-                  html: `
-                    <div class="cluster-inner">
-                      <span class="cluster-count">${childCount}</span>
-                    </div>
-                  `,
-                  className: `marker-cluster marker-cluster-${sizeClass} ${type}`,
+                  html: `<div><span>${childCount}</span></div>`,
+                  className: `marker-cluster ${type}`,
                   iconSize: L.point(40, 40),
-                  iconAnchor: L.point(20, 20)
                 });
               },
             }).addTo(self.leaflet);
-            self.leaflet.clusterGroup.push(cluster);
+            clusterGroup.push(cluster);
             cluster.addLayer(layer);
           });
+          self.leaflet.clusterGroup = clusterGroup;
         } else {
-          // Initialize single cluster group
           self.leaflet.markerClusterGroup = L.markerClusterGroup(
             clusterOptions,
           ).addTo(self.leaflet);
@@ -472,116 +454,29 @@ class NetJSONGraphRender {
       });
     }
 
-    // === Consolidated Zoom Handler ===
     self.leaflet.on("zoomend", () => {
-      const currentZoom = self.leaflet.getZoom();
-      
-      // Handle ECharts/NetJSON Custom Clustering
-      if (self.type === "netjson" && self.config.clustering) {
-        if (currentZoom === 0) {
-          // Zoom 0: Show all nodes
-          const options = self.utils.generateMapOption(self.data, self);
-          self.echarts.setOption(options, true); 
-        } else if (self.leaflet.getZoom() === 1 && clusters.length === 0) { // Check if transitioning from 0 to 1 and not already clustered
-          // Zoom >= 1: Perform clustering
-          const nodeData = self.utils.makeCluster(self);
-          clusters = nodeData.clusters;
-          nonClusterNodes = nodeData.nonClusterNodes;
-          nonClusterLinks = nodeData.nonClusterLinks;
-          self.echarts.setOption(
-            self.utils.generateMapOption(
-              {
-                ...self.data, // Use self.data to ensure consistency
-                nodes: nonClusterNodes,
-                links: nonClusterLinks,
-              },
-              self,
-              clusters,
-            ),
-            true // Ensure options replace, not merge
-          );
-        }
-        // If zoom >= 1 and already clustered, ECharts click handler manages changes
-      }
-      
-      // Handle Leaflet.markercluster for GeoJSON
-      if (self.type === "geojson" && self.config.clustering) {
-        const clusterLayer = self.leaflet.markerClusterGroup || (self.leaflet.clusterGroup && self.leaflet.clusterGroup[0]);
-        const geoJsonLayer = self.leaflet.geoJSON;
-
-        if (!geoJsonLayer && self.data) { // Ensure geoJsonLayer exists if needed
-            self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
-        }
-
-        if (currentZoom === 0) {
-          // Zoom 0: Show raw GeoJSON, hide clusters
-          if (clusterLayer && self.leaflet.hasLayer(clusterLayer)) {
-            self.leaflet.removeLayer(clusterLayer);
-          }
-          if (self.leaflet.geoJSON && !self.leaflet.hasLayer(self.leaflet.geoJSON)) {
-            self.leaflet.addLayer(self.leaflet.geoJSON);
-          }
-        } else {
-          // Zoom >= 1: Show clusters, hide raw GeoJSON
-          if (self.leaflet.geoJSON && self.leaflet.hasLayer(self.leaflet.geoJSON)) {
-            self.leaflet.removeLayer(self.leaflet.geoJSON);
-          }
-          if (clusterLayer && !self.leaflet.hasLayer(clusterLayer)) {
-            self.leaflet.addLayer(clusterLayer);
-          }
-        }
-      }
-      
-      // Handle Label Visibility (This part remains unchanged)
       if (self.leaflet.getZoom() >= self.config.showLabelsAtZoomLevel) {
         self.echarts.setOption({
           series: [
-            {label: {show: true}},
-            {label: {show: true}} // Apply to both potential node and link series
+            {
+              label: {
+                show: true,
+              },
+            },
           ],
-        }, false); // Merge options, don't replace entirely
+        });
       } else {
         self.echarts.setOption({
           series: [
-            {label: {show: false}},
-            {label: {show: false}}
+            {
+              label: {
+                show: false,
+              },
+            },
           ],
-        }, false);
+        });
       }
     });
-    
-    // === Set Initial State ===
-    const initialZoom = self.leaflet.getZoom();
-    if (self.config.clustering) {
-      if (self.type === "netjson") {
-        if (initialZoom === 0) {
-          // Start unclustered
-          const options = self.utils.generateMapOption(self.data, self);
-          self.echarts.setOption(options, true);
-        } else {
-          // Start clustered (makeCluster should have run already if needed)
-          // Ensure the ECharts option reflects the clustered state
-          self.echarts.setOption(
-            self.utils.generateMapOption(
-              {...self.data, nodes: nonClusterNodes, links: nonClusterLinks},
-              self,
-              clusters
-            ),
-            true
-          );
-        }
-      } else if (self.type === "geojson") {
-        const clusterLayer = self.leaflet.markerClusterGroup || (self.leaflet.clusterGroup && self.leaflet.clusterGroup[0]);
-        const geoJsonLayer = self.leaflet.geoJSON;
-        if (initialZoom === 0) {
-          if (clusterLayer) self.leaflet.removeLayer(clusterLayer);
-          if (geoJsonLayer && !self.leaflet.hasLayer(geoJsonLayer)) self.leaflet.addLayer(geoJsonLayer);
-        } else {
-          if (geoJsonLayer) self.leaflet.removeLayer(geoJsonLayer);
-          if (clusterLayer && !self.leaflet.hasLayer(clusterLayer)) self.leaflet.addLayer(clusterLayer);
-        }
-      }
-    }
 
     self.leaflet.on("moveend", async () => {
       const bounds = self.leaflet.getBounds();
@@ -683,21 +578,8 @@ class NetJSONGraphRender {
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
-      // Special case: If disableClusteringAtLevel is 0, skip clustering entirely
-      if (self.config.disableClusteringAtLevel === 0) {
-        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-        return;
-      }
-      
-      // Ensure original nodes/links are used if needed later
-      nonClusterNodes = [...JSONData.nodes]; 
-      nonClusterLinks = [...JSONData.links];
-      
-      // Call makeCluster and assign to the function-scoped variables
-      const nodeData = self.utils.makeCluster(self);
-      clusters = nodeData.clusters;
-      nonClusterNodes = nodeData.nonClusterNodes;
-      nonClusterLinks = nodeData.nonClusterLinks;
+      let {clusters, nonClusterNodes, nonClusterLinks} =
+        self.utils.makeCluster(self);
 
       self.echarts.setOption(
         self.utils.generateMapOption(
@@ -717,7 +599,6 @@ class NetJSONGraphRender {
             params.componentSubType === "effectScatter") &&
           params.data.cluster
         ) {
-          // Modify the function-scoped variables
           nonClusterNodes = nonClusterNodes.concat(params.data.childNodes);
           clusters = clusters.filter(
             (cluster) => cluster.id !== params.data.id,
@@ -737,8 +618,7 @@ class NetJSONGraphRender {
       });
 
       self.leaflet.on("zoomend", () => {
-        if (self.leaflet.getZoom() < Math.max(0, self.config.disableClusteringAtLevel)) {
-          // Recompute and update function-scoped variables
+        if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
           const nodeData = self.utils.makeCluster(self);
           clusters = nodeData.clusters;
           nonClusterNodes = nodeData.nonClusterNodes;
@@ -794,75 +674,9 @@ class NetJSONGraphRender {
         features: self.data.features.concat(JSONData.features),
       };
 
-      // Remove the existing points from the map
-      if (self.config.clustering) {
-        if (self.leaflet.markerClusterGroup) {
-          self.leaflet.markerClusterGroup.clearLayers();
-        } else if (self.leaflet.clusterGroup) {
-          self.leaflet.clusterGroup.forEach(cluster => {
-            cluster.clearLayers();
-          });
-        }
-      } else {
-        self.leaflet.geoJSON.removeFrom(self.leaflet);
-      }
-      
-      // Recreate GeoJSON layer with updated data
-      self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
-      
-      // Re-add the layer to the appropriate container
-      if (self.config.clustering) {
-        if (self.leaflet.markerClusterGroup) {
-          self.leaflet.markerClusterGroup.addLayer(self.leaflet.geoJSON);
-        } else if (self.leaflet.clusterGroup) {
-          // Handle attribute-based clustering
-          const clusterTypeSet = new Set();
-          self.data.features.forEach((feature) => {
-            clusterTypeSet.add(
-              feature.properties[self.config.clusteringAttribute] || "default",
-            );
-          });
-          const clusterTypes = Array.from(clusterTypeSet);
-          
-          // Clear existing cluster group
-          self.leaflet.clusterGroup.forEach(cluster => {
-            cluster.clearLayers();
-          });
-          
-          // Recreate cluster layers with updated data
-          clusterTypes.forEach((type, index) => {
-            const features = self.data.features.filter(
-              (feature) =>
-                feature.properties[self.config.clusteringAttribute] === type,
-            );
-            const layer = L.geoJSON(
-              {
-                ...self.data,
-                features,
-              },
-              self.config.geoOptions,
-            );
-            
-            // Use existing cluster if available, otherwise create new
-            if (index < self.leaflet.clusterGroup.length) {
-              self.leaflet.clusterGroup[index].addLayer(layer);
-            } else {
-              const clusterOptions = {
-                showCoverageOnHover: false,
-                spiderfyOnMaxZoom: false,
-                maxClusterRadius: self.config.clusterRadius,
-                disableClusteringAtZoom: 1,
-              };
-              const cluster = L.markerClusterGroup(clusterOptions).addTo(self.leaflet);
-              cluster.addLayer(layer);
-              self.leaflet.clusterGroup.push(cluster);
-            }
-          });
-        }
-      } else {
-        self.leaflet.geoJSON.addTo(self.leaflet);
-      }
-      
+      // Remove the existing points from the map. Otherwise,
+      // the original points are duplicated on the map.
+      self.leaflet.geoJSON.removeFrom(self.leaflet);
       self.utils.render();
     }
 
