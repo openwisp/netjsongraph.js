@@ -691,22 +691,9 @@ class NetJSONGraphRender {
     // modify this.data
     self.utils.mergeData(JSONData, self);
 
-    // Extra safeguard - ensure nodes are unique by ID to prevent crashes
+    // Ensure nodes are unique by ID using the utility function
     if (self.data.nodes && self.data.nodes.length > 0) {
-      const uniqueNodes = [];
-      const nodeIds = new Set();
-
-      self.data.nodes.forEach((node) => {
-        if (node.id && !nodeIds.has(node.id)) {
-          nodeIds.add(node.id);
-          uniqueNodes.push(node);
-        } else if (!node.id) {
-          // Keep nodes without IDs (they should be handled elsewhere)
-          uniqueNodes.push(node);
-        }
-      });
-
-      self.data.nodes = uniqueNodes;
+      self.data.nodes = self.utils.deduplicateNodesById(self.data.nodes);
     }
 
     // `graph` render can't append data. So we have to merge the data and re-render.
@@ -724,26 +711,37 @@ class NetJSONGraphRender {
    * @param  {object}         self        NetJSONGraph object
    */
   mergeData(JSONData, self) {
-    // Create a map of existing node IDs for deduplication
-    const existingNodeIds = new Map();
+    // Ensure incoming nodes array exists
+    if (!JSONData.nodes) {
+      JSONData.nodes = [];
+    }
+
+    // Create a set of existing node IDs for efficient lookup
+    const existingNodeIds = new Set();
     self.data.nodes.forEach((node) => {
       if (node.id) {
-        existingNodeIds.set(node.id, true);
+        existingNodeIds.add(node.id);
       }
     });
 
-    // Only add nodes that don't exist in the current data
+    // Filter incoming nodes: keep nodes without IDs or with new IDs
     const newNodes = JSONData.nodes.filter((node) => {
-      if (!node.id) return true; // Include nodes without IDs (should be handled elsewhere)
+      if (!node.id) {
+        return true;
+      }
       if (existingNodeIds.has(node.id)) {
-        console.warn(`Duplicate node ID detected and skipped: ${node.id}`);
+        console.warn(
+          `Duplicate node ID ${node.id} detected during merge and skipped.`,
+        );
         return false;
       }
       return true;
     });
 
     const nodes = self.data.nodes.concat(newNodes);
-    const links = self.data.links.concat(JSONData.links);
+    // Ensure incoming links array exists
+    const incomingLinks = JSONData.links || [];
+    const links = self.data.links.concat(incomingLinks);
 
     Object.assign(self.data, JSONData, {
       nodes,
