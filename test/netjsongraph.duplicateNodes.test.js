@@ -1,6 +1,6 @@
 const {operations, dealJSONData} = require("../src/js/netjsonWorker");
 const {addFlatNodes, arrayDeduplication, addNodeLinks} = operations;
-const {NetJSONGraphRender} = require('../src/js/netjsongraph.render');
+const {NetJSONGraphRender} = require("../src/js/netjsongraph.render");
 
 // Test data for duplicate node handling
 const duplicateNodeTestData = new Map([
@@ -35,9 +35,9 @@ const duplicateNodeTestData = new Map([
         nodeCount: 2,
         linkCount: 1,
         flatNodeCount: 2,
-        node1Count: 1
-      }
-    }
+        node1Count: 1,
+      },
+    },
   ],
   [
     // key: Data for mergeData test
@@ -66,7 +66,7 @@ const duplicateNodeTestData = new Map([
         nodes: [
           {
             id: "node1", // Duplicate ID
-            label: "Node 1 Updated", 
+            label: "Node 1 Updated",
           },
           {
             id: "node3", // New node
@@ -84,9 +84,9 @@ const duplicateNodeTestData = new Map([
         finalNodeCount: 3,
         finalLinkCount: 2,
         node1Count: 1,
-        node3Count: 1
-      }
-    }
+        node3Count: 1,
+      },
+    },
   ],
   [
     // key: Data for addData deduplication test
@@ -116,10 +116,10 @@ const duplicateNodeTestData = new Map([
       },
       expected: {
         finalNodeCount: 2,
-        node1Count: 1
-      }
-    }
-  ]
+        node1Count: 1,
+      },
+    },
+  ],
 ]);
 
 // Mock required dependencies
@@ -152,19 +152,22 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     const testCase = duplicateNodeTestData.get("duplicateNodeNetwork");
     const testData = testCase.input;
     const expected = testCase.expected;
-    
+
     // Process the data with our enhanced dealJSONData function
     const processedData = dealJSONData(testData);
 
     // Verify that only one node with ID "node1" was kept
-    expect(processedData.nodes.filter(node => node.id === "node1").length)
-      .toBe(expected.node1Count);
-    
+    expect(
+      processedData.nodes.filter((node) => node.id === "node1").length,
+    ).toBe(expected.node1Count);
+
     // Verify the total count is correct (should be 2 nodes - node1 and node2)
     expect(processedData.nodes.length).toBe(expected.nodeCount);
-    
+
     // Verify flatNodes contains the correct nodes
-    expect(Object.keys(processedData.flatNodes).length).toBe(expected.flatNodeCount);
+    expect(Object.keys(processedData.flatNodes).length).toBe(
+      expected.flatNodeCount,
+    );
     expect(processedData.flatNodes["node1"]).toBeDefined();
     expect(processedData.flatNodes["node2"]).toBeDefined();
   });
@@ -176,26 +179,28 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     const initialData = testCase.initialData;
     const newData = testCase.newData;
     const expected = testCase.expected;
-    
+
     // Create an instance of NetJSONGraphRender
     const netJSONGraphRender = new NetJSONGraphRender();
-    
+
     // Mock self object with initial data
     const self = {
-      data: JSON.parse(JSON.stringify(initialData))
+      data: JSON.parse(JSON.stringify(initialData)),
     };
-    
+
     // Call the mergeData function with our mock self and new data
     netJSONGraphRender.mergeData(newData, self);
-    
+
     // Verify that the duplicate node was not added
-    expect(self.data.nodes.filter(node => node.id === "node1").length)
-      .toBe(expected.node1Count);
-    
+    expect(self.data.nodes.filter((node) => node.id === "node1").length).toBe(
+      expected.node1Count,
+    );
+
     // Verify that the new node was added
-    expect(self.data.nodes.filter(node => node.id === "node3").length)
-      .toBe(expected.node3Count);
-    
+    expect(self.data.nodes.filter((node) => node.id === "node3").length).toBe(
+      expected.node3Count,
+    );
+
     // Verify total node and link counts
     expect(self.data.nodes.length).toBe(expected.finalNodeCount);
     expect(self.data.links.length).toBe(expected.finalLinkCount);
@@ -208,13 +213,13 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     const corruptData = testCase.corruptData;
     const newData = testCase.newData;
     const expected = testCase.expected;
-    
+
     // Create an instance of NetJSONGraphRender
     const netJSONGraphRender = new NetJSONGraphRender();
-    
+
     // Mock the render function
     netJSONGraphRender.render = jest.fn();
-    
+
     // Mock self object with corrupt initial data
     const self = {
       data: JSON.parse(JSON.stringify(corruptData)),
@@ -226,14 +231,15 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
         afterUpdate: jest.fn(),
       },
     };
-    
+
     // Call the addData function with our mock self and new data
     netJSONGraphRender.addData(newData, self);
-    
+
     // Verify that the duplicate node was removed by the safeguard
-    expect(self.data.nodes.filter(node => node.id === "node1").length)
-      .toBe(expected.node1Count);
-    
+    expect(self.data.nodes.filter((node) => node.id === "node1").length).toBe(
+      expected.node1Count,
+    );
+
     // Verify total node count
     expect(self.data.nodes.length).toBe(expected.finalNodeCount);
   });
