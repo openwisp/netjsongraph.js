@@ -382,14 +382,14 @@ class NetJSONGraphRender {
 
       // Check if clustering should be applied based on current zoom level and configuration
       const shouldApplyClustering = self.config.clustering && 
-          (self.leaflet.getZoom() < self.config.disableClusteringAtLevel);
+          self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
       
       if (shouldApplyClustering) {
         const clusterOptions = {
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: false,
           maxClusterRadius: self.config.clusterRadius,
-          disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
+          disableClusteringAtZoom: self.config.disableClusteringAtLevel,
         };
 
         if (self.config.clusteringAttribute) {
@@ -578,8 +578,17 @@ class NetJSONGraphRender {
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
-      let {clusters, nonClusterNodes, nonClusterLinks} =
-        self.utils.makeCluster(self);
+      // Initial clustering state should match the current zoom level
+      const shouldShowClusters = self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
+      
+      let {clusters, nonClusterNodes, nonClusterLinks} = self.utils.makeCluster(self);
+      
+      // Only show clusters if we're below the disableClusteringAtLevel
+      if (!shouldShowClusters) {
+        clusters = [];
+        nonClusterNodes = JSONData.nodes;
+        nonClusterLinks = JSONData.links;
+      }
 
       self.echarts.setOption(
         self.utils.generateMapOption(
@@ -617,8 +626,11 @@ class NetJSONGraphRender {
         }
       });
 
+      // Ensure zoom handler consistently applies the same clustering logic
       self.leaflet.on("zoomend", () => {
-        if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
+        const shouldShowClustersNow = self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
+        
+        if (shouldShowClustersNow) {
           const nodeData = self.utils.makeCluster(self);
           clusters = nodeData.clusters;
           nonClusterNodes = nodeData.nonClusterNodes;
@@ -635,7 +647,10 @@ class NetJSONGraphRender {
             ),
           );
         } else {
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+          // When above the threshold, show all nodes without clustering
+          self.echarts.setOption(
+            self.utils.generateMapOption(JSONData, self)
+          );
         }
       });
     }
