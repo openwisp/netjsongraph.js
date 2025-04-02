@@ -1,5 +1,5 @@
 const {operations, dealJSONData} = require("../src/js/netjsonWorker");
-const {addFlatNodes, arrayDeduplication, addNodeLinks} = operations;
+
 const {NetJSONGraphRender} = require("../src/js/netjsongraph.render");
 
 // Test data for duplicate node handling
@@ -151,7 +151,7 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     // Get test data
     const testCase = duplicateNodeTestData.get("duplicateNodeNetwork");
     const testData = testCase.input;
-    const expected = testCase.expected;
+    const {expected} = testCase;
 
     // Process the data with our enhanced dealJSONData function
     const processedData = dealJSONData(testData);
@@ -168,17 +168,17 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     expect(Object.keys(processedData.flatNodes).length).toBe(
       expected.flatNodeCount,
     );
-    expect(processedData.flatNodes["node1"]).toBeDefined();
-    expect(processedData.flatNodes["node2"]).toBeDefined();
+    expect(processedData.flatNodes.node1).toBeDefined();
+    expect(processedData.flatNodes.node2).toBeDefined();
   });
 
   // Test the enhanced mergeData function
   test("mergeData should handle duplicate node IDs correctly", () => {
     // Get test data
     const testCase = duplicateNodeTestData.get("mergeDataTest");
-    const initialData = testCase.initialData;
-    const newData = testCase.newData;
-    const expected = testCase.expected;
+    const {initialData} = testCase;
+    const {newData} = testCase;
+    const {expected} = testCase;
 
     // Create an instance of NetJSONGraphRender
     const netJSONGraphRender = new NetJSONGraphRender();
@@ -210,9 +210,9 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
   test("addData should apply extra deduplication safeguard", () => {
     // Get test data
     const testCase = duplicateNodeTestData.get("addDataDeduplication");
-    const corruptData = testCase.corruptData;
-    const newData = testCase.newData;
-    const expected = testCase.expected;
+    const {corruptData} = testCase;
+    const {newData} = testCase;
+    const {expected} = testCase;
 
     // Create an instance of NetJSONGraphRender
     const netJSONGraphRender = new NetJSONGraphRender();
