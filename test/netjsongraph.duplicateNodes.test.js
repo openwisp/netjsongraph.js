@@ -1,4 +1,4 @@
-const {operations, dealJSONData} = require("../src/js/netjsonWorker");
+const {dealJSONData} = require("../src/js/netjsonWorker");
 
 const {NetJSONGraphRender} = require("../src/js/netjsongraph.render");
 
