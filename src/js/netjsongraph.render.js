@@ -695,8 +695,8 @@ class NetJSONGraphRender {
     if (self.data.nodes && self.data.nodes.length > 0) {
       const uniqueNodes = [];
       const nodeIds = new Set();
-      
-      self.data.nodes.forEach(node => {
+
+      self.data.nodes.forEach((node) => {
         if (node.id && !nodeIds.has(node.id)) {
           nodeIds.add(node.id);
           uniqueNodes.push(node);
@@ -705,10 +705,10 @@ class NetJSONGraphRender {
           uniqueNodes.push(node);
         }
       });
-      
+
       self.data.nodes = uniqueNodes;
     }
-    
+
     // `graph` render can't append data. So we have to merge the data and re-render.
     self.utils.render();
 
@@ -726,14 +726,14 @@ class NetJSONGraphRender {
   mergeData(JSONData, self) {
     // Create a map of existing node IDs for deduplication
     const existingNodeIds = new Map();
-    self.data.nodes.forEach(node => {
+    self.data.nodes.forEach((node) => {
       if (node.id) {
         existingNodeIds.set(node.id, true);
       }
     });
 
     // Only add nodes that don't exist in the current data
-    const newNodes = JSONData.nodes.filter(node => {
+    const newNodes = JSONData.nodes.filter((node) => {
       if (!node.id) return true; // Include nodes without IDs (should be handled elsewhere)
       if (existingNodeIds.has(node.id)) {
         console.warn(`Duplicate node ID detected and skipped: ${node.id}`);
@@ -744,7 +744,7 @@ class NetJSONGraphRender {
 
     const nodes = self.data.nodes.concat(newNodes);
     const links = self.data.links.concat(JSONData.links);
-    
+
     Object.assign(self.data, JSONData, {
       nodes,
       links,
