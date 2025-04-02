@@ -74,7 +74,7 @@
         clustering: true,
         clusteringThreshold: 50,
         // set map initial state.
-        disableClusteringAtLevel:8, // Cluster level is initially set to 8 user can change it however they want it works on that level
+        disableClusteringAtLevel:10, 
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 4,
@@ -140,6 +140,14 @@
       document.body.appendChild(legends);
 
       map.render();
+
+      map.leaflet.on("zoomend", () => {
+        if (map.leaflet.getZoom() < map.config.disableClusteringAtLevel) {
+          // Apply clustering
+        } else {
+          // Disable clustering
+        }
+      });
     </script>
   </body>
 </html>
