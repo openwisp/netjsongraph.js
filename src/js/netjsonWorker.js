@@ -166,8 +166,8 @@ function dealJSONData(JSONData) {
   // Add an extra safeguard for duplicate node IDs
   const uniqueNodes = [];
   const nodeIds = new Set();
-  
-  JSONData.nodes.forEach(node => {
+
+  JSONData.nodes.forEach((node) => {
     if (node.id && !nodeIds.has(node.id)) {
       nodeIds.add(node.id);
       uniqueNodes.push(node);
@@ -178,7 +178,7 @@ function dealJSONData(JSONData) {
       console.warn(`Duplicate node ID detected and skipped: ${node.id}`);
     }
   });
-  
+
   JSONData.nodes = uniqueNodes;
 
   const {flatNodes, nodeInterfaces} = operations.addFlatNodes(JSONData.nodes);
