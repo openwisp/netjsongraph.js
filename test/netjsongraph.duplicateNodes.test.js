@@ -1,4 +1,4 @@
-const {dealJSONData} = require("../src/js/netjsonWorker");
+const {dealJSONData, operations} = require("../src/js/netjsonWorker");
 
 const {NetJSONGraphRender} = require("../src/js/netjsongraph.render");
 
@@ -226,6 +226,7 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
       utils: {
         mergeData: netJSONGraphRender.mergeData,
         render: jest.fn(),
+        deduplicateNodesById: operations.deduplicateNodesById,
       },
       config: {
         afterUpdate: jest.fn(),
