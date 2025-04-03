@@ -316,30 +316,30 @@ class NetJSONGraphUtil {
 
     // Create spatial index
     const index = new KDBush(nodes.length);
-    for (const {x, y} of nodes) index.add(x, y);
+    nodes.forEach(({x, y}) => index.add(x, y));
     index.finish();
 
     // Group nodes by location first
     const locationGroups = new Map();
     nodes.forEach((node) => {
       if (node.visited) return;
-      
+
       const neighbors = index
         .within(node.x, node.y, self.config.clusterRadius)
         .map((id) => nodes[id]);
-      
+
       if (neighbors.length > 1) {
         const key = `${Math.round(node.x)},${Math.round(node.y)}`;
         if (!locationGroups.has(key)) {
           locationGroups.set(key, new Map());
         }
         const groupByAttribute = locationGroups.get(key);
-        
+
         neighbors.forEach((n) => {
           if (n.visited) return;
-          const attr = self.config.clusteringAttribute 
-            ? n.properties[self.config.clusteringAttribute] 
-            : 'default';
+          const attr = self.config.clusteringAttribute
+            ? n.properties[self.config.clusteringAttribute]
+            : "default";
           if (!groupByAttribute.has(attr)) {
             groupByAttribute.set(attr, []);
           }
@@ -354,8 +354,8 @@ class NetJSONGraphUtil {
     });
 
     // Create clusters for each attribute group
-    for (const [, attributeGroups] of locationGroups) {
-      for (const [attr, groupNodes] of attributeGroups) {
+    locationGroups.forEach((attributeGroups) => {
+      attributeGroups.forEach((groupNodes, attr) => {
         if (groupNodes.length > 1) {
           let centroid = [0, 0];
           groupNodes.forEach((n) => {
@@ -381,7 +381,7 @@ class NetJSONGraphUtil {
 
           if (self.config.clusteringAttribute) {
             const category = self.config.nodeCategories.find(
-              (cat) => cat.name === attr
+              (cat) => cat.name === attr,
             );
             if (category) {
               cluster.itemStyle = {
@@ -392,14 +392,14 @@ class NetJSONGraphUtil {
           }
 
           clusters.push(cluster);
-          clusterId++;
+          clusterId += 1;
         } else if (groupNodes.length === 1) {
           const node = groupNodes[0];
           nodeMap.set(node.id, null);
           nonClusterNodes.push(node);
         }
-      }
-    }
+      });
+    });
 
     // Handle links
     links.forEach((link) => {

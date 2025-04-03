@@ -377,7 +377,7 @@ The library includes utilities for handling cluster visualization and preventing
 Identifies clusters at the same location and arranges them in a circular pattern to prevent overlap. This is particularly useful when you have multiple clusters at the same geographic location, such as nodes with different statuses at the same coordinates.
 
 ```javascript
-import { preventClusterOverlap } from "../../lib/js/clusterUtils.js";
+import {preventClusterOverlap} from "../../lib/js/clusterUtils.js";
 
 // Call the function to arrange overlapping clusters
 preventClusterOverlap();
@@ -388,7 +388,7 @@ preventClusterOverlap();
 Sets up event listeners for cluster overlap prevention. This function automatically applies the `preventClusterOverlap()` function when map events occur that might cause clusters to overlap.
 
 ```javascript
-import { setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
+import {setupClusterOverlapPrevention} from "../../lib/js/clusterUtils.js";
 
 // Get the Leaflet map instance
 const leafletMap = map.map;
@@ -403,7 +403,10 @@ To use the cluster utilities in your project:
 
 ```javascript
 // Import the cluster utilities
-import { preventClusterOverlap, setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
+import {
+  preventClusterOverlap,
+  setupClusterOverlapPrevention,
+} from "../../lib/js/clusterUtils.js";
 
 // Initialize your map
 const map = new NetJSONGraph(data, {
@@ -411,7 +414,7 @@ const map = new NetJSONGraph(data, {
   clustering: true,
   clusteringThreshold: 1,
   clusterRadius: 40,
-  clusteringAttribute: "status" // Cluster by status
+  clusteringAttribute: "status", // Cluster by status
 });
 
 map.render();
@@ -420,7 +423,7 @@ map.render();
 const leafletMap = map.map;
 
 // Set up cluster overlap prevention when the map is loaded
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
   setupClusterOverlapPrevention(leafletMap);
 });
 ```
