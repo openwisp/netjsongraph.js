@@ -140,14 +140,7 @@
       document.body.appendChild(legends);
 
       map.render();
-
-      map.leaflet.on("zoomend", () => {
-        if (map.leaflet.getZoom() < map.config.disableClusteringAtLevel) {
-          // Apply clustering
-        } else {
-          // Disable clustering
-        }
-      });
+      
     </script>
   </body>
 </html>
