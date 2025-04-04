@@ -766,3 +766,77 @@ describe("Test clustering", () => {
     map.utils.appendData(data, map);
   });
 });
+
+describe("Test NetJSONGraphRender methods", () => {
+  let renderInstance;
+  let mockSelf;
+  let mockJSONData;
+
+  beforeEach(() => {
+    renderInstance = new NetJSONGraphRender();
+    mockJSONData = {
+      nodes: [{id: "n1", label: "Node 1"}, {id: "n2"}],
+      links: [{id: "l1", source: "n1", target: "n2"}],
+    };
+    mockSelf = {
+      config: {
+        graphConfig: {
+          series: {type: "graph", layout: "force"},
+          baseOptions: {animation: false},
+        },
+        nodeParser: jest.fn(),
+        linkParser: jest.fn(),
+      },
+      utils: {
+        getNodeStyle: jest.fn(() => ({
+          nodeStyleConfig: {color: "red"},
+          nodeSizeConfig: 10,
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
+        })),
+        getLinkStyle: jest.fn(() => ({
+          linkStyleConfig: {color: "blue"},
+          linkEmphasisConfig: {linkStyle: {}},
+        })),
+      },
+    };
+  });
+
+  test("generateGraphOption should generate options for standard graph", () => {
+    const options = renderInstance.generateGraphOption(mockJSONData, mockSelf);
+
+    expect(options).toHaveProperty("series");
+    expect(options.series).toHaveLength(1);
+    const series = options.series[0];
+    expect(series.type).toBe("graph");
+    expect(series.layout).toBe("force");
+    expect(series).toHaveProperty("nodes");
+    expect(series.nodes).toHaveLength(2);
+    expect(series.nodes[0].name).toBe("Node 1"); // Check label usage
+    expect(series.nodes[1].name).toBe("n2"); // Check id fallback
+    expect(series.nodes[0].itemStyle).toEqual({color: "red"});
+    expect(series.nodes[0].symbolSize).toBe(10);
+    expect(series.nodes[0].emphasis).toBeDefined();
+    expect(series).toHaveProperty("links");
+    expect(series.links).toHaveLength(1);
+    expect(series.links[0].lineStyle).toEqual({color: "blue"});
+    expect(series.links[0].emphasis).toBeDefined();
+    expect(options).toHaveProperty("animation", false); // Check baseOptions merge
+    expect(mockSelf.utils.getNodeStyle).toHaveBeenCalledTimes(2);
+    expect(mockSelf.utils.getLinkStyle).toHaveBeenCalledTimes(1);
+  });
+
+  test("generateGraphOption should generate options for graphGL", () => {
+    mockSelf.config.graphConfig.series.type = "graphGL";
+    const options = renderInstance.generateGraphOption(mockJSONData, mockSelf);
+
+    expect(options).toHaveProperty("series");
+    expect(options.series).toHaveLength(1);
+    const series = options.series[0];
+    expect(series.type).toBe("graphGL");
+    expect(series.layout).toBe("forceAtlas2"); // Default layout for graphGL
+    expect(series).toHaveProperty("nodes");
+    expect(series).toHaveProperty("links");
+    expect(mockSelf.utils.getNodeStyle).toHaveBeenCalledTimes(2);
+    expect(mockSelf.utils.getLinkStyle).toHaveBeenCalledTimes(1);
+  });
+});
