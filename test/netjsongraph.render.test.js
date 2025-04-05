@@ -792,16 +792,18 @@ describe("Test disableClusteringAtLevel on initial map render", () => {
       getZoom: jest.fn(),
       getBounds: jest.fn(),
       addLayer: jest.fn(), // Mock addLayer needed by geoJSON.addTo(map)
-      latLngToContainerPoint: jest.fn(() => ({ x: 0, y: 0 })), // Add mock for older tests
+      latLngToContainerPoint: jest.fn(() => ({x: 0, y: 0})), // Add mock for older tests
     };
 
     // Use jest.spyOn for the imported L
-    jest.spyOn(L, 'geoJSON').mockImplementation(() => mockGeoJSONLayer);
-    jest.spyOn(L, 'markerClusterGroup').mockImplementation(() => mockMarkerClusterGroupInstance);
-    jest.spyOn(L, 'map').mockImplementation(() => mockLeafletInstance);
-    jest.spyOn(L, 'divIcon').mockImplementation(jest.fn());
-    jest.spyOn(L, 'point').mockImplementation(jest.fn());
-    jest.spyOn(L, 'circleMarker').mockImplementation(jest.fn());
+    jest.spyOn(L, "geoJSON").mockImplementation(() => mockGeoJSONLayer);
+    jest
+      .spyOn(L, "markerClusterGroup")
+      .mockImplementation(() => mockMarkerClusterGroupInstance);
+    jest.spyOn(L, "map").mockImplementation(() => mockLeafletInstance);
+    jest.spyOn(L, "divIcon").mockImplementation(jest.fn());
+    jest.spyOn(L, "point").mockImplementation(jest.fn());
+    jest.spyOn(L, "circleMarker").mockImplementation(jest.fn());
 
     // Mock the NetJSONGraph instance ('self') passed to mapRender
     mockSelf = {
@@ -819,17 +821,21 @@ describe("Test disableClusteringAtLevel on initial map render", () => {
         mapTileConfig: [{}], // Add missing mapTileConfig
       },
       leaflet: mockLeafletInstance, // The mocked Leaflet map instance
-      echarts: { // Add mock echarts object
+      echarts: {
+        // Add mock echarts object
         setOption: jest.fn(),
         _api: {
-          getCoordinateSystems: jest.fn(() => [{ getLeaflet: () => mockLeafletInstance }]),
+          getCoordinateSystems: jest.fn(() => [
+            {getLeaflet: () => mockLeafletInstance},
+          ]),
         },
       },
       utils: {
         // Mock utils if mapRender uses them
-        deepMergeObj: jest.fn((obj1, obj2) => ({ ...obj1, ...obj2 })), // Mock deepMergeObj
+        deepMergeObj: jest.fn((obj1, obj2) => ({...obj1, ...obj2})), // Mock deepMergeObj
       },
-      event: { // Add mock event object
+      event: {
+        // Add mock event object
         emit: jest.fn(),
       },
       el: document.createElement("div"), // Mock element if needed
@@ -855,7 +861,10 @@ describe("Test disableClusteringAtLevel on initial map render", () => {
     expect(mockSelf.leaflet.getZoom()).toBeLessThan(
       mockSelf.config.disableClusteringAtLevel,
     );
-    expect(L.geoJSON).toHaveBeenCalledWith(mockSelf.data, mockSelf.config.geoOptions);
+    expect(L.geoJSON).toHaveBeenCalledWith(
+      mockSelf.data,
+      mockSelf.config.geoOptions,
+    );
     expect(L.markerClusterGroup).toHaveBeenCalled(); // Clustering should be initialized
     expect(mockMarkerClusterGroupInstance.addLayer).toHaveBeenCalledWith(
       mockGeoJSONLayer,
@@ -878,7 +887,10 @@ describe("Test disableClusteringAtLevel on initial map render", () => {
     expect(mockSelf.leaflet.getZoom()).not.toBeLessThan(
       mockSelf.config.disableClusteringAtLevel,
     );
-    expect(L.geoJSON).toHaveBeenCalledWith(mockSelf.data, mockSelf.config.geoOptions);
+    expect(L.geoJSON).toHaveBeenCalledWith(
+      mockSelf.data,
+      mockSelf.config.geoOptions,
+    );
     expect(L.markerClusterGroup).not.toHaveBeenCalled(); // Clustering should NOT be initialized
     expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet); // GeoJSON layer added directly to map
     expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
@@ -896,7 +908,10 @@ describe("Test disableClusteringAtLevel on initial map render", () => {
     expect(mockSelf.leaflet.getZoom()).not.toBeLessThan(
       mockSelf.config.disableClusteringAtLevel,
     );
-    expect(L.geoJSON).toHaveBeenCalledWith(mockSelf.data, mockSelf.config.geoOptions);
+    expect(L.geoJSON).toHaveBeenCalledWith(
+      mockSelf.data,
+      mockSelf.config.geoOptions,
+    );
     expect(L.markerClusterGroup).not.toHaveBeenCalled(); // Clustering should NOT be initialized
     expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet); // GeoJSON layer added directly to map
     expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
@@ -912,7 +927,10 @@ describe("Test disableClusteringAtLevel on initial map render", () => {
 
     // Assertions
     expect(mockSelf.config.clustering).toBe(false);
-    expect(L.geoJSON).toHaveBeenCalledWith(mockSelf.data, mockSelf.config.geoOptions);
+    expect(L.geoJSON).toHaveBeenCalledWith(
+      mockSelf.data,
+      mockSelf.config.geoOptions,
+    );
     expect(L.markerClusterGroup).not.toHaveBeenCalled(); // Clustering should NOT be initialized
     expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet); // GeoJSON layer added directly to map
   });
