@@ -579,15 +579,12 @@ class NetJSONGraphRender {
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
-      // Initial clustering state should match the current zoom level
-      const initialClusteringState =
-        self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
 
       let {clusters, nonClusterNodes, nonClusterLinks} =
         self.utils.makeCluster(self);
 
       // Only show clusters if we're below the disableClusteringAtLevel
-      if (!initialClusteringState) {
+      if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
         clusters = [];
         nonClusterNodes = JSONData.nodes;
         nonClusterLinks = JSONData.links;
