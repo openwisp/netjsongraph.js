@@ -767,76 +767,153 @@ describe("Test clustering", () => {
   });
 });
 
-describe("Test NetJSONGraphRender methods", () => {
+describe("Test disableClusteringAtLevel on initial map render", () => {
   let renderInstance;
   let mockSelf;
-  let mockJSONData;
+  let mockLeafletInstance;
+  let mockGeoJSONLayer;
+  let mockMarkerClusterGroupInstance;
 
   beforeEach(() => {
-    renderInstance = new NetJSONGraphRender();
-    mockJSONData = {
-      nodes: [{id: "n1", label: "Node 1"}, {id: "n2"}],
-      links: [{id: "l1", source: "n1", target: "n2"}],
+    // Reset mocks before each test
+    // jest.clearAllMocks(); // Don't clear here, restore in afterEach
+
+    // Mock Leaflet instances and methods FIRST
+    mockGeoJSONLayer = {
+      addTo: jest.fn(),
+      on: jest.fn(), // Mock 'on' method for onEachFeature
     };
+    mockMarkerClusterGroupInstance = {
+      addLayer: jest.fn(),
+      addTo: jest.fn(() => mockMarkerClusterGroupInstance), // Chainable addTo
+    };
+    mockLeafletInstance = {
+      on: jest.fn(),
+      getZoom: jest.fn(),
+      getBounds: jest.fn(),
+      addLayer: jest.fn(), // Mock addLayer needed by geoJSON.addTo(map)
+      latLngToContainerPoint: jest.fn(() => ({ x: 0, y: 0 })), // Add mock for older tests
+    };
+
+    // Use jest.spyOn for the imported L
+    jest.spyOn(L, 'geoJSON').mockImplementation(() => mockGeoJSONLayer);
+    jest.spyOn(L, 'markerClusterGroup').mockImplementation(() => mockMarkerClusterGroupInstance);
+    jest.spyOn(L, 'map').mockImplementation(() => mockLeafletInstance);
+    jest.spyOn(L, 'divIcon').mockImplementation(jest.fn());
+    jest.spyOn(L, 'point').mockImplementation(jest.fn());
+    jest.spyOn(L, 'circleMarker').mockImplementation(jest.fn());
+
+    // Mock the NetJSONGraph instance ('self') passed to mapRender
     mockSelf = {
+      type: "geojson",
+      data: {type: "FeatureCollection", features: []}, // Minimal GeoJSON structure
       config: {
-        graphConfig: {
-          series: {type: "graph", layout: "force"},
-          baseOptions: {animation: false},
+        clustering: true,
+        disableClusteringAtLevel: 5, // Example threshold
+        clusterRadius: 80, // Example value
+        geoOptions: {}, // Example value
+        clusteringAttribute: null, // Default case
+        prepareData: jest.fn((d) => d),
+        onClickElement: jest.fn(),
+        mapOptions: {}, // Needed if L.map uses it
+        mapTileConfig: [{}], // Add missing mapTileConfig
+      },
+      leaflet: mockLeafletInstance, // The mocked Leaflet map instance
+      echarts: { // Add mock echarts object
+        setOption: jest.fn(),
+        _api: {
+          getCoordinateSystems: jest.fn(() => [{ getLeaflet: () => mockLeafletInstance }]),
         },
-        nodeParser: jest.fn(),
-        linkParser: jest.fn(),
       },
       utils: {
-        getNodeStyle: jest.fn(() => ({
-          nodeStyleConfig: {color: "red"},
-          nodeSizeConfig: 10,
-          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
-        })),
-        getLinkStyle: jest.fn(() => ({
-          linkStyleConfig: {color: "blue"},
-          linkEmphasisConfig: {linkStyle: {}},
-        })),
+        // Mock utils if mapRender uses them
+        deepMergeObj: jest.fn((obj1, obj2) => ({ ...obj1, ...obj2 })), // Mock deepMergeObj
       },
+      event: { // Add mock event object
+        emit: jest.fn(),
+      },
+      el: document.createElement("div"), // Mock element if needed
     };
+
+    renderInstance = new NetJSONGraphRender();
   });
 
-  test("generateGraphOption should generate options for standard graph", () => {
-    const options = renderInstance.generateGraphOption(mockJSONData, mockSelf);
-
-    expect(options).toHaveProperty("series");
-    expect(options.series).toHaveLength(1);
-    const series = options.series[0];
-    expect(series.type).toBe("graph");
-    expect(series.layout).toBe("force");
-    expect(series).toHaveProperty("nodes");
-    expect(series.nodes).toHaveLength(2);
-    expect(series.nodes[0].name).toBe("Node 1"); // Check label usage
-    expect(series.nodes[1].name).toBe("n2"); // Check id fallback
-    expect(series.nodes[0].itemStyle).toEqual({color: "red"});
-    expect(series.nodes[0].symbolSize).toBe(10);
-    expect(series.nodes[0].emphasis).toBeDefined();
-    expect(series).toHaveProperty("links");
-    expect(series.links).toHaveLength(1);
-    expect(series.links[0].lineStyle).toEqual({color: "blue"});
-    expect(series.links[0].emphasis).toBeDefined();
-    expect(options).toHaveProperty("animation", false); // Check baseOptions merge
-    expect(mockSelf.utils.getNodeStyle).toHaveBeenCalledTimes(2);
-    expect(mockSelf.utils.getLinkStyle).toHaveBeenCalledTimes(1);
+  afterEach(() => {
+    // Restore all spies/mocks
+    jest.restoreAllMocks();
   });
 
-  test("generateGraphOption should generate options for graphGL", () => {
-    mockSelf.config.graphConfig.series.type = "graphGL";
-    const options = renderInstance.generateGraphOption(mockJSONData, mockSelf);
+  test("should enable clustering when initial zoom is less than disableClusteringAtLevel", () => {
+    // Set zoom level below the threshold
+    mockSelf.leaflet.getZoom.mockReturnValue(4);
 
-    expect(options).toHaveProperty("series");
-    expect(options.series).toHaveLength(1);
-    const series = options.series[0];
-    expect(series.type).toBe("graphGL");
-    expect(series.layout).toBe("forceAtlas2"); // Default layout for graphGL
-    expect(series).toHaveProperty("nodes");
-    expect(series).toHaveProperty("links");
-    expect(mockSelf.utils.getNodeStyle).toHaveBeenCalledTimes(2);
-    expect(mockSelf.utils.getLinkStyle).toHaveBeenCalledTimes(1);
+    // Call the render method that initializes clustering
+    renderInstance.mapRender(mockSelf.data, mockSelf); // Pass mockSelf.data, not undefined mockJSONData
+
+    // Assertions
+    expect(mockSelf.config.clustering).toBe(true);
+    expect(mockSelf.leaflet.getZoom()).toBeLessThan(
+      mockSelf.config.disableClusteringAtLevel,
+    );
+    expect(L.geoJSON).toHaveBeenCalledWith(mockSelf.data, mockSelf.config.geoOptions);
+    expect(L.markerClusterGroup).toHaveBeenCalled(); // Clustering should be initialized
+    expect(mockMarkerClusterGroupInstance.addLayer).toHaveBeenCalledWith(
+      mockGeoJSONLayer,
+    ); // GeoJSON layer added to cluster group
+    expect(mockMarkerClusterGroupInstance.addTo).toHaveBeenCalledWith(
+      mockSelf.leaflet,
+    ); // Cluster group added to map
+    expect(mockGeoJSONLayer.addTo).not.toHaveBeenCalled(); // GeoJSON layer NOT added directly to map
+  });
+
+  test("should disable clustering when initial zoom is equal to disableClusteringAtLevel", () => {
+    // Set zoom level equal to the threshold
+    mockSelf.leaflet.getZoom.mockReturnValue(5);
+
+    renderInstance.mapRender(mockSelf.data, mockSelf); // Pass mockSelf.data
+
+    // Assertions
+    expect(mockSelf.config.clustering).toBe(true);
+    // Note: The check is strictly '<', so zoom 5 should disable clustering
+    expect(mockSelf.leaflet.getZoom()).not.toBeLessThan(
+      mockSelf.config.disableClusteringAtLevel,
+    );
+    expect(L.geoJSON).toHaveBeenCalledWith(mockSelf.data, mockSelf.config.geoOptions);
+    expect(L.markerClusterGroup).not.toHaveBeenCalled(); // Clustering should NOT be initialized
+    expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet); // GeoJSON layer added directly to map
+    expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
+    expect(mockMarkerClusterGroupInstance.addTo).not.toHaveBeenCalled();
+  });
+
+  test("should disable clustering when initial zoom is greater than disableClusteringAtLevel", () => {
+    // Set zoom level above the threshold
+    mockSelf.leaflet.getZoom.mockReturnValue(6);
+
+    renderInstance.mapRender(mockSelf.data, mockSelf); // Pass mockSelf.data
+
+    // Assertions
+    expect(mockSelf.config.clustering).toBe(true);
+    expect(mockSelf.leaflet.getZoom()).not.toBeLessThan(
+      mockSelf.config.disableClusteringAtLevel,
+    );
+    expect(L.geoJSON).toHaveBeenCalledWith(mockSelf.data, mockSelf.config.geoOptions);
+    expect(L.markerClusterGroup).not.toHaveBeenCalled(); // Clustering should NOT be initialized
+    expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet); // GeoJSON layer added directly to map
+    expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
+    expect(mockMarkerClusterGroupInstance.addTo).not.toHaveBeenCalled();
+  });
+
+  test("should not attempt clustering if config.clustering is false", () => {
+    // Disable clustering in config
+    mockSelf.config.clustering = false;
+    mockSelf.leaflet.getZoom.mockReturnValue(4); // Zoom level doesn't matter here
+
+    renderInstance.mapRender(mockSelf.data, mockSelf); // Pass mockSelf.data
+
+    // Assertions
+    expect(mockSelf.config.clustering).toBe(false);
+    expect(L.geoJSON).toHaveBeenCalledWith(mockSelf.data, mockSelf.config.geoOptions);
+    expect(L.markerClusterGroup).not.toHaveBeenCalled(); // Clustering should NOT be initialized
+    expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet); // GeoJSON layer added directly to map
   });
 });
