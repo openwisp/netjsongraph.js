@@ -627,10 +627,7 @@ class NetJSONGraphRender {
 
       // Ensure zoom handler consistently applies the same clustering logic
       self.leaflet.on("zoomend", () => {
-        const shouldApplyClustering =
-          self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
-
-        if (shouldApplyClustering) {
+        if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
           const nodeData = self.utils.makeCluster(self);
           clusters = nodeData.clusters;
           nonClusterNodes = nodeData.nonClusterNodes;
