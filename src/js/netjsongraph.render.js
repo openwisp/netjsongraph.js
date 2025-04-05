@@ -587,7 +587,7 @@ class NetJSONGraphRender {
         self.utils.makeCluster(self);
 
       // Only show clusters if we're below the disableClusteringAtLevel
-      if (!self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
+      if (!initialClusteringState) {
         clusters = [];
         nonClusterNodes = JSONData.nodes;
         nonClusterLinks = JSONData.links;
