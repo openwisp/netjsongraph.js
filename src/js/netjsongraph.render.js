@@ -579,7 +579,6 @@ class NetJSONGraphRender {
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
-
       let {clusters, nonClusterNodes, nonClusterLinks} =
         self.utils.makeCluster(self);
 
