@@ -767,7 +767,7 @@ describe("Test clustering", () => {
   });
 });
 
-describe("Test disableClusteringAtLevel: 0 on initial render", () => {
+describe("Test disableClusteringAtLevel: 0", () => {
   let renderInstance;
   let mockSelf;
   let mockLeafletInstance;
@@ -775,7 +775,6 @@ describe("Test disableClusteringAtLevel: 0 on initial render", () => {
   let mockMarkerClusterGroupInstance;
 
   beforeEach(() => {
-    // Mock Leaflet instances and methods
     mockGeoJSONLayer = {
       addTo: jest.fn(),
       on: jest.fn(),
@@ -792,21 +791,21 @@ describe("Test disableClusteringAtLevel: 0 on initial render", () => {
       latLngToContainerPoint: jest.fn(() => ({x: 0, y: 0})),
     };
 
-    // Mock Leaflet methods
     jest.spyOn(L, "geoJSON").mockImplementation(() => mockGeoJSONLayer);
-    jest.spyOn(L, "markerClusterGroup").mockImplementation(() => mockMarkerClusterGroupInstance);
+    jest
+      .spyOn(L, "markerClusterGroup")
+      .mockImplementation(() => mockMarkerClusterGroupInstance);
     jest.spyOn(L, "map").mockImplementation(() => mockLeafletInstance);
     jest.spyOn(L, "divIcon").mockImplementation(jest.fn());
     jest.spyOn(L, "point").mockImplementation(jest.fn());
     jest.spyOn(L, "circleMarker").mockImplementation(jest.fn());
 
-    // Mock the NetJSONGraph instance
     mockSelf = {
       type: "geojson",
       data: {type: "FeatureCollection", features: []},
       config: {
         clustering: true,
-        disableClusteringAtLevel: 0, // This is the key setting we're testing
+        disableClusteringAtLevel: 0,
         clusterRadius: 80,
         geoOptions: {},
         clusteringAttribute: null,
@@ -846,19 +845,13 @@ describe("Test disableClusteringAtLevel: 0 on initial render", () => {
   });
 
   test("should disable clustering when disableClusteringAtLevel is 0 and initial zoom is 0", () => {
-    // Set zoom level to 0
     mockSelf.leaflet.getZoom.mockReturnValue(0);
-
-    // Call the render method
     renderInstance.mapRender(mockSelf.data, mockSelf);
 
-    // Assertions
     expect(mockSelf.config.clustering).toBe(true);
     expect(mockSelf.config.disableClusteringAtLevel).toBe(0);
     expect(mockSelf.leaflet.getZoom()).toBe(0);
-    
-    // With disableClusteringAtLevel: 0, clustering should be disabled even at zoom level 0
-    // because the condition is getZoom() < disableClusteringAtLevel, which is false when both are 0
+
     expect(L.markerClusterGroup).not.toHaveBeenCalled();
     expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet);
     expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
@@ -866,18 +859,13 @@ describe("Test disableClusteringAtLevel: 0 on initial render", () => {
   });
 
   test("should disable clustering when disableClusteringAtLevel is 0 and initial zoom is greater than 0", () => {
-    // Set zoom level to 1
     mockSelf.leaflet.getZoom.mockReturnValue(1);
-
-    // Call the render method
     renderInstance.mapRender(mockSelf.data, mockSelf);
 
-    // Assertions
     expect(mockSelf.config.clustering).toBe(true);
     expect(mockSelf.config.disableClusteringAtLevel).toBe(0);
     expect(mockSelf.leaflet.getZoom()).toBe(1);
-    
-    // With disableClusteringAtLevel: 0, clustering should be disabled at any zoom level
+
     expect(L.markerClusterGroup).not.toHaveBeenCalled();
     expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet);
     expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
