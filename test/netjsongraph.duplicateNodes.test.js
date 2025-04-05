@@ -146,7 +146,6 @@ global.echarts = {
 };
 
 describe("NetJSONGraph Duplicate Node ID Handling", () => {
-  // Test the enhanced dealJSONData function
   test("dealJSONData should handle duplicate node IDs gracefully", () => {
     // Get test data
     const testCase = duplicateNodeTestData.get("duplicateNodeNetwork");
@@ -172,7 +171,6 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     expect(processedData.flatNodes.node2).toBeDefined();
   });
 
-  // Test the enhanced mergeData function
   test("mergeData should handle duplicate node IDs correctly", () => {
     // Get test data
     const testCase = duplicateNodeTestData.get("mergeDataTest");
@@ -191,7 +189,7 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     // Call the mergeData function with our mock self and new data
     netJSONGraphRender.mergeData(newData, self);
 
-    // Verify that the duplicate node was not added
+    // Ensure that adding a duplicate node does not result in multiple entries.
     expect(self.data.nodes.filter((node) => node.id === "node1").length).toBe(
       expected.node1Count,
     );
@@ -206,7 +204,6 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     expect(self.data.links.length).toBe(expected.finalLinkCount);
   });
 
-  // Test the addData function's safeguard
   test("addData should apply extra deduplication safeguard", () => {
     // Get test data
     const testCase = duplicateNodeTestData.get("addDataDeduplication");
