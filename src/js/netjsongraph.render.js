@@ -381,7 +381,7 @@ class NetJSONGraphRender {
       self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
 
       // Check if clustering should be applied based on current zoom level and configuration
-      const shouldApplyClustering =
+      const needsClustering =
         self.config.clustering &&
         self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
 
