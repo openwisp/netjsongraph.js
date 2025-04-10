@@ -1,5 +1,4 @@
 const {dealJSONData, operations} = require("../src/js/netjsonWorker");
-
 const {NetJSONGraphRender} = require("../src/js/netjsongraph.render");
 
 // Test data for duplicate node handling
@@ -16,7 +15,7 @@ const duplicateNodeTestData = new Map([
             label: "Node 1",
           },
           {
-            id: "node1", // Duplicate ID
+            id: "node1",
             label: "Node 1 Duplicate",
           },
           {
@@ -65,11 +64,11 @@ const duplicateNodeTestData = new Map([
       newData: {
         nodes: [
           {
-            id: "node1", // Duplicate ID
+            id: "node1",
             label: "Node 1 Updated",
           },
           {
-            id: "node3", // New node
+            id: "node3",
             label: "Node 3",
           },
         ],
@@ -100,7 +99,7 @@ const duplicateNodeTestData = new Map([
             label: "Node 1",
           },
           {
-            id: "node1", // Duplicate ID (corrupt state)
+            id: "node1",
             label: "Node 1 Duplicate",
           },
           {
@@ -146,29 +145,27 @@ global.echarts = {
 };
 
 describe("NetJSONGraph Duplicate Node ID Handling", () => {
-  test("dealJSONData should handle duplicate node IDs gracefully", () => {
-    // Get test data
+  test("dealJSONData should remove duplicate node IDs from the output", () => {
     const testCase = duplicateNodeTestData.get("duplicateNodeNetwork");
     const testData = testCase.input;
-    const {expected} = testCase;
 
-    // Process the data with our enhanced dealJSONData function
     const processedData = dealJSONData(testData);
 
-    // Verify that only one node with ID "node1" was kept
-    expect(
-      processedData.nodes.filter((node) => node.id === "node1").length,
-    ).toBe(expected.node1Count);
+    const idCounts = processedData.nodes.reduce((acc, node) => {
+      acc[node.id] = (acc[node.id] || 0) + 1;
+      return acc;
+    }, {});
 
-    // Verify the total count is correct (should be 2 nodes - node1 and node2)
-    expect(processedData.nodes.length).toBe(expected.nodeCount);
+    Object.entries(idCounts).forEach(([, count]) => {
+      expect(count).toBe(1);
+    });
 
-    // Verify flatNodes contains the correct nodes
-    expect(Object.keys(processedData.flatNodes).length).toBe(
-      expected.flatNodeCount,
-    );
+    expect(Object.keys(processedData.flatNodes).length).toBe(2);
     expect(processedData.flatNodes.node1).toBeDefined();
     expect(processedData.flatNodes.node2).toBeDefined();
+
+    const node1 = processedData.nodes.find(node => node.id === "node1");
+    expect(node1.label).toBe("Node 1");
   });
 
   test("mergeData should handle duplicate node IDs correctly", () => {
