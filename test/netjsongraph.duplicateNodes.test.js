@@ -162,7 +162,7 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     expect(processedData.flatNodes.node1).toBeDefined();
     expect(processedData.flatNodes.node2).toBeDefined();
 
-    const node1 = processedData.nodes.find(node => node.id === "node1");
+    const node1 = processedData.nodes.find((node) => node.id === "node1");
     expect(node1.label).toBe("Node 1");
   });
 
