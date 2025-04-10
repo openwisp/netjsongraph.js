@@ -269,13 +269,15 @@
   const map = new NetJSONGraph(testData, {
     render: "map",
     clustering: true,
-    clusteringThreshold: 1, // Lower threshold to ensure clustering happens
-    clusterRadius: 40,
-    clusteringAttribute: "status", // This ensures nodes are clustered by status
-    // Set map initial state
+    clusteringThreshold: 2,
+    clusterRadius: 80,
+    disableClusteringAtLevel: 18,
+    clusteringAttribute: "status",
     mapOptions: {
       center: [45.4642, 9.1900],
-      zoom: 15,
+      zoom: 12,
+      minZoom: 3,
+      maxZoom: 18,
       nodeConfig: {
         label: {
           offset: [0, -10],
@@ -302,7 +304,6 @@
         }
       }
     ],
-    // Convert to internal json format
     prepareData: (data) => {
       data.nodes.forEach((node) => {
         node.label = node.name;
@@ -317,12 +318,9 @@
   const createLegend = (key, className) => {
     const legendItem = document.createElement("p");
     const legendIcon = document.createElement("span");
-
     legendIcon.setAttribute("class", className);
-
     legends.appendChild(legendItem);
     legendItem.appendChild(legendIcon);
-
     legendItem.innerHTML += key;
     return legendItem;
   };
@@ -335,23 +333,38 @@
   legends.appendChild(createLegend("OK", "status-ok"));
   legends.appendChild(createLegend("Problem", "status-problem"));
   legends.appendChild(createLegend("Critical", "status-critical"));
-
   document.body.appendChild(legends);
 
-  console.log('Initializing map...');
-
   try {
-    // Render the map (only once!)
     map.render();
-    console.log('Map rendered successfully');
-
-    // Get the underlying Leaflet map instance
     const leafletMap = map.map;
 
-    // Set up cluster overlap prevention using the utility function
+    function updateClusters() {
+        preventClusterOverlap();
+        if (map.utils?.makeCluster) {
+            const clusterData = map.utils.makeCluster(map);
+            if (clusterData) {
+                map.echarts.setOption(map.utils.generateMapOption(
+                    {
+                        ...map.data,
+                        nodes: clusterData.nonClusterNodes,
+                        links: clusterData.nonClusterLinks,
+                    },
+                    map,
+                    clusterData.clusters
+                ));
+            }
+        }
+    }
+
     window.addEventListener('load', () => {
-      console.log('Window loaded, setting up cluster overlap prevention');
-      setupClusterOverlapPrevention(leafletMap);
+        updateClusters();
+        if (leafletMap) {
+            leafletMap.on('zoomend', updateClusters);
+            leafletMap.on('moveend', updateClusters);
+            leafletMap.on('layeradd', updateClusters);
+        }
+        window.addEventListener('resize', updateClusters);
     });
   } catch (e) {
     console.error('Error initializing NetJSONGraph:', e);
