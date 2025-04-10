@@ -4,9 +4,7 @@ const {NetJSONGraphRender} = require("../src/js/netjsongraph.render");
 // Test data for duplicate node handling
 const duplicateNodeTestData = new Map([
   [
-    // key: Simple network with duplicate node
     "duplicateNodeNetwork",
-    // value: Test data
     {
       input: {
         nodes: [
