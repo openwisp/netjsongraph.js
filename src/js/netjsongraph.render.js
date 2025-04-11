@@ -704,6 +704,12 @@ class NetJSONGraphRender {
   addData(JSONData, self) {
     // modify this.data
     self.utils.mergeData(JSONData, self);
+
+    // Ensure nodes are unique by ID using the utility function
+    if (self.data.nodes && self.data.nodes.length > 0) {
+      self.data.nodes = self.utils.deduplicateNodesById(self.data.nodes);
+    }
+
     // `graph` render can't append data. So we have to merge the data and re-render.
     self.utils.render();
 
@@ -719,8 +725,38 @@ class NetJSONGraphRender {
    * @param  {object}         self        NetJSONGraph object
    */
   mergeData(JSONData, self) {
-    const nodes = self.data.nodes.concat(JSONData.nodes);
-    const links = self.data.links.concat(JSONData.links);
+    // Ensure incoming nodes array exists
+    if (!JSONData.nodes) {
+      JSONData.nodes = [];
+    }
+
+    // Create a set of existing node IDs for efficient lookup
+    const existingNodeIds = new Set();
+    self.data.nodes.forEach((node) => {
+      if (node.id) {
+        existingNodeIds.add(node.id);
+      }
+    });
+
+    // Filter incoming nodes: keep nodes without IDs or with new IDs
+    const newNodes = JSONData.nodes.filter((node) => {
+      if (!node.id) {
+        return true;
+      }
+      if (existingNodeIds.has(node.id)) {
+        console.warn(
+          `Duplicate node ID ${node.id} detected during merge and skipped.`,
+        );
+        return false;
+      }
+      return true;
+    });
+
+    const nodes = self.data.nodes.concat(newNodes);
+    // Ensure incoming links array exists
+    const incomingLinks = JSONData.links || [];
+    const links = self.data.links.concat(incomingLinks);
+
     Object.assign(self.data, JSONData, {
       nodes,
       links,
