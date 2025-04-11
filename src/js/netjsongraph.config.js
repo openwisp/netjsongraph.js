@@ -33,6 +33,8 @@ const NetJSONGraphDefaultConfig = {
   svgRender: false,
   switchMode: false,
   maxPointsFetched: 10000,
+  maxZoom : 18,
+  minZoom : 3,
   loadMoreAtZoomLevel: 9,
   clustering: false,
   clusteringThreshold: 100,
@@ -161,6 +163,7 @@ const NetJSONGraphDefaultConfig = {
   mapOptions: {
     roam: true,
     zoomAnimation: false,
+    maxZoom: 18,
     nodeConfig: {
       type: "scatter",
       label: {
@@ -238,7 +241,7 @@ const NetJSONGraphDefaultConfig = {
         "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       options: {
         minZoom: 3,
-        maxZoom: 32,
+        maxZoom: 18,
         attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,
          tiles offered by <a href="https://www.mapbox.com">Mapbox</a>`,
       },
