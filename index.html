@@ -132,7 +132,7 @@
   </head>
   <body>
     <button class="theme-toggle" aria-label="Toggle Dark Mode">
-      Toggle Theme
+      🌓 Toggle Theme
     </button>
 
     <header>
@@ -236,11 +236,6 @@
           >Clustering</a
         >
       </div>
-      <div class="cards">
-        <a href="./examples/netjson-cluster-overlap.html" target="_blank">
-          Cluster Overlap Example
-        </a>
-      </div>
     </main>
 
     <script>
@@ -257,7 +252,7 @@
 
       themeToggle.addEventListener('click', () => {
         htmlElement.classList.toggle('dark-mode');
-
+        
         // Save theme preference
         const currentTheme = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
         localStorage.setItem('theme', currentTheme);
