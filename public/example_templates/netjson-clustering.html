@@ -1,144 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>netjsongraph.js: basic example</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
-      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
-      crossorigin=""
-    />
-    <!-- theme can be easily customized via css -->
-    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
-    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
-    <style type="text/css">
-      #legend h4 {
-        margin: 10px 0;
-        text-align: center;
-      }
-      #legend {
-        position: absolute;
-        right: 25px;
-        bottom: 25px;
-        width: auto;
-        height: auto;
-        max-width: 250px;
-        padding: 8px 15px;
-        background: #fbfbfb;
-        border-radius: 8px;
-        color: #000;
-        font-family: Arial, sans-serif;
-        font-family: sans-serif;
-        font-size: 14px;
-        z-index: 1000;
-        user-select: text;
-      }
-      #legend p {
-        margin: 10px 0;
-        display: flex;
-        align-items: center;
-      }
-      #legend span {
-        width: 16px;
-        margin-right: 5px;
-      }
-      #legend .link-up,
-      #legend .link-down {
-        display: inline-block;
-        height: 5px;
-        border-bottom-width: 6px;
-        border-bottom-style: solid;
-      }
-      #legend .link-up {
-        color: #3acc38;
-        margin-right: 10px;
-      }
-      #legend .link-down {
-        color: red;
-        margin-right: 10px;
-      }
+<head>
+  <title>NetJSON Cluster Overlap Example</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+    crossorigin=""
+  />
+  <!-- theme can be easily customized via css -->
+  <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+  <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    #legend h4 {
+      margin: 10px 0;
+      text-align: center;
+    }
+    #legend {
+      position: absolute;
+      right: 25px;
+      bottom: 25px;
+      width: auto;
+      height: auto;
+      max-width: 250px;
+      padding: 8px 15px;
+      background: #fbfbfb;
+      border-radius: 8px;
+      color: #000;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      z-index: 1000;
+      user-select: text;
+    }
+    #legend p {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+    }
+    #legend span {
+      width: 16px;
+      margin-right: 5px;
+    }
+    .status-ok, .status-problem, .status-critical {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      margin-right: 5px;
+      border-radius: 50%;
+    }
+    .status-ok {
+      background-color: #1ba619;
+    }
+    .status-problem {
+      background-color: #ffa500;
+    }
+    .status-critical {
+      background-color: #c92517;
+    }
+  </style>
+</head>
+<body>
+<script type="text/javascript" src="../../dist/netjsongraph.js"></script>
+<script type="module">
+  // Import cluster utilities
+  import { preventClusterOverlap, setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
 
-      @media only screen and (max-width: 850px) {
-        #legend {
-          right: 15px;
+  // Function to generate nodes for a specific status category
+  function generateNodesForStatus(status, baseLat, baseLng, minNodes, maxNodes, startId) {
+    const nodes = [];
+    const numNodes = Math.floor(Math.random() * (maxNodes - minNodes + 1)) + minNodes;
+    let currentId = startId;
+
+    for (let i = 0; i < numNodes; i++) {
+      nodes.push({
+        id: `${currentId++}`,
+        name: `${status.charAt(0).toUpperCase() + status.slice(1)} Node ${i + 1}`,
+        // Slightly offset location for each node within the group
+        location: { 
+          lat: baseLat + (Math.random() - 0.5) * 0.001, 
+          lng: baseLng + (Math.random() - 0.5) * 0.001 
+        },
+        properties: { status: status }
+      });
+    }
+    return { nodes, nextId: currentId };
+  }
+
+  // Generate nodes with varying counts for each status
+  let nextNodeId = 1;
+  const criticalNodesResult = generateNodesForStatus('critical', 45.4642, 9.1900, 7, 15, nextNodeId); // e.g., 7-15 critical nodes
+  nextNodeId = criticalNodesResult.nextId;
+  const okNodesResult = generateNodesForStatus('ok', 45.4742, 9.1800, 12, 22, nextNodeId); // e.g., 12-22 ok nodes
+  nextNodeId = okNodesResult.nextId;
+  const problemNodesResult = generateNodesForStatus('problem', 45.4842, 9.1700, 5, 10, nextNodeId); // e.g., 5-10 problem nodes
+
+  // Combine generated nodes
+  const allNodes = [
+    ...criticalNodesResult.nodes,
+    ...okNodesResult.nodes,
+    ...problemNodesResult.nodes
+  ];
+
+  // Create test data with dynamically generated nodes
+  const testData = {
+    type: "NetworkGraph",
+    label: "Cluster Overlap Test with Variable Nodes",
+    nodes: allNodes,
+    links: [] // Keep links empty for this example
+  };
+
+  const map = new NetJSONGraph(testData, {
+    render: "map",
+    clustering: true,
+    clusteringThreshold: 2,
+    clusterRadius: 80,
+    disableClusteringAtLevel: 18,
+    clusteringAttribute: "status",
+    mapOptions: {
+      center: [45.4642, 9.1900],
+      zoom: 12,
+      minZoom: 3,
+      maxZoom: 18,
+      nodeConfig: {
+        label: {
+          offset: [0, -10],
+        },
+      }
+    },
+    nodeCategories: [
+      {
+        name: "ok",
+        nodeStyle: {
+          color: "#1ba619"
+        }
+      },
+      {
+        name: "problem",
+        nodeStyle: {
+          color: "#ffa500"
+        }
+      },
+      {
+        name: "critical",
+        nodeStyle: {
+          color: "#c92517"
         }
       }
-    </style>
-  </head>
-  <body>
-    <script type="text/javascript">
-      const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
-        render: "map",
-        clustering: true,
-        clusteringThreshold: 50,
-        // set map initial state.
-        mapOptions: {
-          center: [46.86764405052012, 19.675998687744144],
-          zoom: 4,
-          nodeConfig: {
-            label: {
-              offset: [0, -10],
-            },
-          },
-        },
-        linkCategories: [
-          {
-            name: "down",
-            linkStyle: {
-              color: "#c92517",
-              width: 5,
-            },
-            emphasis: {
-              linkStyle: {
-                color: "#FD0101",
-                opacity: 1,
-              },
-            },
-          },
-        ],
-        // Convert to internal json format
-        prepareData: (data) => {
-          data.nodes.map((node) => {
-            node.label = node.name;
-            node.properties = Object.assign(node.properties || {}, {
-              location: node.location,
-            });
-          });
-
-          data.links.map((link) => {
-            link.properties = link.properties || {};
-            if (link.properties.status) {
-              link.category = link.properties.status;
-            }
-          });
-        },
+    ],
+    prepareData: (data) => {
+      data.nodes.forEach((node) => {
+        node.label = node.name;
+        node.properties = {
+          ...node.properties,
+          location: node.location
+        };
       });
+    }
+  });
 
-      const createLegend = (key, name) => {
-        const legendItem = document.createElement("p");
-        const legendIcon = document.createElement("span");
+  const createLegend = (key, className) => {
+    const legendItem = document.createElement("p");
+    const legendIcon = document.createElement("span");
+    legendIcon.setAttribute("class", className);
+    legends.appendChild(legendItem);
+    legendItem.appendChild(legendIcon);
+    legendItem.innerHTML += key;
+    return legendItem;
+  };
 
-        legendIcon.setAttribute("class", name);
+  const legends = document.createElement("div");
+  const legendsHeader = document.createElement("h4");
+  legends.setAttribute("id", "legend");
+  legendsHeader.innerHTML = "Node Status";
+  legends.appendChild(legendsHeader);
+  legends.appendChild(createLegend("OK", "status-ok"));
+  legends.appendChild(createLegend("Problem", "status-problem"));
+  legends.appendChild(createLegend("Critical", "status-critical"));
+  document.body.appendChild(legends);
 
-        legends.appendChild(legendItem);
-        legendItem.appendChild(legendIcon);
+  try {
+    map.render();
+    const leafletMap = map.map;
 
-        legendItem.innerHTML += key;
-        return legendItem;
-      };
-      const legends = document.createElement("div");
-      const legendsHeader = document.createElement("h4");
-      legends.setAttribute("id", "legend");
-      legendsHeader.innerHTML = "Legend";
-      legends.appendChild(legendsHeader);
-      legends.appendChild(createLegend("Up", "link-up"));
-      legends.appendChild(createLegend("Down", "link-down"));
+    function updateClusters() {
+      preventClusterOverlap();
+      if (map.utils?.makeCluster) {
+        const clusterData = map.utils.makeCluster(map);
+        if (clusterData) {
+          map.echarts.setOption(map.utils.generateMapOption(
+            {
+              ...map.data,
+              nodes: clusterData.nonClusterNodes,
+              links: clusterData.nonClusterLinks,
+            },
+            map,
+            clusterData.clusters
+          ));
+        }
+      }
+    }
 
-      document.body.appendChild(legends);
-
-      map.render();
-    </script>
-  </body>
+    window.addEventListener('load', () => {
+      updateClusters();
+      if (leafletMap) {
+        leafletMap.on('zoomend', updateClusters);
+        leafletMap.on('moveend', updateClusters);
+        leafletMap.on('layeradd', updateClusters);
+      }
+      window.addEventListener('resize', updateClusters);
+    });
+  } catch (e) {
+    console.error('Error initializing NetJSONGraph:', e);
+  }
+</script>
+</body>
 </html>
