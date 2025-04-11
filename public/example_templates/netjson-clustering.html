@@ -72,198 +72,48 @@
   // Import cluster utilities
   import { preventClusterOverlap, setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
 
-  // Create test data with nodes of same status grouped together
+  // Function to generate nodes for a specific status category
+  function generateNodesForStatus(status, baseLat, baseLng, minNodes, maxNodes, startId) {
+    const nodes = [];
+    const numNodes = Math.floor(Math.random() * (maxNodes - minNodes + 1)) + minNodes;
+    let currentId = startId;
+
+    for (let i = 0; i < numNodes; i++) {
+      nodes.push({
+        id: `${currentId++}`,
+        name: `${status.charAt(0).toUpperCase() + status.slice(1)} Node ${i + 1}`,
+        // Slightly offset location for each node within the group
+        location: { 
+          lat: baseLat + (Math.random() - 0.5) * 0.001, 
+          lng: baseLng + (Math.random() - 0.5) * 0.001 
+        },
+        properties: { status: status }
+      });
+    }
+    return { nodes, nextId: currentId };
+  }
+
+  // Generate nodes with varying counts for each status
+  let nextNodeId = 1;
+  const criticalNodesResult = generateNodesForStatus('critical', 45.4642, 9.1900, 7, 15, nextNodeId); // e.g., 7-15 critical nodes
+  nextNodeId = criticalNodesResult.nextId;
+  const okNodesResult = generateNodesForStatus('ok', 45.4742, 9.1800, 12, 22, nextNodeId); // e.g., 12-22 ok nodes
+  nextNodeId = okNodesResult.nextId;
+  const problemNodesResult = generateNodesForStatus('problem', 45.4842, 9.1700, 5, 10, nextNodeId); // e.g., 5-10 problem nodes
+
+  // Combine generated nodes
+  const allNodes = [
+    ...criticalNodesResult.nodes,
+    ...okNodesResult.nodes,
+    ...problemNodesResult.nodes
+  ];
+
+  // Create test data with dynamically generated nodes
   const testData = {
     type: "NetworkGraph",
-    label: "Cluster Overlap Test",
-    nodes: [
-      // Group 1 - Critical nodes (very close to each other)
-      {
-        id: "1",
-        name: "Critical Node 1",
-        location: { lat: 45.4642, lng: 9.1900 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "2",
-        name: "Critical Node 2",
-        location: { lat: 45.4643, lng: 9.1901 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "3",
-        name: "Critical Node 3",
-        location: { lat: 45.4641, lng: 9.1902 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "4",
-        name: "Critical Node 4",
-        location: { lat: 45.4640, lng: 9.1903 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "5",
-        name: "Critical Node 5",
-        location: { lat: 45.4644, lng: 9.1899 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "6",
-        name: "Critical Node 6",
-        location: { lat: 45.4645, lng: 9.1898 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "7",
-        name: "Critical Node 7",
-        location: { lat: 45.4646, lng: 9.1897 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "8",
-        name: "Critical Node 8",
-        location: { lat: 45.4647, lng: 9.1896 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "9",
-        name: "Critical Node 9",
-        location: { lat: 45.4639, lng: 9.1904 },
-        properties: { status: "critical" }
-      },
-      {
-        id: "10",
-        name: "Critical Node 10",
-        location: { lat: 45.4638, lng: 9.1905 },
-        properties: { status: "critical" }
-      },
-
-      // Group 2 - OK nodes (very close to each other)
-      {
-        id: "11",
-        name: "OK Node 1",
-        location: { lat: 45.4742, lng: 9.1800 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "12",
-        name: "OK Node 2",
-        location: { lat: 45.4743, lng: 9.1801 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "13",
-        name: "OK Node 3",
-        location: { lat: 45.4741, lng: 9.1802 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "14",
-        name: "OK Node 4",
-        location: { lat: 45.4740, lng: 9.1803 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "15",
-        name: "OK Node 5",
-        location: { lat: 45.4744, lng: 9.1799 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "16",
-        name: "OK Node 6",
-        location: { lat: 45.4745, lng: 9.1798 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "17",
-        name: "OK Node 7",
-        location: { lat: 45.4746, lng: 9.1797 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "18",
-        name: "OK Node 8",
-        location: { lat: 45.4747, lng: 9.1796 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "19",
-        name: "OK Node 9",
-        location: { lat: 45.4739, lng: 9.1804 },
-        properties: { status: "ok" }
-      },
-      {
-        id: "20",
-        name: "OK Node 10",
-        location: { lat: 45.4738, lng: 9.1805 },
-        properties: { status: "ok" }
-      },
-
-      // Group 3 - Problem nodes (very close to each other)
-      {
-        id: "21",
-        name: "Problem Node 1",
-        location: { lat: 45.4842, lng: 9.1700 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "22",
-        name: "Problem Node 2",
-        location: { lat: 45.4843, lng: 9.1701 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "23",
-        name: "Problem Node 3",
-        location: { lat: 45.4841, lng: 9.1702 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "24",
-        name: "Problem Node 4",
-        location: { lat: 45.4840, lng: 9.1703 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "25",
-        name: "Problem Node 5",
-        location: { lat: 45.4844, lng: 9.1699 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "26",
-        name: "Problem Node 6",
-        location: { lat: 45.4845, lng: 9.1698 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "27",
-        name: "Problem Node 7",
-        location: { lat: 45.4846, lng: 9.1697 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "28",
-        name: "Problem Node 8",
-        location: { lat: 45.4847, lng: 9.1696 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "29",
-        name: "Problem Node 9",
-        location: { lat: 45.4839, lng: 9.1704 },
-        properties: { status: "problem" }
-      },
-      {
-        id: "30",
-        name: "Problem Node 10",
-        location: { lat: 45.4838, lng: 9.1705 },
-        properties: { status: "problem" }
-      }
-    ],
-    links: []
+    label: "Cluster Overlap Test with Variable Nodes",
+    nodes: allNodes,
+    links: [] // Keep links empty for this example
   };
 
   const map = new NetJSONGraph(testData, {
