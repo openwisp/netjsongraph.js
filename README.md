@@ -919,3 +919,20 @@ Refer to the [Arguments section](#arguments) section for more details.
 ### License
 
 [BSD 3-Clause License](https://github.com/interop-dev/netjsongraph.js/blob/master/LICENSE).
+
+#### Cluster Overlap Prevention
+
+To prevent visual clutter when multiple clusters occupy the same geographic coordinates, NetJSONGraph.js can automatically arrange them in a circular layout around the central point. This feature is particularly useful in dense network maps.
+
+Enable this feature by setting the `clusterOverlapPrevention` option to `true` when initializing the map render:
+
+```javascript
+const graph = new NetJSONGraph("./data/your_data.json", {
+  render: "map",
+  clustering: true,
+  clusterOverlapPrevention: true, // Enable overlap prevention
+  // ... other options
+});
+```
+
+See the [Clustering Example](./examples/netjson-clustering.html) for a complete demonstration.
