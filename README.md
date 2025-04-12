@@ -922,17 +922,34 @@ Refer to the [Arguments section](#arguments) section for more details.
 
 #### Cluster Overlap Prevention
 
-To prevent visual clutter when multiple clusters occupy the same geographic coordinates, NetJSONGraph.js can automatically arrange them in a circular layout around the central point. This feature is particularly useful in dense network maps.
+To prevent visual clutter when multiple clusters occupy the same geographic coordinates, NetJSONGraph.js can automatically arrange them in a circular layout. This is particularly useful when you have nodes with different statuses in the same location.
 
-Enable this feature by setting the `clusterOverlapPrevention` option to `true` when initializing the map render:
+You can enable this feature in two ways:
 
+1. Using the `clusterOverlapPrevention` option:
 ```javascript
 const graph = new NetJSONGraph("./data/your_data.json", {
   render: "map",
   clustering: true,
-  clusterOverlapPrevention: true, // Enable overlap prevention
+  clusterOverlapPrevention: true,
   // ... other options
 });
 ```
 
-See the [Clustering Example](./examples/netjson-clustering.html) for a complete demonstration.
+2. Or manually using the utility functions:
+```javascript
+import { setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
+
+// Initialize your map
+const map = new NetJSONGraph(data, {
+  render: "map",
+  clustering: true,
+  // ... other options
+});
+map.render();
+
+// Set up cluster overlap prevention
+setupClusterOverlapPrevention(map.map);
+```
+
+See the [Cluster Overlap Example](./examples/netjson-clustering.html) for a complete demonstration.

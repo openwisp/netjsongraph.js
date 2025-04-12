@@ -1,224 +1,226 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <title>NetJSON Cluster Overlap Example</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
-    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
-    crossorigin=""
-  />
-  <!-- theme can be easily customized via css -->
-  <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
-  <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
-  <style type="text/css">
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-    #legend h4 {
-      margin: 10px 0;
-      text-align: center;
-    }
-    #legend {
-      position: absolute;
-      right: 25px;
-      bottom: 25px;
-      width: auto;
-      height: auto;
-      max-width: 250px;
-      padding: 8px 15px;
-      background: #fbfbfb;
-      border-radius: 8px;
-      color: #000;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      z-index: 1000;
-      user-select: text;
-    }
-    #legend p {
-      margin: 10px 0;
-      display: flex;
-      align-items: center;
-    }
-    #legend span {
-      width: 16px;
-      margin-right: 5px;
-    }
-    .status-ok, .status-problem, .status-critical {
-      display: inline-block;
-      width: 15px;
-      height: 15px;
-      margin-right: 5px;
-      border-radius: 50%;
-    }
-    .status-ok {
-      background-color: #1ba619;
-    }
-    .status-problem {
-      background-color: #ffa500;
-    }
-    .status-critical {
-      background-color: #c92517;
-    }
-  </style>
-</head>
-<body>
-<script type="text/javascript" src="../../dist/netjsongraph.js"></script>
-<script type="module">
-  // Import cluster utilities
-  import { preventClusterOverlap, setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
-
-  // Function to generate nodes for a specific status category
-  function generateNodesForStatus(status, baseLat, baseLng, minNodes, maxNodes, startId) {
-    const nodes = [];
-    const numNodes = Math.floor(Math.random() * (maxNodes - minNodes + 1)) + minNodes;
-    let currentId = startId;
-
-    for (let i = 0; i < numNodes; i++) {
-      nodes.push({
-        id: `${currentId++}`,
-        name: `${status.charAt(0).toUpperCase() + status.slice(1)} Node ${i + 1}`,
-        // Slightly offset location for each node within the group
-        location: { 
-          lat: baseLat + (Math.random() - 0.5) * 0.001, 
-          lng: baseLng + (Math.random() - 0.5) * 0.001 
-        },
-        properties: { status: status }
-      });
-    }
-    return { nodes, nextId: currentId };
-  }
-
-  // Generate nodes with varying counts for each status
-  let nextNodeId = 1;
-  const criticalNodesResult = generateNodesForStatus('critical', 45.4642, 9.1900, 7, 15, nextNodeId); // e.g., 7-15 critical nodes
-  nextNodeId = criticalNodesResult.nextId;
-  const okNodesResult = generateNodesForStatus('ok', 45.4742, 9.1800, 12, 22, nextNodeId); // e.g., 12-22 ok nodes
-  nextNodeId = okNodesResult.nextId;
-  const problemNodesResult = generateNodesForStatus('problem', 45.4842, 9.1700, 5, 10, nextNodeId); // e.g., 5-10 problem nodes
-
-  // Combine generated nodes
-  const allNodes = [
-    ...criticalNodesResult.nodes,
-    ...okNodesResult.nodes,
-    ...problemNodesResult.nodes
-  ];
-
-  // Create test data with dynamically generated nodes
-  const testData = {
-    type: "NetworkGraph",
-    label: "Cluster Overlap Test with Variable Nodes",
-    nodes: allNodes,
-    links: [] // Keep links empty for this example
-  };
-
-  const map = new NetJSONGraph(testData, {
-    render: "map",
-    clustering: true,
-    clusteringThreshold: 2,
-    clusterRadius: 80,
-    disableClusteringAtLevel: 18,
-    clusteringAttribute: "status",
-    mapOptions: {
-      center: [45.4642, 9.1900],
-      zoom: 12,
-      minZoom: 3,
-      maxZoom: 18,
-      nodeConfig: {
-        label: {
-          offset: [0, -10],
-        },
+  <head>
+    <title>NetJSON Cluster Overlap Example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
+    <!-- theme can be easily customized via css -->
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <style type="text/css">
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
       }
-    },
-    nodeCategories: [
-      {
-        name: "ok",
-        nodeStyle: {
-          color: "#1ba619"
-        }
-      },
-      {
-        name: "problem",
-        nodeStyle: {
-          color: "#ffa500"
-        }
-      },
-      {
-        name: "critical",
-        nodeStyle: {
-          color: "#c92517"
-        }
+      #legend h4 {
+        margin: 10px 0;
+        text-align: center;
       }
-    ],
-    prepareData: (data) => {
-      data.nodes.forEach((node) => {
-        node.label = node.name;
-        node.properties = {
-          ...node.properties,
-          location: node.location
-        };
-      });
-    }
-  });
+      #legend {
+        position: absolute;
+        right: 25px;
+        bottom: 25px;
+        width: auto;
+        height: auto;
+        max-width: 250px;
+        padding: 8px 15px;
+        background: #fbfbfb;
+        border-radius: 8px;
+        color: #000;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        z-index: 1000;
+        user-select: text;
+      }
+      #legend p {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+      }
+      #legend span {
+        width: 16px;
+        height: 15px;
+        margin-right: 5px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .status-ok {
+        background-color: #1ba619;
+      }
+      .status-problem {
+        background-color: #ffa500;
+      }
+      .status-critical {
+        background-color: #c92517;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript" src="../../dist/netjsongraph.js"></script>
+    <script type="module">
+      // Import cluster utilities
+      import {setupClusterOverlapPrevention} from "../../lib/js/clusterUtils.js";
 
-  const createLegend = (key, className) => {
-    const legendItem = document.createElement("p");
-    const legendIcon = document.createElement("span");
-    legendIcon.setAttribute("class", className);
-    legends.appendChild(legendItem);
-    legendItem.appendChild(legendIcon);
-    legendItem.innerHTML += key;
-    return legendItem;
-  };
+      // Function to generate test nodes with the same coordinates but different statuses
+      function generateNodesForStatus(
+        status,
+        baseLat,
+        baseLng,
+        count,
+        startId,
+      ) {
+        const nodes = [];
+        let currentId = startId;
 
-  const legends = document.createElement("div");
-  const legendsHeader = document.createElement("h4");
-  legends.setAttribute("id", "legend");
-  legendsHeader.innerHTML = "Node Status";
-  legends.appendChild(legendsHeader);
-  legends.appendChild(createLegend("OK", "status-ok"));
-  legends.appendChild(createLegend("Problem", "status-problem"));
-  legends.appendChild(createLegend("Critical", "status-critical"));
-  document.body.appendChild(legends);
-
-  try {
-    map.render();
-    const leafletMap = map.map;
-
-    function updateClusters() {
-      preventClusterOverlap();
-      if (map.utils?.makeCluster) {
-        const clusterData = map.utils.makeCluster(map);
-        if (clusterData) {
-          map.echarts.setOption(map.utils.generateMapOption(
-            {
-              ...map.data,
-              nodes: clusterData.nonClusterNodes,
-              links: clusterData.nonClusterLinks,
+        for (let i = 0; i < count; i++) {
+          nodes.push({
+            id: `${currentId++}`,
+            name: `${status.charAt(0).toUpperCase() + status.slice(1)} Node ${i + 1}`,
+            // Very small random offset to simulate nodes at nearly the same location
+            location: {
+              lat: baseLat + (Math.random() - 0.5) * 0.001,
+              lng: baseLng + (Math.random() - 0.5) * 0.001,
             },
-            map,
-            clusterData.clusters
-          ));
+            properties: {status: status},
+          });
         }
+        return {nodes, nextId: currentId};
       }
-    }
 
-    window.addEventListener('load', () => {
-      updateClusters();
-      if (leafletMap) {
-        leafletMap.on('zoomend', updateClusters);
-        leafletMap.on('moveend', updateClusters);
-        leafletMap.on('layeradd', updateClusters);
+      // Generate test data with nodes at similar coordinates but different statuses
+      let nextNodeId = 1;
+
+      // Generate several nodes of each status type at the same location
+      const criticalNodesResult = generateNodesForStatus(
+        "critical",
+        45.4642,
+        9.19,
+        10,
+        nextNodeId,
+      );
+      nextNodeId = criticalNodesResult.nextId;
+
+      const okNodesResult = generateNodesForStatus(
+        "ok",
+        45.4642,
+        9.19,
+        15,
+        nextNodeId,
+      );
+      nextNodeId = okNodesResult.nextId;
+
+      const problemNodesResult = generateNodesForStatus(
+        "problem",
+        45.4642,
+        9.19,
+        8,
+        nextNodeId,
+      );
+
+      // Combine all nodes
+      const allNodes = [
+        ...criticalNodesResult.nodes,
+        ...okNodesResult.nodes,
+        ...problemNodesResult.nodes,
+      ];
+
+      // Create test data for the graph
+      const testData = {
+        type: "NetworkGraph",
+        label: "Cluster Overlap Prevention Example",
+        nodes: allNodes,
+        links: [], // No links needed for this demonstration
+      };
+
+      // Initialize the NetJSONGraph with clustering by status
+      const map = new NetJSONGraph(testData, {
+        render: "map",
+        clustering: true,
+        clusteringThreshold: 2,
+        clusterRadius: 80,
+        disableClusteringAtLevel: 18,
+        clusteringAttribute: "status", // Cluster by status attribute
+        mapOptions: {
+          center: [45.4642, 9.19],
+          zoom: 15,
+          minZoom: 3,
+          maxZoom: 18,
+          nodeConfig: {
+            label: {
+              offset: [0, -10],
+            },
+          },
+        },
+        // Define node appearance based on status
+        nodeCategories: [
+          {
+            name: "ok",
+            nodeStyle: {
+              color: "#1ba619",
+            },
+          },
+          {
+            name: "problem",
+            nodeStyle: {
+              color: "#ffa500",
+            },
+          },
+          {
+            name: "critical",
+            nodeStyle: {
+              color: "#c92517",
+            },
+          },
+        ],
+        prepareData: (data) => {
+          data.nodes.forEach((node) => {
+            node.label = node.name;
+            node.properties = {
+              ...node.properties,
+              location: node.location,
+            };
+          });
+        },
+      });
+
+      // Create a legend to show the node status types
+      const legends = document.createElement("div");
+      const legendsHeader = document.createElement("h4");
+      legends.setAttribute("id", "legend");
+      legendsHeader.innerHTML = "Node Status";
+      legends.appendChild(legendsHeader);
+
+      function createLegend(key, className) {
+        const legendItem = document.createElement("p");
+        const legendIcon = document.createElement("span");
+        legendIcon.setAttribute("class", className);
+        legendItem.appendChild(legendIcon);
+        legendItem.innerHTML += key;
+        return legendItem;
       }
-      window.addEventListener('resize', updateClusters);
-    });
-  } catch (e) {
-    console.error('Error initializing NetJSONGraph:', e);
-  }
-</script>
-</body>
+
+      legends.appendChild(createLegend("OK", "status-ok"));
+      legends.appendChild(createLegend("Problem", "status-problem"));
+      legends.appendChild(createLegend("Critical", "status-critical"));
+      document.body.appendChild(legends);
+
+      // Render the graph and set up cluster overlap prevention
+      try {
+        map.render();
+
+        // Get the Leaflet map instance and set up overlap prevention
+        const leafletMap = map.map;
+        setupClusterOverlapPrevention(leafletMap);
+      } catch (e) {
+        console.error("Error initializing NetJSONGraph:", e);
+      }
+    </script>
+  </body>
 </html>
