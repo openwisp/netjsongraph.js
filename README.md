@@ -927,6 +927,7 @@ To prevent visual clutter when multiple clusters occupy the same geographic coor
 You can enable this feature in two ways:
 
 1. Using the `clusterOverlapPrevention` option:
+
 ```javascript
 const graph = new NetJSONGraph("./data/your_data.json", {
   render: "map",
@@ -937,8 +938,9 @@ const graph = new NetJSONGraph("./data/your_data.json", {
 ```
 
 2. Or manually using the utility functions:
+
 ```javascript
-import { setupClusterOverlapPrevention } from "../../lib/js/clusterUtils.js";
+import {setupClusterOverlapPrevention} from "../../lib/js/clusterUtils.js";
 
 // Initialize your map
 const map = new NetJSONGraph(data, {
