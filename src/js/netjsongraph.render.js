@@ -380,12 +380,17 @@ class NetJSONGraphRender {
     if (self.type === "geojson") {
       self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
 
-      if (self.config.clustering) {
+      // Check if clustering should be applied based on current zoom level and configuration
+      const needsClustering =
+        self.config.clustering &&
+        self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
+
+      if (needsClustering) {
         const clusterOptions = {
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: false,
           maxClusterRadius: self.config.clusterRadius,
-          disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
+          disableClusteringAtZoom: self.config.disableClusteringAtLevel,
         };
 
         if (self.config.clusteringAttribute) {
@@ -577,6 +582,13 @@ class NetJSONGraphRender {
       let {clusters, nonClusterNodes, nonClusterLinks} =
         self.utils.makeCluster(self);
 
+      // Only show clusters if we're below the disableClusteringAtLevel
+      if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
+        clusters = [];
+        nonClusterNodes = JSONData.nodes;
+        nonClusterLinks = JSONData.links;
+      }
+
       self.echarts.setOption(
         self.utils.generateMapOption(
           {
@@ -613,6 +625,7 @@ class NetJSONGraphRender {
         }
       });
 
+      // Ensure zoom handler consistently applies the same clustering logic
       self.leaflet.on("zoomend", () => {
         if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
           const nodeData = self.utils.makeCluster(self);
@@ -631,6 +644,7 @@ class NetJSONGraphRender {
             ),
           );
         } else {
+          // When above the threshold, show all nodes without clustering
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
       });
