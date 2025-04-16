@@ -451,26 +451,33 @@ class NetJSONGraphRender {
     }
 
     self.leaflet.on("zoomend", () => {
-      if (self.leaflet.getZoom() >= self.config.showLabelsAtZoomLevel) {
-        self.echarts.setOption({
-          series: [
-            {
-              label: {
-                show: true,
-              },
+      const currentZoom = self.leaflet.getZoom();
+      const maxZoom = self.leaflet.getMaxZoom();
+      const minZoom = self.leaflet.getMinZoom();
+
+      self.echarts.setOption({
+        series: [
+          {
+            label: {
+              show: currentZoom >= self.config.showLabelsAtZoomLevel,
             },
-          ],
-        });
+          },
+        ],
+      });
+
+      const zoomInBtn = document.querySelector(".leaflet-control-zoom-in");
+      const zoomOutBtn = document.querySelector(".leaflet-control-zoom-out");
+
+      if (currentZoom >= maxZoom) {
+        zoomInBtn.style.cursor = "not-allowed";
       } else {
-        self.echarts.setOption({
-          series: [
-            {
-              label: {
-                show: false,
-              },
-            },
-          ],
-        });
+        zoomInBtn.style.cursor = "pointer";
+      }
+
+      if (currentZoom <= minZoom) {
+        zoomOutBtn.style.cursor = "not-allowed";
+      } else {
+        zoomOutBtn.style.cursor = "pointer";
       }
     });
 
