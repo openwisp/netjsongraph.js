@@ -380,12 +380,17 @@ class NetJSONGraphRender {
     if (self.type === "geojson") {
       self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
 
-      if (self.config.clustering) {
+      // Check if clustering should be applied based on current zoom level and configuration
+      const needsClustering =
+        self.config.clustering &&
+        self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
+
+      if (needsClustering) {
         const clusterOptions = {
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: false,
           maxClusterRadius: self.config.clusterRadius,
-          disableClusteringAtZoom: self.config.disableClusteringAtLevel - 1,
+          disableClusteringAtZoom: self.config.disableClusteringAtLevel,
         };
 
         if (self.config.clusteringAttribute) {
@@ -584,6 +589,13 @@ class NetJSONGraphRender {
       let {clusters, nonClusterNodes, nonClusterLinks} =
         self.utils.makeCluster(self);
 
+      // Only show clusters if we're below the disableClusteringAtLevel
+      if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
+        clusters = [];
+        nonClusterNodes = JSONData.nodes;
+        nonClusterLinks = JSONData.links;
+      }
+
       self.echarts.setOption(
         self.utils.generateMapOption(
           {
@@ -620,6 +632,7 @@ class NetJSONGraphRender {
         }
       });
 
+      // Ensure zoom handler consistently applies the same clustering logic
       self.leaflet.on("zoomend", () => {
         if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
           const nodeData = self.utils.makeCluster(self);
@@ -638,6 +651,7 @@ class NetJSONGraphRender {
             ),
           );
         } else {
+          // When above the threshold, show all nodes without clustering
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
       });
@@ -697,6 +711,12 @@ class NetJSONGraphRender {
   addData(JSONData, self) {
     // modify this.data
     self.utils.mergeData(JSONData, self);
+
+    // Ensure nodes are unique by ID using the utility function
+    if (self.data.nodes && self.data.nodes.length > 0) {
+      self.data.nodes = self.utils.deduplicateNodesById(self.data.nodes);
+    }
+
     // `graph` render can't append data. So we have to merge the data and re-render.
     self.utils.render();
 
@@ -712,8 +732,38 @@ class NetJSONGraphRender {
    * @param  {object}         self        NetJSONGraph object
    */
   mergeData(JSONData, self) {
-    const nodes = self.data.nodes.concat(JSONData.nodes);
-    const links = self.data.links.concat(JSONData.links);
+    // Ensure incoming nodes array exists
+    if (!JSONData.nodes) {
+      JSONData.nodes = [];
+    }
+
+    // Create a set of existing node IDs for efficient lookup
+    const existingNodeIds = new Set();
+    self.data.nodes.forEach((node) => {
+      if (node.id) {
+        existingNodeIds.add(node.id);
+      }
+    });
+
+    // Filter incoming nodes: keep nodes without IDs or with new IDs
+    const newNodes = JSONData.nodes.filter((node) => {
+      if (!node.id) {
+        return true;
+      }
+      if (existingNodeIds.has(node.id)) {
+        console.warn(
+          `Duplicate node ID ${node.id} detected during merge and skipped.`,
+        );
+        return false;
+      }
+      return true;
+    });
+
+    const nodes = self.data.nodes.concat(newNodes);
+    // Ensure incoming links array exists
+    const incomingLinks = JSONData.links || [];
+    const links = self.data.links.concat(incomingLinks);
+
     Object.assign(self.data, JSONData, {
       nodes,
       links,
