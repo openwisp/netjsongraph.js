@@ -195,7 +195,23 @@
               ...node.properties,
               location: node.location,
             };
+            // Assign category based on status for this specific example
+            if (node.properties && node.properties.status) {
+              const status = node.properties.status.toLowerCase();
+              // Map known statuses to categories
+              if (status === 'ok' || status === 'problem' || status === 'critical') {
+                node.category = status;
+              } else {
+                // Default others to unknown (though this example only generates known ones)
+                node.category = "unknown";
+              }
+            } else {
+              // Default nodes without status to unknown
+              node.category = "unknown";
+            }
           });
+          // Log the categories being assigned
+          console.log("prepareData: Assigned categories:", data.nodes.map(n => ({ id: n.id, status: n.properties?.status, category: n.category })));
         },
       });
 
@@ -228,17 +244,25 @@
           if (map.utils?.makeCluster) {
             const clusterData = map.utils.makeCluster(map);
             if (clusterData) {
-              map.echarts.setOption(
-                map.utils.generateMapOption(
-                  {
-                    ...map.data,
-                    nodes: clusterData.nonClusterNodes,
-                    links: clusterData.nonClusterLinks,
-                  },
-                  map,
-                  clusterData.clusters,
-                ),
+              // Log options before setOption in updateClusters
+              const updateMapOptions = map.utils.generateMapOption(
+                {
+                  ...map.data,
+                  nodes: clusterData.nonClusterNodes,
+                  links: clusterData.nonClusterLinks,
+                },
+                map,
+                clusterData.clusters,
               );
+              console.log("updateClusters: Options before setOption (stringified):", JSON.stringify(updateMapOptions));
+              // --- Add specific logging for functions ---
+              if (updateMapOptions.series && updateMapOptions.series[0]) {
+                  console.log("updateClusters: series[0].itemStyle:", updateMapOptions.series[0].itemStyle);
+                  console.log("updateClusters: series[0].symbolSize type:", typeof updateMapOptions.series[0].symbolSize);
+                  console.dir(updateMapOptions.series[0].symbolSize); // Use console.dir
+              }
+              // --- End specific logging ---
+              map.echarts.setOption(updateMapOptions);
             }
           }
         }
