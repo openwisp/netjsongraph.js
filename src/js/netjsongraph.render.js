@@ -215,13 +215,15 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
-            self.utils.getNodeStyle(node, configs, "map");
+          const {nodeStyleConfig, nodeEmphasisConfig} = self.utils.getNodeStyle(
+            node,
+            configs,
+            "map",
+          );
 
           nodesData.push({
             name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
-            // symbolSize: nodeSizeConfig, // Commented out to rely on series-level function
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
               symbolSize: nodeEmphasisConfig.nodeSize,
@@ -287,7 +289,12 @@ class NetJSONGraphRender {
         itemStyle: {
           color: (params) => {
             // Check if cluster and cluster color exist
-            if (params.data && params.data.cluster && params.data.itemStyle && params.data.itemStyle.color) {
+            if (
+              params.data &&
+              params.data.cluster &&
+              params.data.itemStyle &&
+              params.data.itemStyle.color
+            ) {
               return params.data.itemStyle.color;
             }
             // Check if node and category exist
@@ -296,32 +303,53 @@ class NetJSONGraphRender {
                 (cat) => cat.name === params.data.node.category,
               );
               // Check category, nodeStyle, and color
-              const nodeColor = (category && category.nodeStyle && category.nodeStyle.color) || 
-                              (configs.mapOptions.nodeConfig && configs.mapOptions.nodeConfig.nodeStyle && configs.mapOptions.nodeConfig.nodeStyle.color) || 
-                              '#6c757d';
+              const nodeColor =
+                (category && category.nodeStyle && category.nodeStyle.color) ||
+                (configs.mapOptions.nodeConfig &&
+                  configs.mapOptions.nodeConfig.nodeStyle &&
+                  configs.mapOptions.nodeConfig.nodeStyle.color) ||
+                "#6c757d";
               return nodeColor;
             }
             // Check default config color
-            const defaultColor = (configs.mapOptions.nodeConfig && configs.mapOptions.nodeConfig.nodeStyle && configs.mapOptions.nodeConfig.nodeStyle.color) || 
-                               '#6c757d';
+            const defaultColor =
+              (configs.mapOptions.nodeConfig &&
+                configs.mapOptions.nodeConfig.nodeStyle &&
+                configs.mapOptions.nodeConfig.nodeStyle.color) ||
+              "#6c757d";
             return defaultColor;
           },
         },
         symbolSize: (value, params) => {
-          if (params.data?.cluster) {
-            return configs.mapOptions.clusterConfig?.symbolSize || 30;
+          // Check for cluster
+          if (params.data && params.data.cluster) {
+            // Check for cluster config and symbol size
+            return (
+              (configs.mapOptions.clusterConfig &&
+                configs.mapOptions.clusterConfig.symbolSize) ||
+              30
+            );
           }
-          if (params.data?.node) {
+          // Check for node
+          if (params.data && params.data.node) {
             const {nodeSizeConfig} = self.utils.getNodeStyle(
               params.data.node,
               configs,
               "map",
             );
+            // Check for node config and node size if nodeSizeConfig is an object
             return typeof nodeSizeConfig === "object"
-              ? configs.mapOptions.nodeConfig?.nodeSize || 17
+              ? (configs.mapOptions.nodeConfig &&
+                  configs.mapOptions.nodeConfig.nodeSize) ||
+                  17
               : nodeSizeConfig;
           }
-          return configs.mapOptions.nodeConfig?.nodeSize || 17;
+          // Check default node config and size
+          return (
+            (configs.mapOptions.nodeConfig &&
+              configs.mapOptions.nodeConfig.nodeSize) ||
+            17
+          );
         },
         emphasis: configs.mapOptions.nodeConfig.emphasis,
       },

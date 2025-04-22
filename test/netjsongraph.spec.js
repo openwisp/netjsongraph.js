@@ -51,7 +51,7 @@ describe("NetJSONGraph Specification", () => {
         },
       },
       nodeStyle: {
-        color: "#ffebc4",
+        color: "#6c757d",
       },
       linkStyle: {
         width: 6,
