@@ -286,21 +286,24 @@ class NetJSONGraphRender {
         label: configs.mapOptions.nodeConfig.label,
         itemStyle: {
           color: (params) => {
-            if (params.data?.cluster && params.data?.itemStyle?.color) {
+            // Check if cluster and cluster color exist
+            if (params.data && params.data.cluster && params.data.itemStyle && params.data.itemStyle.color) {
               return params.data.itemStyle.color;
             }
-            if (params.data?.node?.category) {
+            // Check if node and category exist
+            if (params.data && params.data.node && params.data.node.category) {
               const category = configs.nodeCategories.find(
                 (cat) => cat.name === params.data.node.category,
               );
-              const nodeColor =
-                category?.nodeStyle?.color ||
-                configs.mapOptions.nodeConfig?.nodeStyle?.color ||
-                "#6c757d";
+              // Check category, nodeStyle, and color
+              const nodeColor = (category && category.nodeStyle && category.nodeStyle.color) || 
+                              (configs.mapOptions.nodeConfig && configs.mapOptions.nodeConfig.nodeStyle && configs.mapOptions.nodeConfig.nodeStyle.color) || 
+                              '#6c757d';
               return nodeColor;
             }
-            const defaultColor =
-              configs.mapOptions.nodeConfig?.nodeStyle?.color || "#6c757d";
+            // Check default config color
+            const defaultColor = (configs.mapOptions.nodeConfig && configs.mapOptions.nodeConfig.nodeStyle && configs.mapOptions.nodeConfig.nodeStyle.color) || 
+                               '#6c757d';
             return defaultColor;
           },
         },
