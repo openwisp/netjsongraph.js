@@ -129,7 +129,7 @@ describe("NetJSONGraph Specification", () => {
         formatter: "{b}",
       },
       nodeStyle: {
-        color: "#1566a9",
+        color: "#6c757d",
       },
       nodeSize: "17",
     },
