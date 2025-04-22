@@ -91,7 +91,7 @@ const NetJSONGraphDefaultConfig = {
         },
       },
       nodeStyle: {
-        color: "#ffebc4",
+        color: "#6c757d",
       },
       linkStyle: {
         width: 6,
@@ -170,7 +170,7 @@ const NetJSONGraphDefaultConfig = {
         formatter: "{b}",
       },
       nodeStyle: {
-        color: "#1566a9",
+        color: "#6c757d",
       },
       nodeSize: "17",
     },
@@ -252,7 +252,32 @@ const NetJSONGraphDefaultConfig = {
       radius: 8,
     },
   },
-  nodeCategories: [],
+  nodeCategories: [
+    {
+      name: "ok",
+      nodeStyle: {
+        color: "#28a745",
+      },
+    },
+    {
+      name: "problem",
+      nodeStyle: {
+        color: "#ffc107",
+      },
+    },
+    {
+      name: "critical",
+      nodeStyle: {
+        color: "#dc3545",
+      },
+    },
+    {
+      name: "unknown",
+      nodeStyle: {
+        color: "#6c757d",
+      },
+    },
+  ],
   linkCategories: [],
 
   /**
@@ -266,7 +291,22 @@ const NetJSONGraphDefaultConfig = {
    *
    */
   // eslint-disable-next-line no-unused-vars
-  prepareData(JSONData) {},
+  prepareData(JSONData) {
+    if (JSONData && JSONData.nodes) {
+      JSONData.nodes.forEach((node) => {
+        if (node.properties && node.properties.status) {
+          const status = node.properties.status.toLowerCase();
+          if (status === 'ok' || status === 'problem' || status === 'critical') {
+            node.category = status;
+          } else {
+            node.category = "unknown";
+          }
+        } else {
+          node.category = "unknown";
+        }
+      });
+    }
+  },
 
   /**
    * @function
