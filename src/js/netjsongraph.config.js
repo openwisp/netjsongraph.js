@@ -296,7 +296,11 @@ const NetJSONGraphDefaultConfig = {
       JSONData.nodes.forEach((node) => {
         if (node.properties && node.properties.status) {
           const status = node.properties.status.toLowerCase();
-          if (status === 'ok' || status === 'problem' || status === 'critical') {
+          if (
+            status === "ok" ||
+            status === "problem" ||
+            status === "critical"
+          ) {
             node.category = status;
           } else {
             node.category = "unknown";

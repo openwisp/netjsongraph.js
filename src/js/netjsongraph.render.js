@@ -232,8 +232,12 @@ class NetJSONGraphRender {
             flatNodes[node.id] = JSON.parse(JSON.stringify(node));
           }
           // Log the style being applied in generateMapOption
-          if (node.category === 'critical') { // Log only for critical nodes to reduce noise
-            console.log(`generateMapOption for node ${node.id}: applying itemStyle:`, nodeStyleConfig);
+          if (node.category === "critical") {
+            // Log only for critical nodes to reduce noise
+            console.log(
+              `generateMapOption for node ${node.id}: applying itemStyle:`,
+              nodeStyleConfig,
+            );
           }
         }
       }
@@ -275,7 +279,7 @@ class NetJSONGraphRender {
           configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
             : "scatter",
-        name: 'nodes',
+        name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
@@ -289,10 +293,14 @@ class NetJSONGraphRender {
               const category = configs.nodeCategories.find(
                 (cat) => cat.name === params.data.node.category,
               );
-              const nodeColor = category?.nodeStyle?.color || configs.mapOptions.nodeConfig?.nodeStyle?.color || '#6c757d';
+              const nodeColor =
+                category?.nodeStyle?.color ||
+                configs.mapOptions.nodeConfig?.nodeStyle?.color ||
+                "#6c757d";
               return nodeColor;
             }
-            const defaultColor = configs.mapOptions.nodeConfig?.nodeStyle?.color || '#6c757d';
+            const defaultColor =
+              configs.mapOptions.nodeConfig?.nodeStyle?.color || "#6c757d";
             return defaultColor;
           },
         },
@@ -301,8 +309,14 @@ class NetJSONGraphRender {
             return configs.mapOptions.clusterConfig?.symbolSize || 30;
           }
           if (params.data?.node) {
-            const { nodeSizeConfig } = self.utils.getNodeStyle(params.data.node, configs, "map");
-            return typeof nodeSizeConfig === 'object' ? (configs.mapOptions.nodeConfig?.nodeSize || 17) : nodeSizeConfig;
+            const {nodeSizeConfig} = self.utils.getNodeStyle(
+              params.data.node,
+              configs,
+              "map",
+            );
+            return typeof nodeSizeConfig === "object"
+              ? configs.mapOptions.nodeConfig?.nodeSize || 17
+              : nodeSizeConfig;
           }
           return configs.mapOptions.nodeConfig?.nodeSize || 17;
         },
@@ -366,18 +380,24 @@ class NetJSONGraphRender {
     if (self.type === "netjson") {
       // Log options before initial setOption
       const initialMapOptions = self.utils.generateMapOption(JSONData, self);
-      console.log("mapRender: Initial options before setOption (stringified):", JSON.stringify(initialMapOptions));
+      console.log(
+        "mapRender: Initial options before setOption (stringified):",
+        JSON.stringify(initialMapOptions),
+      );
       // --- Add specific logging for functions ---
       if (initialMapOptions.series && initialMapOptions.series[0]) {
-          console.log("mapRender: Initial series[0].itemStyle:", initialMapOptions.series[0].itemStyle);
-          console.log("mapRender: Initial series[0].symbolSize type:", typeof initialMapOptions.series[0].symbolSize);
-          console.dir(initialMapOptions.series[0].symbolSize); // Use console.dir for potentially better function logging
+        console.log(
+          "mapRender: Initial series[0].itemStyle:",
+          initialMapOptions.series[0].itemStyle,
+        );
+        console.log(
+          "mapRender: Initial series[0].symbolSize type:",
+          typeof initialMapOptions.series[0].symbolSize,
+        );
+        console.dir(initialMapOptions.series[0].symbolSize); // Use console.dir for potentially better function logging
       }
       // --- End specific logging ---
-      self.utils.echartsSetOption(
-        initialMapOptions,
-        self,
-      );
+      self.utils.echartsSetOption(initialMapOptions, self);
       self.bboxData = {
         nodes: [],
         links: [],
