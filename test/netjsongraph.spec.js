@@ -269,7 +269,32 @@ describe("NetJSONGraph Specification", () => {
         radius: 8,
       },
     });
-    expect(graph.config.nodeCategories).toEqual([]);
+    expect(graph.config.nodeCategories).toEqual([
+      {
+        name: "ok",
+        nodeStyle: {
+          color: "#28a745",
+        },
+      },
+      {
+        name: "problem",
+        nodeStyle: {
+          color: "#ffc107",
+        },
+      },
+      {
+        name: "critical",
+        nodeStyle: {
+          color: "#dc3545",
+        },
+      },
+      {
+        name: "unknown",
+        nodeStyle: {
+          color: "#6c757d",
+        },
+      },
+    ]);
     expect(graph.config.linkCategories).toEqual([]);
     expect(graph.config.onInit).toBeInstanceOf(Function);
     expect(graph.config.onInit.call(graph)).toBe(graph.config);
