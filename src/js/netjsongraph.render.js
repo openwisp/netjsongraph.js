@@ -221,8 +221,7 @@ class NetJSONGraphRender {
           nodesData.push({
             name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
-            symbolSize: nodeSizeConfig,
-            itemStyle: nodeStyleConfig,
+            // symbolSize: nodeSizeConfig, // Commented out to rely on series-level function
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
               symbolSize: nodeEmphasisConfig.nodeSize,
@@ -231,6 +230,10 @@ class NetJSONGraphRender {
           });
           if (!JSONData.flatNodes) {
             flatNodes[node.id] = JSON.parse(JSON.stringify(node));
+          }
+          // Log the style being applied in generateMapOption
+          if (node.category === 'critical') { // Log only for critical nodes to reduce noise
+            console.log(`generateMapOption for node ${node.id}: applying itemStyle:`, nodeStyleConfig);
           }
         }
       }
@@ -267,15 +270,44 @@ class NetJSONGraphRender {
     nodesData = nodesData.concat(clusters);
 
     const series = [
-      Object.assign(configs.mapOptions.nodeConfig, {
+      {
         type:
           configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
             : "scatter",
+        name: 'nodes',
         coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
-      }),
+        label: configs.mapOptions.nodeConfig.label,
+        itemStyle: {
+          color: (params) => {
+            if (params.data?.cluster && params.data?.itemStyle?.color) {
+              return params.data.itemStyle.color;
+            }
+            if (params.data?.node?.category) {
+              const category = configs.nodeCategories.find(
+                (cat) => cat.name === params.data.node.category,
+              );
+              const nodeColor = category?.nodeStyle?.color || configs.mapOptions.nodeConfig?.nodeStyle?.color || '#6c757d';
+              return nodeColor;
+            }
+            const defaultColor = configs.mapOptions.nodeConfig?.nodeStyle?.color || '#6c757d';
+            return defaultColor;
+          },
+        },
+        symbolSize: (value, params) => {
+          if (params.data?.cluster) {
+            return configs.mapOptions.clusterConfig?.symbolSize || 30;
+          }
+          if (params.data?.node) {
+            const { nodeSizeConfig } = self.utils.getNodeStyle(params.data.node, configs, "map");
+            return typeof nodeSizeConfig === 'object' ? (configs.mapOptions.nodeConfig?.nodeSize || 17) : nodeSizeConfig;
+          }
+          return configs.mapOptions.nodeConfig?.nodeSize || 17;
+        },
+        emphasis: configs.mapOptions.nodeConfig.emphasis,
+      },
       Object.assign(configs.mapOptions.linkConfig, {
         type: "lines",
         coordinateSystem: "leaflet",
@@ -332,8 +364,18 @@ class NetJSONGraphRender {
     }
 
     if (self.type === "netjson") {
+      // Log options before initial setOption
+      const initialMapOptions = self.utils.generateMapOption(JSONData, self);
+      console.log("mapRender: Initial options before setOption (stringified):", JSON.stringify(initialMapOptions));
+      // --- Add specific logging for functions ---
+      if (initialMapOptions.series && initialMapOptions.series[0]) {
+          console.log("mapRender: Initial series[0].itemStyle:", initialMapOptions.series[0].itemStyle);
+          console.log("mapRender: Initial series[0].symbolSize type:", typeof initialMapOptions.series[0].symbolSize);
+          console.dir(initialMapOptions.series[0].symbolSize); // Use console.dir for potentially better function logging
+      }
+      // --- End specific logging ---
       self.utils.echartsSetOption(
-        self.utils.generateMapOption(JSONData, self),
+        initialMapOptions,
         self,
       );
       self.bboxData = {
