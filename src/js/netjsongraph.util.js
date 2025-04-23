@@ -664,48 +664,78 @@ class NetJSONGraphUtil {
     let nodeStyleConfig;
     let nodeSizeConfig = {};
     let nodeEmphasisConfig = {};
-    if (node.category && config.nodeCategories.length) {
+    let categoryFound = false; // Flag to track if category was found
+
+    if (node.category && config.nodeCategories?.length) { // Optional chaining for safety
       const category = config.nodeCategories.find(
         (cat) => cat.name === node.category,
       );
 
-      nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
+      // Check if category was found before accessing its properties
+      if (category) {
+        categoryFound = true; // Mark category as found
+        nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
+        nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
 
-      nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
+        // Initialize emphasis styles safely
+        let emphasisNodeStyle = {};
+        let emphasisNodeSize = {};
 
-      nodeEmphasisConfig = {
-        ...nodeEmphasisConfig,
-        nodeStyle: category.emphasis
-          ? this.generateStyle(category.emphasis.nodeStyle || {}, node)
-          : {},
-      };
+        if (category.emphasis) {
+          emphasisNodeStyle = this.generateStyle(category.emphasis.nodeStyle || {}, node);
+          // Corrected typo: empahsis -> emphasis
+          emphasisNodeSize = this.generateStyle(category.emphasis.nodeSize || {}, node);
+        }
 
-      nodeEmphasisConfig = {
-        ...nodeEmphasisConfig,
-        nodeSize: category.empahsis
-          ? this.generateStyle(category.emphasis.nodeSize || {}, node)
-          : {},
-      };
-    } else if (type === "map") {
-      nodeStyleConfig = this.generateStyle(
-        config.mapOptions.nodeConfig.nodeStyle,
-        node,
-      );
-      nodeSizeConfig = this.generateStyle(
-        config.mapOptions.nodeConfig.nodeSize,
-        node,
-      );
-    } else {
-      nodeStyleConfig = this.generateStyle(
-        config.graphConfig.series.nodeStyle,
-        node,
-      );
-      nodeSizeConfig = this.generateStyle(
-        config.graphConfig.series.nodeSize,
-        node,
-      );
+        nodeEmphasisConfig = {
+            nodeStyle: emphasisNodeStyle,
+            nodeSize: emphasisNodeSize,
+        };
+      }
     }
-    return {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig};
+
+    // Fallback to default styles if category was not found or didn't exist initially
+    if (!categoryFound) {
+      if (type === "map") {
+        // Use optional chaining for safer access to potentially nested config
+        const nodeConf = config.mapOptions?.nodeConfig;
+        nodeStyleConfig = this.generateStyle(
+          nodeConf?.nodeStyle || {}, // Default empty object if path doesn't exist
+          node,
+        );
+        nodeSizeConfig = this.generateStyle(
+          nodeConf?.nodeSize || {},
+          node,
+        );
+        // Handle emphasis for map safely
+        const emphasisConf = nodeConf?.emphasis;
+        nodeEmphasisConfig = {
+            nodeStyle: this.generateStyle(emphasisConf?.nodeStyle || {}, node),
+            nodeSize: this.generateStyle(emphasisConf?.nodeSize || {}, node), // Default to empty {} if not defined
+        };
+
+      } else { // Default for graph type
+        const seriesConf = config.graphConfig?.series;
+        nodeStyleConfig = this.generateStyle(
+          seriesConf?.nodeStyle || {},
+          node,
+        );
+        nodeSizeConfig = this.generateStyle(
+          seriesConf?.nodeSize || {},
+          node,
+        );
+         // Handle emphasis for graph safely
+        const emphasisConf = seriesConf?.emphasis;
+        nodeEmphasisConfig = {
+            // Echarts uses itemStyle in emphasis for graph nodes
+            nodeStyle: this.generateStyle(emphasisConf?.itemStyle || {}, node),
+            // Use computed nodeSizeConfig as fallback if emphasis size isn't defined
+            nodeSize: this.generateStyle(emphasisConf?.symbolSize || nodeSizeConfig || {}, node),
+        };
+      }
+    }
+
+    return { nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig };
   }
 
   getLinkStyle(link, config, type) {
