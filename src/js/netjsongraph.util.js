@@ -666,7 +666,11 @@ class NetJSONGraphUtil {
     let nodeEmphasisConfig = {};
     let categoryFound = false; // Flag to track if category was found
 
-    if (node.category && config.nodeCategories?.length) {
+    if (
+      node.category &&
+      config.nodeCategories &&
+      config.nodeCategories.length
+    ) {
       // Optional chaining for safety
       const category = config.nodeCategories.find(
         (cat) => cat.name === node.category,
@@ -704,34 +708,52 @@ class NetJSONGraphUtil {
     if (!categoryFound) {
       if (type === "map") {
         // Use optional chaining for safer access to potentially nested config
-        const nodeConf = config.mapOptions?.nodeConfig;
+        const nodeConf = config.mapOptions && config.mapOptions.nodeConfig;
         nodeStyleConfig = this.generateStyle(
-          nodeConf?.nodeStyle || {}, // Default empty object if path doesn't exist
+          (nodeConf && nodeConf.nodeStyle) || {}, // Default empty object if path doesn't exist
           node,
         );
-        nodeSizeConfig = this.generateStyle(nodeConf?.nodeSize || {}, node);
+        nodeSizeConfig = this.generateStyle(
+          (nodeConf && nodeConf.nodeSize) || {},
+          node,
+        );
         // Handle emphasis for map safely, only populate if emphasis exists
-        const emphasisConf = nodeConf?.emphasis;
+        const emphasisConf = nodeConf && nodeConf.emphasis;
         if (emphasisConf) {
           nodeEmphasisConfig = {
-            nodeStyle: this.generateStyle(emphasisConf?.nodeStyle || {}, node),
-            nodeSize: this.generateStyle(emphasisConf?.nodeSize || {}, node), // Default to empty {} if not defined
+            nodeStyle: this.generateStyle(
+              (emphasisConf && emphasisConf.nodeStyle) || {},
+              node,
+            ),
+            nodeSize: this.generateStyle(
+              (emphasisConf && emphasisConf.nodeSize) || {},
+              node,
+            ),
           };
         }
       } else {
         // Default for graph type
-        const seriesConf = config.graphConfig?.series;
-        nodeStyleConfig = this.generateStyle(seriesConf?.nodeStyle || {}, node);
-        nodeSizeConfig = this.generateStyle(seriesConf?.nodeSize || {}, node);
+        const seriesConf = config.graphConfig && config.graphConfig.series;
+        nodeStyleConfig = this.generateStyle(
+          (seriesConf && seriesConf.nodeStyle) || {},
+          node,
+        );
+        nodeSizeConfig = this.generateStyle(
+          (seriesConf && seriesConf.nodeSize) || {},
+          node,
+        );
         // Handle emphasis for graph safely, only populate if emphasis exists
-        const emphasisConf = seriesConf?.emphasis;
+        const emphasisConf = seriesConf && seriesConf.emphasis;
         if (emphasisConf) {
           nodeEmphasisConfig = {
             // Echarts uses itemStyle in emphasis for graph nodes
-            nodeStyle: this.generateStyle(emphasisConf?.itemStyle || {}, node),
+            nodeStyle: this.generateStyle(
+              (emphasisConf && emphasisConf.itemStyle) || {},
+              node,
+            ),
             // Use computed nodeSizeConfig as fallback if emphasis size isn't defined
             nodeSize: this.generateStyle(
-              emphasisConf?.symbolSize || nodeSizeConfig || {},
+              (emphasisConf && emphasisConf.symbolSize) || nodeSizeConfig || {},
               node,
             ), // Keep fallback logic
           };
