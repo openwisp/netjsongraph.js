@@ -666,7 +666,8 @@ class NetJSONGraphUtil {
     let nodeEmphasisConfig = {};
     let categoryFound = false; // Flag to track if category was found
 
-    if (node.category && config.nodeCategories?.length) { // Optional chaining for safety
+    if (node.category && config.nodeCategories?.length) {
+      // Optional chaining for safety
       const category = config.nodeCategories.find(
         (cat) => cat.name === node.category,
       );
@@ -682,15 +683,20 @@ class NetJSONGraphUtil {
         let emphasisNodeSize = {};
 
         if (category.emphasis) {
-          emphasisNodeStyle = this.generateStyle(category.emphasis.nodeStyle || {}, node);
+          emphasisNodeStyle = this.generateStyle(
+            category.emphasis.nodeStyle || {},
+            node,
+          );
           // Corrected typo: empahsis -> emphasis
-          emphasisNodeSize = this.generateStyle(category.emphasis.nodeSize || {}, node);
-        }
-
-        nodeEmphasisConfig = {
+          emphasisNodeSize = this.generateStyle(
+            category.emphasis.nodeSize || {},
+            node,
+          );
+          nodeEmphasisConfig = {
             nodeStyle: emphasisNodeStyle,
             nodeSize: emphasisNodeSize,
-        };
+          };
+        }
       }
     }
 
@@ -703,39 +709,37 @@ class NetJSONGraphUtil {
           nodeConf?.nodeStyle || {}, // Default empty object if path doesn't exist
           node,
         );
-        nodeSizeConfig = this.generateStyle(
-          nodeConf?.nodeSize || {},
-          node,
-        );
-        // Handle emphasis for map safely
+        nodeSizeConfig = this.generateStyle(nodeConf?.nodeSize || {}, node);
+        // Handle emphasis for map safely, only populate if emphasis exists
         const emphasisConf = nodeConf?.emphasis;
-        nodeEmphasisConfig = {
+        if (emphasisConf) {
+          nodeEmphasisConfig = {
             nodeStyle: this.generateStyle(emphasisConf?.nodeStyle || {}, node),
             nodeSize: this.generateStyle(emphasisConf?.nodeSize || {}, node), // Default to empty {} if not defined
-        };
-
-      } else { // Default for graph type
+          };
+        }
+      } else {
+        // Default for graph type
         const seriesConf = config.graphConfig?.series;
-        nodeStyleConfig = this.generateStyle(
-          seriesConf?.nodeStyle || {},
-          node,
-        );
-        nodeSizeConfig = this.generateStyle(
-          seriesConf?.nodeSize || {},
-          node,
-        );
-         // Handle emphasis for graph safely
+        nodeStyleConfig = this.generateStyle(seriesConf?.nodeStyle || {}, node);
+        nodeSizeConfig = this.generateStyle(seriesConf?.nodeSize || {}, node);
+        // Handle emphasis for graph safely, only populate if emphasis exists
         const emphasisConf = seriesConf?.emphasis;
-        nodeEmphasisConfig = {
+        if (emphasisConf) {
+          nodeEmphasisConfig = {
             // Echarts uses itemStyle in emphasis for graph nodes
             nodeStyle: this.generateStyle(emphasisConf?.itemStyle || {}, node),
             // Use computed nodeSizeConfig as fallback if emphasis size isn't defined
-            nodeSize: this.generateStyle(emphasisConf?.symbolSize || nodeSizeConfig || {}, node),
-        };
+            nodeSize: this.generateStyle(
+              emphasisConf?.symbolSize || nodeSizeConfig || {},
+              node,
+            ), // Keep fallback logic
+          };
+        }
       }
     }
 
-    return { nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig };
+    return {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig};
   }
 
   getLinkStyle(link, config, type) {

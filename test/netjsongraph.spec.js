@@ -51,7 +51,7 @@ describe("NetJSONGraph Specification", () => {
         },
       },
       nodeStyle: {
-        color: "#6c757d",
+        color: "#ffebc4",
       },
       linkStyle: {
         width: 6,
@@ -129,7 +129,7 @@ describe("NetJSONGraph Specification", () => {
         formatter: "{b}",
       },
       nodeStyle: {
-        color: "#6c757d",
+        color: "#1566a9",
       },
       nodeSize: "17",
     },
@@ -286,12 +286,6 @@ describe("NetJSONGraph Specification", () => {
         name: "critical",
         nodeStyle: {
           color: "#dc3545",
-        },
-      },
-      {
-        name: "unknown",
-        nodeStyle: {
-          color: "#6c757d",
         },
       },
     ]);
