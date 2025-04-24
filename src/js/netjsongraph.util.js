@@ -23,7 +23,7 @@ class NetJSONGraphUtil {
       })
         .then((response) => response)
         .catch((msg) => {
-          console.error(msg);
+          error(msg);
         });
     }
     return Promise.resolve(JSONParam);
@@ -38,9 +38,7 @@ class NetJSONGraphUtil {
         res = await paginatedResponse.json();
         data = res.results ? res.results : res;
         while (res.next && data.nodes.length <= this.config.maxPointsFetched) {
-          // eslint-disable-next-line no-await-in-loop
           paginatedResponse = await this.utils.JSONParamParse(res.next);
-          // eslint-disable-next-line no-await-in-loop
           res = await paginatedResponse.json();
           data.nodes = data.nodes.concat(res.results.nodes);
           data.links = data.links.concat(res.results.links);
@@ -55,7 +53,7 @@ class NetJSONGraphUtil {
         data = paginatedResponse;
       }
     } catch (e) {
-      console.error(e);
+      error(e);
     }
 
     return data;
@@ -64,14 +62,12 @@ class NetJSONGraphUtil {
   async getBBoxData(JSONParam, bounds) {
     let data;
     try {
-      // eslint-disable-next-line prefer-destructuring
       JSONParam = JSONParam[0].split("?")[0];
-      // eslint-disable-next-line no-underscore-dangle
       const url = `${JSONParam}bbox?swLat=${bounds._southWest.lat}&swLng=${bounds._southWest.lng}&neLat=${bounds._northEast.lat}&neLng=${bounds._northEast.lng}`;
       const res = await this.utils.JSONParamParse(url);
       data = await res.json();
     } catch (e) {
-      console.error(e);
+      error(e);
     }
     return data;
   }
@@ -98,7 +94,7 @@ class NetJSONGraphUtil {
   }) {
     const dateParseArr = parseRegular.exec(dateString);
     if (!dateParseArr || dateParseArr.length < 7) {
-      console.error("Date doesn't meet the specifications.");
+      error("Date doesn't meet the specifications.");
       return "";
     }
     const dateNumberFields = ["dateYear", "dateMonth", "dateDay", "dateHour"];
@@ -300,7 +296,7 @@ class NetJSONGraphUtil {
     const nodeMap = new Map();
     let clusterId = 0;
 
-    // First, prepare nodes with coordinates
+    
     nodes.forEach((node) => {
       node.y = self.leaflet.latLngToContainerPoint([
         node.location.lat,
@@ -314,12 +310,12 @@ class NetJSONGraphUtil {
       node.cluster = null;
     });
 
-    // Create spatial index
+    
     const index = new KDBush(nodes.length);
     nodes.forEach(({x, y}) => index.add(x, y));
     index.finish();
 
-    // Group nodes by location first
+    
     const locationGroups = new Map();
     nodes.forEach((node) => {
       if (node.visited) return;
@@ -353,7 +349,7 @@ class NetJSONGraphUtil {
       }
     });
 
-    // Create clusters for each attribute group
+    
     locationGroups.forEach((attributeGroups) => {
       attributeGroups.forEach((groupNodes, attr) => {
         if (groupNodes.length > 1) {
@@ -401,7 +397,7 @@ class NetJSONGraphUtil {
       });
     });
 
-    // Handle links
+    
     links.forEach((link) => {
       if (
         nodeMap.get(link.source) === null &&
@@ -664,25 +660,25 @@ class NetJSONGraphUtil {
     let nodeStyleConfig;
     let nodeSizeConfig = {};
     let nodeEmphasisConfig = {};
-    let categoryFound = false; // Flag to track if category was found
+    let categoryFound = false; 
 
     if (
       node.category &&
       config.nodeCategories &&
       config.nodeCategories.length
     ) {
-      // Optional chaining for safety
+      
       const category = config.nodeCategories.find(
         (cat) => cat.name === node.category,
       );
 
-      // Check if category was found before accessing its properties
+      
       if (category) {
-        categoryFound = true; // Mark category as found
+        categoryFound = true; 
         nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
         nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
 
-        // Initialize emphasis styles safely
+        
         let emphasisNodeStyle = {};
         let emphasisNodeSize = {};
 
@@ -704,20 +700,20 @@ class NetJSONGraphUtil {
       }
     }
 
-    // Fallback to default styles if category was not found or didn't exist initially
+    
     if (!categoryFound) {
       if (type === "map") {
-        // Use optional chaining for safer access to potentially nested config
+        
         const nodeConf = config.mapOptions && config.mapOptions.nodeConfig;
         nodeStyleConfig = this.generateStyle(
-          (nodeConf && nodeConf.nodeStyle) || {}, // Default empty object if path doesn't exist
+          (nodeConf && nodeConf.nodeStyle) || {}, 
           node,
         );
         nodeSizeConfig = this.generateStyle(
           (nodeConf && nodeConf.nodeSize) || {},
           node,
         );
-        // Handle emphasis for map safely, only populate if emphasis exists
+        
         const emphasisConf = nodeConf && nodeConf.emphasis;
         if (emphasisConf) {
           nodeEmphasisConfig = {
@@ -732,7 +728,7 @@ class NetJSONGraphUtil {
           };
         }
       } else {
-        // Default for graph type
+        
         const seriesConf = config.graphConfig && config.graphConfig.series;
         nodeStyleConfig = this.generateStyle(
           (seriesConf && seriesConf.nodeStyle) || {},
@@ -742,20 +738,20 @@ class NetJSONGraphUtil {
           (seriesConf && seriesConf.nodeSize) || {},
           node,
         );
-        // Handle emphasis for graph safely, only populate if emphasis exists
+        
         const emphasisConf = seriesConf && seriesConf.emphasis;
         if (emphasisConf) {
           nodeEmphasisConfig = {
-            // Echarts uses itemStyle in emphasis for graph nodes
+            
             nodeStyle: this.generateStyle(
               (emphasisConf && emphasisConf.itemStyle) || {},
               node,
             ),
-            // Use computed nodeSizeConfig as fallback if emphasis size isn't defined
+            
             nodeSize: this.generateStyle(
               (emphasisConf && emphasisConf.symbolSize) || nodeSizeConfig || {},
               node,
-            ), // Keep fallback logic
+            ), 
           };
         }
       }

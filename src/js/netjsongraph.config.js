@@ -284,7 +284,6 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  // eslint-disable-next-line no-unused-vars
   prepareData(JSONData) {
     if (JSONData && JSONData.nodes) {
       JSONData.nodes.forEach((node) => {

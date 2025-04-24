@@ -233,14 +233,6 @@ class NetJSONGraphRender {
           if (!JSONData.flatNodes) {
             flatNodes[node.id] = JSON.parse(JSON.stringify(node));
           }
-          // Log the style being applied in generateMapOption
-          if (node.category === "critical") {
-            // Log only for critical nodes to reduce noise
-            console.log(
-              `generateMapOption for node ${node.id}: applying itemStyle:`,
-              nodeStyleConfig,
-            );
-          }
         }
       }
     });
@@ -288,7 +280,6 @@ class NetJSONGraphRender {
         label: configs.mapOptions.nodeConfig.label,
         itemStyle: {
           color: (params) => {
-            // Check if cluster and cluster color exist
             if (
               params.data &&
               params.data.cluster &&
@@ -297,12 +288,10 @@ class NetJSONGraphRender {
             ) {
               return params.data.itemStyle.color;
             }
-            // Check if node and category exist
             if (params.data && params.data.node && params.data.node.category) {
               const category = configs.nodeCategories.find(
                 (cat) => cat.name === params.data.node.category,
               );
-              // Check category, nodeStyle, and color
               const nodeColor =
                 (category && category.nodeStyle && category.nodeStyle.color) ||
                 (configs.mapOptions.nodeConfig &&
@@ -311,7 +300,6 @@ class NetJSONGraphRender {
                 "#6c757d";
               return nodeColor;
             }
-            // Check default config color
             const defaultColor =
               (configs.mapOptions.nodeConfig &&
                 configs.mapOptions.nodeConfig.nodeStyle &&
@@ -321,30 +309,25 @@ class NetJSONGraphRender {
           },
         },
         symbolSize: (value, params) => {
-          // Check for cluster
           if (params.data && params.data.cluster) {
-            // Check for cluster config and symbol size
             return (
               (configs.mapOptions.clusterConfig &&
                 configs.mapOptions.clusterConfig.symbolSize) ||
               30
             );
           }
-          // Check for node
           if (params.data && params.data.node) {
             const {nodeSizeConfig} = self.utils.getNodeStyle(
               params.data.node,
               configs,
               "map",
             );
-            // Check for node config and node size if nodeSizeConfig is an object
             return typeof nodeSizeConfig === "object"
               ? (configs.mapOptions.nodeConfig &&
                   configs.mapOptions.nodeConfig.nodeSize) ||
                   17
               : nodeSizeConfig;
           }
-          // Check default node config and size
           return (
             (configs.mapOptions.nodeConfig &&
               configs.mapOptions.nodeConfig.nodeSize) ||
@@ -409,25 +392,7 @@ class NetJSONGraphRender {
     }
 
     if (self.type === "netjson") {
-      // Log options before initial setOption
       const initialMapOptions = self.utils.generateMapOption(JSONData, self);
-      console.log(
-        "mapRender: Initial options before setOption (stringified):",
-        JSON.stringify(initialMapOptions),
-      );
-      // --- Add specific logging for functions ---
-      if (initialMapOptions.series && initialMapOptions.series[0]) {
-        console.log(
-          "mapRender: Initial series[0].itemStyle:",
-          initialMapOptions.series[0].itemStyle,
-        );
-        console.log(
-          "mapRender: Initial series[0].symbolSize type:",
-          typeof initialMapOptions.series[0].symbolSize,
-        );
-        console.dir(initialMapOptions.series[0].symbolSize); // Use console.dir for potentially better function logging
-      }
-      // --- End specific logging ---
       self.utils.echartsSetOption(initialMapOptions, self);
       self.bboxData = {
         nodes: [],

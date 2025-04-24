@@ -71,13 +71,11 @@
   <body>
     <script type="text/javascript" src="/netjsongraph.min.js"></script>
     <script type="module">
-      // Import cluster utilities
       import {
         preventClusterOverlap,
         setupClusterOverlapPrevention,
       } from "../../lib/js/clusterUtils.js";
 
-      // Function to generate nodes for a specific status category
       function generateNodesForStatus(
         status,
         baseLat,
@@ -106,7 +104,6 @@
         return {nodes, nextId: currentId};
       }
 
-      // Generate nodes with varying counts for each status
       let nextNodeId = 1;
       const criticalNodesResult = generateNodesForStatus(
         "critical",
@@ -115,7 +112,7 @@
         7,
         15,
         nextNodeId,
-      ); // e.g., 7-15 critical nodes
+      );
       nextNodeId = criticalNodesResult.nextId;
       const okNodesResult = generateNodesForStatus(
         "ok",
@@ -124,7 +121,7 @@
         12,
         22,
         nextNodeId,
-      ); // e.g., 12-22 ok nodes
+      );
       nextNodeId = okNodesResult.nextId;
       const problemNodesResult = generateNodesForStatus(
         "problem",
@@ -133,16 +130,14 @@
         5,
         10,
         nextNodeId,
-      ); // e.g., 5-10 problem nodes
+      );
 
-      // Combine generated nodes
       const allNodes = [
         ...criticalNodesResult.nodes,
         ...okNodesResult.nodes,
         ...problemNodesResult.nodes,
       ];
 
-      // Create test data with dynamically generated nodes
       const testData = {
         type: "NetworkGraph",
         label: "Cluster Overlap Test with Variable Nodes",
@@ -195,7 +190,7 @@
               ...node.properties,
               location: node.location,
             };
-            // Assign category based on status for this specific example
+            
             if (node.properties && node.properties.status) {
               const status = node.properties.status.toLowerCase();
               // Map known statuses to categories
@@ -210,8 +205,6 @@
               node.category = "unknown";
             }
           });
-          // Log the categories being assigned
-          console.log("prepareData: Assigned categories:", data.nodes.map(n => ({ id: n.id, status: n.properties?.status, category: n.category })));
         },
       });
 
