@@ -239,43 +239,7 @@
         map.render();
         const leafletMap = map.map;
 
-        function updateClusters() {
-          preventClusterOverlap();
-          if (map.utils?.makeCluster) {
-            const clusterData = map.utils.makeCluster(map);
-            if (clusterData) {
-              // Log options before setOption in updateClusters
-              const updateMapOptions = map.utils.generateMapOption(
-                {
-                  ...map.data,
-                  nodes: clusterData.nonClusterNodes,
-                  links: clusterData.nonClusterLinks,
-                },
-                map,
-                clusterData.clusters,
-              );
-              console.log("updateClusters: Options before setOption (stringified):", JSON.stringify(updateMapOptions));
-              // --- Add specific logging for functions ---
-              if (updateMapOptions.series && updateMapOptions.series[0]) {
-                  console.log("updateClusters: series[0].itemStyle:", updateMapOptions.series[0].itemStyle);
-                  console.log("updateClusters: series[0].symbolSize type:", typeof updateMapOptions.series[0].symbolSize);
-                  console.dir(updateMapOptions.series[0].symbolSize); // Use console.dir
-              }
-              // --- End specific logging ---
-              map.echarts.setOption(updateMapOptions);
-            }
-          }
-        }
-
-        window.addEventListener("load", () => {
-          updateClusters();
-          if (leafletMap) {
-            leafletMap.on("zoomend", updateClusters);
-            leafletMap.on("moveend", updateClusters);
-            leafletMap.on("layeradd", updateClusters);
-          }
-          window.addEventListener("resize", updateClusters);
-        });
+        setupClusterOverlapPrevention(map.map);
       } catch (e) {
         console.error("Error initializing NetJSONGraph:", e);
       }
