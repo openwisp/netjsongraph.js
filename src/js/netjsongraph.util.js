@@ -35,10 +35,13 @@ class NetJSONGraphUtil {
     try {
       let paginatedResponse = await this.utils.JSONParamParse(JSONParam);
       if (paginatedResponse.json) {
+        // eslint-disable-next-line no-await-in-loop
         res = await paginatedResponse.json();
         data = res.results ? res.results : res;
         while (res.next && data.nodes.length <= this.config.maxPointsFetched) {
+          // eslint-disable-next-line no-await-in-loop
           paginatedResponse = await this.utils.JSONParamParse(res.next);
+          // eslint-disable-next-line no-await-in-loop
           res = await paginatedResponse.json();
           data.nodes = data.nodes.concat(res.results.nodes);
           data.links = data.links.concat(res.results.links);
@@ -62,8 +65,11 @@ class NetJSONGraphUtil {
   async getBBoxData(JSONParam, bounds) {
     let data;
     try {
+      // eslint-disable-next-line prefer-destructuring
       JSONParam = JSONParam[0].split("?")[0];
+      // eslint-disable-next-line no-underscore-dangle
       const url = `${JSONParam}bbox?swLat=${bounds._southWest.lat}&swLng=${bounds._southWest.lng}&neLat=${bounds._northEast.lat}&neLng=${bounds._northEast.lng}`;
+      // eslint-disable-next-line no-await-in-loop
       const res = await this.utils.JSONParamParse(url);
       data = await res.json();
     } catch (e) {
@@ -296,7 +302,6 @@ class NetJSONGraphUtil {
     const nodeMap = new Map();
     let clusterId = 0;
 
-    
     nodes.forEach((node) => {
       node.y = self.leaflet.latLngToContainerPoint([
         node.location.lat,
@@ -310,12 +315,10 @@ class NetJSONGraphUtil {
       node.cluster = null;
     });
 
-    
     const index = new KDBush(nodes.length);
     nodes.forEach(({x, y}) => index.add(x, y));
     index.finish();
 
-    
     const locationGroups = new Map();
     nodes.forEach((node) => {
       if (node.visited) return;
@@ -349,7 +352,6 @@ class NetJSONGraphUtil {
       }
     });
 
-    
     locationGroups.forEach((attributeGroups) => {
       attributeGroups.forEach((groupNodes, attr) => {
         if (groupNodes.length > 1) {
@@ -397,7 +399,6 @@ class NetJSONGraphUtil {
       });
     });
 
-    
     links.forEach((link) => {
       if (
         nodeMap.get(link.source) === null &&
@@ -660,25 +661,22 @@ class NetJSONGraphUtil {
     let nodeStyleConfig;
     let nodeSizeConfig = {};
     let nodeEmphasisConfig = {};
-    let categoryFound = false; 
+    let categoryFound = false;
 
     if (
       node.category &&
       config.nodeCategories &&
       config.nodeCategories.length
     ) {
-      
       const category = config.nodeCategories.find(
         (cat) => cat.name === node.category,
       );
 
-      
       if (category) {
-        categoryFound = true; 
+        categoryFound = true;
         nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
         nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
 
-        
         let emphasisNodeStyle = {};
         let emphasisNodeSize = {};
 
@@ -700,20 +698,18 @@ class NetJSONGraphUtil {
       }
     }
 
-    
     if (!categoryFound) {
       if (type === "map") {
-        
         const nodeConf = config.mapOptions && config.mapOptions.nodeConfig;
         nodeStyleConfig = this.generateStyle(
-          (nodeConf && nodeConf.nodeStyle) || {}, 
+          (nodeConf && nodeConf.nodeStyle) || {},
           node,
         );
         nodeSizeConfig = this.generateStyle(
           (nodeConf && nodeConf.nodeSize) || {},
           node,
         );
-        
+
         const emphasisConf = nodeConf && nodeConf.emphasis;
         if (emphasisConf) {
           nodeEmphasisConfig = {
@@ -728,7 +724,6 @@ class NetJSONGraphUtil {
           };
         }
       } else {
-        
         const seriesConf = config.graphConfig && config.graphConfig.series;
         nodeStyleConfig = this.generateStyle(
           (seriesConf && seriesConf.nodeStyle) || {},
@@ -738,20 +733,19 @@ class NetJSONGraphUtil {
           (seriesConf && seriesConf.nodeSize) || {},
           node,
         );
-        
+
         const emphasisConf = seriesConf && seriesConf.emphasis;
         if (emphasisConf) {
           nodeEmphasisConfig = {
-            
             nodeStyle: this.generateStyle(
               (emphasisConf && emphasisConf.itemStyle) || {},
               node,
             ),
-            
+
             nodeSize: this.generateStyle(
               (emphasisConf && emphasisConf.symbolSize) || nodeSizeConfig || {},
               node,
-            ), 
+            ),
           };
         }
       }

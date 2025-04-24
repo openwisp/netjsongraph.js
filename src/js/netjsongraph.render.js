@@ -215,7 +215,7 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeStyleConfig, nodeEmphasisConfig} = self.utils.getNodeStyle(
+          const {nodeEmphasisConfig} = self.utils.getNodeStyle(
             node,
             configs,
             "map",
