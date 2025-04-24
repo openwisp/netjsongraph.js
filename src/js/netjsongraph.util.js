@@ -23,7 +23,7 @@ class NetJSONGraphUtil {
       })
         .then((response) => response)
         .catch((msg) => {
-          error(msg);
+          console.error(msg);
         });
     }
     return Promise.resolve(JSONParam);
@@ -53,7 +53,7 @@ class NetJSONGraphUtil {
         data = paginatedResponse;
       }
     } catch (e) {
-      error(e);
+      console.error(e);
     }
 
     return data;
@@ -67,7 +67,7 @@ class NetJSONGraphUtil {
       const res = await this.utils.JSONParamParse(url);
       data = await res.json();
     } catch (e) {
-      error(e);
+      console.error(e);
     }
     return data;
   }
@@ -94,7 +94,7 @@ class NetJSONGraphUtil {
   }) {
     const dateParseArr = parseRegular.exec(dateString);
     if (!dateParseArr || dateParseArr.length < 7) {
-      error("Date doesn't meet the specifications.");
+      console.error("Date doesn't meet the specifications.");
       return "";
     }
     const dateNumberFields = ["dateYear", "dateMonth", "dateDay", "dateHour"];
