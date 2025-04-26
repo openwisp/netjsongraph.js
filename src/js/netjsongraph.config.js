@@ -320,16 +320,16 @@ const NetJSONGraphDefaultConfig = {
     let nodeLinkData;
     if (this.type === "netjson") {
       if (type === "node") {
-        nodeLinkData = this.utils.nodeInfo(data);
+        ({nodeLinkData} = {nodeLinkData: this.utils.nodeInfo(data)});
       } else {
-        nodeLinkData = this.utils.linkInfo(data);
+        ({nodeLinkData} = {nodeLinkData: this.utils.linkInfo(data)});
       }
 
       if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
         this.gui.metaInfoContainer.style.display = "flex";
       }
     } else {
-      nodeLinkData = data;
+      ({nodeLinkData} = {nodeLinkData: data});
     }
 
     this.gui.getNodeLinkInfo(type, nodeLinkData);
@@ -348,4 +348,5 @@ const NetJSONGraphDefaultConfig = {
   onReady() {},
 };
 
+export const {prepareData} = NetJSONGraphDefaultConfig;
 export default {...NetJSONGraphDefaultConfig};

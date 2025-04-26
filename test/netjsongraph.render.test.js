@@ -1,3 +1,8 @@
+import {
+  preventClusterOverlap,
+  setupClusterOverlapPrevention,
+} from "../lib/js/clusterUtils";
+import {prepareData} from "../src/js/netjsongraph.config";
 import NetJSONGraph from "../src/js/netjsongraph.core";
 import {NetJSONGraphRender, L} from "../src/js/netjsongraph.render";
 
@@ -385,6 +390,77 @@ describe("Test netjsongraph properties", () => {
       expect(map.JSONParam).toEqual([JSONFILE]);
       expect(map.data).toEqual(JSONData);
     });
+  });
+});
+
+// --- Cluster Overlap Prevention and Category Assignment Tests ---
+
+describe("Cluster Overlap Prevention Utilities", () => {
+  beforeEach(() => {
+    document.body.innerHTML = "";
+  });
+  it("should not throw if there are no cluster markers", () => {
+    expect(() => preventClusterOverlap()).not.toThrow();
+  });
+  it("should arrange overlapping clusters in a circle", () => {
+    document.body.innerHTML = `
+      <div class="marker-cluster" style="position:absolute;left:100px;top:100px;width:40px;height:40px;"></div>
+      <div class="marker-cluster" style="position:absolute;left:100px;top:100px;width:40px;height:40px;"></div>
+      <div class="marker-cluster" style="position:absolute;left:100px;top:100px;width:40px;height:40px;"></div>
+    `;
+    const rect = {left: 100, top: 100, width: 40, height: 40};
+    document.querySelectorAll(".marker-cluster").forEach((el) => {
+      el.getBoundingClientRect = () => rect;
+    });
+    preventClusterOverlap();
+    const clusters = document.querySelectorAll(".marker-cluster");
+    expect(clusters[0].style.transform).toBe("");
+    expect(clusters[1].style.transform).toMatch(/translate\(.+px, .+px\)/);
+    expect(clusters[2].style.transform).toMatch(/translate\(.+px, .+px\)/);
+  });
+  it("should warn if leafletMap is not provided", () => {
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    setupClusterOverlapPrevention(null);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Leaflet map instance is required"),
+    );
+    warnSpy.mockRestore();
+  });
+  it("should add event listeners if leafletMap is provided", () => {
+    const leafletMap = {on: jest.fn()};
+    setupClusterOverlapPrevention(leafletMap);
+    expect(leafletMap.on).toHaveBeenCalledWith(
+      "zoomend",
+      preventClusterOverlap,
+    );
+    expect(leafletMap.on).toHaveBeenCalledWith(
+      "moveend",
+      preventClusterOverlap,
+    );
+    expect(leafletMap.on).toHaveBeenCalledWith(
+      "layeradd",
+      preventClusterOverlap,
+    );
+  });
+});
+
+describe("Node Category Assignment in prepareData", () => {
+  it("should assign category based on known status", () => {
+    const testData = {
+      nodes: [
+        {id: "1", properties: {status: "ok"}},
+        {id: "2", properties: {status: "problem"}},
+        {id: "3", properties: {status: "critical"}},
+        {id: "4", properties: {status: "unknown"}},
+        {id: "5", properties: {}},
+      ],
+    };
+    prepareData(testData);
+    expect(testData.nodes[0].category).toBe("ok");
+    expect(testData.nodes[1].category).toBe("problem");
+    expect(testData.nodes[2].category).toBe("critical");
+    expect(testData.nodes[3].category).toBe("unknown");
+    expect(testData.nodes[4].category).toBe("unknown");
   });
 });
 
