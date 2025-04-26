@@ -2,7 +2,6 @@ import {
   preventClusterOverlap,
   setupClusterOverlapPrevention,
 } from "../lib/js/clusterUtils";
-import {prepareData} from "../src/js/netjsongraph.config";
 import NetJSONGraph from "../src/js/netjsongraph.core";
 import {NetJSONGraphRender, L} from "../src/js/netjsongraph.render";
 
