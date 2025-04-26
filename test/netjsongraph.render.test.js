@@ -402,6 +402,20 @@ describe("Cluster Overlap Prevention Utilities", () => {
   it("should not throw if there are no cluster markers", () => {
     expect(() => preventClusterOverlap()).not.toThrow();
   });
+
+  it("should not modify a single cluster marker at a position", () => {
+    document.body.innerHTML = `
+      <div class="marker-cluster" style="position:absolute;left:200px;top:200px;width:40px;height:40px;"></div>
+    `;
+    const rect = {left: 200, top: 200, width: 40, height: 40};
+    document.querySelectorAll(".marker-cluster").forEach((el) => {
+      el.getBoundingClientRect = () => rect;
+    });
+    preventClusterOverlap();
+    const cluster = document.querySelector(".marker-cluster");
+    expect(cluster.style.transform).toBe("");
+    expect(cluster.style.zIndex).toBe("");
+  });
   it("should arrange overlapping clusters in a circle", () => {
     document.body.innerHTML = `
       <div class="marker-cluster" style="position:absolute;left:100px;top:100px;width:40px;height:40px;"></div>
@@ -417,6 +431,10 @@ describe("Cluster Overlap Prevention Utilities", () => {
     expect(clusters[0].style.transform).toBe("");
     expect(clusters[1].style.transform).toMatch(/translate\(.+px, .+px\)/);
     expect(clusters[2].style.transform).toMatch(/translate\(.+px, .+px\)/);
+
+    expect(clusters[0].style.zIndex).toBe("");
+    expect(clusters[1].style.zIndex).toBe("1001");
+    expect(clusters[2].style.zIndex).toBe("1002");
   });
   it("should warn if leafletMap is not provided", () => {
     const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
@@ -565,6 +583,169 @@ describe("Test when invalid data is passed", () => {
     expect(console.error).toHaveBeenCalledWith(
       new Error("Invalid data format!"),
     );
+  });
+});
+
+describe("generateMapOption - node processing and dynamic styling", () => {
+  let self;
+  beforeEach(() => {
+    self = {
+      config: {
+        mapOptions: {
+          nodeConfig: {
+            type: "scatter",
+            nodeStyle: {},
+            nodeSize: undefined,
+            label: {},
+            emphasis: {},
+          },
+          linkConfig: {},
+          baseOptions: {},
+          clusterConfig: {},
+        },
+        mapTileConfig: [{}],
+        nodeCategories: [],
+      },
+      utils: {
+        getNodeStyle: jest.fn(() => ({
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 10},
+          nodeSizeConfig: 10,
+        })),
+        getLinkStyle: jest.fn(() => ({
+          linkStyleConfig: {},
+          linkEmphasisConfig: {linkStyle: {}},
+        })),
+      },
+    };
+  });
+
+  describe("node processing with valid location", () => {
+    test("should create nodesData with label and id", () => {
+      const render = new NetJSONGraphRender();
+      const testJSONData = {
+        nodes: [
+          {id: "a", label: "lbl", properties: {location: {lng: 1, lat: 2}}},
+          {id: "b", properties: {location: {lng: 3, lat: 4}}},
+        ],
+        links: [],
+      };
+      const option = render.generateMapOption(testJSONData, self);
+      const nodesData = option.series[0].data;
+      expect(nodesData.length).toBe(2);
+      expect(nodesData[0].name).toBe("lbl");
+      expect(nodesData[0].value).toEqual([1, 2]);
+      expect(nodesData[1].name).toBe("b");
+      expect(nodesData[1].value).toEqual([3, 4]);
+      expect(nodesData[0].emphasis).toBeDefined();
+    });
+  });
+
+  describe("color function", () => {
+    test("cluster color", () => {
+      const render = new NetJSONGraphRender();
+      const params = {
+        data: {cluster: true, itemStyle: {color: "specified_cluster_color"}},
+      };
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("specified_cluster_color");
+    });
+    test("node category color", () => {
+      self.config.nodeCategories = [
+        {name: "myCategory", nodeStyle: {color: "category_color"}},
+      ];
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {category: "myCategory"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("category_color");
+    });
+    test("node category fallback", () => {
+      self.config.nodeCategories = [];
+      self.config.mapOptions.nodeConfig.nodeStyle.color = "default_node_color";
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {category: "someCategory"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("default_node_color");
+    });
+    test("default node color", () => {
+      self.config.mapOptions.nodeConfig.nodeStyle.color = "default_node_color";
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("default_node_color");
+    });
+    test("absolute default color", () => {
+      delete self.config.mapOptions.nodeConfig.nodeStyle.color;
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("#6c757d");
+    });
+  });
+
+  describe("symbolSize function", () => {
+    test("cluster size configured", () => {
+      self.config.mapOptions.clusterConfig.symbolSize = 40;
+      const render = new NetJSONGraphRender();
+      const params = {data: {cluster: true}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(40);
+    });
+    test("cluster size default", () => {
+      delete self.config.mapOptions.clusterConfig.symbolSize;
+      const render = new NetJSONGraphRender();
+      const params = {data: {cluster: true}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(30);
+    });
+    test("node size specific number", () => {
+      self.utils.getNodeStyle = jest.fn(() => ({nodeSizeConfig: 25}));
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {foo: "bar"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(25);
+    });
+    test("node size default configured", () => {
+      self.utils.getNodeStyle = jest.fn(() => ({nodeSizeConfig: {}}));
+      self.config.mapOptions.nodeConfig.nodeSize = 22;
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {foo: "bar"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(22);
+    });
+    test("node size default fallback", () => {
+      self.utils.getNodeStyle = jest.fn(() => ({nodeSizeConfig: {}}));
+      delete self.config.mapOptions.nodeConfig.nodeSize;
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {foo: "bar"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(17);
+    });
+    test("overall default configured", () => {
+      self.config.mapOptions.nodeConfig.nodeSize = 15;
+      const render = new NetJSONGraphRender();
+      const params = {data: {}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(15);
+    });
+    test("overall default fallback", () => {
+      delete self.config.mapOptions.nodeConfig.nodeSize;
+      const render = new NetJSONGraphRender();
+      const params = {data: {}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(17);
+    });
   });
 });
 
