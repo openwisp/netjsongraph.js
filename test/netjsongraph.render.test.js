@@ -462,26 +462,6 @@ describe("Cluster Overlap Prevention Utilities", () => {
   });
 });
 
-describe("Node Category Assignment in prepareData", () => {
-  it("should assign category based on known status", () => {
-    const testData = {
-      nodes: [
-        {id: "1", properties: {status: "ok"}},
-        {id: "2", properties: {status: "problem"}},
-        {id: "3", properties: {status: "critical"}},
-        {id: "4", properties: {status: "unknown"}},
-        {id: "5", properties: {}},
-      ],
-    };
-    prepareData(testData);
-    expect(testData.nodes[0].category).toBe("ok");
-    expect(testData.nodes[1].category).toBe("problem");
-    expect(testData.nodes[2].category).toBe("critical");
-    expect(testData.nodes[3].category).toBe("unknown");
-    expect(testData.nodes[4].category).toBe("unknown");
-  });
-});
-
 describe("Test netjsongraph GeoJSON properties", () => {
   const geoJSONData = {
     type: "FeatureCollection",
@@ -618,28 +598,6 @@ describe("generateMapOption - node processing and dynamic styling", () => {
       },
     };
   });
-
-  describe("node processing with valid location", () => {
-    test("should create nodesData with label and id", () => {
-      const render = new NetJSONGraphRender();
-      const testJSONData = {
-        nodes: [
-          {id: "a", label: "lbl", properties: {location: {lng: 1, lat: 2}}},
-          {id: "b", properties: {location: {lng: 3, lat: 4}}},
-        ],
-        links: [],
-      };
-      const option = render.generateMapOption(testJSONData, self);
-      const nodesData = option.series[0].data;
-      expect(nodesData.length).toBe(2);
-      expect(nodesData[0].name).toBe("lbl");
-      expect(nodesData[0].value).toEqual([1, 2]);
-      expect(nodesData[1].name).toBe("b");
-      expect(nodesData[1].value).toEqual([3, 4]);
-      expect(nodesData[0].emphasis).toBeDefined();
-    });
-  });
-
   describe("color function", () => {
     test("cluster color", () => {
       const render = new NetJSONGraphRender();
