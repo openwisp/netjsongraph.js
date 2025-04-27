@@ -4,6 +4,20 @@
   color: #fff !important;
 }
 
+.leaflet-control-zoom-in.enabled,
+.leaflet-control-zoom-out.enabled {
+  pointer-events: auto;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.leaflet-control-zoom-in.disabled,
+.leaflet-control-zoom-out.disabled {
+  pointer-events: none;
+  opacity: 0.7;
+  cursor: default;
+}
+
 .leaflet-control-layers {
   background: rgba(217, 79, 52, 0.85) !important;
   color: #fff !important;

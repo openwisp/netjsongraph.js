@@ -457,9 +457,9 @@ class NetJSONGraphRender {
 
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
-      const maxZoom = self.leaflet.getMaxZoom();
-      const minZoom = self.leaflet.getMinZoom();
-
+      const {maxZoom} = self.config.mapOptions;
+      const {minZoom} = self.config.mapOptions;
+      console.log(minZoom, maxZoom);
       self.echarts.setOption({
         series: [
           {
@@ -472,17 +472,20 @@ class NetJSONGraphRender {
 
       const zoomInBtn = document.querySelector(".leaflet-control-zoom-in");
       const zoomOutBtn = document.querySelector(".leaflet-control-zoom-out");
-
       if (currentZoom >= maxZoom) {
-        zoomInBtn.style.cursor = "not-allowed";
+        zoomInBtn.classList.remove("enabled");
+        zoomInBtn.classList.add("disabled");
       } else {
-        zoomInBtn.style.cursor = "pointer";
+        zoomInBtn.classList.remove("disabled");
+        zoomInBtn.classList.add("enabled");
       }
 
       if (currentZoom <= minZoom) {
-        zoomOutBtn.style.cursor = "not-allowed";
+        zoomOutBtn.classList.remove("enabled");
+        zoomOutBtn.classList.add("disabled");
       } else {
-        zoomOutBtn.style.cursor = "pointer";
+        zoomOutBtn.classList.remove("disabled");
+        zoomOutBtn.classList.add("enabled");
       }
     });
 
