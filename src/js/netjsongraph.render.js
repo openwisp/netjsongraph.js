@@ -459,7 +459,6 @@ class NetJSONGraphRender {
       const currentZoom = self.leaflet.getZoom();
       const {maxZoom} = self.config.mapOptions;
       const {minZoom} = self.config.mapOptions;
-      console.log(minZoom, maxZoom);
       self.echarts.setOption({
         series: [
           {
