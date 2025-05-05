@@ -85,9 +85,38 @@ const NetJSONGraphDefaultConfig = {
       legendHoverLink: true,
       emphasis: {
         focus: "none",
+        scale: 2,
         lineStyle: {
           color: "#3acc38",
           opacity: 1,
+        },
+        itemStyle: {
+          //color: "#3acc38",
+          color: {
+            type: "radial",
+            x: 0.5,
+            y: 0.5,
+            r: 0.5,
+            colorStops: [
+              {
+                offset: 0,
+                color: "#ffebc4",
+              },
+              {
+                offset: 0.5,
+                color: "#ffebc4",
+              },
+              {
+                offset: 0.51,
+                color: "#ffffff33",
+              },
+              {
+                offset: 1,
+                color: "#ffffff33",
+              },
+            ],
+            opacity: 1,
+          },
         },
       },
       nodeStyle: {
@@ -171,6 +200,37 @@ const NetJSONGraphDefaultConfig = {
       },
       nodeStyle: {
         color: "#1566a9",
+      },
+      emphasis: {
+        focus: "none",
+        scale: 2,
+        itemStyle: {
+          color: {
+            type: "radial",
+            x: 0.5,
+            y: 0.5,
+            r: 0.5,
+            colorStops: [
+              {
+                offset: 0,
+                color: "#1566a9",
+              },
+              {
+                offset: 0.5,
+                color: "#1566a9",
+              },
+              {
+                offset: 0.51,
+                color: "green",
+              },
+              {
+                offset: 1,
+                color: "green",
+              },
+            ],
+            opacity: 1,
+          },
+        },
       },
       nodeSize: "17",
     },
