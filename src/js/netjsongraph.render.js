@@ -215,15 +215,14 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeEmphasisConfig} = self.utils.getNodeStyle(
-            node,
-            configs,
-            "map",
-          );
+          const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
+            self.utils.getNodeStyle(node, configs, "map");
 
           nodesData.push({
             name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
+            itemStyle: nodeStyleConfig,
+            symbolSize: nodeSizeConfig,
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
               symbolSize: nodeEmphasisConfig.nodeSize,
