@@ -23,6 +23,8 @@ const minimizer = [
   }),
 ];
 
+const isTest = process.env.TEST === "true";
+
 module.exports = (env, argv) => ({
   entry: "./src/js/netjsongraph.js",
   output: {
@@ -36,6 +38,17 @@ module.exports = (env, argv) => ({
   },
   module: {
     rules: [
+      {
+        test: /\.js$/,
+        include: path.resolve(__dirname, "src/js"),
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+            plugins: isTest ? ["istanbul"] : [],
+          },
+        },
+      },
       {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"],
