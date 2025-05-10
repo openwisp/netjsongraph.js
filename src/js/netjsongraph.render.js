@@ -457,8 +457,6 @@ class NetJSONGraphRender {
 
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
-      const {maxZoom} = self.config.mapOptions;
-      const {minZoom} = self.config.mapOptions;
       self.echarts.setOption({
         series: [
           {
@@ -468,24 +466,6 @@ class NetJSONGraphRender {
           },
         ],
       });
-
-      const zoomInBtn = document.querySelector(".leaflet-control-zoom-in");
-      const zoomOutBtn = document.querySelector(".leaflet-control-zoom-out");
-      if (currentZoom >= maxZoom) {
-        zoomInBtn.classList.remove("enabled");
-        zoomInBtn.classList.add("disabled");
-      } else {
-        zoomInBtn.classList.remove("disabled");
-        zoomInBtn.classList.add("enabled");
-      }
-
-      if (currentZoom <= minZoom) {
-        zoomOutBtn.classList.remove("enabled");
-        zoomOutBtn.classList.add("disabled");
-      } else {
-        zoomOutBtn.classList.remove("disabled");
-        zoomOutBtn.classList.add("enabled");
-      }
     });
 
     self.leaflet.on("moveend", async () => {

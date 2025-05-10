@@ -71,7 +71,7 @@ describe("Chart Rendering Test", () => {
     while (click < 50) {
       // eslint-disable-next-line no-await-in-loop
       const className = await zoomIn.getAttribute("class");
-      if (className.includes("disabled")) {
+      if (className.includes("leaflet-disabled")) {
         break;
       }
       zoomIn.click();
