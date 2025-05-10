@@ -64,32 +64,49 @@ describe("Chart Rendering Test", () => {
     driver.get(urls.geographicMap);
 
     await getElementByCss(driver, ".ec-extension-leaflet", 2000);
-    const zoomInButton = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
+    const zoomInButton = await getElementByCss(
+      driver,
+      ".leaflet-control-zoom-in",
+      2000,
+    );
     expect(zoomInButton).not.toBeNull();
 
-    for (let i = 0; i < 20; i++) {
+    async function attemptZoom(count) {
+      if (count >= 20) {
+        return;
+      }
+
       try {
         const currentClassName = await zoomInButton.getAttribute("class");
         if (currentClassName.includes("leaflet-disabled")) {
-          break; // Stop if already disabled
+          return;
         }
         await zoomInButton.click();
-        await driver.sleep(250); // Brief pause for zoom action and UI update
+        await driver.sleep(250);
+        await attemptZoom(count + 1);
       } catch (e) {
-        console.log("Error clicking zoom-in button, possibly disabled:", e.message);
-        break;
+        console.log("Error during zoom attempt or button check:", e.message);
       }
     }
 
-    await driver.wait(async () => {
-      const className = await zoomInButton.getAttribute("class");
-      return className.includes("leaflet-disabled");
-    }, 20000, "Zoom-in button did not become disabled within timeout after repeated clicks");
+    await attemptZoom(0);
+
+    await driver.wait(
+      async () => {
+        const className = await zoomInButton.getAttribute("class");
+        return className.includes("leaflet-disabled");
+      },
+      20000,
+      "Zoom-in button did not become disabled within timeout after repeated clicks",
+    );
 
     await driver.sleep(2000);
 
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
-    expect(consoleErrors.length).toBe(0, "Console errors found after reaching max zoom");
+    expect(consoleErrors.length).toBe(
+      0,
+      "Console errors found after reaching max zoom",
+    );
   });
 });

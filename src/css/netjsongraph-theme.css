@@ -7,11 +7,10 @@
   color: #fff !important;
 }
 
-/* Disabled state (when leaflet-disabled is present) */
-.leaflet-control-zoom-in.leaflet-disabled, /* Leaflet adds this */
-.leaflet-control-zoom-out.leaflet-disabled { /* Leaflet adds this */
+.leaflet-control-zoom-in.leaflet-disabled,
+.leaflet-control-zoom-out.leaflet-disabled {
   pointer-events: none;
-  opacity: 0.7; /* Example disabled opacity from PR */
+  opacity: 0.7;
   cursor: default;
 }
 
