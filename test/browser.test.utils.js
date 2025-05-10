@@ -14,9 +14,6 @@ import netJsonAppendData1 from "../public/assets/data/netjsonAppendData/1.json";
 import netJsonAppendData2 from "../public/assets/data/netjsonAppendData/2.json";
 import netJsonAppendData3 from "../public/assets/data/netjsonAppendData/3.json";
 
-const fs = require("fs");
-const path = require("path");
-
 const url = "http://0.0.0.0:8080";
 
 export const getDriver = async () => {
@@ -131,16 +128,6 @@ export const printConsoleErrors = (errors) => {
       process.stdout.write(`${error.level.name}: ${error.message}\n`);
     });
   }
-};
-
-export const getCoverage = async (driver) => {
-  const coverage = await driver.executeScript(
-    "return window.__coverage__ || {};",
-  );
-  const outDir = path.resolve(__dirname, "../.nyc_output");
-  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
-  const filename = path.join(outDir, `browser-test-${Date.now()}.json`);
-  fs.writeFileSync(filename, JSON.stringify(coverage));
 };
 
 export const tearDown = async (driver) => {

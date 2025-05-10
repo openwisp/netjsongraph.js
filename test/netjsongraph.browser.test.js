@@ -8,7 +8,6 @@ import {
   getPresentNodesAndLinksCount,
   urls,
   printConsoleErrors,
-  getCoverage,
 } from "./browser.test.utils";
 
 describe("Chart Rendering Test", () => {
@@ -19,7 +18,6 @@ describe("Chart Rendering Test", () => {
   });
 
   afterAll(async () => {
-    await getCoverage(driver);
     await tearDown(driver);
   });
 

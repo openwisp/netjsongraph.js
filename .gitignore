@@ -22,7 +22,6 @@ yarn.lock
 
 # Folder
 coverage
-.nyc_output
 
 # Other
 *.map

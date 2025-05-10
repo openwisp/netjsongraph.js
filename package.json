@@ -7,7 +7,6 @@
     "test": "jest --silent",
     "dev": "webpack serve --open --mode development",
     "start": "yarn dev",
-    "start:test": "TEST=true yarn start",
     "build": "webpack --progress --mode production",
     "coverage": "jest --silent --coverage",
     "coveralls": "jest --silent -f ./coverage/lcov.info && cat ./coverage/lcov.info | coveralls || echo 'no coverage file found'",
@@ -51,13 +50,10 @@
     "visualization"
   ],
   "devDependencies": {
-    "@babel/core": "^7.27.1",
-    "@babel/preset-env": "^7.27.1",
+    "@babel/preset-env": "^7.23.9",
     "@testing-library/jest-dom": "^6.4.2",
     "@types/jest": "^29.5.12",
     "acorn": "^8.11.3",
-    "babel-loader": "^10.0.0",
-    "babel-plugin-istanbul": "^7.0.0",
     "copy-webpack-plugin": "^13.0.0",
     "coveralls": "^3.1.1",
     "css-loader": "^7.1.2",
