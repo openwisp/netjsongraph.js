@@ -1,7 +1,18 @@
 .leaflet-control-zoom-in,
 .leaflet-control-zoom-out {
+  pointer-events: auto;
+  opacity: 1;
+  cursor: pointer;
   background: rgba(217, 79, 52, 0.85) !important;
   color: #fff !important;
+}
+
+/* Disabled state (when leaflet-disabled is present) */
+.leaflet-control-zoom-in.leaflet-disabled, /* Leaflet adds this */
+.leaflet-control-zoom-out.leaflet-disabled { /* Leaflet adds this */
+  pointer-events: none;
+  opacity: 0.7; /* Example disabled opacity from PR */
+  cursor: default;
 }
 
 .leaflet-control-layers {
