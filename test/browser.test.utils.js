@@ -19,8 +19,10 @@ const url = "http://0.0.0.0:8080";
 export const getDriver = async () => {
   try {
     const options = new chrome.Options();
-    options.addArguments("--headless");
-    options.addArguments("--remote-debugging-port=9222");
+    options.addArguments("--headless=new");
+    options.addArguments("--disable-dev-shm-usage");
+    options.addArguments("--no-sandbox");
+    options.addArguments("--remote-debugging-pipe");
     return new Builder().forBrowser("chrome").setChromeOptions(options).build();
   } catch (err) {
     console.error("Failed to initialize driver:", err);
@@ -119,14 +121,16 @@ export const captureConsoleErrors = async (driver) => {
   );
 };
 
-export const tearDown = async (driver) => {
-  const consoleErrors = await captureConsoleErrors(driver);
-  if (consoleErrors.length > 0) {
-    console.error("Console Errors Detected:");
-    consoleErrors.forEach((error) =>
-      console.error(`${error.level.name}: ${error.message}`),
-    );
+export const printConsoleErrors = (errors) => {
+  if (errors.length > 0) {
+    process.stdout.write("Console Errors Detected:\n");
+    errors.forEach((error) => {
+      process.stdout.write(`${error.level.name}: ${error.message}\n`);
+    });
   }
+};
+
+export const tearDown = async (driver) => {
   await driver.executeScript("window.sessionStorage.clear()");
   await driver.executeScript("window.localStorage.clear()");
   await driver.manage().deleteAllCookies();

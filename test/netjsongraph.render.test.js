@@ -766,3 +766,109 @@ describe("Test clustering", () => {
     map.utils.appendData(data, map);
   });
 });
+
+describe("Test disableClusteringAtLevel: 0", () => {
+  let renderInstance;
+  let mockSelf;
+  let mockLeafletInstance;
+  let mockGeoJSONLayer;
+  let mockMarkerClusterGroupInstance;
+
+  beforeEach(() => {
+    mockGeoJSONLayer = {
+      addTo: jest.fn(),
+      on: jest.fn(),
+    };
+    mockMarkerClusterGroupInstance = {
+      addLayer: jest.fn(),
+      addTo: jest.fn(() => mockMarkerClusterGroupInstance),
+    };
+    mockLeafletInstance = {
+      on: jest.fn(),
+      getZoom: jest.fn(),
+      getBounds: jest.fn(),
+      addLayer: jest.fn(),
+      latLngToContainerPoint: jest.fn(() => ({x: 0, y: 0})),
+    };
+
+    jest.spyOn(L, "geoJSON").mockImplementation(() => mockGeoJSONLayer);
+    jest
+      .spyOn(L, "markerClusterGroup")
+      .mockImplementation(() => mockMarkerClusterGroupInstance);
+    jest.spyOn(L, "map").mockImplementation(() => mockLeafletInstance);
+    jest.spyOn(L, "divIcon").mockImplementation(jest.fn());
+    jest.spyOn(L, "point").mockImplementation(jest.fn());
+    jest.spyOn(L, "circleMarker").mockImplementation(jest.fn());
+
+    mockSelf = {
+      type: "geojson",
+      data: {type: "FeatureCollection", features: []},
+      config: {
+        clustering: true,
+        disableClusteringAtLevel: 0,
+        clusterRadius: 80,
+        geoOptions: {},
+        clusteringAttribute: null,
+        prepareData: jest.fn((d) => d),
+        onClickElement: jest.fn(),
+        mapOptions: {},
+        mapTileConfig: [{}],
+      },
+      leaflet: mockLeafletInstance,
+      echarts: {
+        setOption: jest.fn(),
+        _api: {
+          getCoordinateSystems: jest.fn(() => [
+            {getLeaflet: () => mockLeafletInstance},
+          ]),
+        },
+      },
+      utils: {
+        deepMergeObj: jest.fn((obj1, obj2) => ({...obj1, ...obj2})),
+        makeCluster: jest.fn(() => ({
+          clusters: [{id: "cluster1", childNodes: [{id: "node1"}]}],
+          nonClusterNodes: [],
+          nonClusterLinks: [],
+        })),
+      },
+      event: {
+        emit: jest.fn(),
+      },
+      el: document.createElement("div"),
+    };
+
+    renderInstance = new NetJSONGraphRender();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("should disable clustering when disableClusteringAtLevel is 0 and initial zoom is 0", () => {
+    mockSelf.leaflet.getZoom.mockReturnValue(0);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    expect(mockSelf.config.clustering).toBe(true);
+    expect(mockSelf.config.disableClusteringAtLevel).toBe(0);
+    expect(mockSelf.leaflet.getZoom()).toBe(0);
+
+    expect(L.markerClusterGroup).not.toHaveBeenCalled();
+    expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet);
+    expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
+    expect(mockMarkerClusterGroupInstance.addTo).not.toHaveBeenCalled();
+  });
+
+  test("should disable clustering when disableClusteringAtLevel is 0 and initial zoom is greater than 0", () => {
+    mockSelf.leaflet.getZoom.mockReturnValue(1);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    expect(mockSelf.config.clustering).toBe(true);
+    expect(mockSelf.config.disableClusteringAtLevel).toBe(0);
+    expect(mockSelf.leaflet.getZoom()).toBe(1);
+
+    expect(L.markerClusterGroup).not.toHaveBeenCalled();
+    expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet);
+    expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
+    expect(mockMarkerClusterGroupInstance.addTo).not.toHaveBeenCalled();
+  });
+});

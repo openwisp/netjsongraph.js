@@ -144,6 +144,38 @@ const operations = {
     }
     return copyArr;
   },
+
+  /**
+   * @function
+   * @name deduplicateNodesById
+   *
+   * Deduplicates an array of nodes based on their 'id' property.
+   * Keeps the first occurrence of each ID and logs a warning for duplicates.
+   * Nodes without an 'id' property are kept.
+   *
+   * @param {array} nodes - The array of node objects to deduplicate.
+   * @returns {array} - A new array containing nodes with unique IDs.
+   */
+  deduplicateNodesById(nodes) {
+    const uniqueNodes = [];
+    const nodeIds = new Set();
+
+    nodes.forEach((node) => {
+      if (node.id) {
+        if (!nodeIds.has(node.id)) {
+          nodeIds.add(node.id);
+          uniqueNodes.push(node);
+        } else {
+          console.warn(`Duplicate node ID detected and skipped: ${node.id}`);
+        }
+      } else {
+        // Keep nodes without IDs
+        uniqueNodes.push(node);
+      }
+    });
+
+    return uniqueNodes;
+  },
 };
 /**
  * @function
@@ -155,11 +187,22 @@ const operations = {
  *
  */
 function dealJSONData(JSONData) {
-  JSONData.nodes = operations.arrayDeduplication(JSONData.nodes, ["id"]);
+  // First ensure nodes array exists
+  if (!JSONData.nodes) {
+    JSONData.nodes = [];
+  }
+
+  // Deduplicate nodes based on ID using the new utility function
+  JSONData.nodes = operations.deduplicateNodesById(JSONData.nodes);
 
   const {flatNodes, nodeInterfaces} = operations.addFlatNodes(JSONData.nodes);
   JSONData.flatNodes = flatNodes;
   JSONData.nodeInterfaces = nodeInterfaces;
+
+  // Ensure links array exists
+  if (!JSONData.links) {
+    JSONData.links = [];
+  }
 
   JSONData.links = operations.changeInterfaceID(JSONData);
 
