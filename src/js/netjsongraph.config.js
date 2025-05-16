@@ -252,7 +252,26 @@ const NetJSONGraphDefaultConfig = {
       radius: 8,
     },
   },
-  nodeCategories: [],
+  nodeCategories: [
+    {
+      name: "ok",
+      nodeStyle: {
+        color: "#28a745",
+      },
+    },
+    {
+      name: "problem",
+      nodeStyle: {
+        color: "#ffc107",
+      },
+    },
+    {
+      name: "critical",
+      nodeStyle: {
+        color: "#dc3545",
+      },
+    },
+  ],
   linkCategories: [],
 
   /**
@@ -265,8 +284,26 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  // eslint-disable-next-line no-unused-vars
-  prepareData(JSONData) {},
+  prepareData(JSONData) {
+    if (JSONData && JSONData.nodes) {
+      JSONData.nodes.forEach((node) => {
+        if (node.properties && node.properties.status) {
+          const status = node.properties.status.toLowerCase();
+          if (
+            status === "ok" ||
+            status === "problem" ||
+            status === "critical"
+          ) {
+            node.category = status;
+          } else {
+            node.category = "unknown";
+          }
+        } else {
+          node.category = "unknown";
+        }
+      });
+    }
+  },
 
   /**
    * @function
@@ -283,16 +320,16 @@ const NetJSONGraphDefaultConfig = {
     let nodeLinkData;
     if (this.type === "netjson") {
       if (type === "node") {
-        nodeLinkData = this.utils.nodeInfo(data);
+        ({nodeLinkData} = {nodeLinkData: this.utils.nodeInfo(data)});
       } else {
-        nodeLinkData = this.utils.linkInfo(data);
+        ({nodeLinkData} = {nodeLinkData: this.utils.linkInfo(data)});
       }
 
       if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
         this.gui.metaInfoContainer.style.display = "flex";
       }
     } else {
-      nodeLinkData = data;
+      ({nodeLinkData} = {nodeLinkData: data});
     }
 
     this.gui.getNodeLinkInfo(type, nodeLinkData);
@@ -311,4 +348,5 @@ const NetJSONGraphDefaultConfig = {
   onReady() {},
 };
 
+export const {prepareData} = NetJSONGraphDefaultConfig;
 export default {...NetJSONGraphDefaultConfig};

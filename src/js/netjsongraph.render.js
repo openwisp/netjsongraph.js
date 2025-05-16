@@ -215,14 +215,15 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
-            self.utils.getNodeStyle(node, configs, "map");
+          const {nodeEmphasisConfig} = self.utils.getNodeStyle(
+            node,
+            configs,
+            "map",
+          );
 
           nodesData.push({
             name: typeof node.label === "string" ? node.label : node.id,
             value: [location.lng, location.lat],
-            symbolSize: nodeSizeConfig,
-            itemStyle: nodeStyleConfig,
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
               symbolSize: nodeEmphasisConfig.nodeSize,
@@ -267,15 +268,74 @@ class NetJSONGraphRender {
     nodesData = nodesData.concat(clusters);
 
     const series = [
-      Object.assign(configs.mapOptions.nodeConfig, {
+      {
         type:
           configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
             : "scatter",
+        name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
-      }),
+        label: configs.mapOptions.nodeConfig.label,
+        itemStyle: {
+          color: (params) => {
+            if (
+              params.data &&
+              params.data.cluster &&
+              params.data.itemStyle &&
+              params.data.itemStyle.color
+            ) {
+              return params.data.itemStyle.color;
+            }
+            if (params.data && params.data.node && params.data.node.category) {
+              const category = configs.nodeCategories.find(
+                (cat) => cat.name === params.data.node.category,
+              );
+              const nodeColor =
+                (category && category.nodeStyle && category.nodeStyle.color) ||
+                (configs.mapOptions.nodeConfig &&
+                  configs.mapOptions.nodeConfig.nodeStyle &&
+                  configs.mapOptions.nodeConfig.nodeStyle.color) ||
+                "#6c757d";
+              return nodeColor;
+            }
+            const defaultColor =
+              (configs.mapOptions.nodeConfig &&
+                configs.mapOptions.nodeConfig.nodeStyle &&
+                configs.mapOptions.nodeConfig.nodeStyle.color) ||
+              "#6c757d";
+            return defaultColor;
+          },
+        },
+        symbolSize: (value, params) => {
+          if (params.data && params.data.cluster) {
+            return (
+              (configs.mapOptions.clusterConfig &&
+                configs.mapOptions.clusterConfig.symbolSize) ||
+              30
+            );
+          }
+          if (params.data && params.data.node) {
+            const {nodeSizeConfig} = self.utils.getNodeStyle(
+              params.data.node,
+              configs,
+              "map",
+            );
+            return typeof nodeSizeConfig === "object"
+              ? (configs.mapOptions.nodeConfig &&
+                  configs.mapOptions.nodeConfig.nodeSize) ||
+                  17
+              : nodeSizeConfig;
+          }
+          return (
+            (configs.mapOptions.nodeConfig &&
+              configs.mapOptions.nodeConfig.nodeSize) ||
+            17
+          );
+        },
+        emphasis: configs.mapOptions.nodeConfig.emphasis,
+      },
       Object.assign(configs.mapOptions.linkConfig, {
         type: "lines",
         coordinateSystem: "leaflet",
@@ -332,10 +392,8 @@ class NetJSONGraphRender {
     }
 
     if (self.type === "netjson") {
-      self.utils.echartsSetOption(
-        self.utils.generateMapOption(JSONData, self),
-        self,
-      );
+      const initialMapOptions = self.utils.generateMapOption(JSONData, self);
+      self.utils.echartsSetOption(initialMapOptions, self);
       self.bboxData = {
         nodes: [],
         links: [],
