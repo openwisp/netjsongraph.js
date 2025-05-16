@@ -1,7 +1,16 @@
 .leaflet-control-zoom-in,
 .leaflet-control-zoom-out {
+  pointer-events: auto;
+  opacity: 1;
+  cursor: pointer;
   background: rgba(217, 79, 52, 0.85) !important;
   color: #fff !important;
+}
+
+.leaflet-control-zoom-in.leaflet-disabled,
+.leaflet-control-zoom-out.leaflet-disabled {
+  opacity: 0.7;
+  cursor: default;
 }
 
 .leaflet-control-layers {

@@ -514,27 +514,16 @@ class NetJSONGraphRender {
     }
 
     self.leaflet.on("zoomend", () => {
-      if (self.leaflet.getZoom() >= self.config.showLabelsAtZoomLevel) {
-        self.echarts.setOption({
-          series: [
-            {
-              label: {
-                show: true,
-              },
+      const currentZoom = self.leaflet.getZoom();
+      self.echarts.setOption({
+        series: [
+          {
+            label: {
+              show: currentZoom >= self.config.showLabelsAtZoomLevel,
             },
-          ],
-        });
-      } else {
-        self.echarts.setOption({
-          series: [
-            {
-              label: {
-                show: false,
-              },
-            },
-          ],
-        });
-      }
+          },
+        ],
+      });
     });
 
     self.leaflet.on("moveend", async () => {

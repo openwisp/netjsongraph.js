@@ -59,4 +59,27 @@ describe("Chart Rendering Test", () => {
     expect(nodesRendered).toBe(nodesPresent);
     expect(linksRendered).toBe(linksPresent);
   });
+
+  test("no blank tiles on canvas at max zoom", async () => {
+    driver.get(urls.geographicMap);
+    const zoomIn = await getElementByCss(
+      driver,
+      ".leaflet-control-zoom-in",
+      2000,
+    );
+    let click = 0;
+    while (click < 50) {
+      // eslint-disable-next-line no-await-in-loop
+      const className = await zoomIn.getAttribute("class");
+      if (className.includes("leaflet-disabled")) {
+        break;
+      }
+      zoomIn.click();
+      click += 1;
+    }
+    await driver.sleep(15000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
 });

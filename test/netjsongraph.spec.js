@@ -120,6 +120,8 @@ describe("NetJSONGraph Specification", () => {
   const NetJSONGraphMapOptions = {
     roam: true,
     zoomAnimation: false,
+    minZoom: 3,
+    maxZoom: 18,
     nodeConfig: {
       type: "scatter",
       label: {
@@ -251,8 +253,6 @@ describe("NetJSONGraph Specification", () => {
           process.env.MAPBOX_URL_TEMPLATE ||
           "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         options: {
-          minZoom: 3,
-          maxZoom: 32,
           attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,
          tiles offered by <a href="https://www.mapbox.com">Mapbox</a>`,
         },
