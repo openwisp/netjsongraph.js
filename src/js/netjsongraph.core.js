@@ -1,6 +1,115 @@
 import NetJSONGraphDefaultConfig from "./netjsongraph.config";
 import NetJSONGraphUpdate from "./netjsongraph.update";
 
+class Selection {
+  constructor() {
+    this.selected = new Set();
+  }
+
+  getSetId(item) {
+    if (item.node) {
+      // map node
+      return item.node.id;
+    } else if (item.link) {
+      // map link
+      return (item.link.source + "=>" + item.link.target);
+    } else if (item.id) {
+      // graph node
+      return item.id;
+    } else {
+      // graph link
+      return (item.source + "=>" + item.target);
+    }
+  }
+
+  isSelected(item) {
+    let id = this.getSetId(item);
+    return this.selected.has(id);
+  }
+
+  toggleSelection(item) {
+    let id = this.getSetId(item);
+
+    if (this.selected.has(id)) {
+      this.selected.delete(id)
+      return false;
+    } else {
+      this.selected.add(id);
+      return true;
+    }
+  }
+
+  changeSelection(echarts, params) {
+    const multiSelectKey = (window.event.ctrlKey || window.event.metaKey);
+    const isSelectionEmpty = (this.selected.size === 0);
+
+    if (multiSelectKey) {
+      if (this.toggleSelection(params.data)) {
+        echarts.dispatchAction(
+          { type: 'highlight', seriesIndex: params.seriesIndex, dataType: params.dataType, dataIndex: params.dataIndex}
+        )
+      } else {
+        echarts.dispatchAction(
+          { type: 'downplay', seriesIndex: params.seriesIndex, dataType: params.dataType, dataIndex: params.dataIndex}
+        )
+      }
+    } else if (!isSelectionEmpty) {
+      const option = echarts.getOption();
+      let nodeData = [];
+      let linkData = [];
+      if (option.leaflet) {
+        // map data
+        nodeData = option.leaflet[0].mapOptions.nodeConfig.data;
+        linkData = option.leaflet[0].mapOptions.linkConfig.data;
+      } else {
+        // graph data
+        nodeData = option.series[0].nodes;
+        linkData = option.series[0].links;
+      }
+      const nodeIndexes = nodeData.map((node, index) => index);
+      const linkIndexes = linkData.map((link, index) => index);
+
+      // downplay all items
+      echarts.dispatchAction(
+        { type: 'downplay', seriesIndex: 0, batch: [
+            {dataType: "node", dataIndex: nodeIndexes},
+            {dataType: "edge", dataIndex: linkIndexes},
+          ]
+        }
+      )
+
+      this.selected.clear();
+    }
+  }
+
+  // called when switching between graph/map view
+  highlightSelected(echarts) {
+    const option = echarts.getOption();
+    let nodeData = [];
+    let linkData = [];
+    if (option.leaflet) {
+      // map data
+      nodeData = option.leaflet[0].mapOptions.nodeConfig.data;
+      linkData = option.leaflet[0].mapOptions.linkConfig.data;
+    } else {
+      // graph data
+      nodeData = option.series[0].nodes;
+      linkData = option.series[0].links;
+    }
+
+    const nodeIndexes = nodeData.map((node, index) => this.isSelected(node) ? index : -1);
+    const linkIndexes = linkData.map((link, index) => this.isSelected(link) ? index : -1);
+
+    echarts.dispatchAction(
+      { type: 'highlight', seriesIndex: 0, batch: [
+          {dataType: "node", dataIndex: nodeIndexes},
+          {dataType: "edge", dataIndex: linkIndexes},
+        ]
+      }
+    )
+  }
+}
+
 class NetJSONGraph {
   /**
    * @constructor
@@ -10,6 +119,7 @@ class NetJSONGraph {
    */
   constructor(JSONParam) {
     this.utils = new NetJSONGraphUpdate();
+    this.selection = new Selection();
     this.config = {...NetJSONGraphDefaultConfig};
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
   }

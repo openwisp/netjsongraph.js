@@ -115,6 +115,8 @@ class NetJSONGraph {
    * @returns {Object} - The graph configuration.
    */
   onLoad() {
+    this.utils.echartsSetEventHandler(this);
+
     if (this.config.metadata && this.type === "netjson") {
       this.gui.createMetaInfoContainer(this.graph);
       this.utils.updateMetadata.call(this);
@@ -151,6 +153,8 @@ class NetJSONGraph {
           document.querySelector(".leaflet-control-zoom").style.display =
             "block";
         }
+
+        this.selection.highlightSelected(this.echarts);
       };
     }
     this.utils.hideLoading.call(this);
