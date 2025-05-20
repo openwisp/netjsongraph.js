@@ -38,20 +38,22 @@ class NetJSONGraph {
         this.el.classList.add("netjsongraph-container");
         if (this.el === document.body) {
           const htmlEl = document.documentElement;
-          htmlEl.style.width = '100%';
-          htmlEl.style.height = '100%';
+          htmlEl.style.width = "100%";
+          htmlEl.style.height = "100%";
 
-          this.el.style.width = '100%';
-          this.el.style.height = '100%';
-          this.el.style.margin = '0';
-          this.el.style.padding = '0';
-          this.el.style.overflow = 'hidden';
+          this.el.style.width = "100%";
+          this.el.style.height = "100%";
+          this.el.style.margin = "0";
+          this.el.style.padding = "0";
+          this.el.style.overflow = "hidden";
 
           this.el.classList.add("njg-relativePosition");
           this.el.setAttribute("id", "graphChartContainer");
         }
       } else {
-        console.error("NetJSONGraph: The specified element for rendering was not found and could not be set.");
+        console.error(
+          "NetJSONGraph: The specified element for rendering was not found and could not be set.",
+        );
       }
     } else if (config && config.el) {
       console.error("Can't change el again!");
