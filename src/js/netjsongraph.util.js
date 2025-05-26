@@ -296,107 +296,133 @@ class NetJSONGraphUtil {
 
   makeCluster(self) {
     const {nodes, links} = self.data;
-    const nonClusterNodes = [];
-    const nonClusterLinks = [];
-    const clusters = [];
     const nodeMap = new Map();
-    let clusterId = 0;
 
-    nodes.forEach((node) => {
-      node.y = self.leaflet.latLngToContainerPoint([
-        node.location.lat,
-        node.location.lng,
-      ]).y;
-      node.x = self.leaflet.latLngToContainerPoint([
-        node.location.lat,
-        node.location.lng,
-      ]).x;
-      node.visited = false;
-      node.cluster = null;
+    const points = [];
+    const nodePoints = [];
+
+    nodes.forEach((node, index) => {
+      if (!node.properties || !node.properties.location) {
+        console.error(`Node ${node.id} has no location!`);
+        return;
+      }
+
+      const point = self.leaflet.latLngToContainerPoint([
+        node.properties.location.lat,
+        node.properties.location.lng,
+      ]);
+
+      points.push({
+        x: point.x,
+        y: point.y,
+        index,
+        node,
+
+        category:
+          node.properties && self.config.clusteringAttribute
+            ? (
+                node.properties[self.config.clusteringAttribute] || "default"
+              ).toLowerCase()
+            : (node.category || "default").toLowerCase(),
+      });
+
+      nodePoints.push(point);
     });
 
-    const index = new KDBush(nodes.length);
-    nodes.forEach(({x, y}) => index.add(x, y));
+    const index = new KDBush(points.length);
+    points.forEach((p) => index.add(p.x, p.y));
     index.finish();
 
-    const locationGroups = new Map();
-    nodes.forEach((node) => {
-      if (node.visited) return;
+    const processed = new Set();
+    const clusters = [];
+    const nonClusterNodes = [];
+    const nonClusterLinks = [];
 
-      const neighbors = index
-        .within(node.x, node.y, self.config.clusterRadius)
-        .map((id) => nodes[id]);
+    points.forEach((point) => {
+      if (processed.has(point.index)) return;
 
-      if (neighbors.length > 1) {
-        const key = `${Math.round(node.x)},${Math.round(node.y)}`;
-        if (!locationGroups.has(key)) {
-          locationGroups.set(key, new Map());
-        }
-        const groupByAttribute = locationGroups.get(key);
+      const neighbors = index.within(
+        point.x,
+        point.y,
+        self.config.clusterRadius || 40,
+      );
 
-        neighbors.forEach((n) => {
-          if (n.visited) return;
-          const attr = self.config.clusteringAttribute
-            ? n.properties[self.config.clusteringAttribute]
-            : "default";
-          if (!groupByAttribute.has(attr)) {
-            groupByAttribute.set(attr, []);
-          }
-          groupByAttribute.get(attr).push(n);
-          n.visited = true;
-        });
-      } else {
-        node.visited = true;
-        nodeMap.set(node.id, null);
-        nonClusterNodes.push(node);
+      if (neighbors.length <= 1) {
+        nonClusterNodes.push(point.node);
+        nodeMap.set(point.node.id, null);
+        processed.add(point.index);
+        return;
       }
-    });
 
-    locationGroups.forEach((attributeGroups) => {
-      attributeGroups.forEach((groupNodes, attr) => {
-        if (groupNodes.length > 1) {
-          let centroid = [0, 0];
-          groupNodes.forEach((n) => {
-            n.cluster = clusterId;
-            nodeMap.set(n.id, n.cluster);
-            centroid[0] += n.location.lng;
-            centroid[1] += n.location.lat;
-          });
+      const clusterNodes = [];
+      let centroidLat = 0;
+      let centroidLng = 0;
 
-          centroid = [
-            centroid[0] / groupNodes.length,
-            centroid[1] / groupNodes.length,
-          ];
+      const categories = {};
+      neighbors.forEach((idx) => {
+        const neighborPoint = points[idx];
+        if (!processed.has(idx)) {
+          const {node: neighborNode} = neighborPoint;
+          clusterNodes.push(neighborNode);
+          centroidLat += neighborNode.properties.location.lat;
+          centroidLng += neighborNode.properties.location.lng;
 
-          const cluster = {
-            id: clusterId,
-            cluster: true,
-            name: groupNodes.length,
-            value: centroid,
-            childNodes: groupNodes,
-            ...self.config.mapOptions.clusterConfig,
-          };
+          const {category} = neighborPoint;
+          categories[category] = (categories[category] || 0) + 1;
 
-          if (self.config.clusteringAttribute) {
-            const category = self.config.nodeCategories.find(
-              (cat) => cat.name === attr,
-            );
-            if (category) {
-              cluster.itemStyle = {
-                ...cluster.itemStyle,
-                color: category.nodeStyle.color,
-              };
-            }
-          }
-
-          clusters.push(cluster);
-          clusterId += 1;
-        } else if (groupNodes.length === 1) {
-          const node = groupNodes[0];
-          nodeMap.set(node.id, null);
-          nonClusterNodes.push(node);
+          processed.add(idx);
+          nodeMap.set(neighborNode.id, 1);
         }
       });
+
+      if (clusterNodes.length > 1) {
+        let maxCount = 0;
+        let dominantCategory = null;
+
+        Object.entries(categories).forEach(([category, count]) => {
+          if (count > maxCount) {
+            maxCount = count;
+            dominantCategory = category;
+          }
+        });
+
+        const cluster = {
+          id: clusters.length + 1,
+          cluster: true,
+          name: clusterNodes.length,
+          value: [
+            centroidLng / clusterNodes.length,
+            centroidLat / clusterNodes.length,
+          ],
+          childNodes: clusterNodes,
+          ...self.config.mapOptions.clusterConfig,
+        };
+
+        if (dominantCategory) {
+          const categoryStyle = self.config.nodeCategories.find(
+            (cat) => cat.name === dominantCategory,
+          );
+
+          if (categoryStyle) {
+            cluster.itemStyle = {
+              ...cluster.itemStyle,
+              color: categoryStyle.nodeStyle.color,
+            };
+
+            cluster.dominantCategory = dominantCategory;
+            cluster.categoryBreakdown = categories;
+          }
+        }
+
+        clusters.push(cluster);
+
+        clusterNodes.forEach((node) => {
+          nodeMap.set(node.id, cluster.id);
+        });
+      } else if (clusterNodes.length === 1) {
+        nonClusterNodes.push(clusterNodes[0]);
+        nodeMap.set(clusterNodes[0].id, null);
+      }
     });
 
     links.forEach((link) => {

@@ -93,7 +93,7 @@
           nodes.push({
             id: `${currentId++}`,
             name: `${status.charAt(0).toUpperCase() + status.slice(1)} Node ${i + 1}`,
-            // Slightly offset location for each node within the group
+
             location: {
               lat: baseLat + (Math.random() - 0.5) * 0.001,
               lng: baseLng + (Math.random() - 0.5) * 0.001,
@@ -142,14 +142,14 @@
         type: "NetworkGraph",
         label: "Cluster Overlap Test with Variable Nodes",
         nodes: allNodes,
-        links: [], // Keep links empty for this example
+        links: []
       };
 
       const map = new NetJSONGraph(testData, {
         render: "map",
         clustering: true,
         clusteringThreshold: 2,
-        clusterRadius: 80,
+        clusterRadius: 30,
         disableClusteringAtLevel: 18,
         clusteringAttribute: "status",
         mapOptions: {
@@ -193,15 +193,13 @@
             
             if (node.properties && node.properties.status) {
               const status = node.properties.status.toLowerCase();
-              // Map known statuses to categories
+
               if (status === 'ok' || status === 'problem' || status === 'critical') {
                 node.category = status;
               } else {
-                // Default others to unknown (though this example only generates known ones)
                 node.category = "unknown";
               }
             } else {
-              // Default nodes without status to unknown
               node.category = "unknown";
             }
           });
