@@ -13,7 +13,7 @@
   font-size: 14px;
 }
 
-h3 {
+.netjsongraph-container h3 {
   display: block;
   font-size: 1.17em;
   margin-block-start: 1em;
@@ -23,7 +23,7 @@ h3 {
   font-weight: bold;
 }
 
-p {
+.netjsongraph-container p {
   display: block;
   margin-block-start: 1em;
   margin-block-end: 1em;
@@ -180,7 +180,7 @@ p {
       url("iconfont.svg?t=1554537125905#iconfont") format("svg"); /* iOS 4.1- */
 }
 
-.iconfont {
+.netjsongraph-container .iconfont {
   font-family: "iconfont", serif !important;
   font-size: 30px;
   font-style: normal;
@@ -188,7 +188,7 @@ p {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.iconfont {
+.netjsongraph-container .iconfont {
   font-family: "iconfont", serif !important;
   font-size: 30px;
   font-style: normal;
