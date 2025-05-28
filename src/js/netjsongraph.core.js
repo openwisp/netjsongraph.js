@@ -35,7 +35,7 @@ class NetJSONGraph {
         this.el = document.querySelector(this.config.el);
       }
       if (this.el) {
-        this.el.classList.add("netjsongraph-container");
+        this.el.classList.add("njg-container");
         if (this.el === document.body) {
           const htmlEl = document.documentElement;
           htmlEl.style.width = "100%";
