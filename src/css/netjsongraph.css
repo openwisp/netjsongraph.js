@@ -189,7 +189,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-eye:before {
+.njg-container .icon-eye:before {
   content: "\e63f";
   position: relative;
   top: -2px;
