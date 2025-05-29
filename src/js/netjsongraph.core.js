@@ -41,14 +41,7 @@ class NetJSONGraph {
           htmlEl.style.width = "100%";
           htmlEl.style.height = "100%";
 
-          this.el.style.width = "100%";
-          this.el.style.height = "100%";
-          this.el.style.margin = "0";
-          this.el.style.padding = "0";
-          this.el.style.overflow = "hidden";
-
           this.el.classList.add("njg-relativePosition");
-          this.el.setAttribute("id", "graphChartContainer");
         }
       } else {
         console.error(
