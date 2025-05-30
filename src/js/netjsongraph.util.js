@@ -796,11 +796,11 @@ class NetJSONGraphUtil {
    */
 
   showLoading() {
-    let loadingContainer = document.getElementById("loadingContainer");
+    let loadingContainer = this.el.querySelector(".njg-loadingContainer");
 
     if (!loadingContainer) {
       loadingContainer = document.createElement("div");
-      loadingContainer.setAttribute("id", "loadingContainer");
+      loadingContainer.classList.add("njg-loadingContainer");
       loadingContainer.innerHTML = `
         <div class="loadingElement">
           <div class="loadingSprite"></div>
@@ -827,7 +827,7 @@ class NetJSONGraphUtil {
    */
 
   hideLoading() {
-    const loadingContainer = document.getElementById("loadingContainer");
+    const loadingContainer = this.el.querySelector(".njg-loadingContainer");
 
     if (loadingContainer) {
       loadingContainer.style.visibility = "hidden";

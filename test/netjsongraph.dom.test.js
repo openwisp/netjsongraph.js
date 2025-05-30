@@ -209,7 +209,7 @@ describe("Test netjsongraph gui", () => {
 
   test("Create a container for meta data", () => {
     const container =
-      '<div class="njg-metaInfoContainer"><h2>Info<span id="closeButton"> ✕</span></h2><div class="njg-metaData"></div></div>';
+      '<div class="njg-metaInfoContainer"><h2>Info<span class="njg-closeButton"> ✕</span></h2><div class="njg-metaData"></div></div>';
     graph.gui.sideBar = graph.gui.createSideBar();
     expect(graph.gui.nodeLinkInfoContainer).toBe(null);
     expect(graph.gui.createMetaInfoContainer).toBeInstanceOf(Function);
@@ -222,7 +222,7 @@ describe("Test netjsongraph gui", () => {
 
     graph.gui.metaInfoContainer = graph.gui.createMetaInfoContainer();
     const closeBtn = document.querySelector(
-      ".njg-metaInfoContainer #closeButton",
+      ".njg-metaInfoContainer .njg-closeButton",
     );
     closeBtn.click();
     expect(graph.gui.metaInfoContainer.style.display).toEqual("none");
@@ -254,7 +254,7 @@ describe("Test netjsongraph gui", () => {
     expect(graph.gui.nodeLinkInfoContainer).toContainElement(header);
     expect(header.innerHTML).toContain("node");
     expect(header).toContainElement(
-      document.querySelector(".njg-headerContainer #closeButton"),
+      document.querySelector(".njg-headerContainer .njg-closeButton"),
     );
     expect(infoContainer.innerHTML).toContain(
       "id",
@@ -311,7 +311,7 @@ describe("Test netjsongraph dom operate", () => {
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).not.toContain("33");
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
     const closeBtn = document.querySelector(
-      ".njg-headerContainer #closeButton",
+      ".njg-headerContainer .njg-closeButton",
     );
     closeBtn.click();
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
@@ -341,7 +341,7 @@ describe("Test netjsongraph dom operate", () => {
     );
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
     const closeBtn = document.querySelector(
-      ".njg-headerContainer #closeButton",
+      ".njg-headerContainer .njg-closeButton",
     );
     closeBtn.click();
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
@@ -353,7 +353,7 @@ describe("Test netjsongraph dom operate", () => {
 
   test("Should close sidebar if there are no children", () => {
     const closeBtn = document.querySelector(
-      ".njg-metaInfoContainer #closeButton",
+      ".njg-metaInfoContainer .njg-closeButton",
     );
     graph.gui.nodeLinkInfoContainer.style.display = "none";
     closeBtn.click();
