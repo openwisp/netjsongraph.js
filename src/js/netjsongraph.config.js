@@ -38,6 +38,7 @@ const NetJSONGraphDefaultConfig = {
   clusteringThreshold: 100,
   disableClusteringAtLevel: 8,
   clusterRadius: 80,
+  clusterSeparation: 20,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 7,
   echartsOption: {

@@ -152,6 +152,7 @@
         clusterRadius: 80,
         disableClusteringAtLevel: 18,
         clusteringAttribute: "status",
+        clusterSeparation: 20,
         mapOptions: {
           center: [45.4642, 9.19],
           zoom: 12,
@@ -190,7 +191,7 @@
               ...node.properties,
               location: node.location,
             };
-            
+
             if (node.properties && node.properties.status) {
               const status = node.properties.status.toLowerCase();
               // Map known statuses to categories

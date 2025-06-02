@@ -353,26 +353,48 @@ class NetJSONGraphUtil {
     });
 
     locationGroups.forEach((attributeGroups) => {
-      attributeGroups.forEach((groupNodes, attr) => {
+      const groupsArray = Array.from(attributeGroups.entries());
+      const groupsCount = groupsArray.length;
+      const separationPx =
+        typeof self.config.clusterSeparation === "number"
+          ? self.config.clusterSeparation
+          : Math.max(10, Math.floor(self.config.clusterRadius / 2));
+
+      groupsArray.forEach(([attr, groupNodes], idx) => {
         if (groupNodes.length > 1) {
-          let centroid = [0, 0];
+          let centroidLng = 0;
+          let centroidLat = 0;
           groupNodes.forEach((n) => {
             n.cluster = clusterId;
             nodeMap.set(n.id, n.cluster);
-            centroid[0] += n.location.lng;
-            centroid[1] += n.location.lat;
+            centroidLng += n.location.lng;
+            centroidLat += n.location.lat;
           });
 
-          centroid = [
-            centroid[0] / groupNodes.length,
-            centroid[1] / groupNodes.length,
-          ];
+          centroidLng /= groupNodes.length;
+          centroidLat /= groupNodes.length;
+
+          if (groupsCount > 1) {
+            const angle = (2 * Math.PI * idx) / groupsCount;
+            const basePoint = self.leaflet.latLngToContainerPoint([
+              centroidLat,
+              centroidLng,
+            ]);
+            const offsetPoint = [
+              basePoint.x + separationPx * Math.cos(angle),
+              basePoint.y + separationPx * Math.sin(angle),
+            ];
+            const offsetLatLng =
+              self.leaflet.containerPointToLatLng(offsetPoint);
+            centroidLng = offsetLatLng.lng;
+            centroidLat = offsetLatLng.lat;
+          }
 
           const cluster = {
             id: clusterId,
             cluster: true,
             name: groupNodes.length,
-            value: centroid,
+            value: [centroidLng, centroidLat],
             childNodes: groupNodes,
             ...self.config.mapOptions.clusterConfig,
           };
