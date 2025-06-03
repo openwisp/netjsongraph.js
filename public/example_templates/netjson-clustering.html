@@ -71,11 +71,6 @@
   <body>
     <script type="text/javascript" src="/netjsongraph.min.js"></script>
     <script type="module">
-      import {
-        preventClusterOverlap,
-        setupClusterOverlapPrevention,
-      } from "../../src/js/cluster-utils.js";
-
       function generateNodesForStatus(
         status,
         baseLat,
@@ -191,7 +186,7 @@
               ...node.properties,
               location: node.location,
             };
-
+            
             if (node.properties && node.properties.status) {
               const status = node.properties.status.toLowerCase();
               // Map known statuses to categories
@@ -232,8 +227,6 @@
       try {
         map.render();
         const leafletMap = map.map;
-
-        setupClusterOverlapPrevention(map.map);
       } catch (e) {
         console.error("Error initializing NetJSONGraph:", e);
       }

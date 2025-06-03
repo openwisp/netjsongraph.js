@@ -1,7 +1,3 @@
-import {
-  preventClusterOverlap,
-  setupClusterOverlapPrevention,
-} from "../src/js/cluster-utils";
 import NetJSONGraph from "../src/js/netjsongraph.core";
 import {NetJSONGraphRender, L} from "../src/js/netjsongraph.render";
 
@@ -389,75 +385,6 @@ describe("Test netjsongraph properties", () => {
       expect(map.JSONParam).toEqual([JSONFILE]);
       expect(map.data).toEqual(JSONData);
     });
-  });
-});
-
-// --- Cluster Overlap Prevention and Category Assignment Tests ---
-
-describe("Cluster Overlap Prevention Utilities", () => {
-  beforeEach(() => {
-    document.body.innerHTML = "";
-  });
-  it("should not throw if there are no cluster markers", () => {
-    expect(() => preventClusterOverlap()).not.toThrow();
-  });
-
-  it("should not modify a single cluster marker at a position", () => {
-    document.body.innerHTML = `
-      <div class="marker-cluster" style="position:absolute;left:200px;top:200px;width:40px;height:40px;"></div>
-    `;
-    const rect = {left: 200, top: 200, width: 40, height: 40};
-    document.querySelectorAll(".marker-cluster").forEach((el) => {
-      el.getBoundingClientRect = () => rect;
-    });
-    preventClusterOverlap();
-    const cluster = document.querySelector(".marker-cluster");
-    expect(cluster.style.transform).toBe("");
-    expect(cluster.style.zIndex).toBe("");
-  });
-  it("should arrange overlapping clusters in a circle", () => {
-    document.body.innerHTML = `
-      <div class="marker-cluster" style="position:absolute;left:100px;top:100px;width:40px;height:40px;"></div>
-      <div class="marker-cluster" style="position:absolute;left:100px;top:100px;width:40px;height:40px;"></div>
-      <div class="marker-cluster" style="position:absolute;left:100px;top:100px;width:40px;height:40px;"></div>
-    `;
-    const rect = {left: 100, top: 100, width: 40, height: 40};
-    document.querySelectorAll(".marker-cluster").forEach((el) => {
-      el.getBoundingClientRect = () => rect;
-    });
-    preventClusterOverlap();
-    const clusters = document.querySelectorAll(".marker-cluster");
-    expect(clusters[0].style.transform).toBe("");
-    expect(clusters[1].style.transform).toMatch(/translate\(.+px, .+px\)/);
-    expect(clusters[2].style.transform).toMatch(/translate\(.+px, .+px\)/);
-
-    expect(clusters[0].style.zIndex).toBe("");
-    expect(clusters[1].style.zIndex).toBe("1001");
-    expect(clusters[2].style.zIndex).toBe("1002");
-  });
-  it("should warn if leafletMap is not provided", () => {
-    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    setupClusterOverlapPrevention(null);
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Leaflet map instance is required"),
-    );
-    warnSpy.mockRestore();
-  });
-  it("should add event listeners if leafletMap is provided", () => {
-    const leafletMap = {on: jest.fn()};
-    setupClusterOverlapPrevention(leafletMap);
-    expect(leafletMap.on).toHaveBeenCalledWith(
-      "zoomend",
-      preventClusterOverlap,
-    );
-    expect(leafletMap.on).toHaveBeenCalledWith(
-      "moveend",
-      preventClusterOverlap,
-    );
-    expect(leafletMap.on).toHaveBeenCalledWith(
-      "layeradd",
-      preventClusterOverlap,
-    );
   });
 });
 
