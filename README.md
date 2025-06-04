@@ -372,87 +372,13 @@ For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletj
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
 
-## Cluster Utilities
+## Automatic Cluster Overlap Prevention
 
-The library includes utilities for handling cluster visualization and preventing overlap in map views. These utilities are available in the `lib/js/clusterUtils.js` module.
+When multiple clusters of different categories share identical coordinates, NetJSONGraph now **automatically** offsets them in a circular pattern (pixel-space repulsion). No extra utilities or configuration flags are required—simply enable clustering with a `clusteringAttribute`, and the library handles overlap for you.
 
-### Functions
+See the [Cluster Overlap Example](./examples/netjson-clustering.html) to view the result.
 
-#### `preventClusterOverlap()`
-
-Identifies clusters at the same location and arranges them in a circular pattern to prevent overlap. This is particularly useful when you have multiple clusters at the same geographic location, such as nodes with different statuses at the same coordinates.
-
-```javascript
-import {preventClusterOverlap} from "../../lib/js/clusterUtils.js";
-
-// Call the function to arrange overlapping clusters
-preventClusterOverlap();
-```
-
-#### `setupClusterOverlapPrevention(leafletMap)`
-
-Sets up event listeners for cluster overlap prevention. This function automatically applies the `preventClusterOverlap()` function when map events occur that might cause clusters to overlap.
-
-```javascript
-import {setupClusterOverlapPrevention} from "../../lib/js/clusterUtils.js";
-
-// Get the Leaflet map instance
-const leafletMap = map.map;
-
-// Set up overlap prevention
-setupClusterOverlapPrevention(leafletMap);
-```
-
-### Usage Example
-
-To use the cluster utilities in your project:
-
-```javascript
-// Import the cluster utilities
-import {
-  preventClusterOverlap,
-  setupClusterOverlapPrevention,
-} from "../../lib/js/clusterUtils.js";
-
-// Initialize your map
-const map = new NetJSONGraph(data, {
-  render: "map",
-  clustering: true,
-  clusteringThreshold: 1,
-  clusterRadius: 40,
-  clusteringAttribute: "status", // Cluster by status
-});
-
-map.render();
-
-// Get the Leaflet map instance
-const leafletMap = map.map;
-
-// Set up cluster overlap prevention when the map is loaded
-window.addEventListener("load", () => {
-  setupClusterOverlapPrevention(leafletMap);
-});
-```
-
-See the [Cluster Overlap Example](https://openwisp.github.io/netjsongraph.js/examples/netjson-cluster-overlap.html) for a complete demonstration.
-
-### API Introduction
-
-#### Core
-
-- `setConfig`
-
-  Method to set the configuration of the graph. You can use this function to add, update or modify the configuration of the graph.
-
-- `setUtils`
-
-  Method to set the utils of the graph. You can use this function to add, update the utils.
-
-- `render`
-
-  Method to render the graph.
-
-#### Realtime Update
+## Realtime Update
 
 We use [socket.io](https://socket.io/) to monitor data changes which supports WebSockets and Polling. You can call `JSONDataUpdate` when the data change event occurs and pass the data to update the view.
 
@@ -925,39 +851,3 @@ Refer to the [Arguments section](#arguments) section for more details.
 ### License
 
 [BSD 3-Clause License](https://github.com/interop-dev/netjsongraph.js/blob/master/LICENSE).
-
-#### Cluster Overlap Prevention
-
-To prevent visual clutter when multiple clusters occupy the same geographic coordinates, NetJSONGraph.js can automatically arrange them in a circular layout. This is particularly useful when you have nodes with different statuses in the same location.
-
-You can enable this feature in two ways:
-
-1. Using the `clusterOverlapPrevention` option:
-
-```javascript
-const graph = new NetJSONGraph("./data/your_data.json", {
-  render: "map",
-  clustering: true,
-  clusterOverlapPrevention: true,
-  // ... other options
-});
-```
-
-2. Or manually using the utility functions:
-
-```javascript
-import {setupClusterOverlapPrevention} from "../../lib/js/clusterUtils.js";
-
-// Initialize your map
-const map = new NetJSONGraph(data, {
-  render: "map",
-  clustering: true,
-  // ... other options
-});
-map.render();
-
-// Set up cluster overlap prevention
-setupClusterOverlapPrevention(map.map);
-```
-
-See the [Cluster Overlap Example](./examples/netjson-clustering.html) for a complete demonstration.
