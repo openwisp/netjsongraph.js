@@ -48,9 +48,7 @@ describe("makeCluster cluster separation logic", () => {
     // Should be separated by roughly clusterSeparation in pixel space
     const px1 = mockLeaflet.latLngToContainerPoint(clusters[0].value);
     const px2 = mockLeaflet.latLngToContainerPoint(clusters[1].value);
-    const dist = Math.sqrt(
-      (px1.x - px2.x)**2 + (px1.y - px2.y)**2,
-    );
+    const dist = Math.sqrt((px1.x - px2.x) ** 2 + (px1.y - px2.y) ** 2);
     expect(dist).toBeGreaterThan(40); // Allow some tolerance
   });
 
@@ -91,9 +89,7 @@ describe("makeCluster cluster separation logic", () => {
     // Should be separated by at least half the clusterRadius (default)
     const px1 = mockLeaflet.latLngToContainerPoint(clusters[0].value);
     const px2 = mockLeaflet.latLngToContainerPoint(clusters[1].value);
-    const dist = Math.sqrt(
-      (px1.x - px2.x)**2 + (px1.y - px2.y)**2,
-    );
+    const dist = Math.sqrt((px1.x - px2.x) ** 2 + (px1.y - px2.y) ** 2);
     expect(dist).toBeGreaterThan(4); // clusterRadius/2 = 5, allow some tolerance
   });
 });
