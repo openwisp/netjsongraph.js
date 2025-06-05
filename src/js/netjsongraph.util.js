@@ -361,7 +361,7 @@ class NetJSONGraphUtil {
           : Math.max(10, Math.floor(self.config.clusterRadius / 2));
 
       groupsArray.forEach(([attr, groupNodes], idx) => {
-        if (groupNodes.length > 1) {
+        if (groupNodes.length > 0) {
           let centroidLng = 0;
           let centroidLat = 0;
           groupNodes.forEach((n) => {

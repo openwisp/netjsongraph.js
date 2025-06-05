@@ -876,9 +876,12 @@ describe("Test clustering", () => {
     });
     map.data = data;
     const clusterObj = map.utils.makeCluster(map);
-    expect(clusterObj.clusters.length).toEqual(1);
-    expect(clusterObj.clusters[0].childNodes.length).toEqual(2);
-    expect(clusterObj.clusters[0].itemStyle.color).toEqual("#c92517");
+    expect(clusterObj.clusters.length).toEqual(2);
+    const downCluster = clusterObj.clusters.find(
+      (c) => c.itemStyle && c.itemStyle.color === "#c92517",
+    );
+    expect(downCluster).toBeDefined();
+    expect(downCluster.childNodes.length).toEqual(2);
     document.body.removeChild(container);
   });
 
