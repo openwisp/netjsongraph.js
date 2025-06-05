@@ -35,6 +35,7 @@ class NetJSONGraphUtil {
     try {
       let paginatedResponse = await this.utils.JSONParamParse(JSONParam);
       if (paginatedResponse.json) {
+        // eslint-disable-next-line no-await-in-loop
         res = await paginatedResponse.json();
         data = res.results ? res.results : res;
         while (res.next && data.nodes.length <= this.config.maxPointsFetched) {
@@ -68,6 +69,7 @@ class NetJSONGraphUtil {
       JSONParam = JSONParam[0].split("?")[0];
       // eslint-disable-next-line no-underscore-dangle
       const url = `${JSONParam}bbox?swLat=${bounds._southWest.lat}&swLng=${bounds._southWest.lng}&neLat=${bounds._northEast.lat}&neLng=${bounds._northEast.lng}`;
+      // eslint-disable-next-line no-await-in-loop
       const res = await this.utils.JSONParamParse(url);
       data = await res.json();
     } catch (e) {
@@ -314,78 +316,109 @@ class NetJSONGraphUtil {
     });
 
     const index = new KDBush(nodes.length);
-    /* eslint-disable no-restricted-syntax */
-    for (const {x, y} of nodes) index.add(x, y);
-    /* eslint-enable no-restricted-syntax */
+    nodes.forEach(({x, y}) => index.add(x, y));
     index.finish();
 
+    const locationGroups = new Map();
     nodes.forEach((node) => {
-      let cluster;
-      let centroid = [0, 0];
-      const addNode = (n) => {
-        n.visited = true;
-        n.cluster = clusterId;
-        nodeMap.set(n.id, n.cluster);
-        centroid[0] += n.location.lng;
-        centroid[1] += n.location.lat;
-      };
-      if (!node.visited) {
-        const neighbors = index
-          .within(node.x, node.y, self.config.clusterRadius)
-          .map((id) => nodes[id]);
-        const results = neighbors.filter((n) => {
-          if (self.config.clusteringAttribute) {
-            if (
-              n.properties[self.config.clusteringAttribute] ===
-                node.properties[self.config.clusteringAttribute] &&
-              n.cluster === null
-            ) {
-              addNode(n);
-              return true;
-            }
-            return false;
-          }
+      if (node.visited) return;
 
-          if (n.cluster === null) {
-            addNode(n);
-            return true;
+      const neighbors = index
+        .within(node.x, node.y, self.config.clusterRadius)
+        .map((id) => nodes[id]);
+
+      if (neighbors.length > 1) {
+        const key = `${Math.round(node.x)},${Math.round(node.y)}`;
+        if (!locationGroups.has(key)) {
+          locationGroups.set(key, new Map());
+        }
+        const groupByAttribute = locationGroups.get(key);
+
+        neighbors.forEach((n) => {
+          if (n.visited) return;
+          const attr = self.config.clusteringAttribute
+            ? n.properties[self.config.clusteringAttribute]
+            : "default";
+          if (!groupByAttribute.has(attr)) {
+            groupByAttribute.set(attr, []);
           }
-          return false;
+          groupByAttribute.get(attr).push(n);
+          n.visited = true;
         });
+      } else {
+        node.visited = true;
+        nodeMap.set(node.id, null);
+        nonClusterNodes.push(node);
+      }
+    });
 
-        if (results.length > 1) {
-          centroid = [
-            centroid[0] / results.length,
-            centroid[1] / results.length,
-          ];
-          cluster = {
+    locationGroups.forEach((attributeGroups) => {
+      const groupsArray = Array.from(attributeGroups.entries());
+      const groupsCount = groupsArray.length;
+      const separationPx =
+        typeof self.config.clusterSeparation === "number"
+          ? self.config.clusterSeparation
+          : Math.max(10, Math.floor(self.config.clusterRadius / 2));
+
+      groupsArray.forEach(([attr, groupNodes], idx) => {
+        if (groupNodes.length > 0) {
+          let centroidLng = 0;
+          let centroidLat = 0;
+          groupNodes.forEach((n) => {
+            n.cluster = clusterId;
+            nodeMap.set(n.id, n.cluster);
+            centroidLng += n.location.lng;
+            centroidLat += n.location.lat;
+          });
+
+          centroidLng /= groupNodes.length;
+          centroidLat /= groupNodes.length;
+
+          if (groupsCount > 1) {
+            const angle = (2 * Math.PI * idx) / groupsCount;
+            const basePoint = self.leaflet.latLngToContainerPoint([
+              centroidLat,
+              centroidLng,
+            ]);
+            const offsetPoint = [
+              basePoint.x + separationPx * Math.cos(angle),
+              basePoint.y + separationPx * Math.sin(angle),
+            ];
+            const offsetLatLng =
+              self.leaflet.containerPointToLatLng(offsetPoint);
+            centroidLng = offsetLatLng.lng;
+            centroidLat = offsetLatLng.lat;
+          }
+
+          const cluster = {
             id: clusterId,
             cluster: true,
-            name: results.length,
-            value: centroid,
-            childNodes: results,
+            name: groupNodes.length,
+            value: [centroidLng, centroidLat],
+            childNodes: groupNodes,
             ...self.config.mapOptions.clusterConfig,
           };
 
           if (self.config.clusteringAttribute) {
-            const {color} = self.config.nodeCategories.find(
-              (cat) =>
-                cat.name === node.properties[self.config.clusteringAttribute],
-            ).nodeStyle;
-
-            cluster.itemStyle = {
-              ...cluster.itemStyle,
-              color,
-            };
+            const category = self.config.nodeCategories.find(
+              (cat) => cat.name === attr,
+            );
+            if (category) {
+              cluster.itemStyle = {
+                ...cluster.itemStyle,
+                color: category.nodeStyle.color,
+              };
+            }
           }
 
           clusters.push(cluster);
-        } else if (results.length === 1) {
-          nodeMap.set(results[0].id, null);
-          nonClusterNodes.push(results[0]);
+          clusterId += 1;
+        } else if (groupNodes.length === 1) {
+          const node = groupNodes[0];
+          nodeMap.set(node.id, null);
+          nonClusterNodes.push(node);
         }
-        clusterId += 1;
-      }
+      });
     });
 
     links.forEach((link) => {
@@ -650,47 +683,96 @@ class NetJSONGraphUtil {
     let nodeStyleConfig;
     let nodeSizeConfig = {};
     let nodeEmphasisConfig = {};
-    if (node.category && config.nodeCategories.length) {
+    let categoryFound = false;
+
+    if (
+      node.category &&
+      config.nodeCategories &&
+      config.nodeCategories.length
+    ) {
       const category = config.nodeCategories.find(
         (cat) => cat.name === node.category,
       );
 
-      nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
+      if (category) {
+        categoryFound = true;
+        nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
+        nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
 
-      nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
+        let emphasisNodeStyle = {};
+        let emphasisNodeSize = {};
 
-      nodeEmphasisConfig = {
-        ...nodeEmphasisConfig,
-        nodeStyle: category.emphasis
-          ? this.generateStyle(category.emphasis.nodeStyle || {}, node)
-          : {},
-      };
-
-      nodeEmphasisConfig = {
-        ...nodeEmphasisConfig,
-        nodeSize: category.empahsis
-          ? this.generateStyle(category.emphasis.nodeSize || {}, node)
-          : {},
-      };
-    } else if (type === "map") {
-      nodeStyleConfig = this.generateStyle(
-        config.mapOptions.nodeConfig.nodeStyle,
-        node,
-      );
-      nodeSizeConfig = this.generateStyle(
-        config.mapOptions.nodeConfig.nodeSize,
-        node,
-      );
-    } else {
-      nodeStyleConfig = this.generateStyle(
-        config.graphConfig.series.nodeStyle,
-        node,
-      );
-      nodeSizeConfig = this.generateStyle(
-        config.graphConfig.series.nodeSize,
-        node,
-      );
+        if (category.emphasis) {
+          emphasisNodeStyle = this.generateStyle(
+            category.emphasis.nodeStyle || {},
+            node,
+          );
+          // Corrected typo: empahsis -> emphasis
+          emphasisNodeSize = this.generateStyle(
+            category.emphasis.nodeSize || {},
+            node,
+          );
+          nodeEmphasisConfig = {
+            nodeStyle: emphasisNodeStyle,
+            nodeSize: emphasisNodeSize,
+          };
+        }
+      }
     }
+
+    if (!categoryFound) {
+      if (type === "map") {
+        const nodeConf = config.mapOptions && config.mapOptions.nodeConfig;
+        nodeStyleConfig = this.generateStyle(
+          (nodeConf && nodeConf.nodeStyle) || {},
+          node,
+        );
+        nodeSizeConfig = this.generateStyle(
+          (nodeConf && nodeConf.nodeSize) || {},
+          node,
+        );
+
+        const emphasisConf = nodeConf && nodeConf.emphasis;
+        if (emphasisConf) {
+          nodeEmphasisConfig = {
+            nodeStyle: this.generateStyle(
+              (emphasisConf && emphasisConf.nodeStyle) || {},
+              node,
+            ),
+            nodeSize: this.generateStyle(
+              (emphasisConf && emphasisConf.nodeSize) || {},
+              node,
+            ),
+          };
+        }
+      } else {
+        const seriesConf = config.graphConfig && config.graphConfig.series;
+        nodeStyleConfig = this.generateStyle(
+          (seriesConf && seriesConf.nodeStyle) || {},
+          node,
+        );
+        nodeSizeConfig = this.generateStyle(
+          (seriesConf && seriesConf.nodeSize) || {},
+          node,
+        );
+
+        const emphasisConf = seriesConf && seriesConf.emphasis;
+        if (emphasisConf) {
+          nodeEmphasisConfig = {
+            nodeStyle: this.generateStyle(
+              (emphasisConf && emphasisConf.itemStyle) || {},
+              node,
+            ),
+
+            nodeSize: this.generateStyle(
+              (emphasisConf && emphasisConf.symbolSize) || nodeSizeConfig || {},
+              node,
+            ),
+          };
+        }
+      }
+    }
+
     return {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig};
   }
 
