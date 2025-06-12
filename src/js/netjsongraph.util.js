@@ -319,6 +319,25 @@ class NetJSONGraphUtil {
     nodes.forEach(({x, y}) => index.add(x, y));
     index.finish();
 
+    const symbolSizeSetting =
+      self.config &&
+      self.config.mapOptions &&
+      self.config.mapOptions.clusterConfig &&
+      self.config.mapOptions.clusterConfig.symbolSize;
+    const getClusterSymbolSize = (count) => {
+      if (typeof symbolSizeSetting === "function") {
+        try {
+          return symbolSizeSetting(count);
+        } catch (e) {
+          return 30; // fallback
+        }
+      }
+      if (Array.isArray(symbolSizeSetting)) {
+        return symbolSizeSetting[0] || 30;
+      }
+      return typeof symbolSizeSetting === "number" ? symbolSizeSetting : 30;
+    };
+
     const locationGroups = new Map();
     nodes.forEach((node) => {
       if (node.visited) return;
@@ -355,10 +374,32 @@ class NetJSONGraphUtil {
     locationGroups.forEach((attributeGroups) => {
       const groupsArray = Array.from(attributeGroups.entries());
       const groupsCount = groupsArray.length;
-      const separationPx =
+
+      let maxSymbolSize = 0;
+      groupsArray.forEach(([gNodes]) => {
+        const sz = getClusterSymbolSize(gNodes.length);
+        if (sz > maxSymbolSize) {
+          maxSymbolSize = sz;
+        }
+      });
+
+      const baseSeparation =
         typeof self.config.clusterSeparation === "number"
           ? self.config.clusterSeparation
           : Math.max(10, Math.floor(self.config.clusterRadius / 2));
+
+      // Ensure non-overlap even with many attribute clusters: minimal radius R so that
+      // chord length between adjacent clusters (2R * sin(pi/n)) >= maxSymbolSize.
+      let requiredRadius = 0;
+      if (groupsCount > 1) {
+        const angle = Math.PI / groupsCount;
+        const sin = Math.sin(angle);
+        if (sin > 0) {
+          requiredRadius = maxSymbolSize / (2 * sin);
+        }
+      }
+
+      const separationPx = Math.max(baseSeparation, requiredRadius + 4);
 
       groupsArray.forEach(([attr, groupNodes], idx) => {
         if (groupNodes.length > 0) {
@@ -403,6 +444,7 @@ class NetJSONGraphUtil {
             const category = self.config.nodeCategories.find(
               (cat) => cat.name === attr,
             );
+
             if (category) {
               cluster.itemStyle = {
                 ...cluster.itemStyle,
@@ -429,6 +471,53 @@ class NetJSONGraphUtil {
         nonClusterLinks.push(link);
       }
     });
+
+    // Screen-space repulsion between clusters to avoid any residual overlap
+    if (clusters.length > 1) {
+      const elements = clusters.map((c) => {
+        const pt = self.leaflet.latLngToContainerPoint([
+          c.value[1],
+          c.value[0],
+        ]);
+        return {
+          ref: c,
+          x: pt.x,
+          y: pt.y,
+          r: getClusterSymbolSize(c.childNodes.length) / 2,
+        };
+      });
+
+      const padding = 4;
+      const maxIterations = 5;
+      for (let iter = 0; iter < maxIterations; iter += 1) {
+        let adjusted = false;
+        for (let i = 0; i < elements.length; i += 1) {
+          for (let j = i + 1; j < elements.length; j += 1) {
+            const dx = elements[j].x - elements[i].x;
+            const dy = elements[j].y - elements[i].y;
+            const dist = Math.hypot(dx, dy);
+            const minDist = elements[i].r + elements[j].r + padding;
+            if (dist > 0 && dist < minDist) {
+              const shift = (minDist - dist) / 2;
+              const nx = dx / dist;
+              const ny = dy / dist;
+              elements[i].x -= nx * shift;
+              elements[i].y -= ny * shift;
+              elements[j].x += nx * shift;
+              elements[j].y += ny * shift;
+              adjusted = true;
+            }
+          }
+        }
+        if (!adjusted) break;
+      }
+
+      // Commit adjusted positions back to cluster objects
+      elements.forEach((el) => {
+        const latlng = self.leaflet.containerPointToLatLng([el.x, el.y]);
+        el.ref.value = [latlng.lng, latlng.lat];
+      });
+    }
 
     return {clusters, nonClusterNodes, nonClusterLinks};
   }
