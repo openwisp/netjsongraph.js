@@ -656,7 +656,10 @@ class NetJSONGraphRender {
         ) {
           // Zoom into the clicked cluster instead of expanding it
           const currentZoom = self.leaflet.getZoom();
-          const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
+          const targetZoom = Math.min(
+            currentZoom + 2,
+            self.leaflet.getMaxZoom(),
+          );
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],
             targetZoom,
