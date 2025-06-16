@@ -71,7 +71,74 @@
   <body>
     <script type="text/javascript" src="/netjsongraph.min.js"></script>
     <script type="module">
+      function generateNodesForStatus(
+        status,
+        baseLat,
+        baseLng,
+        minNodes,
+        maxNodes,
+        startId,
+      ) {
+        const nodes = [];
+        const numNodes =
+          Math.floor(Math.random() * (maxNodes - minNodes + 1)) + minNodes;
+        let currentId = startId;
+
+        for (let i = 0; i < numNodes; i++) {
+          nodes.push({
+            id: `${currentId++}`,
+            name: `${status.charAt(0).toUpperCase() + status.slice(1)} Node ${i + 1}`,
+            // Slightly offset location for each node within the group
+            location: {
+              lat: baseLat + (Math.random() - 0.5) * 0.001,
+              lng: baseLng + (Math.random() - 0.5) * 0.001,
+            },
+            properties: {status: status},
+          });
+        }
+        return {nodes, nextId: currentId};
+      }
+
+      let nextNodeId = 1;
+      const criticalNodesResult = generateNodesForStatus(
+        "critical",
+        45.4642,
+        9.19,
+        7,
+        15,
+        nextNodeId,
+      );
+      nextNodeId = criticalNodesResult.nextId;
+      const okNodesResult = generateNodesForStatus(
+        "ok",
+        45.4742,
+        9.18,
+        12,
+        22,
+        nextNodeId,
+      );
+      nextNodeId = okNodesResult.nextId;
+      const problemNodesResult = generateNodesForStatus(
+        "problem",
+        45.4842,
+        9.17,
+        1,
+        1,
+        nextNodeId,
+      );
+      nextNodeId = problemNodesResult.nextId;
+      const problemNodesResult2 = generateNodesForStatus(
+        "critical",
+        45.486616796964185, 9.189761142158211,
+        20,
+        30,
+        nextNodeId,
+      );
       const allNodes = [
+        ...criticalNodesResult.nodes,
+        ...okNodesResult.nodes,
+        ...problemNodesResult.nodes,
+        ...problemNodesResult2.nodes,
     {
       "id": "1",
       "name": "OK Node 1",
@@ -2677,7 +2744,8 @@
       },
       "properties": {
         "status": "problem"
-      }
+      },
+
     }];
 
       const testData = {

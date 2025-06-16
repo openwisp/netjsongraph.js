@@ -654,21 +654,13 @@ class NetJSONGraphRender {
             params.componentSubType === "effectScatter") &&
           params.data.cluster
         ) {
-          nonClusterNodes = nonClusterNodes.concat(params.data.childNodes);
-          clusters = clusters.filter(
-            (cluster) => cluster.id !== params.data.id,
+          // Zoom into the clicked cluster instead of expanding it
+          const currentZoom = self.leaflet.getZoom();
+          const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
+          self.leaflet.setView(
+            [params.data.value[1], params.data.value[0]],
+            targetZoom,
           );
-          self.echarts.setOption(
-            self.utils.generateMapOption(
-              {
-                ...JSONData,
-                nodes: nonClusterNodes,
-              },
-              self,
-              clusters,
-            ),
-          );
-          self.leaflet.setView([params.data.value[1], params.data.value[0]]);
         }
       });
 
