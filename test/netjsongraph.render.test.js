@@ -492,6 +492,147 @@ describe("Test when invalid data is passed", () => {
   });
 });
 
+describe("generateMapOption - node processing and dynamic styling", () => {
+  let self;
+  beforeEach(() => {
+    self = {
+      config: {
+        mapOptions: {
+          nodeConfig: {
+            type: "scatter",
+            nodeStyle: {},
+            nodeSize: undefined,
+            label: {},
+            emphasis: {},
+          },
+          linkConfig: {},
+          baseOptions: {},
+          clusterConfig: {},
+        },
+        mapTileConfig: [{}],
+        nodeCategories: [],
+      },
+      utils: {
+        getNodeStyle: jest.fn(() => ({
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 10},
+          nodeSizeConfig: 10,
+        })),
+        getLinkStyle: jest.fn(() => ({
+          linkStyleConfig: {},
+          linkEmphasisConfig: {linkStyle: {}},
+        })),
+      },
+    };
+  });
+  describe("color function", () => {
+    test("cluster color", () => {
+      const render = new NetJSONGraphRender();
+      const params = {
+        data: {cluster: true, itemStyle: {color: "specified_cluster_color"}},
+      };
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("specified_cluster_color");
+    });
+    test("node category color", () => {
+      self.config.nodeCategories = [
+        {name: "myCategory", nodeStyle: {color: "category_color"}},
+      ];
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {category: "myCategory"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("category_color");
+    });
+    test("node category fallback", () => {
+      self.config.nodeCategories = [];
+      self.config.mapOptions.nodeConfig.nodeStyle.color = "default_node_color";
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {category: "someCategory"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("default_node_color");
+    });
+    test("default node color", () => {
+      self.config.mapOptions.nodeConfig.nodeStyle.color = "default_node_color";
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("default_node_color");
+    });
+    test("absolute default color", () => {
+      delete self.config.mapOptions.nodeConfig.nodeStyle.color;
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const colorFn = option.series[0].itemStyle.color;
+      expect(colorFn(params)).toBe("#6c757d");
+    });
+  });
+
+  describe("symbolSize function", () => {
+    test("cluster size configured", () => {
+      self.config.mapOptions.clusterConfig.symbolSize = 40;
+      const render = new NetJSONGraphRender();
+      const params = {data: {cluster: true}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(40);
+    });
+    test("cluster size default", () => {
+      delete self.config.mapOptions.clusterConfig.symbolSize;
+      const render = new NetJSONGraphRender();
+      const params = {data: {cluster: true}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(30);
+    });
+    test("node size specific number", () => {
+      self.utils.getNodeStyle = jest.fn(() => ({nodeSizeConfig: 25}));
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {foo: "bar"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(25);
+    });
+    test("node size default configured", () => {
+      self.utils.getNodeStyle = jest.fn(() => ({nodeSizeConfig: {}}));
+      self.config.mapOptions.nodeConfig.nodeSize = 22;
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {foo: "bar"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(22);
+    });
+    test("node size default fallback", () => {
+      self.utils.getNodeStyle = jest.fn(() => ({nodeSizeConfig: {}}));
+      delete self.config.mapOptions.nodeConfig.nodeSize;
+      const render = new NetJSONGraphRender();
+      const params = {data: {node: {foo: "bar"}}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(17);
+    });
+    test("overall default configured", () => {
+      self.config.mapOptions.nodeConfig.nodeSize = 15;
+      const render = new NetJSONGraphRender();
+      const params = {data: {}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(15);
+    });
+    test("overall default fallback", () => {
+      delete self.config.mapOptions.nodeConfig.nodeSize;
+      const render = new NetJSONGraphRender();
+      const params = {data: {}};
+      const option = render.generateMapOption({nodes: [], links: []}, self);
+      const sizeFn = option.series[0].symbolSize;
+      expect(sizeFn(null, params)).toBe(17);
+    });
+  });
+});
+
 describe("Test when more data is present than maxPointsFetched", () => {
   const data = {
     nodes: [
@@ -735,9 +876,12 @@ describe("Test clustering", () => {
     });
     map.data = data;
     const clusterObj = map.utils.makeCluster(map);
-    expect(clusterObj.clusters.length).toEqual(1);
-    expect(clusterObj.clusters[0].childNodes.length).toEqual(2);
-    expect(clusterObj.clusters[0].itemStyle.color).toEqual("#c92517");
+    expect(clusterObj.clusters.length).toEqual(2);
+    const downCluster = clusterObj.clusters.find(
+      (c) => c.itemStyle && c.itemStyle.color === "#c92517",
+    );
+    expect(downCluster).toBeDefined();
+    expect(downCluster.childNodes.length).toEqual(2);
     document.body.removeChild(container);
   });
 
