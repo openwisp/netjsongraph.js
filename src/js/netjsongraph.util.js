@@ -294,6 +294,10 @@ class NetJSONGraphUtil {
     return objs[len - 1];
   }
 
+  /**
+   * Create clusters of nodes based on spatial proximity and optional attribute grouping.
+   * Mathematical reasoning and operations are explained inline.
+   */
   makeCluster(self) {
     const {nodes, links} = self.data;
     const nonClusterNodes = [];
@@ -302,7 +306,10 @@ class NetJSONGraphUtil {
     const nodeMap = new Map();
     let clusterId = 0;
 
+    // 1. Project all nodes to screen (pixel) coordinates for spatial clustering
     nodes.forEach((node) => {
+      // Convert geographic coordinates (lat, lng) to pixel coordinates (x, y)
+      // This allows clustering to be performed visually, regardless of map zoom/projection
       node.y = self.leaflet.latLngToContainerPoint([
         node.location.lat,
         node.location.lng,
@@ -315,10 +322,12 @@ class NetJSONGraphUtil {
       node.cluster = null;
     });
 
+    // 2. Build a spatial index for fast neighbor search
     const index = new KDBush(nodes.length);
     nodes.forEach(({x, y}) => index.add(x, y));
     index.finish();
 
+    // Helper to get cluster symbol size (for overlap calculations)
     const symbolSizeSetting =
       self.config &&
       self.config.mapOptions &&
@@ -342,17 +351,23 @@ class NetJSONGraphUtil {
     nodes.forEach((node) => {
       if (node.visited) return;
 
+      // 3. Find all neighbors within clusterRadius in pixel space
+      // For a node at (x, y), find all nodes (xi, yi) such that:
+      // sqrt((xi - x)^2 + (yi - y)^2) <= clusterRadius
+      // This is the Euclidean distance formula in 2D.
       const neighbors = index
         .within(node.x, node.y, self.config.clusterRadius)
         .map((id) => nodes[id]);
 
       if (neighbors.length > 1) {
+        // Group by rounded pixel location (to avoid floating point issues)
         const key = `${Math.round(node.x)},${Math.round(node.y)}`;
         if (!locationGroups.has(key)) {
           locationGroups.set(key, new Map());
         }
         const groupByAttribute = locationGroups.get(key);
 
+        // 4. Further group by attribute if configured (e.g., status)
         neighbors.forEach((n) => {
           if (n.visited) return;
           const attr = self.config.clusteringAttribute
@@ -365,16 +380,19 @@ class NetJSONGraphUtil {
           n.visited = true;
         });
       } else {
+        // Node is isolated, not clustered
         node.visited = true;
         nodeMap.set(node.id, null);
         nonClusterNodes.push(node);
       }
     });
 
+    // 5. For each pixel location, process attribute groups
     locationGroups.forEach((attributeGroups) => {
       const groupsArray = Array.from(attributeGroups.entries());
       const groupsCount = groupsArray.length;
 
+      // Find the largest symbol size among all groups (for overlap math)
       let maxSymbolSize = 0;
       groupsArray.forEach(([gNodes]) => {
         const sz = getClusterSymbolSize(gNodes.length);
@@ -383,13 +401,17 @@ class NetJSONGraphUtil {
         }
       });
 
+      // Base separation (minimum distance between clusters)
       const baseSeparation =
         typeof self.config.clusterSeparation === "number"
           ? self.config.clusterSeparation
           : Math.max(10, Math.floor(self.config.clusterRadius / 2));
 
-      // Ensure non-overlap even with many attribute clusters: minimal radius R so that
-      // chord length between adjacent clusters (2R * sin(pi/n)) >= maxSymbolSize.
+      // --- Separation Radius Calculation ---
+      // If there are multiple attribute groups, arrange them in a circle
+      // The minimal radius R is chosen so that the chord length between adjacent clusters
+      // (2R * sin(pi/n)) is at least maxSymbolSize, where n = number of groups
+      // Formula: R >= maxSymbolSize / (2 * sin(pi/n))
       let requiredRadius = 0;
       if (groupsCount > 1) {
         const angle = Math.PI / groupsCount;
@@ -398,11 +420,16 @@ class NetJSONGraphUtil {
           requiredRadius = maxSymbolSize / (2 * sin);
         }
       }
-
+      // Final separation in pixels (ensures no overlap)
+      // separationPx = max(baseSeparation, requiredRadius + 4)
       const separationPx = Math.max(baseSeparation, requiredRadius + 4);
 
       groupsArray.forEach(([attr, groupNodes], idx) => {
         if (groupNodes.length > 0) {
+          // --- Centroid Calculation ---
+          // Compute arithmetic mean of lat/lng for all nodes in the group
+          // centroidLat = (lat1 + lat2 + ... + latN) / N
+          // centroidLng = (lng1 + lng2 + ... + lngN) / N
           let centroidLng = 0;
           let centroidLat = 0;
           groupNodes.forEach((n) => {
@@ -411,26 +438,32 @@ class NetJSONGraphUtil {
             centroidLng += n.location.lng;
             centroidLat += n.location.lat;
           });
-
           centroidLng /= groupNodes.length;
           centroidLat /= groupNodes.length;
 
+          // --- Circular Arrangement for Multiple Attribute Groups ---
           if (groupsCount > 1) {
+            // Each group is offset from the centroid by separationPx along a unique angle
+            // angle_k = 2 * pi * idx / n
+            // offsetX = separationPx * cos(angle_k), offsetY = separationPx * sin(angle_k)
             const angle = (2 * Math.PI * idx) / groupsCount;
             const basePoint = self.leaflet.latLngToContainerPoint([
               centroidLat,
               centroidLng,
             ]);
+            // Offset in pixel space
             const offsetPoint = [
               basePoint.x + separationPx * Math.cos(angle),
               basePoint.y + separationPx * Math.sin(angle),
             ];
+            // Convert back to lat/lng for display
             const offsetLatLng =
               self.leaflet.containerPointToLatLng(offsetPoint);
             centroidLng = offsetLatLng.lng;
             centroidLat = offsetLatLng.lat;
           }
 
+          // Create the cluster object
           const cluster = {
             id: clusterId,
             cluster: true,
@@ -440,6 +473,7 @@ class NetJSONGraphUtil {
             ...self.config.mapOptions.clusterConfig,
           };
 
+          // Assign color by attribute category if available
           if (self.config.clusteringAttribute) {
             const category = self.config.nodeCategories.find(
               (cat) => cat.name === attr,
@@ -456,6 +490,7 @@ class NetJSONGraphUtil {
           clusters.push(cluster);
           clusterId += 1;
         } else if (groupNodes.length === 1) {
+          // Single node, not clustered
           const node = groupNodes[0];
           nodeMap.set(node.id, null);
           nonClusterNodes.push(node);
@@ -463,6 +498,7 @@ class NetJSONGraphUtil {
       });
     });
 
+    // Only keep links between non-clustered nodes
     links.forEach((link) => {
       if (
         nodeMap.get(link.source) === null &&
@@ -472,9 +508,12 @@ class NetJSONGraphUtil {
       }
     });
 
-    // Screen-space repulsion between clusters to avoid any residual overlap
+    // --- Screen-Space Repulsion: Final Overlap Prevention ---
+    // After initial placement, apply a simple force-directed repulsion to clusters
     if (clusters.length > 1) {
+      // Prepare cluster elements with positions and radii
       const elements = clusters.map((c) => {
+        // Convert cluster lat/lng to pixel coordinates
         const pt = self.leaflet.latLngToContainerPoint([
           c.value[1],
           c.value[0],
@@ -483,21 +522,27 @@ class NetJSONGraphUtil {
           ref: c,
           x: pt.x,
           y: pt.y,
-          r: getClusterSymbolSize(c.childNodes.length) / 2,
+          r: getClusterSymbolSize(c.childNodes.length) / 2, // radius in pixels
         };
       });
 
-      const padding = 4;
+      const padding = 4; // extra space to avoid visual overlap
       const maxIterations = 5;
       for (let iter = 0; iter < maxIterations; iter += 1) {
         let adjusted = false;
         for (let i = 0; i < elements.length; i += 1) {
           for (let j = i + 1; j < elements.length; j += 1) {
+            // Compute distance between cluster centers
+            // dist = sqrt((x2 - x1)^2 + (y2 - y1)^2)
             const dx = elements[j].x - elements[i].x;
             const dy = elements[j].y - elements[i].y;
             const dist = Math.hypot(dx, dy);
+            // Minimum allowed distance = sum of radii + padding
             const minDist = elements[i].r + elements[j].r + padding;
             if (dist > 0 && dist < minDist) {
+              // Push clusters apart along the line connecting their centers
+              // Each cluster moves half the required distance
+              // shift = (minDist - dist) / 2
               const shift = (minDist - dist) / 2;
               const nx = dx / dist;
               const ny = dy / dist;
@@ -509,10 +554,10 @@ class NetJSONGraphUtil {
             }
           }
         }
-        if (!adjusted) break;
+        if (!adjusted) break; // Stop early if no overlaps remain
       }
 
-      // Commit adjusted positions back to cluster objects
+      // Commit adjusted positions back to cluster objects (convert to lat/lng)
       elements.forEach((el) => {
         const latlng = self.leaflet.containerPointToLatLng([el.x, el.y]);
         el.ref.value = [latlng.lng, latlng.lat];
