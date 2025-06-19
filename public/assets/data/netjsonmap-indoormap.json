@@ -8,47 +8,47 @@
   "nodes": [
     {
       "id": "i3ehd7",
-      "location": {"lat": 43.89, "lng": 12.098496093750002},
+      "location": {"lat": -420, "lng": 300},
       "name": "Family room"
     },
     {
       "id": "i74rhs",
-      "location": {"lat": 45.5007394591129, "lng": 28.27153358459473},
+      "location": {"lat": -352, "lng": 788},
       "name": "Lounge"
     },
     {
       "id": "5vjb7b",
-      "location": {"lat": 44.393304126849265, "lng": 6.094136047363282},
+      "location": {"lat": -395, "lng": 116},
       "name": "Bedroom 1"
     },
     {
       "id": "liwv7p",
-      "location": {"lat": 39.49718091651456, "lng": 28.644869232177738},
+      "location": {"lat": -595, "lng": 795},
       "name": "Bedroom 4"
     },
     {
       "id": "m7qhnj",
-      "location": {"lat": 43.930760483351195, "lng": 24.369127044677738},
+      "location": {"lat": -410, "lng": 665},
       "name": "Study Area"
     },
     {
       "id": "a0mg9w",
-      "location": {"lat": 39.89, "lng": 18.135201263427738},
+      "location": {"lat": -580, "lng": 482},
       "name": "Dining room"
     },
     {
       "id": "dsm2x7",
-      "location": {"lat": 48.859382175122965, "lng": 13.955840454101564},
+      "location": {"lat": -205, "lng": 352},
       "name": "Bedroom 2"
     },
     {
       "id": "nwlpcd",
-      "location": {"lat": 48.67788524115151, "lng": 19.039492797851566},
+      "location": {"lat": -210, "lng": 510},
       "name": "Bedroom 3"
     },
     {
       "id": "9p0bos",
-      "location": {"lat": 49.736490408464164, "lng": 25.516660766601562},
+      "location": {"lat": -162, "lng": 700},
       "name": "Garage"
     }
   ],
