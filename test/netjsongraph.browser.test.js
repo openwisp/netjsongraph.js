@@ -88,7 +88,7 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
     const consoleErrors = await captureConsoleErrors(driver);
-    const {nodesRendered, linksRendered} = 
+    const {nodesRendered, linksRendered} =
       await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Indoor map");
