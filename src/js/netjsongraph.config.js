@@ -1,3 +1,4 @@
+import L from "leaflet/dist/leaflet";
 /**
  * Default options
  *
@@ -40,6 +41,7 @@ const NetJSONGraphDefaultConfig = {
   clusterRadius: 80,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 7,
+  crs: L.CRS.EPSG3857,
   echartsOption: {
     aria: {
       show: true,
