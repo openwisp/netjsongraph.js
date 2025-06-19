@@ -872,3 +872,192 @@ describe("Test disableClusteringAtLevel: 0", () => {
     expect(mockMarkerClusterGroupInstance.addTo).not.toHaveBeenCalled();
   });
 });
+
+describe("Test leaflet zoomend handler for label and zoom control state", () => {
+  let renderInstance;
+  let mockSelf;
+  let mockLeafletInstance;
+  let zoomInBtn;
+  let zoomOutBtn;
+
+  beforeEach(() => {
+    document
+      .querySelectorAll(".leaflet-control-zoom-in, .leaflet-control-zoom-out")
+      .forEach((el) => el.remove());
+    zoomInBtn = document.createElement("a");
+    zoomInBtn.className = "leaflet-control-zoom-in";
+    zoomOutBtn = document.createElement("a");
+    zoomOutBtn.className = "leaflet-control-zoom-out";
+    document.body.appendChild(zoomInBtn);
+    document.body.appendChild(zoomOutBtn);
+
+    mockLeafletInstance = {
+      on: jest.fn(),
+      getZoom: jest.fn(),
+      getMinZoom: jest.fn(),
+      getMaxZoom: jest.fn(),
+      getBounds: jest.fn(),
+      addLayer: jest.fn(),
+      latLngToContainerPoint: jest.fn(() => ({x: 0, y: 0})),
+    };
+
+    mockSelf = {
+      type: "geojson",
+      data: {type: "FeatureCollection", features: []},
+      config: {
+        clustering: false,
+        disableClusteringAtLevel: 0,
+        clusterRadius: 80,
+        geoOptions: {},
+        clusteringAttribute: null,
+        prepareData: jest.fn((d) => d),
+        onClickElement: jest.fn(),
+        mapOptions: {},
+        mapTileConfig: [{}],
+        showLabelsAtZoomLevel: 3,
+      },
+      leaflet: mockLeafletInstance,
+      echarts: {
+        setOption: jest.fn(),
+        _api: {
+          getCoordinateSystems: jest.fn(() => [
+            {getLeaflet: () => mockLeafletInstance},
+          ]),
+        },
+      },
+      utils: {
+        deepMergeObj: jest.fn((obj1, obj2) => ({...obj1, ...obj2})),
+      },
+      event: {
+        emit: jest.fn(),
+      },
+      el: document.createElement("div"),
+    };
+
+    jest.spyOn(L, "geoJSON").mockImplementation(() => ({
+      addTo: jest.fn(),
+      on: jest.fn(),
+    }));
+    jest.spyOn(L, "map").mockImplementation(() => mockLeafletInstance);
+
+    renderInstance = new NetJSONGraphRender();
+  });
+
+  afterEach(() => {
+    document.body.removeChild(zoomInBtn);
+    document.body.removeChild(zoomOutBtn);
+    jest.restoreAllMocks();
+  });
+
+  test("should show label when zoom >= showLabelsAtZoomLevel and update zoom controls", () => {
+    mockLeafletInstance.getZoom.mockReturnValue(4);
+    mockLeafletInstance.getMinZoom.mockReturnValue(2);
+    mockLeafletInstance.getMaxZoom.mockReturnValue(4);
+
+    let zoomendHandler;
+    mockLeafletInstance.on.mockImplementation((event, handler) => {
+      if (event === "zoomend") {
+        zoomendHandler = handler;
+      }
+    });
+
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    zoomInBtn.classList.remove("leaflet-disabled");
+    zoomOutBtn.classList.remove("leaflet-disabled");
+
+    expect(document.querySelector(".leaflet-control-zoom-in")).toBe(zoomInBtn);
+    expect(document.querySelector(".leaflet-control-zoom-out")).toBe(
+      zoomOutBtn,
+    );
+
+    zoomendHandler();
+
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledWith({
+      series: [{label: {show: true}}],
+    });
+
+    expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(true);
+    expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(false);
+  });
+
+  test("should hide label when zoom < showLabelsAtZoomLevel and update zoom controls", () => {
+    mockLeafletInstance.getZoom.mockReturnValue(1);
+    mockLeafletInstance.getMinZoom.mockReturnValue(1);
+    mockLeafletInstance.getMaxZoom.mockReturnValue(4);
+
+    let zoomendHandler;
+    mockLeafletInstance.on.mockImplementation((event, handler) => {
+      if (event === "zoomend") {
+        zoomendHandler = handler;
+      }
+    });
+
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    zoomInBtn.classList.remove("leaflet-disabled");
+    zoomOutBtn.classList.remove("leaflet-disabled");
+
+    expect(document.querySelector(".leaflet-control-zoom-in")).toBe(zoomInBtn);
+    expect(document.querySelector(".leaflet-control-zoom-out")).toBe(
+      zoomOutBtn,
+    );
+
+    zoomendHandler();
+
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledWith({
+      series: [{label: {show: false}}],
+    });
+    expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(false);
+    expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(true);
+  });
+
+  test("should remove disabled class when zoom is between min and max zoom", () => {
+    mockLeafletInstance.getZoom.mockReturnValue(3);
+    mockLeafletInstance.getMinZoom.mockReturnValue(1);
+    mockLeafletInstance.getMaxZoom.mockReturnValue(4);
+
+    zoomInBtn.classList.add("leaflet-disabled");
+    zoomOutBtn.classList.add("leaflet-disabled");
+
+    let zoomendHandler;
+    mockLeafletInstance.on.mockImplementation((event, handler) => {
+      if (event === "zoomend") {
+        zoomendHandler = handler;
+      }
+    });
+
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    expect(document.querySelector(".leaflet-control-zoom-in")).toBe(zoomInBtn);
+    expect(document.querySelector(".leaflet-control-zoom-out")).toBe(
+      zoomOutBtn,
+    );
+
+    zoomendHandler();
+
+    expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(false);
+    expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(false);
+  });
+
+  test("should handle float zoom values correctly", () => {
+    mockLeafletInstance.getZoom.mockReturnValue(3.6);
+    mockLeafletInstance.getMinZoom.mockReturnValue(1);
+    mockLeafletInstance.getMaxZoom.mockReturnValue(4);
+
+    zoomInBtn.classList.remove("leaflet-disabled");
+    zoomOutBtn.classList.remove("leaflet-disabled");
+
+    let zoomendHandler;
+    mockLeafletInstance.on.mockImplementation((event, handler) => {
+      if (event === "zoomend") {
+        zoomendHandler = handler;
+      }
+    });
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    zoomendHandler();
+
+    expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(true);
+    expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(false);
+  });
+});

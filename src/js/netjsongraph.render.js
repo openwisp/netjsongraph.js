@@ -471,9 +471,7 @@ class NetJSONGraphRender {
       const maxZoom = self.leaflet.getMaxZoom();
       const zoomIn = document.querySelector(".leaflet-control-zoom-in");
       const zoomOut = document.querySelector(".leaflet-control-zoom-out");
-      console.log(
-        `Min zoom: ${minZoom}, Max zoom: ${maxZoom}, Current zoom: ${currentZoom}`,
-      );
+
       if (zoomIn && zoomOut) {
         if (Math.round(currentZoom) >= maxZoom) {
           zoomIn.classList.add("leaflet-disabled");
