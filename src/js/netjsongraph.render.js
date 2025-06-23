@@ -467,6 +467,8 @@ class NetJSONGraphRender {
         ],
       });
 
+      // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
+      // Manually handle zoom control state to ensure correct behavior with float zoom levels
       const minZoom = self.leaflet.getMinZoom();
       const maxZoom = self.leaflet.getMaxZoom();
       const zoomIn = document.querySelector(".leaflet-control-zoom-in");
