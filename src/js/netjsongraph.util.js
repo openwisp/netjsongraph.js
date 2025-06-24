@@ -425,7 +425,7 @@ class NetJSONGraphUtil {
       const separationPx = Math.max(baseSeparation, requiredRadius + 4);
 
       groupsArray.forEach(([attr, groupNodes], idx) => {
-        if (groupNodes.length > 0) {
+        if (groupNodes.length > 1) {
           // --- Centroid Calculation ---
           // Compute arithmetic mean of lat/lng for all nodes in the group
           // centroidLat = (lat1 + lat2 + ... + latN) / N
@@ -463,7 +463,6 @@ class NetJSONGraphUtil {
             centroidLat = offsetLatLng.lat;
           }
 
-          // Create the cluster object
           const cluster = {
             id: clusterId,
             cluster: true,
@@ -473,12 +472,10 @@ class NetJSONGraphUtil {
             ...self.config.mapOptions.clusterConfig,
           };
 
-          // Assign color by attribute category if available
           if (self.config.clusteringAttribute) {
             const category = self.config.nodeCategories.find(
               (cat) => cat.name === attr,
             );
-
             if (category) {
               cluster.itemStyle = {
                 ...cluster.itemStyle,
@@ -490,7 +487,7 @@ class NetJSONGraphUtil {
           clusters.push(cluster);
           clusterId += 1;
         } else if (groupNodes.length === 1) {
-          // Single node, not clustered
+          // Always treat single nodes as non-clustered
           const node = groupNodes[0];
           nodeMap.set(node.id, null);
           nonClusterNodes.push(node);
@@ -509,20 +506,50 @@ class NetJSONGraphUtil {
     });
 
     // --- Screen-Space Repulsion: Final Overlap Prevention ---
-    // After initial placement, apply a simple force-directed repulsion to clusters
-    if (clusters.length > 1) {
-      // Prepare cluster elements with positions and radii
-      const elements = clusters.map((c) => {
-        // Convert cluster lat/lng to pixel coordinates
+    // After initial placement, apply a simple force-directed repulsion to clusters and single nodes
+    const repulsionElements = [
+      ...clusters.map((c) => ({
+        ref: c,
+        isCluster: true,
+        count: c.childNodes.length,
+        get value() {
+          return c.value;
+        },
+        set value(val) {
+          c.value = val;
+        },
+      })),
+      ...nonClusterNodes.map((n) => ({
+        ref: n,
+        isCluster: false,
+        count: 1,
+        get value() {
+          return [n.location.lng, n.location.lat];
+        },
+        set value(val) {
+          n.location.lng = val[0];
+          n.location.lat = val[1];
+        },
+      })),
+    ];
+
+    if (repulsionElements.length > 1) {
+      // Prepare elements with positions and radii
+      const elements = repulsionElements.map((el) => {
+        // Convert lat/lng to pixel coordinates
         const pt = self.leaflet.latLngToContainerPoint([
-          c.value[1],
-          c.value[0],
+          el.value[1],
+          el.value[0],
         ]);
         return {
-          ref: c,
+          ref: el.ref,
+          isCluster: el.isCluster,
           x: pt.x,
           y: pt.y,
-          r: getClusterSymbolSize(c.childNodes.length) / 2, // radius in pixels
+          r: getClusterSymbolSize(el.count) / 2, // radius in pixels
+          setValue: (lng, lat) => {
+            el.value = [lng, lat];
+          },
         };
       });
 
@@ -532,17 +559,14 @@ class NetJSONGraphUtil {
         let adjusted = false;
         for (let i = 0; i < elements.length; i += 1) {
           for (let j = i + 1; j < elements.length; j += 1) {
-            // Compute distance between cluster centers
-            // dist = sqrt((x2 - x1)^2 + (y2 - y1)^2)
+            // Compute distance between centers
             const dx = elements[j].x - elements[i].x;
             const dy = elements[j].y - elements[i].y;
             const dist = Math.hypot(dx, dy);
             // Minimum allowed distance = sum of radii + padding
             const minDist = elements[i].r + elements[j].r + padding;
             if (dist > 0 && dist < minDist) {
-              // Push clusters apart along the line connecting their centers
-              // Each cluster moves half the required distance
-              // shift = (minDist - dist) / 2
+              // Push apart
               const shift = (minDist - dist) / 2;
               const nx = dx / dist;
               const ny = dy / dist;
@@ -554,13 +578,18 @@ class NetJSONGraphUtil {
             }
           }
         }
-        if (!adjusted) break; // Stop early if no overlaps remain
+        if (!adjusted) break;
       }
 
-      // Commit adjusted positions back to cluster objects (convert to lat/lng)
+      // Commit adjusted positions back to objects (convert to lat/lng)
       elements.forEach((el) => {
         const latlng = self.leaflet.containerPointToLatLng([el.x, el.y]);
-        el.ref.value = [latlng.lng, latlng.lat];
+        if (el.isCluster) {
+          el.ref.value = [latlng.lng, latlng.lat];
+        } else {
+          el.ref.location.lng = latlng.lng;
+          el.ref.location.lat = latlng.lat;
+        }
       });
     }
 
