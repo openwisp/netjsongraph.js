@@ -131,9 +131,9 @@
               const h = 700;
               const w = aspectRatio * h;
               const zoom = netjsonmap.getMaxZoom() - 1;
-              const bottomRight = netjsonmap.unproject([0, h * 2], zoom);
-              const upperLeft = netjsonmap.unproject([w * 2, 0], zoom);
-              const bounds = new L.LatLngBounds(bottomRight, upperLeft);
+              const bottomLeft = netjsonmap.unproject([0, h * 2], zoom);
+              const upperRight = netjsonmap.unproject([w * 2, 0], zoom);
+              const bounds = new L.LatLngBounds(bottomLeft, upperRight);
 
               L.imageOverlay(imageUrl, bounds).addTo(netjsonmap);
               netjsonmap.fitBounds(bounds);
