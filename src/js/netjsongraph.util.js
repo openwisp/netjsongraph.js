@@ -537,9 +537,10 @@ class NetJSONGraphUtil {
       // Prepare elements with positions and radii
       const elements = repulsionElements.map((el) => {
         // Convert lat/lng to pixel coordinates
+        const [lng, lat] = el.value;
         const pt = self.leaflet.latLngToContainerPoint([
-          el.value[1],
-          el.value[0],
+          lat,
+          lng,
         ]);
         return {
           ref: el.ref,
