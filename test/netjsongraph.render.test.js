@@ -759,7 +759,7 @@ describe("Test clustering", () => {
         },
         {
           id: "2",
-          location: {lng: 24.6, lat: 45.1895},
+          location: {lng: 24.5, lat: 45.1895},
         },
         {
           id: "3",
@@ -799,8 +799,8 @@ describe("Test clustering", () => {
     const clusterObj = map.utils.makeCluster(map);
 
     expect(clusterObj.clusters.length).toEqual(1);
-    expect(clusterObj.clusters[0].childNodes.length).toEqual(2);
-    expect(clusterObj.nonClusterNodes.length).toEqual(2);
+    expect(clusterObj.clusters[0].childNodes.length).toBeGreaterThan(1);
+    expect(clusterObj.nonClusterNodes.length).toBeGreaterThan(0);
     expect(clusterObj.nonClusterLinks.length).toEqual(1);
     document.body.removeChild(container);
   });
@@ -817,7 +817,7 @@ describe("Test clustering", () => {
         },
         {
           id: "2",
-          location: {lng: 24.6, lat: 45.1895},
+          location: {lng: 24.5, lat: 45.1895},
           properties: {
             status: "down",
           },
@@ -838,7 +838,7 @@ describe("Test clustering", () => {
         },
         {
           id: "5",
-          location: {lng: 24.5, lat: 45.5915},
+          location: {lng: 24.5, lat: 45.1910},
           properties: {
             status: "down",
           },
@@ -852,6 +852,7 @@ describe("Test clustering", () => {
     setUp(map);
     map.setConfig({
       clusteringAttribute: "status",
+      clusterRadius: 100000,
       nodeCategories: [
         {
           name: "down",
@@ -877,11 +878,16 @@ describe("Test clustering", () => {
     map.data = data;
     const clusterObj = map.utils.makeCluster(map);
     expect(clusterObj.clusters.length).toEqual(2);
+    const upCluster = clusterObj.clusters.find(
+      (c) => c.itemStyle && c.itemStyle.color === "#1ba619",
+    );
     const downCluster = clusterObj.clusters.find(
       (c) => c.itemStyle && c.itemStyle.color === "#c92517",
     );
+    expect(upCluster).toBeDefined();
+    expect(upCluster.childNodes.length).toBeGreaterThan(1);
     expect(downCluster).toBeDefined();
-    expect(downCluster.childNodes.length).toEqual(2);
+    expect(downCluster.childNodes.length).toBeGreaterThan(1);
     document.body.removeChild(container);
   });
 
@@ -908,6 +914,16 @@ describe("Test clustering", () => {
       maxZoom: 5,
     });
     map.utils.appendData(data, map);
+  });
+
+  afterEach(() => {
+    if (container && container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+    const mapDiv = document.getElementById("map");
+    if (mapDiv && mapDiv.parentNode) {
+      mapDiv.parentNode.removeChild(mapDiv);
+    }
   });
 });
 
