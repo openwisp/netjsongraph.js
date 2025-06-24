@@ -515,8 +515,8 @@ class NetJSONGraphUtil {
         get value() {
           return c.value;
         },
-        set value(val) {
-          c.value = val;
+        set value([lng, lat]) {
+          c.value = [lng, lat];
         },
       })),
       ...nonClusterNodes.map((n) => ({
@@ -526,9 +526,9 @@ class NetJSONGraphUtil {
         get value() {
           return [n.location.lng, n.location.lat];
         },
-        set value(val) {
-          n.location.lng = val[0];
-          n.location.lat = val[1];
+        set value([lng, lat]) {
+          n.location.lng = lng;
+          n.location.lat = lat;
         },
       })),
     ];
@@ -538,18 +538,15 @@ class NetJSONGraphUtil {
       const elements = repulsionElements.map((el) => {
         // Convert lat/lng to pixel coordinates
         const [lng, lat] = el.value;
-        const pt = self.leaflet.latLngToContainerPoint([
-          lat,
-          lng,
-        ]);
+        const pt = self.leaflet.latLngToContainerPoint([lat, lng]);
         return {
           ref: el.ref,
           isCluster: el.isCluster,
           x: pt.x,
           y: pt.y,
           r: getClusterSymbolSize(el.count) / 2, // radius in pixels
-          setValue: (lng, lat) => {
-            el.value = [lng, lat];
+          setValue: ([newLng, newLat]) => {
+            el.value = [newLng, newLat];
           },
         };
       });

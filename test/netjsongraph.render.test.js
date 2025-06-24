@@ -838,7 +838,7 @@ describe("Test clustering", () => {
         },
         {
           id: "5",
-          location: {lng: 24.5, lat: 45.1910},
+          location: {lng: 24.5, lat: 45.191},
           properties: {
             status: "down",
           },
