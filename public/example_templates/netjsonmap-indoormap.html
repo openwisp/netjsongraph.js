@@ -49,7 +49,7 @@
           // set map initial state.
           mapOptions: {
             center: [48.577, 18.539],
-            zoom: 1,
+            zoom: 0,
             zoomSnap: 0.3,
             minZoom: -1,
             maxZoom: 2,
@@ -118,7 +118,7 @@
           },
 
           onReady: function presentIndoormap() {
-            const netjsonmap = this.leaflet; 
+            const netjsonmap = this.leaflet;
             const image = new Image();
             const imageUrl = "../assets/images/floorplan.png";
             image.src = imageUrl;
