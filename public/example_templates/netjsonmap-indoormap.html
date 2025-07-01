@@ -45,19 +45,17 @@
         "../assets/data/netjsonmap-indoormap.json",
         {
           render: "map",
+          crs: L.CRS.Simple,
           // set map initial state.
           mapOptions: {
             center: [48.577, 18.539],
-            zoom: 5.5,
+            zoom: 0,
             zoomSnap: 0.3,
-            minZoom: 4,
-            maxZoom: 9,
+            minZoom: -1,
+            maxZoom: 2,
             nodeConfig: {
               label: {
-                offset: [0, -10],
-                fontSize: "14px",
-                fontWeight: "bold",
-                color: "#D9644D",
+                show: false,
               },
               animation: false,
             },
@@ -122,35 +120,29 @@
           onReady: function presentIndoormap() {
             const netjsonmap = this.leaflet;
             const image = new Image();
-            image.src = "../assets/images/floorplan.png";
+            const imageUrl = "../assets/images/floorplan.png";
+            image.src = imageUrl;
 
-            const aspectRatio = image.width / image.height;
-            const height = 700;
-            const width = aspectRatio * height;
-            netjsonmap.on("resize", () => {
-              if (netjsonmap.getBoundsZoom(bounds) <= netjsonmap.getMaxZoom()) {
-                netjsonmap.setZoom(netjsonmap.getBoundsZoom(bounds));
-              }
-            });
-            const southWest = {lat: 53, lng: 2};
-            const swPixel = netjsonmap.latLngToContainerPoint(southWest);
-            const nePixel = swPixel.add(new L.Point(width, height));
-            const northEast = netjsonmap.containerPointToLatLng(nePixel);
+            image.onload = function () {
+              const aspectRatio = image.width / image.height;
+              const h = 700;
+              const w = aspectRatio * h;
+              const zoom = netjsonmap.getMaxZoom() - 1;
+              const bottomLeft = netjsonmap.unproject([0, h * 2], zoom);
+              const upperRight = netjsonmap.unproject([w * 2, 0], zoom);
+              const bounds = new L.LatLngBounds(bottomLeft, upperRight);
 
-            const bounds = new L.LatLngBounds(southWest, northEast);
-            netjsonmap.setMaxBounds(bounds);
-            if (netjsonmap.getBoundsZoom(bounds) <= netjsonmap.getMaxZoom()) {
-              netjsonmap.setZoom(netjsonmap.getBoundsZoom(bounds));
-            }
+              L.imageOverlay(imageUrl, bounds).addTo(netjsonmap);
+              netjsonmap.fitBounds(bounds);
+              netjsonmap.setMaxBounds(bounds);
+            };
 
-            // remove the geographic map
+            // Remove any default tile layers and show only the floorplan image.
             netjsonmap.eachLayer((layer) => {
               if (layer._url) {
                 netjsonmap.removeLayer(layer);
               }
             });
-            // add indoormap image
-            L.imageOverlay(image, bounds).addTo(netjsonmap);
           },
         },
       );

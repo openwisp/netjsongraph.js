@@ -872,3 +872,122 @@ describe("Test disableClusteringAtLevel: 0", () => {
     expect(mockMarkerClusterGroupInstance.addTo).not.toHaveBeenCalled();
   });
 });
+
+describe("Test leaflet zoomend handler and zoom control state", () => {
+  let renderInstance;
+  let mockSelf;
+  let mapContainer;
+
+  function setZoomAndTrigger(map, zoom) {
+    map.setZoom(zoom);
+    map.fire("zoomend");
+  }
+
+  function getZoomControlButtons(type) {
+    return document.querySelector(`.leaflet-control-zoom-${type}`);
+  }
+
+  beforeEach(() => {
+    mapContainer = document.createElement("div");
+    mapContainer.id = "test-map";
+    // Leaflet won't render map without height and width
+    mapContainer.style.width = "400px";
+    mapContainer.style.height = "400px";
+    document.body.appendChild(mapContainer);
+
+    const leafletMap = L.map(mapContainer, {
+      center: [0, 0],
+      zoom: 2,
+      minZoom: 1,
+      maxZoom: 4,
+      zoomControl: true,
+    });
+
+    mockSelf = {
+      type: "geojson",
+      data: {type: "FeatureCollection", features: []},
+      config: {
+        clustering: false,
+        disableClusteringAtLevel: 0,
+        geoOptions: {},
+        clusteringAttribute: null,
+        prepareData: jest.fn((d) => d),
+        onClickElement: jest.fn(),
+        mapOptions: {},
+        mapTileConfig: [{}],
+        showLabelsAtZoomLevel: 3,
+      },
+      leaflet: leafletMap,
+      echarts: {
+        setOption: jest.fn(),
+        _api: {
+          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => leafletMap}]),
+        },
+      },
+      utils: {
+        deepMergeObj: jest.fn((obj1, obj2) => ({...obj1, ...obj2})),
+      },
+      event: {
+        emit: jest.fn(),
+      },
+      el: document.createElement("div"),
+    };
+
+    jest.spyOn(L, "geoJSON").mockImplementation(() => ({
+      addTo: jest.fn(),
+      on: jest.fn(),
+    }));
+
+    renderInstance = new NetJSONGraphRender();
+  });
+
+  afterEach(() => {
+    mockSelf.leaflet.remove();
+    document.body.removeChild(mapContainer);
+    jest.restoreAllMocks();
+  });
+
+  test("should disable zoom-in at max zoom and enable zoom-out", () => {
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    setZoomAndTrigger(mockSelf.leaflet, mockSelf.leaflet.getMaxZoom());
+
+    const zoomInBtn = getZoomControlButtons("in");
+    const zoomOutBtn = getZoomControlButtons("out");
+
+    expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(true);
+    expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(false);
+  });
+
+  test("should disable zoom-out at min zoom and enable zoom-in", () => {
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    setZoomAndTrigger(mockSelf.leaflet, mockSelf.leaflet.getMinZoom());
+
+    const zoomInBtn = getZoomControlButtons("in");
+    const zoomOutBtn = getZoomControlButtons("out");
+
+    expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(false);
+    expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(true);
+  });
+
+  test("should enable both zoom-in and zoom-out at intermediate zoom", () => {
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    setZoomAndTrigger(mockSelf.leaflet, 3);
+
+    const zoomInBtn = getZoomControlButtons("in");
+    const zoomOutBtn = getZoomControlButtons("out");
+
+    expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(false);
+    expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(false);
+  });
+
+  test("should disable zoom-in at float zoom value rounded to maxZoom", () => {
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    setZoomAndTrigger(mockSelf.leaflet, 3.9);
+
+    const zoomInBtn = getZoomControlButtons("in");
+    const zoomOutBtn = getZoomControlButtons("out");
+
+    expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(true);
+    expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(false);
+  });
+});
