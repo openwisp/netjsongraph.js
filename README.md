@@ -104,6 +104,12 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The rendering mode. You can render the map by setting it as `map`.
 
+- `crs`
+
+  **Default**: `L.CRS.EPSG3857,`
+
+  Leaflet uses `L.CRS.EPSG3857` as the default CRS. If no CRS is specified, this default is automatically applied. To support custom projections such as 2D planes you can override this by passing a custom CRS like `L.CRS.Simple`.
+
 - `metadata`
 
   **Default**: `true`
