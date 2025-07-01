@@ -71,7 +71,7 @@ class NetJSONGraphGUI {
     metadataContainer.classList.add("njg-metaData");
     metaInfoContainer.classList.add("njg-metaInfoContainer");
     const closeButton = document.createElement("span");
-    closeButton.setAttribute("id", "closeButton");
+    closeButton.classList.add("njg-closeButton");
     header.innerHTML = "Info";
     closeButton.innerHTML = " &#x2715;";
     header.appendChild(closeButton);
@@ -122,7 +122,7 @@ class NetJSONGraphGUI {
 
     infoContainer.classList.add("njg-infoContainer");
     headerContainer.classList.add("njg-headerContainer");
-    closeButton.setAttribute("id", "closeButton");
+    closeButton.classList.add("njg-closeButton");
     this.nodeLinkInfoContainer.style.display = "flex";
     header.innerHTML = `${type} Info`;
     closeButton.innerHTML = " &#x2715;";
