@@ -524,6 +524,27 @@ class NetJSONGraphRender {
           },
         ],
       });
+
+      // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
+      // Manually handle zoom control state to ensure correct behavior with float zoom levels
+      const minZoom = self.leaflet.getMinZoom();
+      const maxZoom = self.leaflet.getMaxZoom();
+      const zoomIn = document.querySelector(".leaflet-control-zoom-in");
+      const zoomOut = document.querySelector(".leaflet-control-zoom-out");
+
+      if (zoomIn && zoomOut) {
+        if (Math.round(currentZoom) >= maxZoom) {
+          zoomIn.classList.add("leaflet-disabled");
+        } else {
+          zoomIn.classList.remove("leaflet-disabled");
+        }
+
+        if (Math.round(currentZoom) <= minZoom) {
+          zoomOut.classList.add("leaflet-disabled");
+        } else {
+          zoomOut.classList.remove("leaflet-disabled");
+        }
+      }
     });
 
     self.leaflet.on("moveend", async () => {
