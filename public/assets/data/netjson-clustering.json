@@ -1,0 +1,2616 @@
+{
+  "type": "NetworkGraph",
+  "label": "Status-based clustering demo",
+  "protocol": "OLSR",
+  "version": "1.0",
+  "metric": "ETX",
+  "nodes": [ {
+    "id": "1",
+    "name": "OK Node 1",
+    "location": {
+      "lat": 55.658412382779,
+      "lng": 12.513805512578
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "2",
+    "name": "OK Node 2",
+    "location": {
+      "lat": 55.658412382779,
+      "lng": 12.513805512578
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "3",
+    "name": "Critical Node 1",
+    "location": {
+      "lat": 55.658412382779,
+      "lng": 12.513805512578
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "4",
+    "name": "OK Node 3",
+    "location": {
+      "lat": 55.692070962718,
+      "lng": 12.588239243528
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "5",
+    "name": "Critical Node 2",
+    "location": {
+      "lat": 55.658412382779,
+      "lng": 12.513805512578
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "6",
+    "name": "Critical Node 3",
+    "location": {
+      "lat": 55.658725363043,
+      "lng": 12.512311689794
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "7",
+    "name": "Critical Node 4",
+    "location": {
+      "lat": 55.658276176852,
+      "lng": 12.455250710461
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "8",
+    "name": "OK Node 4",
+    "location": {
+      "lat": 55.494873111832,
+      "lng": 9.48180978628
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "9",
+    "name": "Critical Node 5",
+    "location": {
+      "lat": 55.679851,
+      "lng": 12.576918
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "10",
+    "name": "OK Node 5",
+    "location": {
+      "lat": 55.896709,
+      "lng": 12.488506
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "11",
+    "name": "OK Node 6",
+    "location": {
+      "lat": 56.891763,
+      "lng": 8.526502
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "12",
+    "name": "OK Node 7",
+    "location": {
+      "lat": 55.68046,
+      "lng": 12.577295
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "13",
+    "name": "OK Node 8",
+    "location": {
+      "lat": 55.703608694348,
+      "lng": 12.571790010003
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "14",
+    "name": "OK Node 9",
+    "location": {
+      "lat": 55.52638923541,
+      "lng": 8.357953312042
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "15",
+    "name": "Problem Node 1",
+    "location": {
+      "lat": 55.668154417383,
+      "lng": 12.580684466558
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "16",
+    "name": "OK Node 10",
+    "location": {
+      "lat": 55.614531610913,
+      "lng": 12.317532520889
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "17",
+    "name": "Problem Node 2",
+    "location": {
+      "lat": 55.625093772833,
+      "lng": 12.459815243473
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "18",
+    "name": "Problem Node 3",
+    "location": {
+      "lat": 55.624678281892,
+      "lng": 12.462043572432
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "19",
+    "name": "Problem Node 4",
+    "location": {
+      "lat": 55.625310906035,
+      "lng": 12.460523765749
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "20",
+    "name": "OK Node 11",
+    "location": {
+      "lat": 56.949920247751,
+      "lng": 8.374583929952
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "21",
+    "name": "Critical Node 6",
+    "location": {
+      "lat": 55.710549245454,
+      "lng": 12.598584523703
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "22",
+    "name": "Critical Node 7",
+    "location": {
+      "lat": 55.693637288964,
+      "lng": 12.625227073499
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "23",
+    "name": "OK Node 12",
+    "location": {
+      "lat": 55.658687,
+      "lng": 12.27215
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "24",
+    "name": "OK Node 13",
+    "location": {
+      "lat": 55.581914,
+      "lng": 12.294172
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "25",
+    "name": "OK Node 14",
+    "location": {
+      "lat": 55.785279,
+      "lng": 11.472124
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "26",
+    "name": "OK Node 15",
+    "location": {
+      "lat": 55.785279,
+      "lng": 11.472124
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "27",
+    "name": "Problem Node 5",
+    "location": {
+      "lat": 55.642709,
+      "lng": 12.286028
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "28",
+    "name": "OK Node 16",
+    "location": {
+      "lat": 55.66286,
+      "lng": 12.473377
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "29",
+    "name": "OK Node 17",
+    "location": {
+      "lat": 57.332708,
+      "lng": 10.503334
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "30",
+    "name": "Critical Node 8",
+    "location": {
+      "lat": 55.603671514245,
+      "lng": 12.58642892008
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "31",
+    "name": "OK Node 18",
+    "location": {
+      "lat": 55.668281319397,
+      "lng": 12.606889313369
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "32",
+    "name": "Problem Node 6",
+    "location": {
+      "lat": 55.780384,
+      "lng": 12.488322
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "33",
+    "name": "Problem Node 7",
+    "location": {
+      "lat": 55.293069,
+      "lng": 10.847029
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "34",
+    "name": "OK Node 19",
+    "location": {
+      "lat": 55.4681,
+      "lng": 8.458278
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "35",
+    "name": "OK Node 20",
+    "location": {
+      "lat": 55.815608732316,
+      "lng": 12.530886657783
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "36",
+    "name": "OK Node 21",
+    "location": {
+      "lat": 55.728604,
+      "lng": 9.574482
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "37",
+    "name": "OK Node 22",
+    "location": {
+      "lat": 55.995755,
+      "lng": 8.737374
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "38",
+    "name": "OK Node 23",
+    "location": {
+      "lat": 55.677641,
+      "lng": 12.600841
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "39",
+    "name": "Problem Node 8",
+    "location": {
+      "lat": 55.458199,
+      "lng": 11.814699
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "40",
+    "name": "Problem Node 9",
+    "location": {
+      "lat": 56.14826224565,
+      "lng": 10.211023292603
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "41",
+    "name": "Critical Node 9",
+    "location": {
+      "lat": 55.626604,
+      "lng": 12.481582
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "42",
+    "name": "OK Node 24",
+    "location": {
+      "lat": 55.637165,
+      "lng": 12.448167
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "43",
+    "name": "Problem Node 10",
+    "location": {
+      "lat": 55.622653004538,
+      "lng": 12.47363951638
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "44",
+    "name": "OK Node 25",
+    "location": {
+      "lat": 55.632185,
+      "lng": 12.448328
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "45",
+    "name": "Problem Node 11",
+    "location": {
+      "lat": 55.662587,
+      "lng": 12.475166
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "46",
+    "name": "OK Node 26",
+    "location": {
+      "lat": 55.121819,
+      "lng": 12.038631
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "47",
+    "name": "OK Node 27",
+    "location": {
+      "lat": 55.694174,
+      "lng": 12.53188
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "48",
+    "name": "OK Node 28",
+    "location": {
+      "lat": 54.75999,
+      "lng": 11.884778
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "49",
+    "name": "OK Node 29",
+    "location": {
+      "lat": 55.74286,
+      "lng": 12.50611
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "50",
+    "name": "OK Node 30",
+    "location": {
+      "lat": 55.17804,
+      "lng": 11.646017
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "51",
+    "name": "Problem Node 12",
+    "location": {
+      "lat": 57.455335,
+      "lng": 10.005764
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "52",
+    "name": "OK Node 31",
+    "location": {
+      "lat": 56.443423,
+      "lng": 9.390106
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "53",
+    "name": "OK Node 32",
+    "location": {
+      "lat": 56.491277,
+      "lng": 8.578498
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "54",
+    "name": "OK Node 33",
+    "location": {
+      "lat": 56.466799,
+      "lng": 9.400005
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "55",
+    "name": "Problem Node 13",
+    "location": {
+      "lat": 56.446061,
+      "lng": 10.038181
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "56",
+    "name": "Problem Node 14",
+    "location": {
+      "lat": 55.695087,
+      "lng": 12.593358
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "57",
+    "name": "Problem Node 15",
+    "location": {
+      "lat": 55.593029,
+      "lng": 12.264779
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "58",
+    "name": "OK Node 34",
+    "location": {
+      "lat": 55.652806,
+      "lng": 12.517551
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "59",
+    "name": "OK Node 35",
+    "location": {
+      "lat": 55.736293,
+      "lng": 12.51114
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "60",
+    "name": "OK Node 36",
+    "location": {
+      "lat": 55.887847,
+      "lng": 12.497572
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "61",
+    "name": "OK Node 37",
+    "location": {
+      "lat": 55.684776,
+      "lng": 12.564937
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "62",
+    "name": "OK Node 38",
+    "location": {
+      "lat": 55.642792035659,
+      "lng": 12.464222448163
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "63",
+    "name": "Problem Node 16",
+    "location": {
+      "lat": 55.645562,
+      "lng": 12.304135
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "64",
+    "name": "OK Node 39",
+    "location": {
+      "lat": 55.753362,
+      "lng": 12.572989
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "65",
+    "name": "OK Node 40",
+    "location": {
+      "lat": 55.566953,
+      "lng": 12.268939
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "66",
+    "name": "OK Node 41",
+    "location": {
+      "lat": 55.827331033455,
+      "lng": 12.431828823142
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "67",
+    "name": "OK Node 42",
+    "location": {
+      "lat": 56.044505,
+      "lng": 9.948053
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "68",
+    "name": "OK Node 43",
+    "location": {
+      "lat": 55.418396,
+      "lng": 10.272181
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "69",
+    "name": "OK Node 44",
+    "location": {
+      "lat": 55.633071,
+      "lng": 12.448563
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "70",
+    "name": "Problem Node 17",
+    "location": {
+      "lat": 55.649937174903,
+      "lng": 12.212445488096
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "71",
+    "name": "OK Node 45",
+    "location": {
+      "lat": 55.707650280421,
+      "lng": 12.593306858369
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "72",
+    "name": "OK Node 46",
+    "location": {
+      "lat": 55.768761982102,
+      "lng": 12.505594600227
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "73",
+    "name": "OK Node 47",
+    "location": {
+      "lat": 55.760783332289,
+      "lng": 12.455299744595
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "74",
+    "name": "Critical Node 10",
+    "location": {
+      "lat": 55.680148292184,
+      "lng": 12.530946420753
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "75",
+    "name": "OK Node 48",
+    "location": {
+      "lat": 55.648551450879,
+      "lng": 12.551374208439
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "76",
+    "name": "OK Node 49",
+    "location": {
+      "lat": 55.9954508,
+      "lng": 12.5465165
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "77",
+    "name": "OK Node 50",
+    "location": {
+      "lat": 55.248964,
+      "lng": 10.229272
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "78",
+    "name": "Problem Node 18",
+    "location": {
+      "lat": 55.735739337157,
+      "lng": 12.511017272487
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "79",
+    "name": "Problem Node 19",
+    "location": {
+      "lat": 55.729507559784,
+      "lng": 12.520379690696
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "80",
+    "name": "OK Node 51",
+    "location": {
+      "lat": 55.654064689602,
+      "lng": 12.479593601301
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "81",
+    "name": "OK Node 52",
+    "location": {
+      "lat": 55.741675191439,
+      "lng": 12.49325669021
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "82",
+    "name": "OK Node 53",
+    "location": {
+      "lat": 55.960272250679,
+      "lng": 12.524113744741
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "83",
+    "name": "OK Node 54",
+    "location": {
+      "lat": 55.757944758869,
+      "lng": 12.499410180608
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "84",
+    "name": "OK Node 55",
+    "location": {
+      "lat": 55.756582490055,
+      "lng": 12.496767366536
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "85",
+    "name": "OK Node 56",
+    "location": {
+      "lat": 55.569654398397,
+      "lng": 9.742269548467
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "86",
+    "name": "OK Node 57",
+    "location": {
+      "lat": 55.454004334963,
+      "lng": 12.167746570039
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "87",
+    "name": "Problem Node 20",
+    "location": {
+      "lat": 55.752151061665,
+      "lng": 11.95926231889
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "88",
+    "name": "OK Node 58",
+    "location": {
+      "lat": 55.965081451444,
+      "lng": 11.851065611397
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "89",
+    "name": "OK Node 59",
+    "location": {
+      "lat": 55.638745,
+      "lng": 12.268508
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "90",
+    "name": "Problem Node 21",
+    "location": {
+      "lat": 55.649937,
+      "lng": 12.212445
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "91",
+    "name": "Problem Node 22",
+    "location": {
+      "lat": 55.694459637485,
+      "lng": 12.550860397774
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "92",
+    "name": "OK Node 60",
+    "location": {
+      "lat": 55.706363197279,
+      "lng": 12.539171330882
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "93",
+    "name": "OK Node 61",
+    "location": {
+      "lat": 55.691513,
+      "lng": 12.555128
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "94",
+    "name": "OK Node 62",
+    "location": {
+      "lat": 55.362565650308,
+      "lng": 11.239638296533
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "95",
+    "name": "OK Node 63",
+    "location": {
+      "lat": 55.814390087414,
+      "lng": 12.530083503821
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "96",
+    "name": "OK Node 64",
+    "location": {
+      "lat": 55.673284561221,
+      "lng": 12.555458123123
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "97",
+    "name": "Critical Node 11",
+    "location": {
+      "lat": 55.681668,
+      "lng": 12.557095
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "98",
+    "name": "OK Node 65",
+    "location": {
+      "lat": 55.79526,
+      "lng": 12.474518
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "99",
+    "name": "OK Node 66",
+    "location": {
+      "lat": 55.705883,
+      "lng": 12.576073
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "100",
+    "name": "OK Node 67",
+    "location": {
+      "lat": 55.710601,
+      "lng": 12.5893
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "101",
+    "name": "OK Node 68",
+    "location": {
+      "lat": 55.458127,
+      "lng": 11.819319
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "102",
+    "name": "Problem Node 23",
+    "location": {
+      "lat": 55.635651,
+      "lng": 12.014931
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "103",
+    "name": "Critical Node 12",
+    "location": {
+      "lat": 55.801137,
+      "lng": 12.490435
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "104",
+    "name": "OK Node 69",
+    "location": {
+      "lat": 55.627224,
+      "lng": 12.448316
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "105",
+    "name": "OK Node 70",
+    "location": {
+      "lat": 55.775355,
+      "lng": 12.49586
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "106",
+    "name": "OK Node 71",
+    "location": {
+      "lat": 55.844649,
+      "lng": 9.835911
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "107",
+    "name": "OK Node 72",
+    "location": {
+      "lat": 55.837083,
+      "lng": 12.314611
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "108",
+    "name": "Problem Node 24",
+    "location": {
+      "lat": 55.679738,
+      "lng": 12.259728
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "109",
+    "name": "Critical Node 13",
+    "location": {
+      "lat": 55.27414,
+      "lng": 10.108378
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "110",
+    "name": "OK Node 73",
+    "location": {
+      "lat": 55.719492,
+      "lng": 12.481124
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "111",
+    "name": "Problem Node 25",
+    "location": {
+      "lat": 55.632279,
+      "lng": 12.44609
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "112",
+    "name": "OK Node 74",
+    "location": {
+      "lat": 55.739141,
+      "lng": 12.565503
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "113",
+    "name": "Problem Node 26",
+    "location": {
+      "lat": 55.739141,
+      "lng": 12.565503
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "114",
+    "name": "OK Node 75",
+    "location": {
+      "lat": 55.620454,
+      "lng": 12.490631
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "115",
+    "name": "Critical Node 14",
+    "location": {
+      "lat": 55.667573,
+      "lng": 12.437618
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "116",
+    "name": "Critical Node 15",
+    "location": {
+      "lat": 55.656907,
+      "lng": 12.390774
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "117",
+    "name": "Critical Node 16",
+    "location": {
+      "lat": 55.665827,
+      "lng": 12.437688
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "118",
+    "name": "Problem Node 27",
+    "location": {
+      "lat": 55.63031842263,
+      "lng": 12.488986613457
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "119",
+    "name": "OK Node 76",
+    "location": {
+      "lat": 55.628062,
+      "lng": 12.38861
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "120",
+    "name": "OK Node 77",
+    "location": {
+      "lat": 55.628062,
+      "lng": 12.38861
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "121",
+    "name": "OK Node 78",
+    "location": {
+      "lat": 55.676964,
+      "lng": 12.561891
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "122",
+    "name": "Problem Node 28",
+    "location": {
+      "lat": 55.41101,
+      "lng": 11.55083
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "123",
+    "name": "OK Node 79",
+    "location": {
+      "lat": 55.640031,
+      "lng": 12.26398
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "124",
+    "name": "Problem Node 29",
+    "location": {
+      "lat": 55.64972,
+      "lng": 12.503353
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "125",
+    "name": "Critical Node 17",
+    "location": {
+      "lat": 55.751125,
+      "lng": 12.478961
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "126",
+    "name": "Critical Node 18",
+    "location": {
+      "lat": 55.656904,
+      "lng": 12.110339
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "127",
+    "name": "OK Node 80",
+    "location": {
+      "lat": 55.632321152665,
+      "lng": 12.454905962783
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "128",
+    "name": "OK Node 81",
+    "location": {
+      "lat": 55.648838,
+      "lng": 12.477073
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "129",
+    "name": "OK Node 82",
+    "location": {
+      "lat": 55.770051,
+      "lng": 12.51264
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "130",
+    "name": "OK Node 83",
+    "location": {
+      "lat": 55.68247670106706,
+      "lng": 12.57463407356974
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "131",
+    "name": "OK Node 84",
+    "location": {
+      "lat": 55.873798,
+      "lng": 12.345615
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "132",
+    "name": "OK Node 85",
+    "location": {
+      "lat": 55.597804768755,
+      "lng": 12.326339135098436
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "133",
+    "name": "Problem Node 30",
+    "location": {
+      "lat": 55.705927,
+      "lng": 12.512256
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "134",
+    "name": "OK Node 86",
+    "location": {
+      "lat": 55.70592742213324,
+      "lng": 12.512255950138098
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "135",
+    "name": "Problem Node 31",
+    "location": {
+      "lat": 55.70592742213324,
+      "lng": 12.512255950138098
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "136",
+    "name": "Problem Node 32",
+    "location": {
+      "lat": 55.680148,
+      "lng": 12.530946
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "137",
+    "name": "OK Node 87",
+    "location": {
+      "lat": 55.489758,
+      "lng": 9.478534
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "138",
+    "name": "Problem Node 33",
+    "location": {
+      "lat": 55.754799,
+      "lng": 12.473492
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "139",
+    "name": "Problem Node 34",
+    "location": {
+      "lat": 55.64303464984661,
+      "lng": 12.632725188803278
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "140",
+    "name": "OK Node 88",
+    "location": {
+      "lat": 57.04822,
+      "lng": 9.91834
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "141",
+    "name": "Critical Node 19",
+    "location": {
+      "lat": 55.395788,
+      "lng": 10.389672
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "142",
+    "name": "Problem Node 35",
+    "location": {
+      "lat": 55.97664164657547,
+      "lng": 12.031433606534932
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "143",
+    "name": "Problem Node 36",
+    "location": {
+      "lat": 55.68079353109039,
+      "lng": 12.577791704134
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "144",
+    "name": "Problem Node 37",
+    "location": {
+      "lat": 56.038184842708084,
+      "lng": 10.07975220680237
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "145",
+    "name": "Problem Node 38",
+    "location": {
+      "lat": 55.68491503861031,
+      "lng": 12.500860668952043
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "146",
+    "name": "OK Node 89",
+    "location": {
+      "lat": 55.626188323658965,
+      "lng": 12.464041399054253
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "147",
+    "name": "Critical Node 20",
+    "location": {
+      "lat": 55.5288370025944,
+      "lng": 9.717114451209596
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "148",
+    "name": "Critical Node 21",
+    "location": {
+      "lat": 55.728434,
+      "lng": 12.381662
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "149",
+    "name": "OK Node 90",
+    "location": {
+      "lat": 56.116025,
+      "lng": 10.153384
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "150",
+    "name": "Problem Node 39",
+    "location": {
+      "lat": 55.632438,
+      "lng": 12.449459
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "151",
+    "name": "OK Node 91",
+    "location": {
+      "lat": 55.654832,
+      "lng": 12.475965
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "152",
+    "name": "OK Node 92",
+    "location": {
+      "lat": 55.62723,
+      "lng": 12.451173
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "153",
+    "name": "OK Node 93",
+    "location": {
+      "lat": 55.62723,
+      "lng": 12.451173
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "154",
+    "name": "Problem Node 40",
+    "location": {
+      "lat": 55.627649,
+      "lng": 12.449701
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "155",
+    "name": "OK Node 94",
+    "location": {
+      "lat": 55.64426,
+      "lng": 12.476794
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "156",
+    "name": "OK Node 95",
+    "location": {
+      "lat": 55.625935,
+      "lng": 12.478261
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "157",
+    "name": "Problem Node 41",
+    "location": {
+      "lat": 55.642822,
+      "lng": 12.478642
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "158",
+    "name": "OK Node 96",
+    "location": {
+      "lat": 55.654512,
+      "lng": 12.466518
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "159",
+    "name": "OK Node 97",
+    "location": {
+      "lat": 55.648838,
+      "lng": 12.477073
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "160",
+    "name": "OK Node 98",
+    "location": {
+      "lat": 55.63467,
+      "lng": 12.485087
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "161",
+    "name": "Problem Node 42",
+    "location": {
+      "lat": 55.651574,
+      "lng": 12.54394
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "162",
+    "name": "Critical Node 22",
+    "location": {
+      "lat": 55.640031,
+      "lng": 12.26398
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "163",
+    "name": "OK Node 99",
+    "location": {
+      "lat": 55.625191,
+      "lng": 12.464963
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "164",
+    "name": "Problem Node 43",
+    "location": {
+      "lat": 55.640747,
+      "lng": 12.4873
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "165",
+    "name": "OK Node 100",
+    "location": {
+      "lat": 55.644741,
+      "lng": 12.475419
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "166",
+    "name": "OK Node 101",
+    "location": {
+      "lat": 55.638517,
+      "lng": 12.445729
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "167",
+    "name": "OK Node 102",
+    "location": {
+      "lat": 55.622679,
+      "lng": 12.48228
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "168",
+    "name": "OK Node 103",
+    "location": {
+      "lat": 55.622679,
+      "lng": 12.48228
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "169",
+    "name": "OK Node 104",
+    "location": {
+      "lat": 55.646728,
+      "lng": 12.483341
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "170",
+    "name": "OK Node 105",
+    "location": {
+      "lat": 55.642792,
+      "lng": 12.464222
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "171",
+    "name": "OK Node 106",
+    "location": {
+      "lat": 55.643808,
+      "lng": 12.472558
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "172",
+    "name": "OK Node 107",
+    "location": {
+      "lat": 55.653186,
+      "lng": 12.479378
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "173",
+    "name": "OK Node 108",
+    "location": {
+      "lat": 55.630918,
+      "lng": 12.483092
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "174",
+    "name": "OK Node 109",
+    "location": {
+      "lat": 55.638517,
+      "lng": 12.445729
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "175",
+    "name": "OK Node 110",
+    "location": {
+      "lat": 55.632321,
+      "lng": 12.447061
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "176",
+    "name": "OK Node 111",
+    "location": {
+      "lat": 55.627913,
+      "lng": 12.440504
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "177",
+    "name": "OK Node 112",
+    "location": {
+      "lat": 55.643311,
+      "lng": 12.468121
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "178",
+    "name": "OK Node 113",
+    "location": {
+      "lat": 55.654533,
+      "lng": 12.477626
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "179",
+    "name": "OK Node 114",
+    "location": {
+      "lat": 55.632576,
+      "lng": 12.446544
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "180",
+    "name": "OK Node 115",
+    "location": {
+      "lat": 55.632521,
+      "lng": 12.447067
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "181",
+    "name": "OK Node 116",
+    "location": {
+      "lat": 55.63125,
+      "lng": 12.482835
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "182",
+    "name": "OK Node 117",
+    "location": {
+      "lat": 55.644347,
+      "lng": 12.47776
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "183",
+    "name": "OK Node 118",
+    "location": {
+      "lat": 55.729978,
+      "lng": 12.547718
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "184",
+    "name": "OK Node 119",
+    "location": {
+      "lat": 55.679713,
+      "lng": 12.533445
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "185",
+    "name": "Critical Node 23",
+    "location": {
+      "lat": 56.09805,
+      "lng": 12.15939
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "186",
+    "name": "OK Node 120",
+    "location": {
+      "lat": 55.665703,
+      "lng": 12.618045
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "187",
+    "name": "OK Node 121",
+    "location": {
+      "lat": 55.725116,
+      "lng": 12.470961
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "188",
+    "name": "Critical Node 24",
+    "location": {
+      "lat": 55.632578,
+      "lng": 12.089789
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "189",
+    "name": "Critical Node 25",
+    "location": {
+      "lat": 55.63515,
+      "lng": 12.061958
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "190",
+    "name": "OK Node 122",
+    "location": {
+      "lat": 55.649742,
+      "lng": 12.304519
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "191",
+    "name": "Problem Node 44",
+    "location": {
+      "lat": 55.883117,
+      "lng": 12.496221
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "192",
+    "name": "OK Node 123",
+    "location": {
+      "lat": 55.831969,
+      "lng": 12.527921
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "193",
+    "name": "OK Node 124",
+    "location": {
+      "lat": 55.483331,
+      "lng": 12.167712
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "194",
+    "name": "OK Node 125",
+    "location": {
+      "lat": 55.681983,
+      "lng": 12.526203
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "195",
+    "name": "OK Node 126",
+    "location": {
+      "lat": 55.682528,
+      "lng": 12.527874
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "196",
+    "name": "OK Node 127",
+    "location": {
+      "lat": 55.641834,
+      "lng": 12.613755
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "197",
+    "name": "OK Node 128",
+    "location": {
+      "lat": 55.642805,
+      "lng": 12.612634
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "198",
+    "name": "Problem Node 45",
+    "location": {
+      "lat": 55.642781,
+      "lng": 12.61541
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "199",
+    "name": "OK Node 129",
+    "location": {
+      "lat": 55.642354,
+      "lng": 12.613126
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "200",
+    "name": "OK Node 130",
+    "location": {
+      "lat": 55.641679,
+      "lng": 12.612468
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "201",
+    "name": "OK Node 131",
+    "location": {
+      "lat": 55.642115,
+      "lng": 12.616047
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "202",
+    "name": "OK Node 132",
+    "location": {
+      "lat": 55.641756,
+      "lng": 12.613111
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "203",
+    "name": "OK Node 133",
+    "location": {
+      "lat": 55.641686,
+      "lng": 12.610825
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "204",
+    "name": "OK Node 134",
+    "location": {
+      "lat": 55.641599,
+      "lng": 12.61181
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "205",
+    "name": "OK Node 135",
+    "location": {
+      "lat": 55.64243,
+      "lng": 12.612175
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "206",
+    "name": "OK Node 136",
+    "location": {
+      "lat": 55.64191,
+      "lng": 12.614399
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "207",
+    "name": "OK Node 137",
+    "location": {
+      "lat": 55.641523,
+      "lng": 12.611167
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "208",
+    "name": "OK Node 138",
+    "location": {
+      "lat": 55.643017,
+      "lng": 12.614437
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "209",
+    "name": "OK Node 139",
+    "location": {
+      "lat": 55.888761,
+      "lng": 12.347722
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "210",
+    "name": "Problem Node 46",
+    "location": {
+      "lat": 55.670167,
+      "lng": 12.563467
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "211",
+    "name": "Problem Node 47",
+    "location": {
+      "lat": 55.781548,
+      "lng": 12.446492
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "212",
+    "name": "OK Node 140",
+    "location": {
+      "lat": 55.460689,
+      "lng": 12.056646
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "213",
+    "name": "OK Node 141",
+    "location": {
+      "lat": 55.65755,
+      "lng": 12.357557
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "214",
+    "name": "OK Node 142",
+    "location": {
+      "lat": 56.028439,
+      "lng": 12.589834
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "215",
+    "name": "OK Node 143",
+    "location": {
+      "lat": 55.756449,
+      "lng": 12.458303
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "216",
+    "name": "OK Node 144",
+    "location": {
+      "lat": 55.672071,
+      "lng": 12.585231
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "217",
+    "name": "Critical Node 26",
+    "location": {
+      "lat": 55.882191,
+      "lng": 12.543004
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "218",
+    "name": "OK Node 145",
+    "location": {
+      "lat": 56.970539,
+      "lng": 8.73219
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "219",
+    "name": "OK Node 146",
+    "location": {
+      "lat": 55.657608,
+      "lng": 12.513902
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "220",
+    "name": "Problem Node 48",
+    "location": {
+      "lat": 55.457099,
+      "lng": 11.811272
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "221",
+    "name": "OK Node 147",
+    "location": {
+      "lat": 55.611059,
+      "lng": 12.349364
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "222",
+    "name": "OK Node 148",
+    "location": {
+      "lat": 55.771418,
+      "lng": 12.507341
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "223",
+    "name": "Critical Node 27",
+    "location": {
+      "lat": 54.765557,
+      "lng": 11.871147
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "224",
+    "name": "OK Node 149",
+    "location": {
+      "lat": 55.250574,
+      "lng": 11.299296
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "225",
+    "name": "OK Node 150",
+    "location": {
+      "lat": 55.660432,
+      "lng": 12.629887
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "226",
+    "name": "OK Node 151",
+    "location": {
+      "lat": 55.620916,
+      "lng": 11.207529
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "227",
+    "name": "OK Node 152",
+    "location": {
+      "lat": 56.081219,
+      "lng": 12.47572
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "228",
+    "name": "Problem Node 49",
+    "location": {
+      "lat": 55.709295270829,
+      "lng": 12.60046592569
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "229",
+    "name": "Problem Node 50",
+    "location": {
+      "lat": 55.743541,
+      "lng": 12.32329
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "230",
+    "name": "Problem Node 51",
+    "location": {
+      "lat": 55.976642,
+      "lng": 12.031434
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "231",
+    "name": "OK Node 153",
+    "location": {
+      "lat": 55.656856,
+      "lng": 12.390956
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "232",
+    "name": "Problem Node 52",
+    "location": {
+      "lat": 55.684058,
+      "lng": 12.537422
+    },
+    "properties": {
+      "status": "problem"
+    }
+  },
+  {
+    "id": "233",
+    "name": "OK Node 154",
+    "location": {
+      "lat": 55.838692,
+      "lng": 12.057959
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "234",
+    "name": "OK Node 155",
+    "location": {
+      "lat": 55.769214,
+      "lng": 12.50339
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "235",
+    "name": "OK Node 156",
+    "location": {
+      "lat": 55.728333,
+      "lng": 12.35963
+    },
+    "properties": {
+      "status": "ok"
+    }
+  },
+  {
+    "id": "236",
+    "name": "Critical Node 28",
+    "location": {
+      "lat": 56.133972274202,
+      "lng": 8.905445145865
+    },
+    "properties": {
+      "status": "critical"
+    }
+  },
+  {
+    "id": "237",
+    "name": "Problem Node 53",
+    "location": {
+      "lat": 55.749685,
+      "lng": 12.76062
+    },
+    "properties": {
+      "status": "problem"
+    }
+  
+  }],
+  "links": []
+}
