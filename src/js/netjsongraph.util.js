@@ -256,52 +256,6 @@ class NetJSONGraphUtil {
     return false;
   }
 
-
-  /**
-   * Convert a GeoJSON FeatureCollection containing Point features into a
-   * NetJSON-style object with `nodes` and `links` arrays so that the existing
-   * ECharts + clustering pipeline can be reused unchanged.
-   *
-   *
-   * @param {object} geojson   A GeoJSON FeatureCollection
-   * @return {{nodes: Array, links: Array}}
-   */
-  geojsonToNetjson(geojson) {
-    const nodes = [];
-    const links = [];
-
-    if (!geojson || !geojson.features) {
-      return {nodes, links};
-    }
-
-    geojson.features.forEach((feature, idx) => {
-      if (
-        feature &&
-        feature.geometry &&
-        feature.geometry.type === "Point" &&
-        Array.isArray(feature.geometry.coordinates)
-      ) {
-        const [lng, lat] = feature.geometry.coordinates;
-        const id =
-          feature.id ||
-          (feature.properties && feature.properties.id) ||
-          `geo_${idx}_${Date.now()}`;
-
-        nodes.push({
-          id,
-          label:
-            (feature.properties &&
-              (feature.properties.name || feature.properties.label)) ||
-            id,
-          location: {lng, lat},
-          properties: {...feature.properties, location: {lng, lat}},
-        });
-      }
-    });
-
-    return {nodes, links};
-  }
-
   /**
    * merge two object deeply
    *

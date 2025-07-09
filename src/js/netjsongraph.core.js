@@ -74,11 +74,7 @@ class NetJSONGraph {
         if (this.utils.isNetJSON(JSONData)) {
           this.type = "netjson";
         } else if (this.utils.isGeoJSON(JSONData)) {
-          // Standardise GeoJSON to NetJSON so the same rendering path is used.
-          JSONData = this.utils.geojsonToNetjson(JSONData);
-          this.type = "netjson";
-          // Apply any user-defined data preparation (e.g., category mapping)
-          this.config.prepareData.call(this, JSONData);
+          this.type = "geojson";
         } else {
           throw new Error("Invalid data format!");
         }

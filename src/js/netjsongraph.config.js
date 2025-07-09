@@ -169,7 +169,7 @@ const NetJSONGraphDefaultConfig = {
     nodeConfig: {
       type: "scatter",
       label: {
-        show: false,
+        show: true,
         color: "#000000",
         position: "top",
         formatter: "{b}",
