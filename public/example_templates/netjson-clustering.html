@@ -72,19 +72,20 @@
     <script type="text/javascript">
       // Load dataset from external JSON file and initialize the map
       const map = new NetJSONGraph(
-        "../assets/data/netjson-clustering.json",
+        "../assets/data/geojson-sample.json",
         {
           render: "map",
           clustering: true,
           clusteringThreshold: 2,
           clusterRadius: 80,
           disableClusteringAtLevel: 18,
-          clusteringAttribute: "status",
+          clusteringAttribute: "country",
           clusterSeparation: 20,
+          showLabelAtZoomLevel: 18,
           mapOptions: {
             center: [55.78, 11.54],
             zoom: 5,
-            minZoom: 3,
+            minZoom: 1,
             maxZoom: 18,
             // No label configuration to keep the view clean
           },
