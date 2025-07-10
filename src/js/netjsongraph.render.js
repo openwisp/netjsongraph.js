@@ -332,14 +332,104 @@ class NetJSONGraphRender {
     }
 
     if (self.type === "netjson") {
-      self.utils.echartsSetOption(
-        self.utils.generateMapOption(JSONData, self),
-        self,
-      );
+      const initialMapOptions = self.utils.generateMapOption(JSONData, self);
+      self.utils.echartsSetOption(initialMapOptions, self);
+      // Ensure Leaflet map instance is available BEFORE any Polygon rendering
+      // Earlier polygon logic relies on `self.leaflet` being defined, so we
+      // initialize it right after the first setOption call.
+      if (!self.leaflet) {
+        // eslint-disable-next-line no-underscore-dangle
+        self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
+        // Disable animated zoom for consistency across browsers
+        // eslint-disable-next-line no-underscore-dangle
+        self.leaflet._zoomAnimated = false;
+      }
       self.bboxData = {
         nodes: [],
         links: [],
       };
+
+      self.config.geoOptions = self.utils.deepMergeObj(
+        {
+          pointToLayer: (feature, latlng) =>
+            L.circleMarker(latlng, self.config.geoOptions.style),
+          onEachFeature: (feature, layer) => {
+            layer.on("click", () => {
+              const properties = {
+                ...feature.properties,
+              };
+              self.config.onClickElement.call(self, "Feature", properties);
+            });
+          },
+        },
+        self.config.geoOptions,
+      );
+
+      if (
+        self.type === "netjson" &&
+        self.originalGeoJSON &&
+        self.originalGeoJSON.features
+      ) {
+        const polygonFeatures = self.originalGeoJSON.features.filter(
+          (f) =>
+            f &&
+            f.geometry &&
+            (f.geometry.type === "Polygon" ||
+              f.geometry.type === "MultiPolygon"),
+        );
+
+        if (polygonFeatures.length) {
+          let polygonPane = self.leaflet.getPane("njg-polygons");
+          if (!polygonPane) {
+            polygonPane = self.leaflet.createPane("njg-polygons");
+            polygonPane.style.zIndex = 410; // above overlayPane (400)
+          }
+
+          const defaultStyle = {
+            fillColor: "#1566a9",
+            color: "#1566a9",
+            weight: 0,
+            fillOpacity: 0.6,
+          };
+
+          const polygonLayer = L.geoJSON(
+            { type: "FeatureCollection", features: polygonFeatures },
+            {
+              pane: "njg-polygons",
+              style: (feature) => {
+                const echartsStyle =
+                  (feature.properties && feature.properties.echartsStyle) || {};
+
+                const leafletStyle = {
+                  ...defaultStyle,
+                  ...(self.config.geoOptions && self.config.geoOptions.style),
+                };
+
+                if (echartsStyle.areaColor) leafletStyle.fillColor = echartsStyle.areaColor;
+                if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
+                if (typeof echartsStyle.opacity !== "undefined")
+                  leafletStyle.fillOpacity = echartsStyle.opacity;
+                if (typeof echartsStyle.borderWidth !== "undefined")
+                  leafletStyle.weight = echartsStyle.borderWidth;
+
+                return leafletStyle;
+              },
+              onEachFeature: (feature, layer) => {
+                layer.on("click", () => {
+                  self.config.onClickElement.call(
+                    self,
+                    "Feature",
+                    { ...feature.properties },
+                  );
+                });
+              },
+            },
+          ).addTo(self.leaflet);
+
+          // Store reference for later removal/update
+          self.leaflet.polygonGeoJSON = polygonLayer;
+        }
+      }
     } else if (self.type === "geojson") {
       const {nodeConfig, linkConfig, baseOptions, ...options} =
         self.config.mapOptions;
@@ -361,24 +451,17 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
-    self.config.geoOptions = self.utils.deepMergeObj(
-      {
-        pointToLayer: (feature, latlng) =>
-          L.circleMarker(latlng, self.config.geoOptions.style),
-        onEachFeature: (feature, layer) => {
-          layer.on("click", () => {
-            const properties = {
-              ...feature.properties,
-            };
-            self.config.onClickElement.call(self, "Feature", properties);
-          });
-        },
-      },
-      self.config.geoOptions,
-    );
-
     if (self.type === "geojson") {
-      self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
+      let polygonPane = self.leaflet.getPane("njg-polygons");
+      if (!polygonPane) {
+        polygonPane = self.leaflet.createPane("njg-polygons");
+        polygonPane.style.zIndex = 410;
+      }
+
+      self.leaflet.geoJSON = L.geoJSON(self.data, {
+        ...self.config.geoOptions,
+        pane: "njg-polygons",
+      });
 
       // Check if clustering should be applied based on current zoom level and configuration
       const needsClustering =
