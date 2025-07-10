@@ -74,7 +74,21 @@ class NetJSONGraph {
         if (this.utils.isNetJSON(JSONData)) {
           this.type = "netjson";
         } else if (this.utils.isGeoJSON(JSONData)) {
+          // Treat GeoJSON as a first-class citizen by converting it once
+          // to NetJSON shape while keeping the original for polygon rendering.
           this.type = "geojson";
+
+          // Preserve the untouched GeoJSON so non-Point geometries can be
+          // rendered as Leaflet vectors later (polygons, multipolygons, etc.).
+          this.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
+
+          // Convert to NetJSON so the existing clustering / ECharts pipeline
+          // can operate without further changes.
+          JSONData = this.utils.geojsonToNetjson(JSONData);
+
+          // Downstream logic expects `this.type === "netjson"` for node/link
+          // processing, so we switch it after conversion.
+          this.type = "netjson";
         } else {
           throw new Error("Invalid data format!");
         }

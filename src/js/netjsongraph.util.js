@@ -257,6 +257,98 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * Convert a GeoJSON FeatureCollection into a NetJSON-style object
+   * (nodes / links arrays) so that the rest of the pipeline can work
+   * unchanged.
+   *
+   * @param {Object} geojson  A GeoJSON FeatureCollection
+   * @return {{nodes:Array, links:Array}}
+   */
+  geojsonToNetjson(geojson) {
+    const nodes = [];
+    const links = [];
+    if (!geojson || !Array.isArray(geojson.features)) {
+      return {nodes, links};
+    }
+
+    // Coordinate-string → nodeId  (deduplication across features)
+    const coordMap = new Map();
+    const createNode = (coord, baseProps = {}) => {
+      const key = `${coord[0]},${coord[1]}`;
+      if (coordMap.has(key)) {
+        return coordMap.get(key); // reuse existing node id
+      }
+      const newId = `gjn_${nodes.length}`;
+      const node = {
+        id: newId,
+        label: newId,
+        location: {lng: coord[0], lat: coord[1]},
+        properties: {...baseProps, location: {lng: coord[0], lat: coord[1]}},
+      };
+      nodes.push(node);
+      coordMap.set(key, newId);
+      return newId;
+    };
+
+    const addEdge = (sourceId, targetId, props = {}) => {
+      links.push({source: sourceId, target: targetId, properties: props});
+    };
+
+    const processCoordsSeq = (coords, props, closeRing = false) => {
+      for (let i = 0; i < coords.length - 1; i += 1) {
+        const a = createNode(coords[i], props);
+        const b = createNode(coords[i + 1], props);
+        addEdge(a, b, props);
+      }
+      if (closeRing && coords.length > 2) {
+        // close the polygon ring
+        const first = createNode(coords[0], props);
+        const last = createNode(coords[coords.length - 1], props);
+        addEdge(last, first, props);
+      }
+    };
+
+    const handleGeometry = (geometry, props) => {
+      if (!geometry) return;
+      const {type, coordinates, geometries} = geometry;
+      switch (type) {
+        case "Point":
+          createNode(coordinates, props);
+          break;
+        case "MultiPoint":
+          coordinates.forEach((pt) => createNode(pt, props));
+          break;
+        case "LineString":
+          processCoordsSeq(coordinates, props, false);
+          break;
+        case "MultiLineString":
+          coordinates.forEach((line) => processCoordsSeq(line, props, false));
+          break;
+        case "Polygon":
+          coordinates.forEach((ring) => processCoordsSeq(ring, props, true));
+          break;
+        case "MultiPolygon":
+          coordinates.forEach((poly) =>
+            poly.forEach((ring) => processCoordsSeq(ring, props, true)),
+          );
+          break;
+        case "GeometryCollection":
+          geometries.forEach((g) => handleGeometry(g, props));
+          break;
+        default:
+          console.warn(`Unsupported GeoJSON geometry type: ${type}`);
+      }
+    };
+
+    geojson.features.forEach((feature) => {
+      const baseProps = feature.properties || {};
+      handleGeometry(feature.geometry, baseProps);
+    });
+
+    return {nodes, links};
+  }
+
+  /**
    * merge two object deeply
    *
    * @param  {object}
@@ -308,16 +400,28 @@ class NetJSONGraphUtil {
 
     // 1. Project all nodes to screen (pixel) coordinates for spatial clustering
     nodes.forEach((node) => {
+      // Normalize location reference (GeoJSON may store it under properties.location)
+      const loc = (node.properties && node.properties.location) || node.location;
+      if (!loc || loc.lat === undefined || loc.lng === undefined) {
+        return; // Skip nodes without valid coordinates
+      }
+
+      // Ensure `node.location` exists for downstream code
+      node.location = loc;
+
+      // Preserve original geographic coordinates and restore them on every pass
+      if (!node._origLocation) {
+        node._origLocation = { lat: loc.lat, lng: loc.lng };
+      } else {
+        loc.lat = node._origLocation.lat;
+        loc.lng = node._origLocation.lng;
+      }
+
       // Convert geographic coordinates (lat, lng) to pixel coordinates (x, y)
-      // This allows clustering to be performed visually, regardless of map zoom/projection
-      node.y = self.leaflet.latLngToContainerPoint([
-        node.location.lat,
-        node.location.lng,
-      ]).y;
-      node.x = self.leaflet.latLngToContainerPoint([
-        node.location.lat,
-        node.location.lng,
-      ]).x;
+      const pt = self.leaflet.latLngToContainerPoint([loc.lat, loc.lng]);
+      node.x = pt.x;
+      node.y = pt.y;
+
       node.visited = false;
       node.cluster = null;
     });
@@ -394,7 +498,7 @@ class NetJSONGraphUtil {
 
       // Find the largest symbol size among all groups (for overlap math)
       let maxSymbolSize = 0;
-      groupsArray.forEach(([gNodes]) => {
+      groupsArray.forEach(([attr, gNodes]) => {
         const sz = getClusterSymbolSize(gNodes.length);
         if (sz > maxSymbolSize) {
           maxSymbolSize = sz;
