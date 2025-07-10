@@ -332,11 +332,6 @@ class NetJSONGraphRender {
     }
 
     if (self.type === "netjson") {
-      self.utils.echartsSetOption(
-        self.utils.generateMapOption(JSONData, self),
-        self,
-      );
-=======
       const initialMapOptions = self.utils.generateMapOption(JSONData, self);
       self.utils.echartsSetOption(initialMapOptions, self);
       // Ensure Leaflet map instance is available BEFORE any Polygon rendering
@@ -349,7 +344,6 @@ class NetJSONGraphRender {
         // eslint-disable-next-line no-underscore-dangle
         self.leaflet._zoomAnimated = false;
       }
->>>>>>> Stashed changes
       self.bboxData = {
         nodes: [],
         links: [],
