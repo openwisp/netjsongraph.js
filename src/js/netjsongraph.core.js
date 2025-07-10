@@ -75,6 +75,9 @@ class NetJSONGraph {
           this.type = "netjson";
         } else if (this.utils.isGeoJSON(JSONData)) {
           this.type = "geojson";
+          this.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
+          JSONData = this.utils.geojsonToNetjson(JSONData);
+          this.type = "netjson";
         } else {
           throw new Error("Invalid data format!");
         }
