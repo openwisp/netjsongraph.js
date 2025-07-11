@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Network Map Visualization</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
+    <!-- theme can be easily customized via css -->
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <style>
+      body{
+        margin: 0;
+        padding: 0;
+      }
+      #map-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #map-content {
+        width: 100%;
+        height: 100%;
+      }
+      #indoormap-container {
+        position: absolute; /* overlay */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 80%;
+        padding: 20px;
+        border-radius: 8px;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        border-radius: 7px;
+        background-color: white;
+      }
+      #indoormap-close {
+        position: absolute;
+        top: 2px;
+        right: 5px;
+        color: gray;
+        border: none;
+        padding: 2px, 5px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 18px;
+        z-index: 9999;
+      }
+      #netjson-indoormap {
+        width: 100%;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map-container">
+      <div id="map-content"></div>
+    </div>
+
+    <script>
+      const netjsonmap = new NetJSONGraph("../assets/data/netjsonmap.json", {
+        el: "#map-content",
+        render: "map",
+        mapOptions: {
+          center: [46.86764405052012, 19.675998687744144],
+          zoom: 5,
+          nodeConfig: {
+            label: {
+              show: false,
+              offset: [0, -10],
+            },
+          },
+          baseOptions: {media: [{option: {tooltip: {show: true}}}]},
+        },
+        prepareData: (data) => {
+          data.nodes.forEach((n) => {
+            n.label = n.name;
+            n.properties = n.properties || {};
+            n.properties.location = n.location;
+          });
+          data.links.forEach((l) => {
+            l.properties = l.properties || {};
+            l.category = l.properties.status || "up";
+          });
+          return data;
+        },
+        onClickElement(type, data) {
+          openIndoorMap();
+        },
+      });
+      netjsonmap.render();
+
+      function createIndoorMapContainer() {
+        const container = document.createElement("div");
+        container.id = "indoormap-container";
+
+        const closeBtn = document.createElement("span");
+        closeBtn.id = "indoormap-close";
+        closeBtn.innerHTML = "&times;";
+
+        const netjsonDiv = document.createElement("div");
+        netjsonDiv.id = "netjson-indoormap";
+
+        container.appendChild(closeBtn);
+        container.appendChild(netjsonDiv);
+
+        return container;
+      }
+
+      function closeButtonHandler(container) {
+        const closeBtn = container.querySelector("#indoormap-close");
+        closeBtn.addEventListener("click", () => {
+          container.remove();
+        });
+      }
+
+      function openIndoorMap() {
+        const indoorMapContainer = createIndoorMapContainer();
+        closeButtonHandler(indoorMapContainer);
+        const mapContainer = document.getElementById("map-container");
+        mapContainer.appendChild(indoorMapContainer);
+
+        const indoor = new NetJSONGraph(
+          "../assets/data/netjsonmap-indoormap.json",
+          {
+            el: "#netjson-indoormap",
+            render: "map",
+            crs: L.CRS.Simple,
+            mapOptions: {
+              center: [50, 50],
+              zoom: 1,
+              minZoom: -1,
+              maxZoom: 2,
+              nodeConfig: {
+                label: {
+                  show: false,
+                },
+                animation: false,
+              },
+              baseOptions: {media: [{option: {tooltip: {show: true}}}]},
+            },
+            prepareData: (data) => {
+              data.nodes.forEach((n) => {
+                n.label = n.name;
+                n.properties = n.properties || {};
+                n.properties.location = n.location;
+              });
+            },
+            onReady: function () {
+              const map = this.leaflet;
+              map.eachLayer((layer) => layer._url && map.removeLayer(layer));
+              const img = new Image();
+              imageUrl = "../assets/images/floorplan.png";
+              img.src = imageUrl;
+              img.onload = () => {
+                const w = img.width;
+                const h = img.height;
+                const zoom = map.getMaxZoom() - 1;
+                const sw = map.unproject([0, h * 2], zoom);
+                const ne = map.unproject([w * 2, 0], zoom);
+                const bnds = new L.LatLngBounds(sw, ne);
+                L.imageOverlay(imageUrl, bnds).addTo(map);
+                map.fitBounds(bnds);
+                map.setMaxBounds(bnds);
+                map.setView([0, 0], 0);
+              };
+            },
+          },
+        );
+        indoor.render();
+      }
+    </script>
+  </body>
+</html>
