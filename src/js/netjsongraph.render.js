@@ -404,8 +404,7 @@ class NetJSONGraphRender {
               };
               if (echartsStyle.areaColor)
                 leafletStyle.fillColor = echartsStyle.areaColor;
-              if (echartsStyle.color)
-                leafletStyle.color = echartsStyle.color;
+              if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
               if (typeof echartsStyle.opacity !== "undefined")
                 leafletStyle.fillOpacity = echartsStyle.opacity;
               if (typeof echartsStyle.borderWidth !== "undefined")
