@@ -83,7 +83,6 @@
     "echarts-gl": "^2.0.9",
     "kdbush": "^4.0.2",
     "leaflet": "^1.8.0",
-    "leaflet.markercluster": "^1.5.3",
     "zrender": "^5.6.1"
   }
 }
