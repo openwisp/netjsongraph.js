@@ -429,25 +429,22 @@ describe("Test netjsongraph GeoJSON properties", () => {
   });
 
   test("Parse the data in correct format", () => {
+    const converted = map.utils.geojsonToNetjson(geoJSONData);
     expect(map.JSONParam).toEqual([geoJSONData]);
-    expect(map.data).toEqual(geoJSONData);
-    expect(map.type).toEqual("geojson");
+    expect(map.data).toEqual(converted);
+    expect(map.type).toEqual("netjson");
   });
 
   test("Update GeoJSON data dynamically", () => {
-    expect(map.data).toEqual(geoJSONData);
-    map.utils.JSONDataUpdate.call(
-      map,
-      {
-        type: "FeatureCollection",
-        features: [],
-      },
-      true,
-    ).then(() => {
-      expect(map.data).toEqual({
-        type: "FeatureCollection",
-        features: [],
-      });
+    const originalConverted = map.utils.geojsonToNetjson(geoJSONData);
+    expect(map.data).toEqual(originalConverted);
+    const newGeoJSON = {
+      type: "FeatureCollection",
+      features: [],
+    };
+    return map.utils.JSONDataUpdate.call(map, newGeoJSON, true).then(() => {
+      // After update, library keeps original GeoJSON format internally
+      expect(map.data).toEqual(newGeoJSON);
     });
   });
 });
@@ -789,6 +786,8 @@ describe("Test disableClusteringAtLevel: 0", () => {
       getBounds: jest.fn(),
       addLayer: jest.fn(),
       latLngToContainerPoint: jest.fn(() => ({x: 0, y: 0})),
+      getPane: jest.fn(() => undefined),
+      createPane: jest.fn(() => ({style: {}})),
     };
 
     jest.spyOn(L, "geoJSON").mockImplementation(() => mockGeoJSONLayer);

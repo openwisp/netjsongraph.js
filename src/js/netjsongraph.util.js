@@ -257,7 +257,7 @@ class NetJSONGraphUtil {
   /**
    * Convert a GeoJSON FeatureCollection into a NetJSON-style object
    * (nodes / links arrays) so that the rest of the pipeline can work
-   * unchanged.  
+   * unchanged.
    *
    * @param {Object} geojson  A GeoJSON FeatureCollection
    * @return {{nodes:Array, links:Array}}
