@@ -13,10 +13,6 @@ import {
 } from "echarts/components";
 import {SVGRenderer} from "echarts/renderers";
 import L from "leaflet/dist/leaflet";
-import "leaflet.markercluster";
-import "leaflet.markercluster/dist/MarkerCluster.css";
-import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-
 import "echarts-gl";
 
 echarts.use([
@@ -331,197 +327,102 @@ class NetJSONGraphRender {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
 
-    if (self.type === "netjson") {
-      const initialMapOptions = self.utils.generateMapOption(JSONData, self);
-      self.utils.echartsSetOption(initialMapOptions, self);
-      // Ensure Leaflet map instance is available BEFORE any Polygon rendering
-      // Earlier polygon logic relies on `self.leaflet` being defined, so we
-      // initialize it right after the first setOption call.
-      if (!self.leaflet) {
-        // eslint-disable-next-line no-underscore-dangle
-        self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
-        // Disable animated zoom for consistency across browsers
-        // eslint-disable-next-line no-underscore-dangle
-        self.leaflet._zoomAnimated = false;
-      }
-      self.bboxData = {
-        nodes: [],
-        links: [],
-      };
-
-      self.config.geoOptions = self.utils.deepMergeObj(
-        {
-          pointToLayer: (feature, latlng) =>
-            L.circleMarker(latlng, self.config.geoOptions.style),
-          onEachFeature: (feature, layer) => {
-            layer.on("click", () => {
-              const properties = {
-                ...feature.properties,
-              };
-              self.config.onClickElement.call(self, "Feature", properties);
-            });
-          },
-        },
-        self.config.geoOptions,
-      );
-
-      if (
-        self.type === "netjson" &&
-        self.originalGeoJSON &&
-        self.originalGeoJSON.features
-      ) {
-        const polygonFeatures = self.originalGeoJSON.features.filter(
-          (f) =>
-            f &&
-            f.geometry &&
-            (f.geometry.type === "Polygon" ||
-              f.geometry.type === "MultiPolygon"),
-        );
-
-        if (polygonFeatures.length) {
-          let polygonPane = self.leaflet.getPane("njg-polygons");
-          if (!polygonPane) {
-            polygonPane = self.leaflet.createPane("njg-polygons");
-            polygonPane.style.zIndex = 410; // above overlayPane (400)
-          }
-
-          const defaultStyle = {
-            fillColor: "#1566a9",
-            color: "#1566a9",
-            weight: 0,
-            fillOpacity: 0.6,
-          };
-
-          const polygonLayer = L.geoJSON(
-            {type: "FeatureCollection", features: polygonFeatures},
-            {
-              pane: "njg-polygons",
-              style: (feature) => {
-                const echartsStyle =
-                  (feature.properties && feature.properties.echartsStyle) || {};
-
-                const leafletStyle = {
-                  ...defaultStyle,
-                  ...(self.config.geoOptions && self.config.geoOptions.style),
-                };
-
-                if (echartsStyle.areaColor)
-                  leafletStyle.fillColor = echartsStyle.areaColor;
-                if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
-                if (typeof echartsStyle.opacity !== "undefined")
-                  leafletStyle.fillOpacity = echartsStyle.opacity;
-                if (typeof echartsStyle.borderWidth !== "undefined")
-                  leafletStyle.weight = echartsStyle.borderWidth;
-
-                return leafletStyle;
-              },
-              onEachFeature: (feature, layer) => {
-                layer.on("click", () => {
-                  self.config.onClickElement.call(self, "Feature", {
-                    ...feature.properties,
-                  });
-                });
-              },
-            },
-          ).addTo(self.leaflet);
-
-          // Store reference for later removal/update
-          self.leaflet.polygonGeoJSON = polygonLayer;
-        }
-      }
-    } else if (self.type === "geojson") {
-      const {nodeConfig, linkConfig, baseOptions, ...options} =
-        self.config.mapOptions;
-
-      self.echarts.setOption({
-        leaflet: {
-          tiles: self.config.mapTileConfig,
-          mapOptions: options,
-        },
-      });
-
-      self.bboxData = {
-        features: [],
-      };
+    // Convert GeoJSON FeatureCollection input to NetJSON so the rest of the
+    // pipeline can always follow the NetJSON branch.
+    if (self.type === "geojson") {
+      self.originalGeoJSON = JSONData;
+      JSONData = self.utils.geojsonToNetjson(JSONData);
+      self.type = "netjson";
     }
+
+    const initialMapOptions = self.utils.generateMapOption(JSONData, self);
+    self.utils.echartsSetOption(initialMapOptions, self);
+    self.bboxData = {
+      nodes: [],
+      links: [],
+    };
 
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
-    if (self.type === "geojson") {
-      let polygonPane = self.leaflet.getPane("njg-polygons");
-      if (!polygonPane) {
-        polygonPane = self.leaflet.createPane("njg-polygons");
-        polygonPane.style.zIndex = 410;
-      }
+    self.config.geoOptions = self.utils.deepMergeObj(
+      {
+        pointToLayer: (feature, latlng) =>
+          L.circleMarker(latlng, self.config.geoOptions.style),
+        onEachFeature: (feature, layer) => {
+          layer.on("click", () => {
+            const properties = {
+              ...feature.properties,
+            };
+            self.config.onClickElement.call(self, "Feature", properties);
+          });
+        },
+      },
+      self.config.geoOptions,
+    );
 
-      self.leaflet.geoJSON = L.geoJSON(self.data, {
-        ...self.config.geoOptions,
-        pane: "njg-polygons",
-      });
+    // Render Polygon/MultiPolygon geometries on a dedicated Leaflet pane when
+    // original GeoJSON data exists (converted earlier to NetJSON).
+    if (
+      self.type === "netjson" &&
+      self.originalGeoJSON &&
+      Array.isArray(self.originalGeoJSON.features)
+    ) {
+      const polygonFeatures = self.originalGeoJSON.features.filter(
+        (f) =>
+          f &&
+          f.geometry &&
+          (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"),
+      );
 
-      // Check if clustering should be applied based on current zoom level and configuration
-      const needsClustering =
-        self.config.clustering &&
-        self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
+      if (polygonFeatures.length) {
+        let polygonPane = self.leaflet.getPane("njg-polygons");
+        if (!polygonPane) {
+          polygonPane = self.leaflet.createPane("njg-polygons");
+          polygonPane.style.zIndex = 410; // above overlayPane (400)
+        }
 
-      if (needsClustering) {
-        const clusterOptions = {
-          showCoverageOnHover: false,
-          spiderfyOnMaxZoom: false,
-          maxClusterRadius: self.config.clusterRadius,
-          disableClusteringAtZoom: self.config.disableClusteringAtLevel,
+        const defaultStyle = {
+          fillColor: "#1566a9",
+          color: "#1566a9",
+          weight: 0,
+          fillOpacity: 0.6,
         };
 
-        if (self.config.clusteringAttribute) {
-          const clusterTypeSet = new Set();
-          self.data.features.forEach((feature) => {
-            clusterTypeSet.add(
-              feature.properties[self.config.clusteringAttribute] || "default",
-            );
-            if (!feature.properties[self.config.clusteringAttribute]) {
-              feature.properties[self.config.clusteringAttribute] = "default";
-            }
-          });
-          const clusterTypes = Array.from(clusterTypeSet);
-          const clusterGroup = [];
-          clusterTypes.forEach((type) => {
-            const features = self.data.features.filter(
-              (feature) =>
-                feature.properties[self.config.clusteringAttribute] === type,
-            );
-            const layer = L.geoJSON(
-              {
-                ...self.data,
-                features,
-              },
-              self.config.geoOptions,
-            );
-            const cluster = L.markerClusterGroup({
-              ...clusterOptions,
-              iconCreateFunction: (c) => {
-                const childCount = c.getChildCount();
-                return L.divIcon({
-                  html: `<div><span>${childCount}</span></div>`,
-                  className: `marker-cluster ${type}`,
-                  iconSize: L.point(40, 40),
+        const polygonLayer = L.geoJSON(
+          {type: "FeatureCollection", features: polygonFeatures},
+          {
+            pane: "njg-polygons",
+            style: (feature) => {
+              const echartsStyle =
+                (feature.properties && feature.properties.echartsStyle) || {};
+              const leafletStyle = {
+                ...defaultStyle,
+                ...(self.config.geoOptions && self.config.geoOptions.style),
+              };
+              if (echartsStyle.areaColor)
+                leafletStyle.fillColor = echartsStyle.areaColor;
+              if (echartsStyle.color)
+                leafletStyle.color = echartsStyle.color;
+              if (typeof echartsStyle.opacity !== "undefined")
+                leafletStyle.fillOpacity = echartsStyle.opacity;
+              if (typeof echartsStyle.borderWidth !== "undefined")
+                leafletStyle.weight = echartsStyle.borderWidth;
+              return leafletStyle;
+            },
+            onEachFeature: (feature, layer) => {
+              layer.on("click", () => {
+                self.config.onClickElement.call(self, "Feature", {
+                  ...feature.properties,
                 });
-              },
-            }).addTo(self.leaflet);
-            clusterGroup.push(cluster);
-            cluster.addLayer(layer);
-          });
-          self.leaflet.clusterGroup = clusterGroup;
-        } else {
-          self.leaflet.markerClusterGroup = L.markerClusterGroup(
-            clusterOptions,
-          ).addTo(self.leaflet);
-          self.leaflet.markerClusterGroup.addLayer(self.leaflet.geoJSON);
-        }
-      } else {
-        self.leaflet.geoJSON.addTo(self.leaflet);
+              });
+            },
+          },
+        ).addTo(self.leaflet);
+
+        self.leaflet.polygonGeoJSON = polygonLayer;
       }
     }
 
