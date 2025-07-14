@@ -393,7 +393,7 @@ class NetJSONGraphRender {
           };
 
           const polygonLayer = L.geoJSON(
-            { type: "FeatureCollection", features: polygonFeatures },
+            {type: "FeatureCollection", features: polygonFeatures},
             {
               pane: "njg-polygons",
               style: (feature) => {
@@ -405,7 +405,8 @@ class NetJSONGraphRender {
                   ...(self.config.geoOptions && self.config.geoOptions.style),
                 };
 
-                if (echartsStyle.areaColor) leafletStyle.fillColor = echartsStyle.areaColor;
+                if (echartsStyle.areaColor)
+                  leafletStyle.fillColor = echartsStyle.areaColor;
                 if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
                 if (typeof echartsStyle.opacity !== "undefined")
                   leafletStyle.fillOpacity = echartsStyle.opacity;
@@ -416,11 +417,9 @@ class NetJSONGraphRender {
               },
               onEachFeature: (feature, layer) => {
                 layer.on("click", () => {
-                  self.config.onClickElement.call(
-                    self,
-                    "Feature",
-                    { ...feature.properties },
-                  );
+                  self.config.onClickElement.call(self, "Feature", {
+                    ...feature.properties,
+                  });
                 });
               },
             },
