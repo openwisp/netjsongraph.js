@@ -812,9 +812,7 @@ describe("Test disableClusteringAtLevel: 0", () => {
       echarts: {
         setOption: jest.fn(),
         _api: {
-          getCoordinateSystems: jest.fn(() => [
-            {getLeaflet: () => mockLeafletInstance},
-          ]),
+          getCoordinateSystems: () => [{getLeaflet: () => mockLeafletInstance}],
         },
       },
       utils: {
@@ -1096,8 +1094,11 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
 
     renderInstance.mapRender(mockSelf.data, mockSelf);
 
+    // Ensure self.data exists for bbox merge logic
+    mockSelf.data = {nodes: [], links: []};
+
     // Invoke the captured moveend callback
-    await capturedEvents["moveend"]();
+    await capturedEvents.moveend();
 
     expect(mockSelf.utils.getBBoxData).toHaveBeenCalled();
     // After data merge, echarts.setOption called at least twice (initial + update)
