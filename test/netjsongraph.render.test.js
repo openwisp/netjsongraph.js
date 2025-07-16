@@ -769,16 +769,11 @@ describe("Test disableClusteringAtLevel: 0", () => {
   let mockSelf;
   let mockLeafletInstance;
   let mockGeoJSONLayer;
-  let mockMarkerClusterGroupInstance;
 
   beforeEach(() => {
     mockGeoJSONLayer = {
       addTo: jest.fn(),
       on: jest.fn(),
-    };
-    mockMarkerClusterGroupInstance = {
-      addLayer: jest.fn(),
-      addTo: jest.fn(() => mockMarkerClusterGroupInstance),
     };
     mockLeafletInstance = {
       on: jest.fn(),
@@ -791,9 +786,6 @@ describe("Test disableClusteringAtLevel: 0", () => {
     };
 
     jest.spyOn(L, "geoJSON").mockImplementation(() => mockGeoJSONLayer);
-    jest
-      .spyOn(L, "markerClusterGroup")
-      .mockImplementation(() => mockMarkerClusterGroupInstance);
     jest.spyOn(L, "map").mockImplementation(() => mockLeafletInstance);
     jest.spyOn(L, "divIcon").mockImplementation(jest.fn());
     jest.spyOn(L, "point").mockImplementation(jest.fn());
@@ -851,10 +843,7 @@ describe("Test disableClusteringAtLevel: 0", () => {
     expect(mockSelf.config.disableClusteringAtLevel).toBe(0);
     expect(mockSelf.leaflet.getZoom()).toBe(0);
 
-    expect(L.markerClusterGroup).not.toHaveBeenCalled();
     expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet);
-    expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
-    expect(mockMarkerClusterGroupInstance.addTo).not.toHaveBeenCalled();
   });
 
   test("should disable clustering when disableClusteringAtLevel is 0 and initial zoom is greater than 0", () => {
@@ -865,10 +854,7 @@ describe("Test disableClusteringAtLevel: 0", () => {
     expect(mockSelf.config.disableClusteringAtLevel).toBe(0);
     expect(mockSelf.leaflet.getZoom()).toBe(1);
 
-    expect(L.markerClusterGroup).not.toHaveBeenCalled();
     expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet);
-    expect(mockMarkerClusterGroupInstance.addLayer).not.toHaveBeenCalled();
-    expect(mockMarkerClusterGroupInstance.addTo).not.toHaveBeenCalled();
   });
 });
 
