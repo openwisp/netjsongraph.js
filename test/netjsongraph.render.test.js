@@ -915,9 +915,7 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
       echarts: {
         setOption: jest.fn(),
         _api: {
-          getCoordinateSystems: jest.fn(() => [
-            {getLeaflet: () => leafletMap},
-          ]),
+          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => leafletMap}]),
         },
       },
       utils: {
@@ -989,5 +987,122 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
 
     expect(zoomInBtn.classList.contains("leaflet-disabled")).toBe(true);
     expect(zoomOutBtn.classList.contains("leaflet-disabled")).toBe(false);
+  });
+});
+
+describe("mapRender – polygon overlay & moveend bbox logic", () => {
+  let renderInstance;
+  let mockSelf;
+  let mockLeaflet;
+  let mockPolygonLayer;
+  const capturedEvents = {};
+
+  beforeEach(() => {
+    mockPolygonLayer = {addTo: jest.fn().mockReturnThis(), on: jest.fn()};
+
+    mockLeaflet = {
+      on: jest.fn((evt, cb) => {
+        capturedEvents[evt] = cb;
+      }),
+      getZoom: jest.fn(() => 2),
+      getMinZoom: jest.fn(() => 1),
+      getMaxZoom: jest.fn(() => 18),
+      getBounds: jest.fn(() => ({
+        /* dummy bounds */
+      })),
+      getPane: jest.fn(() => undefined),
+      createPane: jest.fn(() => ({style: {}})),
+      setView: jest.fn(),
+    };
+
+    jest.spyOn(L, "geoJSON").mockImplementation(() => mockPolygonLayer);
+
+    mockSelf = {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [0, 0],
+                  [1, 0],
+                  [1, 1],
+                  [0, 1],
+                  [0, 0],
+                ],
+              ],
+            },
+            properties: {},
+          },
+        ],
+      },
+      config: {
+        clustering: false,
+        disableClusteringAtLevel: 0,
+        geoOptions: {},
+        prepareData: jest.fn(),
+        onClickElement: jest.fn(),
+        mapOptions: {},
+        mapTileConfig: [{}],
+        showLabelsAtZoomLevel: 3,
+        loadMoreAtZoomLevel: 4,
+      },
+      leaflet: mockLeaflet,
+      echarts: {
+        setOption: jest.fn(),
+        _api: {
+          getCoordinateSystems: jest.fn(() => [
+            {getLeaflet: () => mockLeaflet},
+          ]),
+        },
+      },
+      utils: {
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
+        generateMapOption: jest.fn(() => ({series: [{data: []}]})),
+        echartsSetOption: jest.fn(),
+        deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
+        getBBoxData: jest.fn(() =>
+          Promise.resolve({nodes: [{id: "n1"}], links: []}),
+        ),
+      },
+      event: {emit: jest.fn()},
+    };
+
+    renderInstance = new NetJSONGraphRender();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    Object.keys(capturedEvents).forEach((k) => delete capturedEvents[k]);
+  });
+
+  test("renders polygon layer from GeoJSON features", () => {
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    expect(L.geoJSON).toHaveBeenCalled();
+    expect(mockPolygonLayer.addTo).toHaveBeenCalledWith(mockLeaflet);
+    expect(mockLeaflet.polygonGeoJSON).toBe(mockPolygonLayer);
+  });
+
+  test("moveend handler fetches bbox data and updates chart", async () => {
+    mockSelf.hasMoreData = true;
+    // Pretend we are zoomed in enough to trigger bbox fetch
+    mockLeaflet.getZoom.mockReturnValue(5);
+
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    // Invoke the captured moveend callback
+    await capturedEvents["moveend"]();
+
+    expect(mockSelf.utils.getBBoxData).toHaveBeenCalled();
+    // After data merge, echarts.setOption called at least twice (initial + update)
+    expect(mockSelf.echarts.setOption.mock.calls.length).toBeGreaterThan(1);
+    // Data should now include the fetched node
+    expect(mockSelf.data.nodes.some((n) => n.id === "n1")).toBe(true);
   });
 });

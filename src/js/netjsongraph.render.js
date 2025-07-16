@@ -367,10 +367,7 @@ class NetJSONGraphRender {
 
     // Render Polygon/MultiPolygon geometries on a dedicated Leaflet pane when
     // original GeoJSON data exists (converted earlier to NetJSON).
-    if (
-      self.originalGeoJSON &&
-      Array.isArray(self.originalGeoJSON.features)
-    ) {
+    if (self.originalGeoJSON && Array.isArray(self.originalGeoJSON.features)) {
       const polygonFeatures = self.originalGeoJSON.features.filter(
         (f) =>
           f &&
@@ -505,8 +502,7 @@ class NetJSONGraphRender {
         const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
         const links = data.links.filter(
           (link) =>
-            !sourceLinkSet.has(link.source) &&
-            !targetLinkSet.has(link.target),
+            !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
         );
         const boundsDataSet = new Set(data.nodes.map((n) => n.id));
         const nonCommonNodes = self.bboxData.nodes.filter(
