@@ -1101,8 +1101,8 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
     await capturedEvents.moveend();
 
     expect(mockSelf.utils.getBBoxData).toHaveBeenCalled();
-    // After data merge, echarts.setOption called at least twice (initial + update)
-    expect(mockSelf.echarts.setOption.mock.calls.length).toBeGreaterThan(1);
+    // After data merge, echarts.setOption should be invoked once for the update
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(1);
     // Data should now include the fetched node
     expect(mockSelf.data.nodes.some((n) => n.id === "n1")).toBe(true);
   });
