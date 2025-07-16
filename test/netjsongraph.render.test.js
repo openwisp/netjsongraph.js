@@ -574,6 +574,7 @@ describe("Test clustering", () => {
     map.utils = new NetJSONGraphRender();
     map.echarts = {
       setOption: () => {},
+      appendData: jest.fn(),
       _api: {
         getCoordinateSystems: () => [{getLeaflet: () => map.leaflet}],
       },
@@ -738,19 +739,15 @@ describe("Test clustering", () => {
     document.body.removeChild(container);
   });
 
-  test("appendData removes plotted points from leaflet", () => {
+  test("appendData correctly appends NetJSON nodes", () => {
     const data = {
-      type: "FeatureCollection",
-      features: [
+      nodes: [
         {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "Point",
-            coordinates: [27.764892578124996, 46.01222384063236],
-          },
+          id: "1",
+          location: {lng: 27.7648, lat: 46.0122},
         },
       ],
+      links: [],
     };
     const map = new NetJSONGraph(data);
     setUp(map);
@@ -760,7 +757,13 @@ describe("Test clustering", () => {
       zoom: 5,
       maxZoom: 5,
     });
+    // Ensure base data exists to merge into
+    map.data = {nodes: [], links: []};
     map.utils.appendData(data, map);
+
+    // Ensure echarts.appendData was called since appendData now routes through
+    // the NetJSON-only path.
+    expect(map.echarts.appendData).toHaveBeenCalled();
   });
 });
 
@@ -816,6 +819,10 @@ describe("Test disableClusteringAtLevel: 0", () => {
       },
       utils: {
         deepMergeObj: jest.fn((obj1, obj2) => ({...obj1, ...obj2})),
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
+        generateMapOption: jest.fn(() => ({series: []})),
+        echartsSetOption: jest.fn(),
         makeCluster: jest.fn(() => ({
           clusters: [{id: "cluster1", childNodes: [{id: "node1"}]}],
           nonClusterNodes: [],
@@ -843,7 +850,8 @@ describe("Test disableClusteringAtLevel: 0", () => {
     expect(mockSelf.config.disableClusteringAtLevel).toBe(0);
     expect(mockSelf.leaflet.getZoom()).toBe(0);
 
-    expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet);
+    // No polygon features supplied, so no GeoJSON layer should be added
+    expect(mockGeoJSONLayer.addTo).not.toHaveBeenCalled();
   });
 
   test("should disable clustering when disableClusteringAtLevel is 0 and initial zoom is greater than 0", () => {
@@ -854,7 +862,8 @@ describe("Test disableClusteringAtLevel: 0", () => {
     expect(mockSelf.config.disableClusteringAtLevel).toBe(0);
     expect(mockSelf.leaflet.getZoom()).toBe(1);
 
-    expect(mockGeoJSONLayer.addTo).toHaveBeenCalledWith(mockSelf.leaflet);
+    // No polygon features supplied, so no GeoJSON layer should be added
+    expect(mockGeoJSONLayer.addTo).not.toHaveBeenCalled();
   });
 });
 
@@ -906,11 +915,17 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
       echarts: {
         setOption: jest.fn(),
         _api: {
-          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => leafletMap}]),
+          getCoordinateSystems: jest.fn(() => [
+            {getLeaflet: () => leafletMap},
+          ]),
         },
       },
       utils: {
         deepMergeObj: jest.fn((obj1, obj2) => ({...obj1, ...obj2})),
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
+        generateMapOption: jest.fn(() => ({series: []})),
+        echartsSetOption: jest.fn(),
       },
       event: {
         emit: jest.fn(),

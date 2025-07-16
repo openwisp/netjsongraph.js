@@ -327,11 +327,13 @@ class NetJSONGraphRender {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
 
-    // Convert GeoJSON FeatureCollection input to NetJSON so the rest of the
-    // pipeline can always follow the NetJSON branch.
-    if (self.type === "geojson") {
-      self.originalGeoJSON = JSONData;
+    // Accept both NetJSON and GeoJSON inputs. If GeoJSON is detected,
+    // deep-copy it for polygon overlays and convert the working copy to
+    // NetJSON so the rest of the pipeline can operate uniformly.
+    if (self.utils.isGeoJSON(JSONData)) {
+      self.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
       JSONData = self.utils.geojsonToNetjson(JSONData);
+      // From this point forward we treat the data as NetJSON
       self.type = "netjson";
     }
 
@@ -366,7 +368,6 @@ class NetJSONGraphRender {
     // Render Polygon/MultiPolygon geometries on a dedicated Leaflet pane when
     // original GeoJSON data exists (converted earlier to NetJSON).
     if (
-      self.type === "netjson" &&
       self.originalGeoJSON &&
       Array.isArray(self.originalGeoJSON.features)
     ) {
@@ -474,38 +475,19 @@ class NetJSONGraphRender {
     self.leaflet.on("moveend", async () => {
       const bounds = self.leaflet.getBounds();
       const removeBBoxData = () => {
-        if (self.type === "netjson") {
-          const removeNodes = new Set(self.bboxData.nodes);
-          const removeLinks = new Set(self.bboxData.links);
-          const updatedNodes = JSONData.nodes.filter(
-            (node) => !removeNodes.has(node),
-          );
-          const updatedLinks = JSONData.links.filter(
-            (link) => !removeLinks.has(link),
-          );
+        const removeNodes = new Set(self.bboxData.nodes);
+        const removeLinks = new Set(self.bboxData.links);
 
-          JSONData = {
-            ...JSONData,
-            nodes: updatedNodes,
-            links: updatedLinks,
-          };
+        JSONData = {
+          ...JSONData,
+          nodes: JSONData.nodes.filter((node) => !removeNodes.has(node)),
+          links: JSONData.links.filter((link) => !removeLinks.has(link)),
+        };
 
-          self.data = JSONData;
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-          self.bboxData.nodes = [];
-          self.bboxData.links = [];
-        } else {
-          const removeFeatures = new Set(self.bboxData.features);
-          const updatedFeatures = JSONData.features.filter(
-            (feature) => !removeFeatures.has(feature),
-          );
-          JSONData = {
-            ...JSONData,
-            features: updatedFeatures,
-          };
-          self.utils.overrideData(JSONData, self);
-          self.bboxData.features = [];
-        }
+        self.data = JSONData;
+        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        self.bboxData.nodes = [];
+        self.bboxData.links = [];
       };
       if (
         self.leaflet.getZoom() >= self.config.loadMoreAtZoomLevel &&
@@ -516,58 +498,39 @@ class NetJSONGraphRender {
           self.JSONParam,
           bounds,
         );
-        if (self.type === "netjson") {
-          self.config.prepareData.call(this, data);
-          const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
-          const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
-          const targetLinkSet = new Set(self.data.links.map((l) => l.target));
-          const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
-          const links = data.links.filter(
-            (link) =>
-              !sourceLinkSet.has(link.source) &&
-              !targetLinkSet.has(link.target),
-          );
-          const boundsDataSet = new Set(data.nodes.map((n) => n.id));
-          const nonCommonNodes = self.bboxData.nodes.filter(
-            (node) => !boundsDataSet.has(node.id),
-          );
-          const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
+        self.config.prepareData.call(self, data);
+        const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
+        const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
+        const targetLinkSet = new Set(self.data.links.map((l) => l.target));
+        const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
+        const links = data.links.filter(
+          (link) =>
+            !sourceLinkSet.has(link.source) &&
+            !targetLinkSet.has(link.target),
+        );
+        const boundsDataSet = new Set(data.nodes.map((n) => n.id));
+        const nonCommonNodes = self.bboxData.nodes.filter(
+          (node) => !boundsDataSet.has(node.id),
+        );
+        const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
 
-          JSONData.nodes = JSONData.nodes.filter(
-            (node) => !removableNodes.has(node.id),
-          );
-          self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
-          self.bboxData.links = self.bboxData.links.concat(links);
-          JSONData = {
-            ...JSONData,
-            nodes: JSONData.nodes.concat(nodes),
-            links: JSONData.links.concat(links),
-          };
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-          self.data = JSONData;
-        } else {
-          const dataSet = new Set(self.data.features);
-          const features = data.features.filter(
-            (feature) => !dataSet.has(feature),
-          );
-          const boundsDataSet = new Set(data.features);
-          const nonCommonFeatures = self.bboxData.features.filter(
-            (feature) => !boundsDataSet.has(feature),
-          );
-          const removableFeatures = new Set(nonCommonFeatures);
-
-          JSONData.features = JSONData.features.filter(
-            (feature) => !removableFeatures.has(feature),
-          );
-          self.bboxData.features = self.bboxData.features.concat(features);
-          self.utils.appendData(features, self);
-        }
+        JSONData.nodes = JSONData.nodes.filter(
+          (node) => !removableNodes.has(node.id),
+        );
+        self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
+        self.bboxData.links = self.bboxData.links.concat(links);
+        JSONData = {
+          ...JSONData,
+          nodes: JSONData.nodes.concat(nodes),
+          links: JSONData.links.concat(links),
+        };
+        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
       }
     });
     if (
-      self.type === "netjson" &&
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
@@ -661,25 +624,13 @@ class NetJSONGraphRender {
       throw new Error("AppendData function can only be used for map render!");
     }
 
-    if (self.type === "netjson") {
+    if (self.config.render === self.utils.mapRender) {
       const opts = self.utils.generateMapOption(JSONData, self);
       opts.series.forEach((obj, index) => {
         self.echarts.appendData({seriesIndex: index, data: obj.data});
       });
       // modify this.data
       self.utils.mergeData(JSONData, self);
-    }
-
-    if (self.type === "geojson") {
-      self.data = {
-        ...self.data,
-        features: self.data.features.concat(JSONData.features),
-      };
-
-      // Remove the existing points from the map. Otherwise,
-      // the original points are duplicated on the map.
-      self.leaflet.geoJSON.removeFrom(self.leaflet);
-      self.utils.render();
     }
 
     self.config.afterUpdate.call(self);
