@@ -255,6 +255,98 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * Convert a GeoJSON FeatureCollection into a NetJSON-style object
+   * (nodes / links arrays) so that the rest of the pipeline can work
+   * unchanged.
+   *
+   * @param {Object} geojson  A GeoJSON FeatureCollection
+   * @return {{nodes:Array, links:Array}}
+   */
+  geojsonToNetjson(geojson) {
+    const nodes = [];
+    const links = [];
+    if (!geojson || !Array.isArray(geojson.features)) {
+      return {nodes, links};
+    }
+
+    // Coordinate-string → nodeId  (deduplication across features)
+    const coordMap = new Map();
+    const createNode = (coord, baseProps = {}) => {
+      const key = `${coord[0]},${coord[1]}`;
+      if (coordMap.has(key)) {
+        return coordMap.get(key); // reuse existing node id
+      }
+      const newId = `gjn_${nodes.length}`;
+      const node = {
+        id: newId,
+        label: newId,
+        location: {lng: coord[0], lat: coord[1]},
+        properties: {...baseProps, location: {lng: coord[0], lat: coord[1]}},
+      };
+      nodes.push(node);
+      coordMap.set(key, newId);
+      return newId;
+    };
+
+    const addEdge = (sourceId, targetId, props = {}) => {
+      links.push({source: sourceId, target: targetId, properties: props});
+    };
+
+    const processCoordsSeq = (coords, props, closeRing = false) => {
+      for (let i = 0; i < coords.length - 1; i += 1) {
+        const a = createNode(coords[i], props);
+        const b = createNode(coords[i + 1], props);
+        addEdge(a, b, props);
+      }
+      if (closeRing && coords.length > 2) {
+        // close the polygon ring
+        const first = createNode(coords[0], props);
+        const last = createNode(coords[coords.length - 1], props);
+        addEdge(last, first, props);
+      }
+    };
+
+    const handleGeometry = (geometry, props) => {
+      if (!geometry) return;
+      const {type, coordinates, geometries} = geometry;
+      switch (type) {
+        case "Point":
+          createNode(coordinates, props);
+          break;
+        case "MultiPoint":
+          coordinates.forEach((pt) => createNode(pt, props));
+          break;
+        case "LineString":
+          processCoordsSeq(coordinates, props, false);
+          break;
+        case "MultiLineString":
+          coordinates.forEach((line) => processCoordsSeq(line, props, false));
+          break;
+        case "Polygon":
+          coordinates.forEach((ring) => processCoordsSeq(ring, props, true));
+          break;
+        case "MultiPolygon":
+          coordinates.forEach((poly) =>
+            poly.forEach((ring) => processCoordsSeq(ring, props, true)),
+          );
+          break;
+        case "GeometryCollection":
+          geometries.forEach((g) => handleGeometry(g, props));
+          break;
+        default:
+          console.warn(`Unsupported GeoJSON geometry type: ${type}`);
+      }
+    };
+
+    geojson.features.forEach((feature) => {
+      const baseProps = feature.properties || {};
+      handleGeometry(feature.geometry, baseProps);
+    });
+
+    return {nodes, links};
+  }
+
+  /**
    * merge two object deeply
    *
    * @param  {object}

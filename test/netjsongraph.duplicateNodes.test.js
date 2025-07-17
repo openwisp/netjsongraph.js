@@ -124,10 +124,6 @@ global.L = {
   circleMarker: jest.fn(),
   divIcon: jest.fn(),
   point: jest.fn(),
-  markerClusterGroup: jest.fn(() => ({
-    addTo: jest.fn(() => ({})),
-    addLayer: jest.fn(),
-  })),
   geoJSON: jest.fn(() => ({
     addTo: jest.fn(),
     removeFrom: jest.fn(),
