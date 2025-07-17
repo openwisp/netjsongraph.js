@@ -35,6 +35,7 @@ class NetJSONGraphUtil {
     try {
       let paginatedResponse = await this.utils.JSONParamParse(JSONParam);
       if (paginatedResponse.json) {
+        // eslint-disable-next-line no-await-in-loop
         res = await paginatedResponse.json();
         data = res.results ? res.results : res;
         while (res.next && data.nodes.length <= this.config.maxPointsFetched) {
@@ -68,6 +69,7 @@ class NetJSONGraphUtil {
       JSONParam = JSONParam[0].split("?")[0];
       // eslint-disable-next-line no-underscore-dangle
       const url = `${JSONParam}bbox?swLat=${bounds._southWest.lat}&swLng=${bounds._southWest.lng}&neLat=${bounds._northEast.lat}&neLng=${bounds._northEast.lng}`;
+      // eslint-disable-next-line no-await-in-loop
       const res = await this.utils.JSONParamParse(url);
       data = await res.json();
     } catch (e) {
@@ -255,6 +257,98 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * Convert a GeoJSON FeatureCollection into a NetJSON-style object
+   * (nodes / links arrays) so that the rest of the pipeline can work
+   * unchanged.
+   *
+   * @param {Object} geojson  A GeoJSON FeatureCollection
+   * @return {{nodes:Array, links:Array}}
+   */
+  geojsonToNetjson(geojson) {
+    const nodes = [];
+    const links = [];
+    if (!geojson || !Array.isArray(geojson.features)) {
+      return {nodes, links};
+    }
+
+    // Coordinate-string → nodeId  (deduplication across features)
+    const coordMap = new Map();
+    const createNode = (coord, baseProps = {}) => {
+      const key = `${coord[0]},${coord[1]}`;
+      if (coordMap.has(key)) {
+        return coordMap.get(key); // reuse existing node id
+      }
+      const newId = `gjn_${nodes.length}`;
+      const node = {
+        id: newId,
+        label: newId,
+        location: {lng: coord[0], lat: coord[1]},
+        properties: {...baseProps, location: {lng: coord[0], lat: coord[1]}},
+      };
+      nodes.push(node);
+      coordMap.set(key, newId);
+      return newId;
+    };
+
+    const addEdge = (sourceId, targetId, props = {}) => {
+      links.push({source: sourceId, target: targetId, properties: props});
+    };
+
+    const processCoordsSeq = (coords, props, closeRing = false) => {
+      for (let i = 0; i < coords.length - 1; i += 1) {
+        const a = createNode(coords[i], props);
+        const b = createNode(coords[i + 1], props);
+        addEdge(a, b, props);
+      }
+      if (closeRing && coords.length > 2) {
+        // close the polygon ring
+        const first = createNode(coords[0], props);
+        const last = createNode(coords[coords.length - 1], props);
+        addEdge(last, first, props);
+      }
+    };
+
+    const handleGeometry = (geometry, props) => {
+      if (!geometry) return;
+      const {type, coordinates, geometries} = geometry;
+      switch (type) {
+        case "Point":
+          createNode(coordinates, props);
+          break;
+        case "MultiPoint":
+          coordinates.forEach((pt) => createNode(pt, props));
+          break;
+        case "LineString":
+          processCoordsSeq(coordinates, props, false);
+          break;
+        case "MultiLineString":
+          coordinates.forEach((line) => processCoordsSeq(line, props, false));
+          break;
+        case "Polygon":
+          coordinates.forEach((ring) => processCoordsSeq(ring, props, true));
+          break;
+        case "MultiPolygon":
+          coordinates.forEach((poly) =>
+            poly.forEach((ring) => processCoordsSeq(ring, props, true)),
+          );
+          break;
+        case "GeometryCollection":
+          geometries.forEach((g) => handleGeometry(g, props));
+          break;
+        default:
+          console.warn(`Unsupported GeoJSON geometry type: ${type}`);
+      }
+    };
+
+    geojson.features.forEach((feature) => {
+      const baseProps = feature.properties || {};
+      handleGeometry(feature.geometry, baseProps);
+    });
+
+    return {nodes, links};
+  }
+
+  /**
    * merge two object deeply
    *
    * @param  {object}
@@ -292,6 +386,10 @@ class NetJSONGraphUtil {
     return objs[len - 1];
   }
 
+  /**
+   * Create clusters of nodes based on spatial proximity and optional attribute grouping.
+   * Mathematical reasoning and operations are explained inline.
+   */
   makeCluster(self) {
     const {nodes, links} = self.data;
     const nonClusterNodes = [];
@@ -300,94 +398,208 @@ class NetJSONGraphUtil {
     const nodeMap = new Map();
     let clusterId = 0;
 
+    // 1. Project all nodes to screen (pixel) coordinates for spatial clustering
     nodes.forEach((node) => {
-      node.y = self.leaflet.latLngToContainerPoint([
-        node.location.lat,
-        node.location.lng,
-      ]).y;
-      node.x = self.leaflet.latLngToContainerPoint([
-        node.location.lat,
-        node.location.lng,
-      ]).x;
+      // Normalize location reference (GeoJSON may store it under properties.location)
+      const loc = (node.properties && node.properties.location) || node.location;
+      if (!loc || loc.lat === undefined || loc.lng === undefined) {
+        return; // Skip nodes without valid coordinates
+      }
+
+      // Ensure `node.location` exists for downstream code
+      node.location = loc;
+
+      // Preserve original geographic coordinates and restore them on every pass
+      if (!node._origLocation) {
+        node._origLocation = { lat: loc.lat, lng: loc.lng };
+      } else {
+        loc.lat = node._origLocation.lat;
+        loc.lng = node._origLocation.lng;
+      }
+
+      // Convert geographic coordinates (lat, lng) to pixel coordinates (x, y)
+      const pt = self.leaflet.latLngToContainerPoint([loc.lat, loc.lng]);
+      node.x = pt.x;
+      node.y = pt.y;
+
       node.visited = false;
       node.cluster = null;
     });
 
+    // 2. Build a spatial index for fast neighbor search
     const index = new KDBush(nodes.length);
-    /* eslint-disable no-restricted-syntax */
-    for (const {x, y} of nodes) index.add(x, y);
-    /* eslint-enable no-restricted-syntax */
+    nodes.forEach(({x, y}) => index.add(x, y));
     index.finish();
 
+    // Helper to get cluster symbol size (for overlap calculations)
+    const symbolSizeSetting =
+      self.config &&
+      self.config.mapOptions &&
+      self.config.mapOptions.clusterConfig &&
+      self.config.mapOptions.clusterConfig.symbolSize;
+    const getClusterSymbolSize = (count) => {
+      if (typeof symbolSizeSetting === "function") {
+        try {
+          return symbolSizeSetting(count);
+        } catch (e) {
+          return 30; // fallback
+        }
+      }
+      if (Array.isArray(symbolSizeSetting)) {
+        return symbolSizeSetting[0] || 30;
+      }
+      return typeof symbolSizeSetting === "number" ? symbolSizeSetting : 30;
+    };
+
+    const locationGroups = new Map();
     nodes.forEach((node) => {
-      let cluster;
-      let centroid = [0, 0];
-      const addNode = (n) => {
-        n.visited = true;
-        n.cluster = clusterId;
-        nodeMap.set(n.id, n.cluster);
-        centroid[0] += n.location.lng;
-        centroid[1] += n.location.lat;
-      };
-      if (!node.visited) {
-        const neighbors = index
-          .within(node.x, node.y, self.config.clusterRadius)
-          .map((id) => nodes[id]);
-        const results = neighbors.filter((n) => {
-          if (self.config.clusteringAttribute) {
-            if (
-              n.properties[self.config.clusteringAttribute] ===
-                node.properties[self.config.clusteringAttribute] &&
-              n.cluster === null
-            ) {
-              addNode(n);
-              return true;
-            }
-            return false;
-          }
+      if (node.visited) return;
 
-          if (n.cluster === null) {
-            addNode(n);
-            return true;
+      // 3. Find all neighbors within clusterRadius in pixel space
+      // For a node at (x, y), find all nodes (xi, yi) such that:
+      // sqrt((xi - x)^2 + (yi - y)^2) <= clusterRadius
+      // This is the Euclidean distance formula in 2D.
+      const neighbors = index
+        .within(node.x, node.y, self.config.clusterRadius)
+        .map((id) => nodes[id]);
+
+      if (neighbors.length > 1) {
+        // Group by rounded pixel location (to avoid floating point issues)
+        const key = `${Math.round(node.x)},${Math.round(node.y)}`;
+        if (!locationGroups.has(key)) {
+          locationGroups.set(key, new Map());
+        }
+        const groupByAttribute = locationGroups.get(key);
+
+        // 4. Further group by attribute if configured (e.g., status)
+        neighbors.forEach((n) => {
+          if (n.visited) return;
+          const attr = self.config.clusteringAttribute
+            ? n.properties[self.config.clusteringAttribute]
+            : "default";
+          if (!groupByAttribute.has(attr)) {
+            groupByAttribute.set(attr, []);
           }
-          return false;
+          groupByAttribute.get(attr).push(n);
+          n.visited = true;
         });
+      } else {
+        // Node is isolated, not clustered
+        node.visited = true;
+        nodeMap.set(node.id, null);
+        nonClusterNodes.push(node);
+      }
+    });
 
-        if (results.length > 1) {
-          centroid = [
-            centroid[0] / results.length,
-            centroid[1] / results.length,
-          ];
-          cluster = {
+    // 5. For each pixel location, process attribute groups
+    locationGroups.forEach((attributeGroups) => {
+      const groupsArray = Array.from(attributeGroups.entries());
+      const groupsCount = groupsArray.length;
+
+      // Find the largest symbol size among all groups (for overlap math)
+      let maxSymbolSize = 0;
+      groupsArray.forEach(([attr, gNodes]) => {
+        const sz = getClusterSymbolSize(gNodes.length);
+        if (sz > maxSymbolSize) {
+          maxSymbolSize = sz;
+        }
+      });
+
+      // Base separation (minimum distance between clusters)
+      const baseSeparation =
+        typeof self.config.clusterSeparation === "number"
+          ? self.config.clusterSeparation
+          : Math.max(10, Math.floor(self.config.clusterRadius / 2));
+
+      // --- Separation Radius Calculation ---
+      // If there are multiple attribute groups, arrange them in a circle
+      // The minimal radius R is chosen so that the chord length between adjacent clusters
+      // (2R * sin(pi/n)) is at least maxSymbolSize, where n = number of groups
+      // Formula: R >= maxSymbolSize / (2 * sin(pi/n))
+      let requiredRadius = 0;
+      if (groupsCount > 1) {
+        const angle = Math.PI / groupsCount;
+        const sin = Math.sin(angle);
+        if (sin > 0) {
+          requiredRadius = maxSymbolSize / (2 * sin);
+        }
+      }
+      // Final separation in pixels (ensures no overlap)
+      // separationPx = max(baseSeparation, requiredRadius + 4)
+      const separationPx = Math.max(baseSeparation, requiredRadius + 4);
+
+      groupsArray.forEach(([attr, groupNodes], idx) => {
+        if (groupNodes.length > 1) {
+          // --- Centroid Calculation ---
+          // Compute arithmetic mean of lat/lng for all nodes in the group
+          // centroidLat = (lat1 + lat2 + ... + latN) / N
+          // centroidLng = (lng1 + lng2 + ... + lngN) / N
+          let centroidLng = 0;
+          let centroidLat = 0;
+          groupNodes.forEach((n) => {
+            n.cluster = clusterId;
+            nodeMap.set(n.id, n.cluster);
+            centroidLng += n.location.lng;
+            centroidLat += n.location.lat;
+          });
+          centroidLng /= groupNodes.length;
+          centroidLat /= groupNodes.length;
+
+          // --- Circular Arrangement for Multiple Attribute Groups ---
+          if (groupsCount > 1) {
+            // Each group is offset from the centroid by separationPx along a unique angle
+            // angle_k = 2 * pi * idx / n
+            // offsetX = separationPx * cos(angle_k), offsetY = separationPx * sin(angle_k)
+            const angle = (2 * Math.PI * idx) / groupsCount;
+            const basePoint = self.leaflet.latLngToContainerPoint([
+              centroidLat,
+              centroidLng,
+            ]);
+            // Offset in pixel space
+            const offsetPoint = [
+              basePoint.x + separationPx * Math.cos(angle),
+              basePoint.y + separationPx * Math.sin(angle),
+            ];
+            // Convert back to lat/lng for display
+            const offsetLatLng =
+              self.leaflet.containerPointToLatLng(offsetPoint);
+            centroidLng = offsetLatLng.lng;
+            centroidLat = offsetLatLng.lat;
+          }
+
+          const cluster = {
             id: clusterId,
             cluster: true,
-            name: results.length,
-            value: centroid,
-            childNodes: results,
+            name: groupNodes.length,
+            value: [centroidLng, centroidLat],
+            childNodes: groupNodes,
             ...self.config.mapOptions.clusterConfig,
           };
 
           if (self.config.clusteringAttribute) {
-            const {color} = self.config.nodeCategories.find(
-              (cat) =>
-                cat.name === node.properties[self.config.clusteringAttribute],
-            ).nodeStyle;
-
-            cluster.itemStyle = {
-              ...cluster.itemStyle,
-              color,
-            };
+            const category = self.config.nodeCategories.find(
+              (cat) => cat.name === attr,
+            );
+            if (category) {
+              cluster.itemStyle = {
+                ...cluster.itemStyle,
+                color: category.nodeStyle.color,
+              };
+            }
           }
 
           clusters.push(cluster);
-        } else if (results.length === 1) {
-          nodeMap.set(results[0].id, null);
-          nonClusterNodes.push(results[0]);
+          clusterId += 1;
+        } else if (groupNodes.length === 1) {
+          // Always treat single nodes as non-clustered
+          const node = groupNodes[0];
+          nodeMap.set(node.id, null);
+          nonClusterNodes.push(node);
         }
-        clusterId += 1;
-      }
+      });
     });
 
+    // Only keep links between non-clustered nodes
     links.forEach((link) => {
       if (
         nodeMap.get(link.source) === null &&
@@ -396,6 +608,92 @@ class NetJSONGraphUtil {
         nonClusterLinks.push(link);
       }
     });
+
+    // --- Screen-Space Repulsion: Final Overlap Prevention ---
+    // After initial placement, apply a simple force-directed repulsion to clusters and single nodes
+    const repulsionElements = [
+      ...clusters.map((c) => ({
+        ref: c,
+        isCluster: true,
+        count: c.childNodes.length,
+        get value() {
+          return c.value;
+        },
+        set value([lng, lat]) {
+          c.value = [lng, lat];
+        },
+      })),
+      ...nonClusterNodes.map((n) => ({
+        ref: n,
+        isCluster: false,
+        count: 1,
+        get value() {
+          return [n.location.lng, n.location.lat];
+        },
+        set value([lng, lat]) {
+          n.location.lng = lng;
+          n.location.lat = lat;
+        },
+      })),
+    ];
+
+    if (repulsionElements.length > 1) {
+      // Prepare elements with positions and radii
+      const elements = repulsionElements.map((el) => {
+        // Convert lat/lng to pixel coordinates
+        const [lng, lat] = el.value;
+        const pt = self.leaflet.latLngToContainerPoint([lat, lng]);
+        return {
+          ref: el.ref,
+          isCluster: el.isCluster,
+          x: pt.x,
+          y: pt.y,
+          r: getClusterSymbolSize(el.count) / 2, // radius in pixels
+          setValue: ([newLng, newLat]) => {
+            el.value = [newLng, newLat];
+          },
+        };
+      });
+
+      const padding = 4; // extra space to avoid visual overlap
+      const maxIterations = 5;
+      for (let iter = 0; iter < maxIterations; iter += 1) {
+        let adjusted = false;
+        for (let i = 0; i < elements.length; i += 1) {
+          for (let j = i + 1; j < elements.length; j += 1) {
+            // Compute distance between centers
+            const dx = elements[j].x - elements[i].x;
+            const dy = elements[j].y - elements[i].y;
+            const dist = Math.hypot(dx, dy);
+            // Minimum allowed distance = sum of radii + padding
+            const minDist = elements[i].r + elements[j].r + padding;
+            if (dist > 0 && dist < minDist) {
+              // Push apart
+              const shift = (minDist - dist) / 2;
+              const nx = dx / dist;
+              const ny = dy / dist;
+              elements[i].x -= nx * shift;
+              elements[i].y -= ny * shift;
+              elements[j].x += nx * shift;
+              elements[j].y += ny * shift;
+              adjusted = true;
+            }
+          }
+        }
+        if (!adjusted) break;
+      }
+
+      // Commit adjusted positions back to objects (convert to lat/lng)
+      elements.forEach((el) => {
+        const latlng = self.leaflet.containerPointToLatLng([el.x, el.y]);
+        if (el.isCluster) {
+          el.ref.value = [latlng.lng, latlng.lat];
+        } else {
+          el.ref.location.lng = latlng.lng;
+          el.ref.location.lat = latlng.lat;
+        }
+      });
+    }
 
     return {clusters, nonClusterNodes, nonClusterLinks};
   }
@@ -650,47 +948,96 @@ class NetJSONGraphUtil {
     let nodeStyleConfig;
     let nodeSizeConfig = {};
     let nodeEmphasisConfig = {};
-    if (node.category && config.nodeCategories.length) {
+    let categoryFound = false;
+
+    if (
+      node.category &&
+      config.nodeCategories &&
+      config.nodeCategories.length
+    ) {
       const category = config.nodeCategories.find(
         (cat) => cat.name === node.category,
       );
 
-      nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
+      if (category) {
+        categoryFound = true;
+        nodeStyleConfig = this.generateStyle(category.nodeStyle || {}, node);
+        nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
 
-      nodeSizeConfig = this.generateStyle(category.nodeSize || {}, node);
+        let emphasisNodeStyle = {};
+        let emphasisNodeSize = {};
 
-      nodeEmphasisConfig = {
-        ...nodeEmphasisConfig,
-        nodeStyle: category.emphasis
-          ? this.generateStyle(category.emphasis.nodeStyle || {}, node)
-          : {},
-      };
-
-      nodeEmphasisConfig = {
-        ...nodeEmphasisConfig,
-        nodeSize: category.empahsis
-          ? this.generateStyle(category.emphasis.nodeSize || {}, node)
-          : {},
-      };
-    } else if (type === "map") {
-      nodeStyleConfig = this.generateStyle(
-        config.mapOptions.nodeConfig.nodeStyle,
-        node,
-      );
-      nodeSizeConfig = this.generateStyle(
-        config.mapOptions.nodeConfig.nodeSize,
-        node,
-      );
-    } else {
-      nodeStyleConfig = this.generateStyle(
-        config.graphConfig.series.nodeStyle,
-        node,
-      );
-      nodeSizeConfig = this.generateStyle(
-        config.graphConfig.series.nodeSize,
-        node,
-      );
+        if (category.emphasis) {
+          emphasisNodeStyle = this.generateStyle(
+            category.emphasis.nodeStyle || {},
+            node,
+          );
+          // Corrected typo: empahsis -> emphasis
+          emphasisNodeSize = this.generateStyle(
+            category.emphasis.nodeSize || {},
+            node,
+          );
+          nodeEmphasisConfig = {
+            nodeStyle: emphasisNodeStyle,
+            nodeSize: emphasisNodeSize,
+          };
+        }
+      }
     }
+
+    if (!categoryFound) {
+      if (type === "map") {
+        const nodeConf = config.mapOptions && config.mapOptions.nodeConfig;
+        nodeStyleConfig = this.generateStyle(
+          (nodeConf && nodeConf.nodeStyle) || {},
+          node,
+        );
+        nodeSizeConfig = this.generateStyle(
+          (nodeConf && nodeConf.nodeSize) || {},
+          node,
+        );
+
+        const emphasisConf = nodeConf && nodeConf.emphasis;
+        if (emphasisConf) {
+          nodeEmphasisConfig = {
+            nodeStyle: this.generateStyle(
+              (emphasisConf && emphasisConf.nodeStyle) || {},
+              node,
+            ),
+            nodeSize: this.generateStyle(
+              (emphasisConf && emphasisConf.nodeSize) || {},
+              node,
+            ),
+          };
+        }
+      } else {
+        const seriesConf = config.graphConfig && config.graphConfig.series;
+        nodeStyleConfig = this.generateStyle(
+          (seriesConf && seriesConf.nodeStyle) || {},
+          node,
+        );
+        nodeSizeConfig = this.generateStyle(
+          (seriesConf && seriesConf.nodeSize) || {},
+          node,
+        );
+
+        const emphasisConf = seriesConf && seriesConf.emphasis;
+        if (emphasisConf) {
+          nodeEmphasisConfig = {
+            nodeStyle: this.generateStyle(
+              (emphasisConf && emphasisConf.itemStyle) || {},
+              node,
+            ),
+
+            nodeSize: this.generateStyle(
+              (emphasisConf && emphasisConf.symbolSize) || nodeSizeConfig || {},
+              node,
+            ),
+          };
+        }
+      }
+    }
+
     return {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig};
   }
 

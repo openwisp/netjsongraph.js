@@ -378,23 +378,13 @@ For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletj
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
 
-### API Introduction
+## Automatic Cluster Overlap Prevention
 
-#### Core
+When multiple clusters of different categories share identical coordinates, NetJSONGraph now **automatically** offsets them in a circular pattern (pixel-space repulsion). No extra utilities or configuration flags are required—simply enable clustering with a `clusteringAttribute`, and the library handles overlap for you.
 
-- `setConfig`
+See the [Cluster Overlap Example](./examples/netjson-clustering.html) to view the result.
 
-  Method to set the configuration of the graph. You can use this function to add, update or modify the configuration of the graph.
-
-- `setUtils`
-
-  Method to set the utils of the graph. You can use this function to add, update the utils.
-
-- `render`
-
-  Method to render the graph.
-
-#### Realtime Update
+## Realtime Update
 
 We use [socket.io](https://socket.io/) to monitor data changes which supports WebSockets and Polling. You can call `JSONDataUpdate` when the data change event occurs and pass the data to update the view.
 
@@ -801,7 +791,7 @@ Using array files to append data step by step at start.
 Similiar to the first method, but easier.  
 [ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
 
-The demo shows the clustering of nodes.  
+The demo shows how to handle overlapping clusters with different statuses.
 [ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
 
 ### Upgrading from 0.1.x versions to 0.2.x
