@@ -915,16 +915,6 @@ describe("Test clustering", () => {
     // the NetJSON-only path.
     expect(map.echarts.appendData).toHaveBeenCalled();
   });
-
-  afterEach(() => {
-    if (container && container.parentNode) {
-      container.parentNode.removeChild(container);
-    }
-    const mapDiv = document.getElementById("map");
-    if (mapDiv && mapDiv.parentNode) {
-      mapDiv.parentNode.removeChild(mapDiv);
-    }
-  });
 });
 
 describe("Test disableClusteringAtLevel: 0", () => {
