@@ -1,0 +1,67 @@
+{
+  "type": "NetworkGraph",
+  "label": "Ninux Roma",
+  "protocol": "OLSR",
+  "version": "0.6.6.2",
+  "metric": "ETX",
+  "date": "2019-04-03T05:06:54.000Z",
+  "nodes": [
+    {
+      "id": "i3ehd7",
+      "location": {"lat": -420, "lng": 300},
+      "name": "Family room"
+    },
+    {
+      "id": "i74rhs",
+      "location": {"lat": -352, "lng": 788},
+      "name": "Lounge"
+    },
+    {
+      "id": "5vjb7b",
+      "location": {"lat": -395, "lng": 116},
+      "name": "Bedroom 1"
+    },
+    {
+      "id": "liwv7p",
+      "location": {"lat": -595, "lng": 795},
+      "name": "Bedroom 4"
+    },
+    {
+      "id": "m7qhnj",
+      "location": {"lat": -410, "lng": 665},
+      "name": "Study Area"
+    },
+    {
+      "id": "a0mg9w",
+      "location": {"lat": -580, "lng": 482},
+      "name": "Dining room"
+    },
+    {
+      "id": "dsm2x7",
+      "location": {"lat": -205, "lng": 352},
+      "name": "Bedroom 2"
+    },
+    {
+      "id": "nwlpcd",
+      "location": {"lat": -210, "lng": 510},
+      "name": "Bedroom 3"
+    },
+    {
+      "id": "9p0bos",
+      "location": {"lat": -162, "lng": 700},
+      "name": "Garage"
+    }
+  ],
+  "links": [
+    {"source": "5vjb7b", "target": "i3ehd7", "cost": 1},
+    {"source": "5vjb7b", "target": "dsm2x7", "cost": 1},
+    {"source": "i3ehd7", "target": "dsm2x7", "cost": 1},
+    {"source": "i3ehd7", "target": "a0mg9w", "cost": 1},
+    {"source": "dsm2x7", "target": "nwlpcd", "cost": 0.9},
+    {"source": "m7qhnj", "target": "9p0bos", "cost": 1},
+    {"source": "m7qhnj", "target": "liwv7p", "cost": 1.2},
+    {"source": "m7qhnj", "target": "i74rhs", "cost": 1.1},
+    {"source": "nwlpcd", "target": "m7qhnj", "cost": 1},
+    {"source": "a0mg9w", "target": "m7qhnj", "cost": 0.7}
+  ]
+}

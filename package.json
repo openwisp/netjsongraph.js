@@ -1,0 +1,88 @@
+{
+  "name": "netjsongraph.js",
+  "version": "0.2.0",
+  "description": "NetJson format data visualization",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --silent",
+    "dev": "webpack serve --open --mode development",
+    "start": "yarn dev",
+    "build": "webpack --progress --mode production",
+    "coverage": "jest --silent --coverage",
+    "coveralls": "jest --silent -f ./coverage/lcov.info && cat ./coverage/lcov.info | coveralls || echo 'no coverage file found'",
+    "precommit": "lint-staged",
+    "lint": "eslint '**/*.js'",
+    "lint:fix": "eslint '**/*.js' --fix",
+    "format": "prettier --write \"**/*.+(js|json|css|md)\"",
+    "format:check": "prettier -c \"**/*.+(js|json|css|md)\""
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(kdbush|echarts|zrender)/)",
+      "\\.pnp\\.[^\\/]+$"
+    ],
+    "globalSetup": "./jest.global-setup.js",
+    "moduleNameMapper": {
+      "\\.(css)$": "identity-obj-proxy"
+    },
+    "coveragePathIgnorePatterns": [
+      "test/"
+    ]
+  },
+  "repository": "https://github.com/netjson/netjsongraph.js.git",
+  "author": "Federico Capoano <f.capoano@openwisp.io> (https://openwisp.io)",
+  "contributors": [
+    "GeekPlux <geekplux@gmail.com> (http://geekplux.com/)",
+    "Vaishnav Nair <vaishnavnair365@gmail.com>"
+  ],
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "netjson",
+    "network",
+    "data",
+    "visualization"
+  ],
+  "devDependencies": {
+    "@babel/preset-env": "^7.23.9",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@types/jest": "^29.5.12",
+    "acorn": "^8.11.3",
+    "copy-webpack-plugin": "^13.0.0",
+    "coveralls": "^3.1.1",
+    "css-loader": "^7.1.2",
+    "dotenv-webpack": "^8.0.1",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.33.2",
+    "html-webpack-plugin": "^5.6.0",
+    "husky": "^9.0.11",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "lint-staged": "^16.1.0",
+    "prettier": "^3.2.5",
+    "selenium-webdriver": "^4.29.0",
+    "style-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.10",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.0.2"
+  },
+  "dependencies": {
+    "echarts": "^5.6.0",
+    "echarts-gl": "^2.0.9",
+    "kdbush": "^4.0.2",
+    "leaflet": "^1.8.0",
+    "zrender": "^5.6.1"
+  }
+}

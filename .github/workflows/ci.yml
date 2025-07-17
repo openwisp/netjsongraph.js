@@ -1,0 +1,121 @@
+name: netjsongraph.js CI BUILD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  qa-checks:
+    name: QA-Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache yarn
+        uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+
+      - name: Installing dependencies
+        run: |
+          yarn install
+          python --version
+          pip install openwisp-utils[qa]
+
+      - name: QA checks
+        run: ./run-qa-checks
+
+  build:
+    name: Tests and Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache yarn
+        uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+
+      - name: Installing dependencies
+        run: |
+          yarn install
+
+      - name: Running Server
+        run: yarn start &
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:8080
+
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Set up ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Check chrome and chromedriver version
+        run: |
+          chrome --version
+          which chrome
+          chromedriver --version
+          which chromedriver
+
+      - name: Unit tests
+        run: yarn coverage --testPathIgnorePatterns=test/netjsongraph.browser.test.js
+  
+      - name: Browser tests
+        # Test timeout set to 30 seconds in CI since it runs slower
+        run: yarn test --runInBand --testTimeout=30000 test/netjsongraph.browser.test.js
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name=='push' }}
+    env:
+      MAPBOX_URL_TEMPLATE: ${{ secrets.MAPBOX_URL_TEMPLATE }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Installing dependencies
+        run: |
+          yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist

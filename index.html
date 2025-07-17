@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>netjsongraph.js: Examples</title>
+    <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #f4f4f4;
+        --bg-secondary: #ffffff;
+        --text-primary: #1a1a1a;
+        --text-secondary: #333;
+        --card-hover: #f0f0f0;
+        --accent-color: #3498db;
+        --transition-speed: 0.3s;
+      }
+
+      :root.dark-mode {
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --card-hover: #2c2c2c;
+        --accent-color: #4ecdc4;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: background-color var(--transition-speed) ease,
+                    color var(--transition-speed) ease;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: var(--bg-secondary);
+        border: none;
+        padding: 10px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        z-index: 1000;
+      }
+
+      .theme-toggle:hover {
+        background-color: var(--card-hover);
+      }
+
+      header {
+        text-align: center;
+        padding: 40px 20px;
+        background-color: var(--bg-secondary);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      main {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+
+      .cards {
+        background-color: var(--bg-secondary);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all var(--transition-speed) ease;
+        overflow: hidden;
+      }
+
+      .cards a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 15px 20px;
+        width: 250px;
+        text-align: center;
+        transition: all var(--transition-speed) ease;
+      }
+
+      .cards:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .cards:hover a {
+        color: var(--accent-color);
+      }
+
+      @media (max-width: 768px) {
+        main {
+          flex-direction: column;
+          align-items: center;
+        }
+        .cards a {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="theme-toggle" aria-label="Toggle Dark Mode">
+      🌓 Toggle Theme
+    </button>
+
+    <header>
+      <h1>NetJSONGraph.js Example Demos</h1>
+    </header>
+
+    <main>
+      <div class="cards">
+        <a href="./examples/netjsongraph.html" target="_blank">Basic usage</a>
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap.html" target="_blank">Geographic map</a>
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-multipleInterfaces.html" target="_blank"
+          >Multiple interfaces</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-searchElements.html" target="_blank"
+          >Search elements</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-dateParse.html" target="_blank"
+          >Date parse</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-switchRenderMode.html" target="_blank"
+          >Switch render mode</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-switchGraphMode.html" target="_blank"
+          >Switch graph mode</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsongraph-nodeExpand.html" target="_blank"
+          >Nodes expand or fold</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-indoormap.html" target="_blank"
+          >Indoor map</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-plugins.html" target="_blank"
+          >Leaflet plugins</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsongraph-graphGL.html" target="_blank"
+          >GraphGL render for big data</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsongraph-elementsLegend.html" target="_blank"
+          >Custom attributes</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsongraph-multipleLinks.html" target="_blank"
+          >Multiple links render</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-nodeTiles.html" target="_blank"
+          >JSONDataUpdate using override option</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-appendData.html" target="_blank"
+          >JSONDataUpdate using append option</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-multipleTiles.html" target="_blank"
+          >Multiple tiles render</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-animation.html" target="_blank"
+          >Geographic map animated links</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-appendData2.html" target="_blank"
+          >Append data using arrays</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/njg-geojson.html" target="_blank"
+          >Geographic map with GeoJSON data</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-clustering.html" target="_blank"
+          >Clustering</a
+        >
+      </div>
+    </main>
+
+    <script>
+      const themeToggle = document.querySelector('.theme-toggle');
+      const htmlElement = document.documentElement;
+
+      // Check for saved theme preference or system preference
+      const savedTheme = localStorage.getItem('theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+        htmlElement.classList.add('dark-mode');
+      }
+
+      themeToggle.addEventListener('click', () => {
+        htmlElement.classList.toggle('dark-mode');
+        
+        // Save theme preference
+        const currentTheme = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
+        localStorage.setItem('theme', currentTheme);
+      });
+    </script>
+  </body>
+</html>
