@@ -14,6 +14,7 @@ import {
 import {SVGRenderer} from "echarts/renderers";
 import L from "leaflet/dist/leaflet";
 import "echarts-gl";
+import {addPolygonOverlays} from "./netjsongraph.geojson";
 
 echarts.use([
   GraphChart,
@@ -365,62 +366,13 @@ class NetJSONGraphRender {
       self.config.geoOptions,
     );
 
-    // Render Polygon/MultiPolygon geometries on a dedicated Leaflet pane when
-    // original GeoJSON data exists (converted earlier to NetJSON).
-    if (self.originalGeoJSON && Array.isArray(self.originalGeoJSON.features)) {
-      const polygonFeatures = self.originalGeoJSON.features.filter(
-        (f) =>
-          f &&
-          f.geometry &&
-          (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"),
-      );
-
-      if (polygonFeatures.length) {
-        let polygonPane = self.leaflet.getPane("njg-polygons");
-        if (!polygonPane) {
-          polygonPane = self.leaflet.createPane("njg-polygons");
-          polygonPane.style.zIndex = 410; // above overlayPane (400)
-        }
-
-        const defaultStyle = {
-          fillColor: "#1566a9",
-          color: "#1566a9",
-          weight: 0,
-          fillOpacity: 0.6,
-        };
-
-        const polygonLayer = L.geoJSON(
-          {type: "FeatureCollection", features: polygonFeatures},
-          {
-            pane: "njg-polygons",
-            style: (feature) => {
-              const echartsStyle =
-                (feature.properties && feature.properties.echartsStyle) || {};
-              const leafletStyle = {
-                ...defaultStyle,
-                ...(self.config.geoOptions && self.config.geoOptions.style),
-              };
-              if (echartsStyle.areaColor)
-                leafletStyle.fillColor = echartsStyle.areaColor;
-              if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
-              if (typeof echartsStyle.opacity !== "undefined")
-                leafletStyle.fillOpacity = echartsStyle.opacity;
-              if (typeof echartsStyle.borderWidth !== "undefined")
-                leafletStyle.weight = echartsStyle.borderWidth;
-              return leafletStyle;
-            },
-            onEachFeature: (feature, layer) => {
-              layer.on("click", () => {
-                self.config.onClickElement.call(self, "Feature", {
-                  ...feature.properties,
-                });
-              });
-            },
-          },
-        ).addTo(self.leaflet);
-
-        self.leaflet.polygonGeoJSON = polygonLayer;
-      }
+    // Render Polygon and MultiPolygon features from the original GeoJSON data.
+    // While nodes (Points) and links (LineStrings) are handled by ECharts,
+    // polygon features are rendered directly onto the Leaflet map using
+    // a separate L.geoJSON layer. This allows for displaying geographical
+    // areas like parks or districts alongside the network topology.
+    if (self.originalGeoJSON) {
+      addPolygonOverlays(self);
     }
 
     if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
