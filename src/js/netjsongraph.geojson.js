@@ -148,7 +148,8 @@ export function addPolygonOverlays(self) {
           ...defaultStyle,
           ...(self.config.geoOptions && self.config.geoOptions.style),
         };
-        if (echartsStyle.areaColor) leafletStyle.fillColor = echartsStyle.areaColor;
+        if (echartsStyle.areaColor)
+          leafletStyle.fillColor = echartsStyle.areaColor;
         if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
         if (typeof echartsStyle.opacity !== "undefined")
           leafletStyle.fillOpacity = echartsStyle.opacity;
