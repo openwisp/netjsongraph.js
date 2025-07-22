@@ -75,12 +75,8 @@ export function geojsonToNetjson(geojson) {
         coordinates.forEach((line) => processCoordsSeq(line, props, false));
         break;
       case "Polygon":
-        coordinates.forEach((ring) => processCoordsSeq(ring, props, true));
         break;
       case "MultiPolygon":
-        coordinates.forEach((poly) =>
-          poly.forEach((ring) => processCoordsSeq(ring, props, true)),
-        );
         break;
       case "GeometryCollection":
         geometries.forEach((g) => handleGeometry(g, props));
