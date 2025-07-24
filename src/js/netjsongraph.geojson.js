@@ -63,16 +63,18 @@ export function geojsonToNetjson(geojson) {
     const {type, coordinates, geometries} = geometry;
     switch (type) {
       case "Point":
-        createNode(coordinates, props);
+        // Mark nodes derived from Point features so we can selectively display them later
+        createNode(coordinates, {...props, _featureType: "Point"});
         break;
       case "MultiPoint":
-        coordinates.forEach((pt) => createNode(pt, props));
+        coordinates.forEach((pt) => createNode(pt, {...props, _featureType: "Point"}));
         break;
       case "LineString":
-        processCoordsSeq(coordinates, props, false);
+        // Tag nodes coming from line geometries
+        processCoordsSeq(coordinates, {...props, _featureType: "LineString"}, false);
         break;
       case "MultiLineString":
-        coordinates.forEach((line) => processCoordsSeq(line, props, false));
+        coordinates.forEach((line) => processCoordsSeq(line, {...props, _featureType: "LineString"}, false));
         break;
       case "Polygon":
         break;

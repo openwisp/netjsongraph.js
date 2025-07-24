@@ -204,6 +204,17 @@ class NetJSONGraphRender {
     let nodesData = [];
 
     nodes.forEach((node) => {
+      // Maintain flatNodes lookup for all nodes (regardless of whether they are rendered)
+      flatNodes[node.id] = flatNodes[node.id] || JSON.parse(JSON.stringify(node));
+
+      // Non-Point geometries should not become scatter markers, but we still need them for lines
+      if (
+        node.properties &&
+        node.properties._featureType &&
+        node.properties._featureType !== "Point"
+      ) {
+        return; // skip marker push only
+      }
       if (!node.properties) {
         console.error(`Node ${node.id} position is undefined!`);
       } else {
@@ -226,18 +237,28 @@ class NetJSONGraphRender {
             },
             node,
           });
-          if (!JSONData.flatNodes) {
-            flatNodes[node.id] = JSON.parse(JSON.stringify(node));
-          }
         }
       }
     });
+    // Persist the updated lookup for downstream consumers
+    JSONData.flatNodes = flatNodes;
+
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
         console.warn(`Node ${link.source} does not exist!`);
       } else if (!flatNodes[link.target]) {
         console.warn(`Node ${link.target} does not exist!`);
       } else {
+        // Skip links where either endpoint comes from a non-Point geometry
+        if (
+          (flatNodes[link.source].properties &&
+            flatNodes[link.source].properties._featureType !== "Point") ||
+          (flatNodes[link.target].properties &&
+            flatNodes[link.target].properties._featureType !== "Point")
+        ) {
+          return; // ignore this link
+        }
+
         const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
           link,
           configs,

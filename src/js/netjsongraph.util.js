@@ -512,6 +512,12 @@ class NetJSONGraphUtil {
             dateString: node.properties[key],
           });
           nodeInfo[key] = time;
+        } else if (
+          typeof node.properties[key] === "object" ||
+          key.startsWith("_")
+        ) {
+          // Skip nested objects and internal metadata
+          return;
         } else {
           nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
         }
@@ -554,6 +560,9 @@ class NetJSONGraphUtil {
 
     if (node.properties) {
       Object.keys(node.properties).forEach((key) => {
+        if (typeof node.properties[key] === "object" || key.startsWith("_")) {
+          return;
+        }
         if (key === "location") {
           container.appendChild(
             this.createTooltipItem(
