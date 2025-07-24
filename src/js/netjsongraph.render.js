@@ -348,8 +348,8 @@ class NetJSONGraphRender {
     if (self.utils.isGeoJSON(JSONData)) {
       self.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
       JSONData = self.utils.geojsonToNetjson(JSONData);
-      // From this point forward we treat the data as NetJSON
-      self.type = "netjson";
+      // From this point forward we treat the data as NetJSON internally,
+      // but keep the public-facing `type` value unchanged ("geojson").
     }
 
     const initialMapOptions = self.utils.generateMapOption(JSONData, self);
