@@ -28,12 +28,25 @@ export function geojsonToNetjson(geojson) {
     if (coordMap.has(key)) {
       return coordMap.get(key); // reuse existing node id
     }
-    const newId = `gjn_${nodes.length}`;
+
+    // If the data source specifies an identifier (or label) keep it public,
+    // otherwise generate an internal id and flag it so UI layers can hide it.
+    const providedId = baseProps.id || baseProps.node_id || null;
+    const displayLabel =
+      baseProps.label || baseProps.name || providedId || null;
+
+    const newId = providedId ? String(providedId) : `gjn_${nodes.length}`;
+    const generatedIdentity = !providedId;
+
     const node = {
       id: newId,
-      label: newId,
+      ...(displayLabel ? {label: String(displayLabel)} : {}),
       location: {lng: coord[0], lat: coord[1]},
-      properties: {...baseProps, location: {lng: coord[0], lat: coord[1]}},
+      properties: {
+        ...baseProps,
+        location: {lng: coord[0], lat: coord[1]},
+      },
+      _generatedIdentity: generatedIdentity, // internal marker – not shown to users
     };
     nodes.push(node);
     coordMap.set(key, newId);
@@ -63,16 +76,26 @@ export function geojsonToNetjson(geojson) {
     const {type, coordinates, geometries} = geometry;
     switch (type) {
       case "Point":
-        createNode(coordinates, props);
+        // Mark nodes derived from Point features so we can selectively display them later
+        createNode(coordinates, {...props, _featureType: "Point"});
         break;
       case "MultiPoint":
-        coordinates.forEach((pt) => createNode(pt, props));
+        coordinates.forEach((pt) =>
+          createNode(pt, {...props, _featureType: "Point"}),
+        );
         break;
       case "LineString":
-        processCoordsSeq(coordinates, props, false);
+        // Tag nodes coming from line geometries
+        processCoordsSeq(
+          coordinates,
+          {...props, _featureType: "LineString"},
+          false,
+        );
         break;
       case "MultiLineString":
-        coordinates.forEach((line) => processCoordsSeq(line, props, false));
+        coordinates.forEach((line) =>
+          processCoordsSeq(line, {...props, _featureType: "LineString"}, false),
+        );
         break;
       case "Polygon":
         break;

@@ -87,7 +87,7 @@ class NetJSONGraph {
           throw new Error("Invalid data format!");
         }
 
-        if (this.type === "netjson") {
+        if (this.utils.isNetJSON(JSONData)) {
           if (JSONData.nodes.length > this.config.maxPointsFetched) {
             this.hasMoreData = true;
           }

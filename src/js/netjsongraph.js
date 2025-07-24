@@ -115,13 +115,13 @@ class NetJSONGraph {
    * @returns {Object} - The graph configuration.
    */
   onLoad() {
-    if (this.config.metadata && this.type === "netjson") {
+    if (this.config.metadata && this.utils.isNetJSON(this.data)) {
       this.gui.createMetaInfoContainer(this.graph);
       this.utils.updateMetadata.call(this);
     } else {
       this.gui.nodeLinkInfoContainer = this.gui.createNodeLinkInfoContainer();
     }
-    if (this.config.switchMode && this.type === "netjson") {
+    if (this.config.switchMode && this.utils.isNetJSON(this.data)) {
       this.gui.renderModeSelector.onclick = () => {
         // Switch from map to graph mode, first clear canvasContainer and then render
         if (this.config.render === this.utils.mapRender) {
