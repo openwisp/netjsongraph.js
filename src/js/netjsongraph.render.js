@@ -387,12 +387,28 @@ class NetJSONGraphRender {
     // areas like parks or districts alongside the network topology.
     if (self.originalGeoJSON) {
       addPolygonOverlays(self);
-      // Auto-fit map view to include all nodes
+      // Auto-fit view to encompass ALL geometries (polygons + nodes)
+      let bounds = null;
+
+      // 1. Polygon overlays (if any)
+      if (self.leaflet.polygonGeoJSON) {
+        bounds = self.leaflet.polygonGeoJSON.getBounds();
+      }
+
+      // 2. Nodes (Points)
       if (JSONData.nodes && JSONData.nodes.length) {
         const latlngs = JSONData.nodes
           .map((n) => n.properties.location)
           .map((loc) => [loc.lat, loc.lng]);
-        self.leaflet.fitBounds(L.latLngBounds(latlngs), {padding: [20, 20]});
+        if (bounds) {
+          latlngs.forEach((ll) => bounds.extend(ll));
+        } else {
+          bounds = L.latLngBounds(latlngs);
+        }
+      }
+
+      if (bounds && bounds.isValid()) {
+        self.leaflet.fitBounds(bounds, {padding: [20, 20]});
       }
     }
 
