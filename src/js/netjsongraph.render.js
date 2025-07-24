@@ -391,7 +391,10 @@ class NetJSONGraphRender {
       let bounds = null;
 
       // 1. Polygon overlays (if any)
-      if (self.leaflet.polygonGeoJSON) {
+      if (
+        self.leaflet.polygonGeoJSON &&
+        typeof self.leaflet.polygonGeoJSON.getBounds === "function"
+      ) {
         bounds = self.leaflet.polygonGeoJSON.getBounds();
       }
 
