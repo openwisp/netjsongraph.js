@@ -432,7 +432,7 @@ describe("Test netjsongraph GeoJSON properties", () => {
     const converted = map.utils.geojsonToNetjson(geoJSONData);
     expect(map.JSONParam).toEqual([geoJSONData]);
     expect(map.data).toEqual(converted);
-    expect(map.type).toEqual("geojson");
+    expect(map.type).toEqual("netjson");
   });
 
   test("Update GeoJSON data dynamically", () => {

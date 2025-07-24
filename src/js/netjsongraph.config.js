@@ -286,8 +286,11 @@ const NetJSONGraphDefaultConfig = {
     if (this.type === "netjson") {
       if (type === "node") {
         nodeLinkData = this.utils.nodeInfo(data);
-      } else {
+      } else if (type === "link") {
         nodeLinkData = this.utils.linkInfo(data);
+      } else {
+        // For GeoJSON Feature (e.g., polygons, points) just forward its properties as-is
+        nodeLinkData = data;
       }
 
       if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {

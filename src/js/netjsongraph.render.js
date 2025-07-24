@@ -141,7 +141,7 @@ class NetJSONGraphRender {
         itemStyle: nodeEmphasisConfig.nodeStyle,
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
-      nodeResult.name = typeof node.label === "string" ? node.label : node.id;
+      nodeResult.name = typeof node.label === "string" ? node.label : "";
 
       return nodeResult;
     });
@@ -204,8 +204,12 @@ class NetJSONGraphRender {
     let nodesData = [];
 
     nodes.forEach((node) => {
-      // Maintain flatNodes lookup for all nodes (regardless of whether they are rendered)
-      flatNodes[node.id] = flatNodes[node.id] || JSON.parse(JSON.stringify(node));
+      if (node.properties) {
+        // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
+        if (!JSONData.flatNodes) {
+          flatNodes[node.id] = JSON.parse(JSON.stringify(node));
+        }
+      }
 
       // Non-Point geometries should not become scatter markers, but we still need them for lines
       if (
@@ -227,7 +231,7 @@ class NetJSONGraphRender {
             self.utils.getNodeStyle(node, configs, "map");
 
           nodesData.push({
-            name: typeof node.label === "string" ? node.label : node.id,
+            name: typeof node.label === "string" ? node.label : "",
             value: [location.lng, location.lat],
             symbolSize: nodeSizeConfig,
             itemStyle: nodeStyleConfig,
@@ -240,25 +244,12 @@ class NetJSONGraphRender {
         }
       }
     });
-    // Persist the updated lookup for downstream consumers
-    JSONData.flatNodes = flatNodes;
-
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
         console.warn(`Node ${link.source} does not exist!`);
       } else if (!flatNodes[link.target]) {
         console.warn(`Node ${link.target} does not exist!`);
       } else {
-        // Skip links where either endpoint comes from a non-Point geometry
-        if (
-          (flatNodes[link.source].properties &&
-            flatNodes[link.source].properties._featureType !== "Point") ||
-          (flatNodes[link.target].properties &&
-            flatNodes[link.target].properties._featureType !== "Point")
-        ) {
-          return; // ignore this link
-        }
-
         const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
           link,
           configs,
@@ -355,8 +346,8 @@ class NetJSONGraphRender {
     if (self.utils.isGeoJSON(JSONData)) {
       self.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
       JSONData = self.utils.geojsonToNetjson(JSONData);
-      // From this point forward we treat the data as NetJSON internally,
-      // but keep the public-facing `type` value unchanged ("geojson").
+      // From this point forward we treat the data as NetJSON
+      self.type = "netjson";
     }
 
     const initialMapOptions = self.utils.generateMapOption(JSONData, self);

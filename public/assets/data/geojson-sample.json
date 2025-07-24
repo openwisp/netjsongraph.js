@@ -166,6 +166,18 @@
           ]
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "test_node_1",
+        "country": "Testland",
+        "note": "Node with explicit id"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [19.0, 45.0]
+      }
     }
   ]
 }

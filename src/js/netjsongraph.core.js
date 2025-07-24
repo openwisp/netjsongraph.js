@@ -81,6 +81,7 @@ class NetJSONGraph {
           // clustering and ECharts overlays.
           this.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
           JSONData = this.utils.geojsonToNetjson(JSONData);
+          this.type = "netjson";
         } else {
           throw new Error("Invalid data format!");
         }
