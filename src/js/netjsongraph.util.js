@@ -491,6 +491,7 @@ class NetJSONGraphUtil {
     const nodeInfo = {};
 
     // Show public id/label only when they were provided by the data source.
+    // eslint-disable-next-line no-underscore-dangle
     const identityIsPublic = !node._generatedIdentity;
 
     if (identityIsPublic) {
@@ -524,6 +525,7 @@ class NetJSONGraphUtil {
           key.startsWith("_")
         ) {
           // Skip nested objects and internal metadata
+          // eslint-disable-next-line no-useless-return
           return;
         } else {
           nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
@@ -559,6 +561,7 @@ class NetJSONGraphUtil {
     container.classList.add("njg-tooltip-inner");
 
     // Show public id/label only when they were provided by the data source.
+    // eslint-disable-next-line no-underscore-dangle
     const identityIsPublic = !node._generatedIdentity;
 
     if (identityIsPublic && node.id) {

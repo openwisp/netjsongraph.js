@@ -214,7 +214,9 @@ class NetJSONGraphRender {
       // Non-Point geometries should not become scatter markers, but we still need them for lines
       if (
         node.properties &&
+        // eslint-disable-next-line no-underscore-dangle
         node.properties._featureType &&
+        // eslint-disable-next-line no-underscore-dangle
         node.properties._featureType !== "Point"
       ) {
         return; // skip marker push only
@@ -385,6 +387,13 @@ class NetJSONGraphRender {
     // areas like parks or districts alongside the network topology.
     if (self.originalGeoJSON) {
       addPolygonOverlays(self);
+      // Auto-fit map view to include all nodes
+      if (JSONData.nodes && JSONData.nodes.length) {
+        const latlngs = JSONData.nodes
+          .map((n) => n.properties.location)
+          .map((loc) => [loc.lat, loc.lng]);
+        self.leaflet.fitBounds(L.latLngBounds(latlngs), {padding: [20, 20]});
+      }
     }
 
     if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
