@@ -99,12 +99,12 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
             }
           }
           // update metadata
-          if (self.type === "netjson") {
+          if (self.utils.isNetJSON(self.data)) {
             self.utils.updateMetadata.call(self);
           }
         }
         if (isRaw) {
-          if (self.type === "netjson") {
+          if (self.utils.isNetJSON(self.data)) {
             self.config.prepareData.call(self, JSONData);
           }
 
@@ -157,7 +157,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
         callback();
       } else {
         self.utils.overrideData(e.data, self);
-        if (self.type === "netjson") {
+        if (self.utils.isNetJSON(self.data)) {
           self.utils.updateMetadata.call(self);
         }
       }
@@ -175,7 +175,7 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
   overrideData(JSONData, self) {
     self.data = JSONData;
-    if (self.type === "geojson") {
+    if (!self.utils.isNetJSON(self.data)) {
       self.leaflet.geoJSON.removeFrom(self.leaflet);
     }
     self.utils.render();

@@ -283,7 +283,7 @@ const NetJSONGraphDefaultConfig = {
    */
   onClickElement(type, data) {
     let nodeLinkData;
-    if (this.type === "netjson") {
+    if (this.utils && this.utils.isNetJSON(this.data)) {
       if (type === "node") {
         nodeLinkData = this.utils.nodeInfo(data);
       } else if (type === "link") {
