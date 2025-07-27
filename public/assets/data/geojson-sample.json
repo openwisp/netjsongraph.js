@@ -170,7 +170,8 @@
     {
       "type": "Feature",
       "properties": {
-        "id": "test_node_1",
+        "id": "test1",
+        "label": "Test Node 1",
         "country": "Testland",
         "note": "Node with explicit id"
       },

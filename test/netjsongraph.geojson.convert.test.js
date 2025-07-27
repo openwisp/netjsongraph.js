@@ -16,7 +16,7 @@ describe("geojsonToNetjson conversion", () => {
   });
 
   test("explicit id preserved", () => {
-    const explicit = nodes.find((n) => n.id === "test_node_1");
+    const explicit = nodes.find((n) => n.id === "test1");
     expect(explicit).toBeDefined();
     // eslint-disable-next-line no-underscore-dangle
     expect(explicit._generatedIdentity).toBeFalsy();
