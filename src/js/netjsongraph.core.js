@@ -105,8 +105,8 @@ class NetJSONGraph {
             }
             return false;
           });
-          this.config.prepareData.call(this, JSONData);
         }
+        this.config.prepareData.call(this, JSONData);
         this.data = JSONData;
 
         if (this.config.dealDataByWorker) {
