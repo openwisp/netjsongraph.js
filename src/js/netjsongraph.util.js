@@ -576,10 +576,7 @@ class NetJSONGraphUtil {
         if (typeof node.properties[key] === "object" || key.startsWith("_")) {
           return;
         }
-        if (
-          (key === "id" || key === "label") &&
-          identityIsPublic
-        ) {
+        if ((key === "id" || key === "label") && identityIsPublic) {
           return;
         }
         if (key === "location") {
