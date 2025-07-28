@@ -308,11 +308,23 @@ class NetJSONGraphUtil {
    * Mathematical reasoning and operations are explained inline.
    */
   makeCluster(self) {
-    const {nodes, links} = self.data;
-    const nonClusterNodes = [];
+    // Separate original nodes from those eligible for clustering.
+    // Only Point features (or nodes without an explicit _featureType flag) should be clustered.
+    const {nodes: allNodes, links} = self.data;
+
+    const isClusterable = (n) =>
+      !(n.properties && n.properties._featureType) ||
+      n.properties._featureType === "Point";
+
+    // Candidates for clustering (Points) and nodes to always stay unclustered (e.g. LineString endpoints).
+    const nodes = allNodes.filter(isClusterable);
+    const nonClusterNodes = allNodes.filter((n) => !isClusterable(n));
     const nonClusterLinks = [];
     const clusters = [];
     const nodeMap = new Map();
+
+    // Mark non-clusterable nodes ahead of time so link filtering works later on.
+    nonClusterNodes.forEach((n) => nodeMap.set(n.id, null));
     let clusterId = 0;
 
     // 1. Project all nodes to screen (pixel) coordinates for spatial clustering
@@ -540,7 +552,7 @@ class NetJSONGraphUtil {
           c.value = [lng, lat];
         },
       })),
-      ...nonClusterNodes.map((n) => ({
+      ...nonClusterNodes.filter(isClusterable).map((n) => ({
         ref: n,
         isCluster: false,
         count: 1,
