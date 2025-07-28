@@ -75,11 +75,17 @@ class NetJSONGraph {
           this.type = "netjson";
         } else if (this.utils.isGeoJSON(JSONData)) {
           this.type = "geojson";
+          // Preserve the original GeoJSON so that non-point geometries (e.g. Polygons)
+          // can still be rendered as filled shapes via a separate Leaflet layer later
+          // in the rendering pipeline, while the converted NetJSON shape is used for
+          // clustering and ECharts overlays.
+          this.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
+          JSONData = this.utils.geojsonToNetjson(JSONData);
         } else {
           throw new Error("Invalid data format!");
         }
 
-        if (this.type === "netjson") {
+        if (this.utils.isNetJSON(JSONData)) {
           if (JSONData.nodes.length > this.config.maxPointsFetched) {
             this.hasMoreData = true;
           }
@@ -99,8 +105,8 @@ class NetJSONGraph {
             }
             return false;
           });
-          this.config.prepareData.call(this, JSONData);
         }
+        this.config.prepareData.call(this, JSONData);
         this.data = JSONData;
 
         if (this.config.dealDataByWorker) {

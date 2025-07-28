@@ -13,11 +13,8 @@ import {
 } from "echarts/components";
 import {SVGRenderer} from "echarts/renderers";
 import L from "leaflet/dist/leaflet";
-import "leaflet.markercluster";
-import "leaflet.markercluster/dist/MarkerCluster.css";
-import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-
 import "echarts-gl";
+import {addPolygonOverlays} from "./netjsongraph.geojson";
 
 echarts.use([
   GraphChart,
@@ -144,7 +141,7 @@ class NetJSONGraphRender {
         itemStyle: nodeEmphasisConfig.nodeStyle,
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
-      nodeResult.name = typeof node.label === "string" ? node.label : node.id;
+      nodeResult.name = typeof node.label === "string" ? node.label : "";
 
       return nodeResult;
     });
@@ -207,6 +204,23 @@ class NetJSONGraphRender {
     let nodesData = [];
 
     nodes.forEach((node) => {
+      if (node.properties) {
+        // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
+        if (!JSONData.flatNodes) {
+          flatNodes[node.id] = JSON.parse(JSON.stringify(node));
+        }
+      }
+
+      // Non-Point geometries should not become scatter markers, but we still need them for lines
+      if (
+        node.properties &&
+        // eslint-disable-next-line no-underscore-dangle
+        node.properties._featureType &&
+        // eslint-disable-next-line no-underscore-dangle
+        node.properties._featureType !== "Point"
+      ) {
+        return; // skip marker push only
+      }
       if (!node.properties) {
         console.error(`Node ${node.id} position is undefined!`);
       } else {
@@ -219,7 +233,7 @@ class NetJSONGraphRender {
             self.utils.getNodeStyle(node, configs, "map");
 
           nodesData.push({
-            name: typeof node.label === "string" ? node.label : node.id,
+            name: typeof node.label === "string" ? node.label : "",
             value: [location.lng, location.lat],
             symbolSize: nodeSizeConfig,
             itemStyle: nodeStyleConfig,
@@ -229,9 +243,6 @@ class NetJSONGraphRender {
             },
             node,
           });
-          if (!JSONData.flatNodes) {
-            flatNodes[node.id] = JSON.parse(JSON.stringify(node));
-          }
         }
       }
     });
@@ -331,30 +342,22 @@ class NetJSONGraphRender {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
 
-    if (self.type === "netjson") {
-      self.utils.echartsSetOption(
-        self.utils.generateMapOption(JSONData, self),
-        self,
-      );
-      self.bboxData = {
-        nodes: [],
-        links: [],
-      };
-    } else if (self.type === "geojson") {
-      const {nodeConfig, linkConfig, baseOptions, ...options} =
-        self.config.mapOptions;
-
-      self.echarts.setOption({
-        leaflet: {
-          tiles: self.config.mapTileConfig,
-          mapOptions: options,
-        },
-      });
-
-      self.bboxData = {
-        features: [],
-      };
+    // Accept both NetJSON and GeoJSON inputs. If GeoJSON is detected,
+    // deep-copy it for polygon overlays and convert the working copy to
+    // NetJSON so the rest of the pipeline can operate uniformly.
+    if (self.utils.isGeoJSON(JSONData)) {
+      self.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
+      JSONData = self.utils.geojsonToNetjson(JSONData);
+      // From this point forward we treat the data as NetJSON internally,
+      // but keep the public-facing `type` value unchanged ("geojson").
     }
+
+    const initialMapOptions = self.utils.generateMapOption(JSONData, self);
+    self.utils.echartsSetOption(initialMapOptions, self);
+    self.bboxData = {
+      nodes: [],
+      links: [],
+    };
 
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
@@ -377,69 +380,38 @@ class NetJSONGraphRender {
       self.config.geoOptions,
     );
 
-    if (self.type === "geojson") {
-      self.leaflet.geoJSON = L.geoJSON(self.data, self.config.geoOptions);
+    // Render Polygon and MultiPolygon features from the original GeoJSON data.
+    // While nodes (Points) and links (LineStrings) are handled by ECharts,
+    // polygon features are rendered directly onto the Leaflet map using
+    // a separate L.geoJSON layer. This allows for displaying geographical
+    // areas like parks or districts alongside the network topology.
+    if (self.originalGeoJSON) {
+      addPolygonOverlays(self);
+      // Auto-fit view to encompass ALL geometries (polygons + nodes)
+      let bounds = null;
 
-      // Check if clustering should be applied based on current zoom level and configuration
-      const needsClustering =
-        self.config.clustering &&
-        self.leaflet.getZoom() < self.config.disableClusteringAtLevel;
+      // 1. Polygon overlays (if any)
+      if (
+        self.leaflet.polygonGeoJSON &&
+        typeof self.leaflet.polygonGeoJSON.getBounds === "function"
+      ) {
+        bounds = self.leaflet.polygonGeoJSON.getBounds();
+      }
 
-      if (needsClustering) {
-        const clusterOptions = {
-          showCoverageOnHover: false,
-          spiderfyOnMaxZoom: false,
-          maxClusterRadius: self.config.clusterRadius,
-          disableClusteringAtZoom: self.config.disableClusteringAtLevel,
-        };
-
-        if (self.config.clusteringAttribute) {
-          const clusterTypeSet = new Set();
-          self.data.features.forEach((feature) => {
-            clusterTypeSet.add(
-              feature.properties[self.config.clusteringAttribute] || "default",
-            );
-            if (!feature.properties[self.config.clusteringAttribute]) {
-              feature.properties[self.config.clusteringAttribute] = "default";
-            }
-          });
-          const clusterTypes = Array.from(clusterTypeSet);
-          const clusterGroup = [];
-          clusterTypes.forEach((type) => {
-            const features = self.data.features.filter(
-              (feature) =>
-                feature.properties[self.config.clusteringAttribute] === type,
-            );
-            const layer = L.geoJSON(
-              {
-                ...self.data,
-                features,
-              },
-              self.config.geoOptions,
-            );
-            const cluster = L.markerClusterGroup({
-              ...clusterOptions,
-              iconCreateFunction: (c) => {
-                const childCount = c.getChildCount();
-                return L.divIcon({
-                  html: `<div><span>${childCount}</span></div>`,
-                  className: `marker-cluster ${type}`,
-                  iconSize: L.point(40, 40),
-                });
-              },
-            }).addTo(self.leaflet);
-            clusterGroup.push(cluster);
-            cluster.addLayer(layer);
-          });
-          self.leaflet.clusterGroup = clusterGroup;
+      // 2. Nodes (Points)
+      if (JSONData.nodes && JSONData.nodes.length) {
+        const latlngs = JSONData.nodes
+          .map((n) => n.properties.location)
+          .map((loc) => [loc.lat, loc.lng]);
+        if (bounds) {
+          latlngs.forEach((ll) => bounds.extend(ll));
         } else {
-          self.leaflet.markerClusterGroup = L.markerClusterGroup(
-            clusterOptions,
-          ).addTo(self.leaflet);
-          self.leaflet.markerClusterGroup.addLayer(self.leaflet.geoJSON);
+          bounds = L.latLngBounds(latlngs);
         }
-      } else {
-        self.leaflet.geoJSON.addTo(self.leaflet);
+      }
+
+      if (bounds && bounds.isValid()) {
+        self.leaflet.fitBounds(bounds, {padding: [20, 20]});
       }
     }
 
@@ -492,38 +464,19 @@ class NetJSONGraphRender {
     self.leaflet.on("moveend", async () => {
       const bounds = self.leaflet.getBounds();
       const removeBBoxData = () => {
-        if (self.type === "netjson") {
-          const removeNodes = new Set(self.bboxData.nodes);
-          const removeLinks = new Set(self.bboxData.links);
-          const updatedNodes = JSONData.nodes.filter(
-            (node) => !removeNodes.has(node),
-          );
-          const updatedLinks = JSONData.links.filter(
-            (link) => !removeLinks.has(link),
-          );
+        const removeNodes = new Set(self.bboxData.nodes);
+        const removeLinks = new Set(self.bboxData.links);
 
-          JSONData = {
-            ...JSONData,
-            nodes: updatedNodes,
-            links: updatedLinks,
-          };
+        JSONData = {
+          ...JSONData,
+          nodes: JSONData.nodes.filter((node) => !removeNodes.has(node)),
+          links: JSONData.links.filter((link) => !removeLinks.has(link)),
+        };
 
-          self.data = JSONData;
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-          self.bboxData.nodes = [];
-          self.bboxData.links = [];
-        } else {
-          const removeFeatures = new Set(self.bboxData.features);
-          const updatedFeatures = JSONData.features.filter(
-            (feature) => !removeFeatures.has(feature),
-          );
-          JSONData = {
-            ...JSONData,
-            features: updatedFeatures,
-          };
-          self.utils.overrideData(JSONData, self);
-          self.bboxData.features = [];
-        }
+        self.data = JSONData;
+        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        self.bboxData.nodes = [];
+        self.bboxData.links = [];
       };
       if (
         self.leaflet.getZoom() >= self.config.loadMoreAtZoomLevel &&
@@ -534,58 +487,38 @@ class NetJSONGraphRender {
           self.JSONParam,
           bounds,
         );
-        if (self.type === "netjson") {
-          self.config.prepareData.call(this, data);
-          const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
-          const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
-          const targetLinkSet = new Set(self.data.links.map((l) => l.target));
-          const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
-          const links = data.links.filter(
-            (link) =>
-              !sourceLinkSet.has(link.source) &&
-              !targetLinkSet.has(link.target),
-          );
-          const boundsDataSet = new Set(data.nodes.map((n) => n.id));
-          const nonCommonNodes = self.bboxData.nodes.filter(
-            (node) => !boundsDataSet.has(node.id),
-          );
-          const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
+        self.config.prepareData.call(self, data);
+        const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
+        const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
+        const targetLinkSet = new Set(self.data.links.map((l) => l.target));
+        const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
+        const links = data.links.filter(
+          (link) =>
+            !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
+        );
+        const boundsDataSet = new Set(data.nodes.map((n) => n.id));
+        const nonCommonNodes = self.bboxData.nodes.filter(
+          (node) => !boundsDataSet.has(node.id),
+        );
+        const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
 
-          JSONData.nodes = JSONData.nodes.filter(
-            (node) => !removableNodes.has(node.id),
-          );
-          self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
-          self.bboxData.links = self.bboxData.links.concat(links);
-          JSONData = {
-            ...JSONData,
-            nodes: JSONData.nodes.concat(nodes),
-            links: JSONData.links.concat(links),
-          };
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-          self.data = JSONData;
-        } else {
-          const dataSet = new Set(self.data.features);
-          const features = data.features.filter(
-            (feature) => !dataSet.has(feature),
-          );
-          const boundsDataSet = new Set(data.features);
-          const nonCommonFeatures = self.bboxData.features.filter(
-            (feature) => !boundsDataSet.has(feature),
-          );
-          const removableFeatures = new Set(nonCommonFeatures);
-
-          JSONData.features = JSONData.features.filter(
-            (feature) => !removableFeatures.has(feature),
-          );
-          self.bboxData.features = self.bboxData.features.concat(features);
-          self.utils.appendData(features, self);
-        }
+        JSONData.nodes = JSONData.nodes.filter(
+          (node) => !removableNodes.has(node.id),
+        );
+        self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
+        self.bboxData.links = self.bboxData.links.concat(links);
+        JSONData = {
+          ...JSONData,
+          nodes: JSONData.nodes.concat(nodes),
+          links: JSONData.links.concat(links),
+        };
+        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
       }
     });
     if (
-      self.type === "netjson" &&
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
@@ -679,25 +612,13 @@ class NetJSONGraphRender {
       throw new Error("AppendData function can only be used for map render!");
     }
 
-    if (self.type === "netjson") {
+    if (self.config.render === self.utils.mapRender) {
       const opts = self.utils.generateMapOption(JSONData, self);
       opts.series.forEach((obj, index) => {
         self.echarts.appendData({seriesIndex: index, data: obj.data});
       });
       // modify this.data
       self.utils.mergeData(JSONData, self);
-    }
-
-    if (self.type === "geojson") {
-      self.data = {
-        ...self.data,
-        features: self.data.features.concat(JSONData.features),
-      };
-
-      // Remove the existing points from the map. Otherwise,
-      // the original points are duplicated on the map.
-      self.leaflet.geoJSON.removeFrom(self.leaflet);
-      self.utils.render();
     }
 
     self.config.afterUpdate.call(self);

@@ -378,6 +378,35 @@ For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletj
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
 
+### GeoJSON handling
+
+netjsongraph.js will now **always** convert GeoJSON input into an internal
+NetJSON‐like structure (`nodes` / `links`). The original GeoJSON object is kept
+in memory only to render non‐point geometries (Polygons & Multipolygons) as
+filled shapes on the Leaflet basemap.
+
+To keep the codebase clean we extracted all GeoJSON‐specific helpers into
+`src/js/netjsongraph.geojson.js`:
+
+- `geojsonToNetjson(geojson)` – converts any GeoJSON _FeatureCollection_ into
+  NetJSON nodes & links (supports Points, LineStrings, Polygons, Multi\* and
+  GeometryCollections).
+- `addPolygonOverlays(self)` – draws Polygon / MultiPolygon features on a
+  dedicated Leaflet pane so they sit beneath the ECharts overlay but above the
+  tile layer.
+
+If you used `map.utils.geojsonToNetjson` the public API is unchanged – it now
+forwards to the new helper.
+
+```js
+import {geojsonToNetjson} from "netjsongraph/src/js/netjsongraph.geojson";
+
+const netjson = geojsonToNetjson(myGeoJSON);
+```
+
+No action is required for most users; these changes simply make the internal
+flow clearer and easier to maintain.
+
 ### API Introduction
 
 #### Core
@@ -604,9 +633,9 @@ yarn start
 
 - `paginatedDataParse`
 
-  Parse paginated response from the server. It accepts `JSONParam` as a parameter.  
-  It uses cursor-based pagination by default.  
-  If you want to parse from the server that uses some other pagination logic,  
+  Parse paginated response from the server. It accepts `JSONParam` as a parameter.
+  It uses cursor-based pagination by default.
+  If you want to parse from the server that uses some other pagination logic,
   you can override this method using `setUtils` method.
 
   ```JS
@@ -621,8 +650,8 @@ yarn start
 
 - `getBBoxData`
 
-  Load data which is inside the current bounding box of the map from the server. Accepts `JSONParam` and `bounds` as the parameter.  
-   If you want to implement your own logic or use a different API, you can override this method using `setUtils` method.
+  Load data which is inside the current bounding box of the map from the server. Accepts `JSONParam` and `bounds` as the parameter.
+  If you want to implement your own logic or use a different API, you can override this method using `setUtils` method.
 
   ```JS
   graph.setUtils({
@@ -730,78 +759,78 @@ yarn start
 
 ### Example Demos
 
-The demo shows default `graph` render.  
+The demo shows default `graph` render.
 [Basic graph demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
 
-The demo shows `map` render.  
+The demo shows `map` render.
 [Map demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap.html)
 
-The demo shows how to use `graphGL` to render big data.  
+The demo shows how to use `graphGL` to render big data.
 [graphGL(bigData) demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-graphGL.html)
 
-The demo shows how to set custom attributes.  
+The demo shows how to set custom attributes.
 [Custom attributes demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)
 
-The demo shows the multiple links render.  
-Currently only supports up to two links.  
+The demo shows the multiple links render.
+Currently only supports up to two links.
 [Multiple links demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-multipleLinks.html)
 
 The demo is used to show how to deal with the `multiple interfaces` in the NetJSON data.
-We provide a work file to process the data before rendering.  
-This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, add node links, add flatNodes and so on.  
-You can also define related files yourself.  
+We provide a work file to process the data before rendering.
+This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, add node links, add flatNodes and so on.
+You can also define related files yourself.
 [Multiple interfaces demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-multipleInterfaces.html)
 
-The demo is used to show the use of the `dateParse` function.  
-You can set the node or link property value `time`, we will call this function to parse the string in the element details defaultly.  
-Of course you can also call directly.  
+The demo is used to show the use of the `dateParse` function.
+You can set the node or link property value `time`, we will call this function to parse the string in the element details defaultly.
+Of course you can also call directly.
 [dateParse demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateParse.html)
 
-The demo shows how to switch the netjsongraph render mode -- `svg` or `canvas`.  
+The demo shows how to switch the netjsongraph render mode -- `svg` or `canvas`.
 [Switch render mode demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchRenderMode.html)
 
-The demo shows how to switch the netjsongraph render mode -- `graph` or `map`.  
+The demo shows how to switch the netjsongraph render mode -- `graph` or `map`.
 [Switch graph mode demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchGraphMode.html)
 
-The demo is used to show the use of the `searchElements` function.  
-For test, you can input `test` or `appendData` and click the `search` button.  
+The demo is used to show the use of the `searchElements` function.
+For test, you can input `test` or `appendData` and click the `search` button.
 [Search elements demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-searchElements.html)
 
-The demo shows how to interact with elements.  
+The demo shows how to interact with elements.
 [Nodes expand or fold demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-nodeExpand.html)
 
-The demo is used to show how to use the `JSONDataUpdate` function to update data.  
-See other examples：  
-netjson-updateData.html: It chooses override data.  
-netjsonmap-appendData.html: It chooses append data.  
+The demo is used to show how to use the `JSONDataUpdate` function to update data.
+See other examples：
+netjson-updateData.html: It chooses override data.
+netjsonmap-appendData.html: It chooses append data.
 [JSONDataUpdate using override option demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-nodeTiles.html)
 
-The demo shows hwo to set path animation.  
+The demo shows hwo to set path animation.
 [Geographic map animated links demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-animation.html)
 
-The demo is used to show how to set indoor map.  
-Mainly the operation of leaflet.  
+The demo is used to show how to set indoor map.
+Mainly the operation of leaflet.
 [Indoor map demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
 
-The demo is used to show how to use the leaflet plugins.  
-Mainly the operation of leaflet.  
+The demo is used to show how to use the leaflet plugins.
+Mainly the operation of leaflet.
 [ Leaflet plugins demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-plugins.html)
 
-The demo shows the multiple tiles render.  
+The demo shows the multiple tiles render.
 [ Map with multiple tiles demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-multipleTiles.html)
 
-The demo is used to show how to use the `JSONDataUpdate` function to update data.  
-Here we choose to append data by modify the default parameter.  
-See other examples：  
-netjson-updateData.html: It chooses override data.  
-netjsonmap-nodeTiles.html: override data by different zoom value.  
+The demo is used to show how to use the `JSONDataUpdate` function to update data.
+Here we choose to append data by modify the default parameter.
+See other examples：
+netjson-updateData.html: It chooses override data.
+netjsonmap-nodeTiles.html: override data by different zoom value.
 [JSONDataUpdate using append option demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData.html)
 
-Using array files to append data step by step at start.  
-Similiar to the first method, but easier.  
+Using array files to append data step by step at start.
+Similiar to the first method, but easier.
 [ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
 
-The demo shows the clustering of nodes.  
+The demo shows the clustering of nodes.
 [ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
 
 ### Upgrading from 0.1.x versions to 0.2.x
