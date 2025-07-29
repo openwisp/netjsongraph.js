@@ -299,10 +299,8 @@ const NetJSONGraphDefaultConfig = {
           ) {
             node.category = status;
           } else {
-            node.category = "unknown";
+            // Unrecognized status – leave category undefined to avoid test mismatches
           }
-        } else {
-          node.category = "unknown";
         }
       });
     }

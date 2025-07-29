@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import KDBush from "kdbush";
 import {geojsonToNetjson as convertGeojson} from "./netjsongraph.geojson";
 
@@ -330,7 +331,8 @@ class NetJSONGraphUtil {
     // 1. Project all nodes to screen (pixel) coordinates for spatial clustering
     nodes.forEach((node) => {
       // Normalize location reference (GeoJSON may store it under properties.location)
-      const loc = (node.properties && node.properties.location) || node.location;
+      const loc =
+        (node.properties && node.properties.location) || node.location;
       if (!loc || loc.lat === undefined || loc.lng === undefined) {
         return; // Skip nodes without valid coordinates
       }
@@ -340,7 +342,7 @@ class NetJSONGraphUtil {
 
       // Preserve original geographic coordinates and restore them on every pass
       if (!node._origLocation) {
-        node._origLocation = { lat: loc.lat, lng: loc.lng };
+        node._origLocation = {lat: loc.lat, lng: loc.lng};
       } else {
         loc.lat = node._origLocation.lat;
         loc.lng = node._origLocation.lng;
@@ -427,7 +429,7 @@ class NetJSONGraphUtil {
 
       // Find the largest symbol size among all groups (for overlap math)
       let maxSymbolSize = 0;
-      groupsArray.forEach(([attr, gNodes]) => {
+      groupsArray.forEach(([, gNodes]) => {
         const sz = getClusterSymbolSize(gNodes.length);
         if (sz > maxSymbolSize) {
           maxSymbolSize = sz;
@@ -457,7 +459,8 @@ class NetJSONGraphUtil {
       // separationPx = max(baseSeparation, requiredRadius + 4)
       const separationPx = Math.max(baseSeparation, requiredRadius + 4);
 
-      groupsArray.forEach(([attr, groupNodes], idx) => {
+      // eslint-disable-next-line no-unused-vars
+      groupsArray.forEach(([, groupNodes], idx) => {
         if (groupNodes.length > 1) {
           // --- Centroid Calculation ---
           // Compute arithmetic mean of lat/lng for all nodes in the group
@@ -507,7 +510,7 @@ class NetJSONGraphUtil {
 
           if (self.config.clusteringAttribute) {
             const category = self.config.nodeCategories.find(
-              (cat) => cat.name === attr,
+              (cat) => cat.name === groupNodes[0].properties[self.config.clusteringAttribute],
             );
             if (category) {
               cluster.itemStyle = {

@@ -648,48 +648,6 @@ class NetJSONGraphRender {
       });
     }
 
-    // ---------------------------------------------------------------------
-    // Render filled polygon shapes if the original GeoJSON was preserved
-    // (i.e. we converted GeoJSON → NetJSON for clustering but still want to
-    // display polygons as filled areas on the map).
-    // ---------------------------------------------------------------------
-    if (self.originalGeoJSON) {
-      // Extract only polygon-type features to avoid duplicating points/lines
-      const polygonFeatures = self.originalGeoJSON.features.filter(
-        (f) =>
-          f &&
-          f.geometry &&
-          (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"),
-      );
-
-      if (polygonFeatures.length) {
-        const polygonLayer = L.geoJSON(
-          {
-            type: "FeatureCollection",
-            features: polygonFeatures,
-          },
-          {
-            style: self.config.geoOptions.style || {
-              fillColor: "#1566a9",
-              color: "#1566a9",
-              weight: 0,
-              fillOpacity: 0.6,
-            },
-            onEachFeature: (feature, layer) => {
-              // Keep the same click behavior as point layers
-              layer.on("click", () => {
-                const props = { ...feature.properties };
-                self.config.onClickElement.call(self, "Feature", props);
-              });
-            },
-          },
-        ).addTo(self.leaflet);
-
-        // Store reference so it can be removed / updated later if needed
-        self.leaflet.polygonGeoJSON = polygonLayer;
-      }
-    }
-
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
