@@ -401,6 +401,7 @@ class NetJSONGraphRender {
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
+
     // Accept both NetJSON and GeoJSON inputs. If GeoJSON is detected,
     // deep-copy it for polygon overlays and convert the working copy to
     // NetJSON so the rest of the pipeline can operate uniformly.

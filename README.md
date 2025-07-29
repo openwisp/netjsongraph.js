@@ -820,7 +820,7 @@ Using array files to append data step by step at start.
 Similiar to the first method, but easier.
 [ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
 
-The demo shows how to handle overlapping clusters with different statuses.
+The demo shows the clustering of nodes.
 [ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
 
 ### Upgrading from 0.1.x versions to 0.2.x
