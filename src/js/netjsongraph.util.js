@@ -510,7 +510,9 @@ class NetJSONGraphUtil {
 
           if (self.config.clusteringAttribute) {
             const category = self.config.nodeCategories.find(
-              (cat) => cat.name === groupNodes[0].properties[self.config.clusteringAttribute],
+              (cat) =>
+                cat.name ===
+                groupNodes[0].properties[self.config.clusteringAttribute],
             );
             if (category) {
               cluster.itemStyle = {
