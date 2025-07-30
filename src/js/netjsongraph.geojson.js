@@ -110,7 +110,15 @@ export function geojsonToNetjson(geojson) {
   };
 
   geojson.features.forEach((feature) => {
-    const baseProps = feature.properties || {};
+    // Start with existing properties, then add top-level Feature info we want to preserve.
+    const baseProps = {
+      ...(feature.properties || {}),
+      // Preserve original GeoJSON feature id (location primary-key) if present.
+      ...(feature.id !== undefined && feature.id !== null
+        ? {id: feature.id}
+        : {}),
+    };
+
     handleGeometry(feature.geometry, baseProps);
   });
 
