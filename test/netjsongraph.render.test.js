@@ -754,18 +754,22 @@ describe("Test clustering", () => {
         {
           id: "1",
           location: {lng: 24.5, lat: 45.3895},
+          properties: {_featureType: "Point"},
         },
         {
           id: "2",
           location: {lng: 24.5, lat: 45.1895},
+          properties: {_featureType: "Point"},
         },
         {
           id: "3",
           location: {lng: 28, lat: 47.3895},
+          properties: {_featureType: "Point"},
         },
         {
           id: "4",
           location: {lng: 32, lat: 41.3895},
+          properties: {_featureType: "Point"},
         },
       ],
       links: [
@@ -810,6 +814,7 @@ describe("Test clustering", () => {
           id: "1",
           location: {lng: 24.5, lat: 45.3895},
           properties: {
+            _featureType: "Point",
             status: "up",
           },
         },
@@ -817,6 +822,7 @@ describe("Test clustering", () => {
           id: "2",
           location: {lng: 24.5, lat: 45.1895},
           properties: {
+            _featureType: "Point",
             status: "down",
           },
         },
@@ -824,6 +830,7 @@ describe("Test clustering", () => {
           id: "3",
           location: {lng: 28, lat: 47.3895},
           properties: {
+            _featureType: "Point",
             status: "up",
           },
         },
@@ -831,6 +838,7 @@ describe("Test clustering", () => {
           id: "4",
           location: {lng: 32, lat: 41.3895},
           properties: {
+            _featureType: "Point",
             status: "up",
           },
         },
@@ -838,6 +846,7 @@ describe("Test clustering", () => {
           id: "5",
           location: {lng: 24.5, lat: 45.191},
           properties: {
+            _featureType: "Point",
             status: "down",
           },
         },
@@ -895,6 +904,10 @@ describe("Test clustering", () => {
         {
           id: "1",
           location: {lng: 27.7648, lat: 46.0122},
+          properties: {
+            _featureType: "Point",
+            status: "up",
+          },
         },
       ],
       links: [],
