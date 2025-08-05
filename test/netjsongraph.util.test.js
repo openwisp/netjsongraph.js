@@ -32,10 +32,26 @@ describe("makeCluster cluster separation logic", () => {
 
   test("clusters at same location with different attributes are separated in a circle", () => {
     const nodes = [
-      {id: "1", location: {lat: 1, lng: 1}, properties: {_featureType: "Point", status: "A"}},
-      {id: "2", location: {lat: 1, lng: 1}, properties: {_featureType: "Point", status: "A"}},
-      {id: "3", location: {lat: 1, lng: 1}, properties: {_featureType: "Point", status: "B"}},
-      {id: "4", location: {lat: 1, lng: 1}, properties: {_featureType: "Point", status: "B"}},
+      {
+        id: "1",
+        location: {lat: 1, lng: 1},
+        properties: {_featureType: "Point", status: "A"},
+      },
+      {
+        id: "2",
+        location: {lat: 1, lng: 1},
+        properties: {_featureType: "Point", status: "A"},
+      },
+      {
+        id: "3",
+        location: {lat: 1, lng: 1},
+        properties: {_featureType: "Point", status: "B"},
+      },
+      {
+        id: "4",
+        location: {lat: 1, lng: 1},
+        properties: {_featureType: "Point", status: "B"},
+      },
     ];
     const self = makeSelf({
       nodes,
@@ -54,9 +70,21 @@ describe("makeCluster cluster separation logic", () => {
 
   test("clusters at same location with one attribute are not offset", () => {
     const nodes = [
-      {id: "1", location: {lat: 2, lng: 2}, properties: {_featureType: "Point", status: "A"}},
-      {id: "2", location: {lat: 2, lng: 2}, properties: {_featureType: "Point", status: "A"}},
-      {id: "3", location: {lat: 2, lng: 2}, properties: {_featureType: "Point", status: "A"}},
+      {
+        id: "1",
+        location: {lat: 2, lng: 2},
+        properties: {_featureType: "Point", status: "A"},
+      },
+      {
+        id: "2",
+        location: {lat: 2, lng: 2},
+        properties: {_featureType: "Point", status: "A"},
+      },
+      {
+        id: "3",
+        location: {lat: 2, lng: 2},
+        properties: {_featureType: "Point", status: "A"},
+      },
     ];
     const self = makeSelf({
       nodes,
@@ -73,10 +101,26 @@ describe("makeCluster cluster separation logic", () => {
 
   test("clusterSeparation uses default when not set", () => {
     const nodes = [
-      {id: "1", location: {lat: 3, lng: 3}, properties: {_featureType: "Point", status: "A"}},
-      {id: "2", location: {lat: 3, lng: 3}, properties: {_featureType: "Point", status: "A"}},
-      {id: "3", location: {lat: 3, lng: 3}, properties: {_featureType: "Point", status: "B"}},
-      {id: "4", location: {lat: 3, lng: 3}, properties: {_featureType: "Point", status: "B"}},
+      {
+        id: "1",
+        location: {lat: 3, lng: 3},
+        properties: {_featureType: "Point", status: "A"},
+      },
+      {
+        id: "2",
+        location: {lat: 3, lng: 3},
+        properties: {_featureType: "Point", status: "A"},
+      },
+      {
+        id: "3",
+        location: {lat: 3, lng: 3},
+        properties: {_featureType: "Point", status: "B"},
+      },
+      {
+        id: "4",
+        location: {lat: 3, lng: 3},
+        properties: {_featureType: "Point", status: "B"},
+      },
     ];
     const self = makeSelf({
       nodes,
