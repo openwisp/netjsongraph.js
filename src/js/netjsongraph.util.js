@@ -313,13 +313,13 @@ class NetJSONGraphUtil {
     // Only Point features (or nodes without an explicit _featureType flag) should be clustered.
     const {nodes: allNodes, links} = self.data;
 
-    const isClusterable = (n) =>
+    const clusterableNodes = (n) =>
       !(n.properties && n.properties._featureType) ||
       n.properties._featureType === "Point";
 
     // Candidates for clustering (Points) and nodes to always stay unclustered (e.g. LineString endpoints).
-    const nodes = allNodes.filter(isClusterable);
-    const nonClusterNodes = allNodes.filter((n) => !isClusterable(n));
+    const nodes = allNodes.filter(clusterableNodes);
+    const nonClusterNodes = allNodes.filter((n) => !clusterableNodes(n));
     const nonClusterLinks = [];
     const clusters = [];
     const nodeMap = new Map();
@@ -557,7 +557,7 @@ class NetJSONGraphUtil {
           c.value = [lng, lat];
         },
       })),
-      ...nonClusterNodes.filter(isClusterable).map((n) => ({
+      ...nonClusterNodes.filter(clusterableNodes).map((n) => ({
         ref: n,
         isCluster: false,
         count: 1,
