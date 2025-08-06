@@ -313,7 +313,9 @@ class NetJSONGraphUtil {
     // Only Point features (or nodes without an explicit _featureType flag) should be clustered.
     const {nodes: allNodes, links} = self.data;
 
-    const clusterableNodes = (n) => n.properties._featureType === "Point";
+    const clusterableNodes = (n) =>
+      !(n.properties && n.properties._featureType) ||
+      n.properties._featureType === "Point";
 
     // Candidates for clustering (Points) and nodes to always stay unclustered (e.g. LineString endpoints).
     const nodes = allNodes.filter(clusterableNodes);
