@@ -129,6 +129,10 @@ describe("NetJSONGraph Specification", () => {
         color: "#000000",
         position: "top",
         formatter: "{b}",
+        fontSize: 14,
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        padding: [2, 2],
+        borderRadius: 5,
       },
       nodeStyle: {
         color: "#1566a9",
@@ -161,6 +165,7 @@ describe("NetJSONGraph Specification", () => {
         position: "inside",
         color: "#fff",
         offset: [0, 0],
+        backgroundColor: "transparent",
       },
     },
     baseOptions: {
