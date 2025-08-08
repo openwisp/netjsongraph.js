@@ -407,23 +407,13 @@ const netjson = geojsonToNetjson(myGeoJSON);
 No action is required for most users; these changes simply make the internal
 flow clearer and easier to maintain.
 
-### API Introduction
+## Automatic Cluster Overlap Prevention
 
-#### Core
+When multiple clusters of different categories share identical coordinates, NetJSONGraph now **automatically** offsets them in a circular pattern (pixel-space repulsion). No extra utilities or configuration flags are required—simply enable clustering with a `clusteringAttribute`, and the library handles overlap for you.
 
-- `setConfig`
+See the [Cluster Overlap Example](./examples/netjson-clustering.html) to view the result.
 
-  Method to set the configuration of the graph. You can use this function to add, update or modify the configuration of the graph.
-
-- `setUtils`
-
-  Method to set the utils of the graph. You can use this function to add, update the utils.
-
-- `render`
-
-  Method to render the graph.
-
-#### Realtime Update
+## Realtime Update
 
 We use [socket.io](https://socket.io/) to monitor data changes which supports WebSockets and Polling. You can call `JSONDataUpdate` when the data change event occurs and pass the data to update the view.
 
