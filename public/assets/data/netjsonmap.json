@@ -1,356 +1,342 @@
 {
   "type": "NetworkGraph",
-  "label": "Ninux Roma",
+  "label": "European Network",
   "protocol": "OLSR",
   "version": "0.6.6.2",
   "metric": "ETX",
   "date": "2019-04-03T05:06:54.000Z",
   "nodes": [
     {
-      "id": "172.16.146.6",
-      "name": "l8dt6nqh",
-      "location": {"lng": 24.905, "lat": 46.499750000000006},
+      "id": "Romania-1",
+      "name": "Romania",
+      "location": {"lng": 24.905, "lat": 46.49975},
       "properties": {"time": "2019-04-03T05:06:54.000Z"}
     },
     {
-      "id": "10.177.0.10",
-      "name": "l133is73",
-      "location": {"lng": 24.78, "lat": 49.182249999999996},
+      "id": "Ukraine-1",
+      "name": "Ukraine",
+      "location": {"lng": 24.78, "lat": 49.18225},
       "properties": {"time": "2019-04-03T05:06:54.000Z"}
     },
     {
-      "id": "172.16.139.4",
-      "name": "yyjd696o",
+      "id": "Czechia-1",
+      "name": "Czechia",
       "location": {"lng": 17.217, "lat": 49.63475},
       "properties": {"time": "2019-04-03T05:06:54.000Z"}
     },
     {
-      "id": "172.16.135.15",
-      "name": "2f6hxcfe",
-      "location": {"lng": 27.607999999999997, "lat": 45.965500000000006}
+      "id": "Romania-2",
+      "name": "Romania",
+      "location": {"lng": 27.608, "lat": 45.9655}
     },
     {
-      "id": "192.168.145.145",
-      "name": "knga632p",
-      "location": {"lng": 20.582, "lat": 47.290499999999994},
+      "id": "Hungary-1",
+      "name": "Hungary",
+      "location": {"lng": 20.582, "lat": 47.2905},
       "properties": {"time": "2019-04-03T05:06:54.000Z"}
     },
     {
-      "id": "172.16.186.249",
-      "name": "mesgopn5",
+      "id": "Italy-1",
+      "name": "Italy",
       "properties": {"time": "2019-04-03T05:06:54.000Z"},
-      "location": {"lng": 12.552999999999997, "lat": 43.33775}
+      "location": {"lng": 12.553, "lat": 43.33775}
     },
     {
-      "id": "172.16.12.10",
-      "name": "sj6l3pbj",
+      "id": "Ukraine-2",
+      "name": "Ukraine",
       "location": {"lng": 28.119, "lat": 48.798}
     },
     {
-      "id": "172.16.177.31",
-      "name": "3a5dfwvo",
-      "location": {"lng": 12.222999999999999, "lat": 45.493750000000006}
+      "id": "Italy-2",
+      "name": "Italy",
+      "location": {"lng": 12.223, "lat": 45.49375}
     },
     {
-      "id": "10.183.1.11",
-      "name": "ww65tgqj",
-      "location": {"lng": 26.959000000000003, "lat": 44.34375}
+      "id": "Romania-3",
+      "name": "Romania",
+      "location": {"lng": 26.959, "lat": 44.34375}
     },
     {
-      "id": "172.16.200.67",
-      "name": "13mbktrw",
-      "location": {"lng": 24.588, "lat": 48.481750000000005},
+      "id": "Ukraine-3",
+      "name": "Ukraine",
+      "location": {"lng": 24.588, "lat": 48.48175},
       "properties": {"time": "2019-04-03T05:06:54.000Z"}
     },
     {
-      "id": "192.168.23.3",
-      "name": "dmjjzmzt",
-      "location": {"lng": 18.813000000000002, "lat": 48.108999999999995}
+      "id": "Slovakia-1",
+      "name": "Slovakia",
+      "location": {"lng": 18.813, "lat": 48.109}
     },
     {
-      "id": "172.16.185.11",
-      "name": "fo3t1uii",
-      "location": {"lng": 18.610999999999997, "lat": 48.87975},
+      "id": "Slovakia-2",
+      "name": "Slovakia",
+      "location": {"lng": 18.611, "lat": 48.87975},
       "properties": {"time": "2019-04-03T05:06:54.000Z"}
     },
     {
-      "id": "172.16.159.187",
-      "name": "pqhht9a8",
-      "location": {"lng": 26.037, "lat": 50.52975000000001},
+      "id": "Ukraine-4",
+      "name": "Ukraine",
+      "location": {"lng": 26.037, "lat": 50.52975},
       "properties": {"time": "2019-04-03T05:06:54.000Z"}
     },
     {
-      "id": "172.16.132.132",
-      "name": "qjw3dpr1",
-      "location": {"lng": 21.122, "lat": 47.129000000000005}
+      "id": "Romania-4",
+      "name": "Romania",
+      "location": {"lng": 21.122, "lat": 47.129}
     },
     {
-      "id": "10.254.254.4",
-      "name": "e9ail6v2",
-      "location": {"lng": 14.770000000000003, "lat": 48.56999999999999}
+      "id": "Austria-1",
+      "name": "Austria",
+      "location": {"lng": 14.77, "lat": 48.57}
     },
     {
-      "id": "10.123.10.10",
-      "name": "0h231xnp",
-      "location": {"lng": 15.593000000000004, "lat": 49.93025},
+      "id": "Czechia-2",
+      "name": "Czechia",
+      "location": {"lng": 15.593, "lat": 49.93025},
       "properties": {"time": "2019-04-03T05:06:54.000Z"}
     },
     {
-      "id": "172.16.12.12",
-      "name": "fhg2nc2r",
+      "id": "Bulgaria-1",
+      "name": "Bulgaria",
       "location": {"lng": 22.595, "lat": 43.695}
     },
     {
-      "id": "172.16.40.24",
-      "name": "8jlyhr2z",
-      "location": {"lng": 10.206000000000003, "lat": 47.18375}
+      "id": "Austria-2",
+      "name": "Austria",
+      "location": {"lng": 10.206, "lat": 47.18375}
     },
     {
-      "id": "172.16.171.1",
-      "name": "de97plx1",
+      "id": "Hungary-2",
+      "name": "Hungary",
       "properties": {"time": "2019-04-03T05:06:54.000Z"},
-      "location": {"lng": 18.183, "lat": 47.64149999999999}
+      "location": {"lng": 18.183, "lat": 47.6415}
     },
     {
-      "id": "172.16.159.65",
-      "name": "jffz9552",
-      "location": {"lng": 25.357999999999997, "lat": 47.919}
+      "id": "Ukraine-5",
+      "name": "Ukraine",
+      "location": {"lng": 25.358, "lat": 47.919}
     },
     {
-      "id": "172.16.155.5",
-      "name": "z2fdpra4",
-      "location": {"lng": 21.823, "lat": 47.169250000000005}
+      "id": "Hungary-3",
+      "name": "Hungary",
+      "location": {"lng": 21.823, "lat": 47.16925}
     },
     {
-      "id": "172.16.145.3",
-      "name": "mqcsteqt",
-      "location": {"lng": 18.302, "lat": 47.379999999999995}
+      "id": "Hungary-4",
+      "name": "Hungary",
+      "location": {"lng": 18.302, "lat": 47.38}
     },
     {
-      "id": "172.16.159.50",
-      "name": "ffx05sy8",
-      "location": {"lng": 18.348999999999997, "lat": 46.72725}
+      "id": "Hungary-5",
+      "name": "Hungary",
+      "location": {"lng": 18.349, "lat": 46.72725}
     },
     {
-      "id": "172.16.138.1",
+      "id": "Italy-3",
       "properties": {"time": "2019-04-03T05:06:54.000Z"},
-      "name": "r4obvzk8",
+      "name": "Italy",
       "location": {"lng": 12.021, "lat": 46.8245}
     },
     {
-      "id": "172.16.44.12",
-      "name": "0sm2wp5r",
-      "location": {"lng": 19.948, "lat": 52.403499999999994}
+      "id": "Poland-1",
+      "name": "Poland",
+      "location": {"lng": 19.948, "lat": 52.4035}
     },
     {
-      "id": "172.16.186.254",
-      "name": "4q81b62m",
+      "id": "Bulgaria-2",
+      "name": "Bulgaria",
       "location": {"lng": 25.75, "lat": 43.22925}
     },
     {
-      "id": "172.16.10.192",
-      "name": "tttdvxaq",
-      "location": {"lng": 13.447000000000003, "lat": 44.494749999999996}
+      "id": "Croatia-1",
+      "name": "Croatia",
+      "location": {"lng": 13.447, "lat": 44.49475}
     },
     {
-      "id": "10.0.7.2",
-      "name": "imbuityj",
-      "location": {"lng": 14.512, "lat": 44.528000000000006}
+      "id": "Croatia-2",
+      "name": "Croatia",
+      "location": {"lng": 14.512, "lat": 44.528}
     },
     {
-      "id": "172.16.185.12",
-      "name": "angh9ea1",
-      "location": {"lng": 29.366, "lat": 49.70099999999999}
+      "id": "Ukraine-6",
+      "name": "Ukraine",
+      "location": {"lng": 29.366, "lat": 49.701}
     },
     {
-      "id": "10.149.3.3",
-      "name": "hf5e7qee",
+      "id": "Italy-4",
+      "name": "Italy",
       "location": {"lng": 12.168, "lat": 45.134}
     },
     {
-      "id": "172.16.169.1",
-      "name": "f7ueng33",
-      "location": {"lng": 22.546, "lat": 49.47024999999999}
+      "id": "Poland-2",
+      "name": "Poland",
+      "location": {"lng": 22.546, "lat": 49.47025}
     },
     {
-      "id": "10.254.254.2",
-      "name": "uyoj6lhg",
-      "location": {"lng": 12.219999999999999, "lat": 50.2495}
+      "id": "Czechia-3",
+      "name": "Czechia",
+      "location": {"lng": 12.22, "lat": 50.2495}
     },
     {
-      "id": "172.16.177.33",
-      "name": "cifeeb9d",
-      "location": {"lng": 24.706000000000003, "lat": 52.3905}
+      "id": "Belarus-1",
+      "name": "Belarus",
+      "location": {"lng": 24.706, "lat": 52.3905}
     },
     {
-      "id": "172.16.39.31",
-      "name": "p6ahwas2",
-      "location": {"lng": 20.177, "lat": 47.790499999999994}
+      "id": "Hungary-6",
+      "name": "Hungary",
+      "location": {"lng": 20.177, "lat": 47.7905}
     },
     {
-      "id": "172.16.185.13",
-      "name": "5hs0svyn",
-      "location": {"lng": 20.490000000000002, "lat": 51.00675}
+      "id": "Poland-3",
+      "name": "Poland",
+      "location": {"lng": 20.49, "lat": 51.00675}
     },
     {
-      "id": "172.16.146.4",
-      "name": "boim64l0",
+      "id": "Croatia-3",
+      "name": "Croatia",
       "location": {"lng": 16.116, "lat": 43.53725}
     },
     {
-      "id": "172.16.151.11",
-      "name": "n3udnu06",
-      "location": {"lng": 17.091, "lat": 50.394499999999994}
+      "id": "Czechia-4",
+      "name": "Czechia",
+      "location": {"lng": 17.091, "lat": 50.3945}
     },
     {
-      "id": "10.185.1.11",
-      "name": "1enzn0zx",
-      "location": {"lng": 29.966, "lat": 46.819500000000005}
+      "id": "Moldova-1",
+      "name": "Moldova",
+      "location": {"lng": 29.966, "lat": 46.8195}
     },
     {
-      "id": "172.16.181.10",
-      "name": "2kzhij6o",
-      "location": {"lng": 14.384999999999998, "lat": 47.92375}
+      "id": "Austria-3",
+      "name": "Austria",
+      "location": {"lng": 14.385, "lat": 47.92375}
     },
     {
-      "id": "172.16.200.2",
-      "name": "uxwqg8r5",
-      "location": {"lng": 21.912, "lat": 45.147999999999996}
+      "id": "Romania-5",
+      "name": "Romania",
+      "location": {"lng": 21.912, "lat": 45.148}
     },
     {
-      "id": "172.16.168.1",
-      "name": "9gb3cmxz",
-      "location": {"lng": 17.523000000000003, "lat": 51.31}
+      "id": "Poland-4",
+      "name": "Poland",
+      "location": {"lng": 17.523, "lat": 51.31}
     },
     {
-      "id": "172.16.49.3",
-      "name": "gm772381",
-      "location": {"lng": 28.918999999999997, "lat": 47.50749999999999}
+      "id": "Moldova-2",
+      "name": "Moldova",
+      "location": {"lng": 28.919, "lat": 47.5075}
     },
     {
-      "id": "172.16.133.11",
-      "name": "mosxwxj7",
-      "location": {"lng": 19.936, "lat": 50.93600000000001}
+      "id": "Poland-5",
+      "name": "Poland",
+      "location": {"lng": 19.936, "lat": 50.936}
     },
     {
-      "id": "10.45.0.1",
-      "name": "biqccv60",
-      "location": {"lng": 23.628999999999998, "lat": 48.4585}
+      "id": "Ukraine-7",
+      "name": "Ukraine",
+      "location": {"lng": 23.629, "lat": 48.4585}
     },
     {
-      "id": "172.16.151.1",
-      "name": "06j5jew7",
+      "id": "Bulgaria-3",
+      "name": "Bulgaria",
       "location": {"lng": 28.07, "lat": 43.26075}
     },
     {
-      "id": "10.139.13.1",
-      "name": "4bwbdn6h",
-      "location": {"lng": 26.42, "lat": 51.119249999999994}
+      "id": "Ukraine-8",
+      "name": "Ukraine",
+      "location": {"lng": 26.42, "lat": 51.11925}
     },
     {
-      "id": "172.16.139.10",
-      "name": "4p6xp1i9",
-      "location": {"lng": 19.215000000000003, "lat": 43.26325}
+      "id": "Montenegro-1",
+      "name": "Montenegro",
+      "location": {"lng": 19.215, "lat": 43.26325}
     },
     {
-      "id": "172.16.155.4",
-      "name": "kgta0r2b",
-      "location": {"lng": 23.072000000000003, "lat": 42.83775}
+      "id": "Bulgaria-4",
+      "name": "Bulgaria",
+      "location": {"lng": 23.072, "lat": 42.83775}
     },
     {
-      "id": "172.16.171.15",
-      "name": "768k9t7a",
-      "location": {"lng": 10.497999999999998, "lat": 52.409499999999994}
+      "id": "Germany-1",
+      "name": "Germany",
+      "location": {"lng": 10.498, "lat": 52.4095}
     },
     {
-      "id": "172.16.141.3",
-      "name": "t8cisonf",
-      "location": {"lng": 22.825000000000003, "lat": 48.91875}
+      "id": "Ukraine-9",
+      "name": "Ukraine",
+      "location": {"lng": 22.825, "lat": 48.91875}
     },
     {
-      "id": "192.168.176.10",
-      "name": "qqgq9lpk",
-      "location": {"lng": 24.555999999999997, "lat": 45.3895}
+      "id": "Romania-6",
+      "name": "Romania",
+      "location": {"lng": 24.556, "lat": 45.3895}
     },
     {
-      "id": "172.16.49.20",
-      "name": "ygyai4ym",
+      "id": "Ukraine-10",
+      "name": "Ukraine",
       "location": {"lng": 25.683, "lat": 49.616}
     },
     {
-      "id": "172.16.44.10",
-      "name": "ne5ut31o",
+      "id": "Bosnia-Herzegovina-1",
+      "name": "Bosnia & Herzegovina",
       "location": {"lng": 18.464, "lat": 43.922}
     },
     {
-      "id": "10.185.1.1",
-      "name": "j8s03ili",
-      "location": {"lng": 11.250999999999998, "lat": 45.407250000000005}
+      "id": "Italy-5",
+      "name": "Italy",
+      "location": {"lng": 11.251, "lat": 45.40725}
     },
     {
-      "id": "10.168.177.1",
-      "name": "mcgv10nt",
-      "location": {"lng": 16.799999999999997, "lat": 44.4135}
+      "id": "Bosnia-Herzegovina-2",
+      "name": "Bosnia & Herzegovina",
+      "location": {"lng": 16.8, "lat": 44.4135}
     }
   ],
   "links": [
+    {"source": "Romania-1", "target": "Croatia-3", "cost": 1},
+    {"source": "Czechia-1", "target": "Italy-3", "cost": 1.02734375},
+    {"source": "Romania-2", "target": "Czechia-2", "cost": 1},
+    {"source": "Hungary-1", "target": "Czechia-3", "cost": 1},
+    {"source": "Italy-1", "target": "Ukraine-4", "cost": 1},
+    {"source": "Italy-1", "target": "Hungary-5", "cost": 1},
+    {"source": "Ukraine-2", "target": "Bulgaria-1", "cost": 1},
+    {"source": "Italy-2", "target": "Bulgaria-4", "cost": 1.1796875},
     {
-      "source": "172.16.146.6",
-      "target": "172.16.146.4",
-      "cost": 1
-    },
-    {"source": "172.16.139.4", "target": "172.16.138.1", "cost": 1.02734375},
-    {"source": "172.16.135.15", "target": "10.123.10.10", "cost": 1},
-    {"source": "192.168.145.145", "target": "10.254.254.2", "cost": 1},
-    {"source": "172.16.186.249", "target": "172.16.159.187", "cost": 1},
-    {"source": "172.16.186.249", "target": "172.16.159.50", "cost": 1},
-    {"source": "172.16.12.10", "target": "172.16.12.12", "cost": 1},
-    {
-      "source": "172.16.177.31",
-      "target": "172.16.155.4",
-      "cost": 1.1796875
-    },
-    {
-      "source": "10.183.1.11",
-      "target": "172.16.145.3",
+      "source": "Romania-3",
+      "target": "Hungary-4",
       "cost": 1,
-      "properties": {
-        "status": "down"
-      }
+      "properties": {"status": "down"}
     },
-    {"source": "172.16.200.67", "target": "172.16.200.2", "cost": 1},
-    {"source": "172.16.185.11", "target": "192.168.176.10", "cost": 1},
-    {"source": "172.16.159.187", "target": "172.16.159.50", "cost": 1},
-    {"source": "172.16.159.187", "target": "172.16.39.31", "cost": 1.36328125},
+    {"source": "Ukraine-3", "target": "Romania-5", "cost": 1},
+    {"source": "Slovakia-2", "target": "Romania-6", "cost": 1},
+    {"source": "Ukraine-4", "target": "Hungary-5", "cost": 1},
+    {"source": "Ukraine-4", "target": "Hungary-6", "cost": 1.36328125},
     {
-      "source": "10.254.254.2",
-      "target": "10.254.254.4",
+      "source": "Czechia-3",
+      "target": "Austria-1",
       "cost": 1.3,
-      "properties": {
-        "status": "down"
-      }
+      "properties": {"status": "down"}
     },
-    {"source": "172.16.171.1", "target": "172.16.169.1", "cost": 1.1181640625},
-    {"source": "172.16.155.5", "target": "172.16.155.4", "cost": 1},
-    {"source": "172.16.155.5", "target": "172.16.44.10", "cost": 1.1328125},
-    {"source": "172.16.185.12", "target": "10.185.1.1", "cost": 1},
-    {"source": "172.16.185.12", "target": "172.16.185.13", "cost": 1},
-    {"source": "172.16.185.12", "target": "10.185.1.11", "cost": 1},
-    {"source": "10.149.3.3", "target": "172.16.146.4", "cost": 1.26171875},
-    {"source": "172.16.185.13", "target": "10.185.1.1", "cost": 1},
-    {"source": "172.16.185.13", "target": "10.185.1.11", "cost": 1},
+    {"source": "Hungary-2", "target": "Poland-2", "cost": 1.1181640625},
+    {"source": "Hungary-3", "target": "Bulgaria-4", "cost": 1},
     {
-      "source": "10.185.1.11",
-      "target": "10.185.1.1",
+      "source": "Hungary-3",
+      "target": "Bosnia-Herzegovina-1",
+      "cost": 1.1328125
+    },
+    {"source": "Ukraine-6", "target": "Italy-5", "cost": 1},
+    {"source": "Ukraine-6", "target": "Poland-3", "cost": 1},
+    {"source": "Ukraine-6", "target": "Moldova-1", "cost": 1},
+    {"source": "Italy-4", "target": "Croatia-3", "cost": 1.26171875},
+    {"source": "Poland-3", "target": "Italy-5", "cost": 1},
+    {"source": "Poland-3", "target": "Moldova-1", "cost": 1},
+    {
+      "source": "Moldova-1",
+      "target": "Italy-5",
       "cost": 1,
-      "properties": {
-        "status": "down"
-      }
+      "properties": {"status": "down"}
     },
-    {
-      "source": "172.16.133.11",
-      "target": "192.168.176.10",
-      "cost": 1.3779296875
-    }
+    {"source": "Poland-5", "target": "Romania-6", "cost": 1.3779296875}
   ]
 }
