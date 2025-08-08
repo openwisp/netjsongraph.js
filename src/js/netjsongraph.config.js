@@ -40,7 +40,7 @@ const NetJSONGraphDefaultConfig = {
   disableClusteringAtLevel: 8,
   clusterRadius: 80,
   showMetaOnNarrowScreens: false,
-  showLabelsAtZoomLevel: 15,
+  showLabelsAtZoomLevel: 13,
   crs: L.CRS.EPSG3857,
   echartsOption: {
     aria: {
@@ -172,9 +172,9 @@ const NetJSONGraphDefaultConfig = {
         color: "#000000",
         position: "top",
         formatter: "{b}",
-        fontSize: 14,
-        backgroundColor: "rgba(255, 255, 255, 0.5)",
-        padding: [5, 5],
+        fontSize: 13,
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        padding: [6, 8],
         borderRadius: 5,
       },
       nodeStyle: {
