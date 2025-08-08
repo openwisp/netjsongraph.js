@@ -72,14 +72,14 @@
     <script type="text/javascript">
       // Load dataset from external JSON file and initialize the map
       const map = new NetJSONGraph(
-        "../assets/data/geojson-sample.json",
+        "../assets/data/netjson-clustering.json",
         {
           render: "map",
           clustering: true,
           clusteringThreshold: 2,
           clusterRadius: 80,
           disableClusteringAtLevel: 18,
-          clusteringAttribute: "country",
+          clusteringAttribute: "status",
           clusterSeparation: 20,
           mapOptions: {
             center: [55.78, 11.54],
