@@ -1,4 +1,9 @@
-<!doctype html><html lang="en"><head><title>netjsongraph.js: basic example</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/><link href="../lib/css/netjsongraph-theme.css" rel="stylesheet"/><link href="../lib/css/netjsongraph.css" rel="stylesheet"/><style>#legend h4 {
+<!doctype html><html lang="en"><head><title>NetJSON Cluster Overlap Example</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/><link href="../lib/css/netjsongraph-theme.css" rel="stylesheet"/><link href="../lib/css/netjsongraph.css" rel="stylesheet"/><style>body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      #legend h4 {
         margin: 10px 0;
         text-align: center;
       }
@@ -14,7 +19,6 @@
         border-radius: 8px;
         color: #000;
         font-family: Arial, sans-serif;
-        font-family: sans-serif;
         font-size: 14px;
         z-index: 1000;
         user-select: text;
@@ -28,93 +32,94 @@
         width: 16px;
         margin-right: 5px;
       }
-      #legend .link-up,
-      #legend .link-down {
+      .status-ok,
+      .status-problem,
+      .status-critical {
         display: inline-block;
-        height: 5px;
-        border-bottom-width: 6px;
-        border-bottom-style: solid;
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+        border-radius: 50%;
       }
-      #legend .link-up {
-        color: #3acc38;
-        margin-right: 10px;
+      .status-ok {
+        background-color: #1ba619;
       }
-      #legend .link-down {
-        color: red;
-        margin-right: 10px;
+      .status-problem {
+        background-color: #ffa500;
       }
+      .status-critical {
+        background-color: #c92517;
+      }</style><script src="../netjsongraph.min.js"></script></head><body><script>// Load dataset from external JSON file and initialize the map
+      const map = new NetJSONGraph(
+        "../assets/data/netjson-clustering.json",
+        {
+          render: "map",
+          clustering: true,
+          clusteringThreshold: 2,
+          clusterRadius: 80,
+          disableClusteringAtLevel: 18,
+          clusteringAttribute: "status",
+          clusterSeparation: 20,
+          mapOptions: {
+            center: [55.78, 11.54],
+            zoom: 5,
+            minZoom: 1,
+            maxZoom: 18,
+            // No label configuration to keep the view clean
+          },
+          nodeCategories: [
+            {name: "ok", nodeStyle: {color: "#1ba619"}},
+            {name: "problem", nodeStyle: {color: "#ffa500"}},
+            {name: "critical", nodeStyle: {color: "#c92517"}},
+          ],
+          nodeLabel: function(node) {
+            // Return just the node name without the ID
+            return node.name || '';
+          },
+          prepareData: (data) => {
+            data.nodes.forEach((node) => {
+              // Keep location inside properties for later usage
+              node.properties = {
+                ...node.properties,
+                location: node.location,
+              };
 
-      @media only screen and (max-width: 850px) {
-        #legend {
-          right: 15px;
-        }
-      }</style><script src="../netjsongraph.min.js"></script></head><body><script>const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
-        render: "map",
-        clustering: true,
-        clusteringThreshold: 50,
-        // set map initial state.
-        mapOptions: {
-          center: [46.86764405052012, 19.675998687744144],
-          zoom: 4,
-          nodeConfig: {
-            label: {
-              offset: [0, -10],
-            },
-          },
-        },
-        linkCategories: [
-          {
-            name: "down",
-            linkStyle: {
-              color: "#c92517",
-              width: 5,
-            },
-            emphasis: {
-              linkStyle: {
-                color: "#FD0101",
-                opacity: 1,
-              },
-            },
-          },
-        ],
-        // Convert to internal json format
-        prepareData: (data) => {
-          data.nodes.map((node) => {
-            node.label = node.name;
-            node.properties = Object.assign(node.properties || {}, {
-              location: node.location,
+              const status = (node.properties?.status || "").toLowerCase();
+              if (["ok", "problem", "critical"].includes(status)) {
+                node.category = status;
+              } else {
+                node.category = "unknown";
+              }
+              // No `node.label` assignment to suppress labels
             });
-          });
-
-          data.links.map((link) => {
-            link.properties = link.properties || {};
-            if (link.properties.status) {
-              link.category = link.properties.status;
-            }
-          });
+          },
         },
-      });
+      );
 
-      const createLegend = (key, name) => {
+      // Build legend UI
+      const createLegend = (key, className) => {
         const legendItem = document.createElement("p");
         const legendIcon = document.createElement("span");
-
-        legendIcon.setAttribute("class", name);
-
+        legendIcon.setAttribute("class", className);
         legends.appendChild(legendItem);
         legendItem.appendChild(legendIcon);
-
         legendItem.innerHTML += key;
         return legendItem;
       };
-      const legends = document.createElement("div");
-      const legendsHeader = document.createElement("h4");
-      legends.setAttribute("id", "legend");
-      legendsHeader.innerHTML = "Legend";
-      legends.appendChild(legendsHeader);
-      legends.appendChild(createLegend("Up", "link-up"));
-      legends.appendChild(createLegend("Down", "link-down"));
 
+      const legends = document.createElement("div");
+      legends.setAttribute("id", "legend");
+      const legendsHeader = document.createElement("h4");
+      legendsHeader.textContent = "Node Status";
+      legends.appendChild(legendsHeader);
+      legends.appendChild(createLegend("OK", "status-ok"));
+      legends.appendChild(createLegend("Problem", "status-problem"));
+      legends.appendChild(createLegend("Critical", "status-critical"));
       document.body.appendChild(legends);
 
-      map.render();</script></body></html>
+      // Render map
+      try {
+        map.render();
+      } catch (e) {
+        console.error("Error initializing NetJSONGraph:", e);
+      }</script></body></html>
