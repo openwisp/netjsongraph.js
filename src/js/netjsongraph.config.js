@@ -1,3 +1,4 @@
+import L from "leaflet/dist/leaflet";
 /**
  * Default options
  *
@@ -38,8 +39,10 @@ const NetJSONGraphDefaultConfig = {
   clusteringThreshold: 100,
   disableClusteringAtLevel: 8,
   clusterRadius: 80,
+  clusterSeparation: 20,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 7,
+  crs: L.CRS.EPSG3857,
   echartsOption: {
     aria: {
       show: true,
@@ -252,7 +255,26 @@ const NetJSONGraphDefaultConfig = {
       radius: 8,
     },
   },
-  nodeCategories: [],
+  nodeCategories: [
+    {
+      name: "ok",
+      nodeStyle: {
+        color: "#28a745",
+      },
+    },
+    {
+      name: "problem",
+      nodeStyle: {
+        color: "#ffc107",
+      },
+    },
+    {
+      name: "critical",
+      nodeStyle: {
+        color: "#dc3545",
+      },
+    },
+  ],
   linkCategories: [],
 
   /**
@@ -265,8 +287,24 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  // eslint-disable-next-line no-unused-vars
-  prepareData(JSONData) {},
+  prepareData(JSONData) {
+    if (JSONData && JSONData.nodes) {
+      JSONData.nodes.forEach((node) => {
+        if (node.properties && node.properties.status) {
+          const status = node.properties.status.toLowerCase();
+          if (
+            status === "ok" ||
+            status === "problem" ||
+            status === "critical"
+          ) {
+            node.category = status;
+          } else {
+            // Unrecognized status – leave category undefined to avoid test mismatches
+          }
+        }
+      });
+    }
+  },
 
   /**
    * @function
@@ -281,18 +319,21 @@ const NetJSONGraphDefaultConfig = {
    */
   onClickElement(type, data) {
     let nodeLinkData;
-    if (this.type === "netjson") {
+    if (this.utils && this.utils.isNetJSON(this.data)) {
       if (type === "node") {
         nodeLinkData = this.utils.nodeInfo(data);
-      } else {
+      } else if (type === "link") {
         nodeLinkData = this.utils.linkInfo(data);
+      } else {
+        // For GeoJSON Feature (e.g., polygons, points) just forward its properties as-is
+        nodeLinkData = data;
       }
 
       if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
         this.gui.metaInfoContainer.style.display = "flex";
       }
     } else {
-      nodeLinkData = data;
+      ({nodeLinkData} = {nodeLinkData: data});
     }
 
     this.gui.getNodeLinkInfo(type, nodeLinkData);
@@ -311,4 +352,5 @@ const NetJSONGraphDefaultConfig = {
   onReady() {},
 };
 
+export const {prepareData} = NetJSONGraphDefaultConfig;
 export default {...NetJSONGraphDefaultConfig};
