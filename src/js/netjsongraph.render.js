@@ -422,6 +422,11 @@ class NetJSONGraphRender {
             label: {
               show: false,
             },
+            emphasis: {
+              label: {
+                show: false,
+              },
+            },
           },
         ],
       });
@@ -429,11 +434,17 @@ class NetJSONGraphRender {
 
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
+      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
       self.echarts.setOption({
         series: [
           {
             label: {
-              show: currentZoom >= self.config.showLabelsAtZoomLevel,
+              show: showLabel,
+            },
+            emphasis: {
+              label: {
+                show: showLabel,
+              },
             },
           },
         ],
