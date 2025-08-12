@@ -178,6 +178,9 @@ const NetJSONGraphDefaultConfig = {
         padding: [6, 8],
         borderRadius: 5,
       },
+      emphasis: {
+        scale: 1,
+      },
       nodeStyle: {
         color: "#1566a9",
       },
