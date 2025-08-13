@@ -128,6 +128,19 @@ class NetJSONGraphGUI {
     closeButton.innerHTML = " &#x2715;";
 
     Object.keys(data).forEach((key) => {
+      const val = data[key];
+
+      // Hide keys whose value is not provided or is explicitly undefined/null/empty
+      if (
+        val === undefined ||
+        val === null ||
+        (typeof val === "string" &&
+          (val.trim() === "" || /^(undefined|null)$/i.test(val.trim())) &&
+          val !== "0")
+      ) {
+        return;
+      }
+
       const infoItems = document.createElement("div");
       infoItems.classList.add("njg-infoItems");
       const keyLabel = document.createElement("span");
@@ -144,7 +157,10 @@ class NetJSONGraphGUI {
         valueLabel.innerHTML = data[key].join("<br/>");
       } else {
         keyLabel.innerHTML = key;
-        valueLabel.innerHTML = data[key];
+        // Preserve multiline values
+        const displayVal =
+          typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
+        valueLabel.innerHTML = displayVal;
       }
 
       infoItems.appendChild(keyLabel);
