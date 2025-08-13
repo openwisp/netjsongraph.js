@@ -59,10 +59,11 @@ function attachClientsOverlay(graph, options = {}) {
         for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
           let color = colors.other;
           if (i < counts[0].count) color = counts[0].color;
-          else if (i < counts[0].count + counts[1].count) color = counts[1].color;
+          else if (i < counts[0].count + counts[1].count)
+            color = counts[1].color;
           else color = counts[2].color;
 
-          const angle = (2 * Math.PI / n) * j;
+          const angle = ((2 * Math.PI) / n) * j;
           const x = centerX + distance * Math.cos(angle);
           const y = centerY + distance * Math.sin(angle);
 
@@ -86,9 +87,18 @@ function attachClientsOverlay(graph, options = {}) {
       const x = Array.isArray(layout) ? layout[0] : layout.x;
       const y = Array.isArray(layout) ? layout[1] : layout.y;
       const node = data.getRawDataItem(idx) || {};
-      const c24 = node[fields.wifi24] || (node.properties && node.properties[fields.wifi24]) || 0;
-      const c5 = node[fields.wifi5] || (node.properties && node.properties[fields.wifi5]) || 0;
-      const other = node[fields.other] || (node.properties && node.properties[fields.other]) || 0;
+      const c24 =
+        node[fields.wifi24] ||
+        (node.properties && node.properties[fields.wifi24]) ||
+        0;
+      const c5 =
+        node[fields.wifi5] ||
+        (node.properties && node.properties[fields.wifi5]) ||
+        0;
+      const other =
+        node[fields.other] ||
+        (node.properties && node.properties[fields.other]) ||
+        0;
 
       const startDistance = nodeRadius + gap;
       placeOrbit(
@@ -124,5 +134,3 @@ function attachClientsOverlay(graph, options = {}) {
 }
 
 export default attachClientsOverlay;
-
-
