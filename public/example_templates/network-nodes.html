@@ -16,30 +16,7 @@
     <div id="graph"></div>
     <script type="text/javascript">
       // Minimal inline NetJSON-like data with client counts per node
-      const data = {
-        label: "Network Nodes",
-        nodes: [
-          { id: "A", label: "Node A", clients_wifi24: 8, clients_wifi5: 4 },
-          { id: "B", label: "Node B", clients_wifi24: 3, clients_wifi5: 1 },
-          { id: "C", label: "Node C", clients_wifi24: 6, clients_wifi5: 2 },
-          { id: "D", label: "Node D", clients_wifi24: 0, clients_wifi5: 2 },
-          { id: "E", label: "Node E", clients_wifi24: 1, clients_wifi5: 0 },
-          { id: "F", label: "Node F", clients_wifi24: 2, clients_wifi5: 3 },
-          { id: "G", label: "Node G", clients_wifi24: 0, clients_wifi5: 0 },
-          { id: "H", label: "Node H", clients_wifi24: 4, clients_wifi5: 0 },
-          { id: "I", label: "Node I", clients_wifi24: 0, clients_wifi5: 1 },
-        ],
-        links: [
-          { source: "A", target: "B", cost: 1 },
-          { source: "A", target: "C", cost: 1 },
-          { source: "B", target: "D", cost: 1 },
-          { source: "C", target: "D", cost: 1 },
-          { source: "C", target: "E", cost: 1 },
-          { source: "D", target: "E", cost: 1 },
-          { source: "D", target: "F", cost: 1 },
-          { source: "E", target: "F", cost: 1 },
-        ]
-      };
+      const data = "../assets/data/netjsongraph-network-nodes.json";
 
       const graph = new NetJSONGraph(data, {
         el: "#graph",
@@ -59,92 +36,12 @@
           }
         },
         onReady() {
-          const ec = this.echarts;
-
-          // Colors for 2.4GHz, 5GHz, other
-          const bandColors = {
-            wifi24: "#d35454", // red-ish
-            wifi5: "#2ecc71",  // green
-            other: "#bdc3c7",  // gray
-          };
-
-          const nodeRadius = (typeof this.config.graphConfig.series.nodeSize === "number")
-            ? this.config.graphConfig.series.nodeSize
-            : 18;
-
-          const drawClients = () => {
-            const seriesModel = ec.getModel().getSeriesByIndex(0);
-            if (!seriesModel) return;
-            const seriesData = seriesModel.getData();
-            if (!seriesData) return;
-
-            const graphics = [];
-
-            const placeOrbit = (centerX, centerY, counts, startDistance) => {
-              const radius = 3;
-              const a = 1.2;
-              let i = 0;
-              const total = counts.reduce((s, v) => s + v.count, 0);
-              if (total === 0) return;
-
-              for (let orbit = 0; i < total; orbit += 1) {
-                const distance = startDistance + orbit * 2 * radius * a;
-                const n = Math.max(1, Math.floor((Math.PI * distance) / (a * radius)));
-                const delta = total - i;
-                for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
-                  // Determine band by index i
-                  let color = bandColors.other;
-                  if (i < counts[0].count) color = counts[0].color; // 2.4GHz
-                  else if (i < counts[0].count + counts[1].count) color = counts[1].color; // 5GHz
-                  else color = counts[2].color; // other
-
-                  const angle = (2 * Math.PI / n) * j;
-                  const x = centerX + distance * Math.cos(angle);
-                  const y = centerY + distance * Math.sin(angle);
-
-                  graphics.push({
-                    type: "circle",
-                    shape: { cx: x, cy: y, r: radius },
-                    style: { fill: color, stroke: null },
-                    silent: true,
-                    z: 100,
-                    zlevel: 1,
-                  });
-                }
-              }
-            };
-
-            // Clear previous client graphics
-            ec.setOption({ graphic: { elements: [] } });
-
-            // Build new graphics positioned around each node
-            const count = seriesData.count ? seriesData.count() : seriesData._rawData.length;
-            for (let idx = 0; idx < count; idx += 1) {
-              const layout = seriesData.getItemLayout(idx);
-              if (!layout) continue;
-              const x = Array.isArray(layout) ? layout[0] : layout.x;
-              const y = Array.isArray(layout) ? layout[1] : layout.y;
-              const node = seriesData.getRawDataItem(idx) || {};
-              const c24 = node.clients_wifi24 || (node.properties && node.properties.clients_wifi24) || 0;
-              const c5 = node.clients_wifi5 || (node.properties && node.properties.clients_wifi5) || 0;
-              const other = node.clients_other || (node.properties && node.properties.clients_other) || 0;
-
-              const startDistance = nodeRadius + 8;
-              placeOrbit(x, y, [
-                { count: c24, color: bandColors.wifi24 },
-                { count: c5, color: bandColors.wifi5 },
-                { count: other, color: bandColors.other },
-              ], startDistance);
-            }
-
-            // Add all circles in a single update
-            ec.setOption({ graphic: { elements: graphics } });
-          };
-
-          // Draw initially and on chart updates/resize
-          ec.on("finished", drawClients);
-          ec.on("rendered", drawClients);
-          drawClients();
+          // Attach reusable overlay plugin shipped with the bundle
+          this.attachClientsOverlay({
+            colors: { wifi24: "#d35454", wifi5: "#2ecc71", other: "#bdc3c7" },
+            radius: 3,
+            gap: 8,
+          });
         }
       });
 

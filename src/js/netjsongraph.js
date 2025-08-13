@@ -2,6 +2,7 @@ import NetJSONGraphCore from "./netjsongraph.core";
 import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
 import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
 import NetJSONGraphGUI from "./netjsongraph.gui";
+import attachClientsOverlay from "./netjsongraph.clients";
 
 const colorTool = require("zrender/lib/tool/color");
 const {each} = require("zrender/lib/core/util");
@@ -154,6 +155,10 @@ class NetJSONGraph {
       };
     }
     this.utils.hideLoading.call(this);
+
+    // Expose helper to attach clients overlay for examples or apps
+    // Not enabled by default to avoid side effects.
+    this.attachClientsOverlay = (opts) => attachClientsOverlay(this, opts);
     return this.config;
   }
 }
