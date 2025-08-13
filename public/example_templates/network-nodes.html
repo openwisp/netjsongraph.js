@@ -59,111 +59,12 @@
           }
         },
         onReady() {
-          const ec = this.echarts;
-          const g = echarts.graphic;
-
-          const bandColors = {
-            wifi24: "#d35454",
-            wifi5: "#2ecc71",
-            other: "#bdc3c7",
-          };
-
-          const nodeRadius = (typeof this.config.graphConfig.series.nodeSize === "number")
-            ? this.config.graphConfig.series.nodeSize
-            : 18;
-
-          // Create persistent overlay group as a child of the graph series view group
-          // so it inherits pan/zoom and force layout transforms automatically.
-          const seriesModel = ec.getModel().getSeriesByIndex(0);
-          const seriesView = (ec._chartsViews || []).find(
-            (v) => v && v.__model && v.__model.uid === seriesModel.uid,
-          );
-          if (!this._clientOverlay && seriesView && seriesView.group) {
-            this._clientOverlay = new g.Group({silent: true, z: 100, zlevel: 1});
-            seriesView.group.add(this._clientOverlay);
-          }
-
-          let currentScale = 1;
-          let currentX = 0;
-          let currentY = 0;
-
-          const applyTransform = () => {
-            this._clientOverlay.attr({
-              scale: [currentScale, currentScale],
-              position: [currentX, currentY],
-            });
-          };
-
-          const drawClients = () => {
-            const sModel = ec.getModel().getSeriesByIndex(0);
-            if (!sModel) return;
-            const seriesData = sModel.getData();
-            if (!seriesData) return;
-
-            const group = this._clientOverlay;
-            group.removeAll();
-
-            const placeOrbit = (centerX, centerY, counts, startDistance) => {
-              const radius = 3;
-              const a = 1.2;
-              let i = 0;
-              const total = counts.reduce((s, v) => s + v.count, 0);
-              if (total === 0) return;
-
-              for (let orbit = 0; i < total; orbit += 1) {
-                const distance = startDistance + orbit * 2 * radius * a;
-                const n = Math.max(1, Math.floor((Math.PI * distance) / (a * radius)));
-                const delta = total - i;
-                for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
-                  let color = bandColors.other;
-                  if (i < counts[0].count) color = counts[0].color;
-                  else if (i < counts[0].count + counts[1].count) color = counts[1].color;
-                  else color = counts[2].color;
-
-                  const angle = (2 * Math.PI / n) * j;
-                  const x = centerX + distance * Math.cos(angle);
-                  const y = centerY + distance * Math.sin(angle);
-
-                  group.add(new g.Circle({
-                    shape: { cx: x, cy: y, r: radius },
-                    style: { fill: color },
-                    silent: true,
-                    z: 100,
-                    zlevel: 1,
-                  }));
-                }
-              }
-            };
-
-            const count = seriesData.count ? seriesData.count() : seriesData._rawData.length;
-            for (let idx = 0; idx < count; idx += 1) {
-              const layout = seriesData.getItemLayout(idx);
-              if (!layout) continue;
-              const x = Array.isArray(layout) ? layout[0] : layout.x;
-              const y = Array.isArray(layout) ? layout[1] : layout.y;
-              const node = seriesData.getRawDataItem(idx) || {};
-              const c24 = node.clients_wifi24 || (node.properties && node.properties.clients_wifi24) || 0;
-              const c5 = node.clients_wifi5 || (node.properties && node.properties.clients_wifi5) || 0;
-              const other = node.clients_other || (node.properties && node.properties.clients_other) || 0;
-
-              const startDistance = nodeRadius + 8;
-              placeOrbit(x, y, [
-                { count: c24, color: bandColors.wifi24 },
-                { count: c5, color: bandColors.wifi5 },
-                { count: other, color: bandColors.other },
-              ], startDistance);
-            }
-          };
-
-          ec.off("finished");
-          ec.off("rendered");
-          ec.off("graphRoam");
-          ec.off("graphLayoutEnd");
-          ec.on("finished", drawClients);
-          ec.on("rendered", drawClients);
-          ec.on("graphLayoutEnd", drawClients);
-          ec.on("graphRoam", drawClients);
-          drawClients();
+          // Attach reusable overlay plugin shipped with the bundle
+          this.attachClientsOverlay({
+            colors: { wifi24: "#d35454", wifi5: "#2ecc71", other: "#bdc3c7" },
+            radius: 3,
+            gap: 1,
+          });
         }
       });
 
