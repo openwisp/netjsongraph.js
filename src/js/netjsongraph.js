@@ -2,7 +2,7 @@ import NetJSONGraphCore from "./netjsongraph.core";
 import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
 import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
 import NetJSONGraphGUI from "./netjsongraph.gui";
-import attachClientsOverlay from "./plugins/clientsOverlay";
+import attachClientsOverlay from "./netjsongraph.clients";
 
 const colorTool = require("zrender/lib/tool/color");
 const {each} = require("zrender/lib/core/util");

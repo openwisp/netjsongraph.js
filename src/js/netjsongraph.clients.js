@@ -1,35 +1,22 @@
-/*
-  Clients overlay plugin for NetJSONGraph graph mode
-  Renders small circles around nodes to represent per-band client counts.
-
-  Usage:
-    const overlay = attachClientsOverlay(graphInstance, {
-      colors: { wifi24: '#d35454', wifi5: '#2ecc71', other: '#bdc3c7' },
-      radius: 3,
-      gap: 8,
-      fields: { wifi24: 'clients_wifi24', wifi5: 'clients_wifi5', other: 'clients_other' }
-    });
-    overlay.destroy(); // to cleanup
-*/
-
 /* eslint-disable no-underscore-dangle */
 /* global echarts */
 
+// Attach client markers (2.4/5/other) around nodes in graph mode
 function attachClientsOverlay(graph, options = {}) {
   const chart = graph.echarts;
   const g = echarts.graphic;
 
   const colors = {
-    wifi24: (options.colors && options.colors.wifi24) || '#d35454',
-    wifi5: (options.colors && options.colors.wifi5) || '#2ecc71',
-    other: (options.colors && options.colors.other) || '#bdc3c7',
+    wifi24: (options.colors && options.colors.wifi24) || "#d35454",
+    wifi5: (options.colors && options.colors.wifi5) || "#2ecc71",
+    other: (options.colors && options.colors.other) || "#bdc3c7",
   };
   const radius = options.radius || 3;
   const gap = options.gap || 8;
   const fields = {
-    wifi24: (options.fields && options.fields.wifi24) || 'clients_wifi24',
-    wifi5: (options.fields && options.fields.wifi5) || 'clients_wifi5',
-    other: (options.fields && options.fields.other) || 'clients_other',
+    wifi24: (options.fields && options.fields.wifi24) || "clients_wifi24",
+    wifi5: (options.fields && options.fields.wifi5) || "clients_wifi5",
+    other: (options.fields && options.fields.other) || "clients_other",
   };
 
   function getSeriesViewGroup() {
@@ -42,14 +29,13 @@ function attachClientsOverlay(graph, options = {}) {
     return seriesView ? seriesView.group : null;
   }
 
-  // Create persistent overlay group inside the series view so it inherits transforms
   const parent = getSeriesViewGroup();
-  if (!parent) return { destroy() {} };
-  const overlay = new g.Group({ silent: true, z: 100, zlevel: 1 });
+  if (!parent) return {destroy() {}};
+  const overlay = new g.Group({silent: true, z: 100, zlevel: 1});
   parent.add(overlay);
 
   const nodeRadius =
-    typeof graph.config.graphConfig?.series?.nodeSize === 'number'
+    typeof graph.config.graphConfig?.series?.nodeSize === "number"
       ? graph.config.graphConfig.series.nodeSize
       : 18;
 
@@ -82,8 +68,8 @@ function attachClientsOverlay(graph, options = {}) {
 
           overlay.add(
             new g.Circle({
-              shape: { cx: x, cy: y, r: radius },
-              style: { fill: color },
+              shape: {cx: x, cy: y, r: radius},
+              style: {fill: color},
               silent: true,
               z: 100,
               zlevel: 1,
@@ -109,25 +95,22 @@ function attachClientsOverlay(graph, options = {}) {
         x,
         y,
         [
-          { count: c24, color: colors.wifi24 },
-          { count: c5, color: colors.wifi5 },
-          { count: other, color: colors.other },
+          {count: c24, color: colors.wifi24},
+          {count: c5, color: colors.wifi5},
+          {count: other, color: colors.other},
         ],
         startDistance,
       );
     }
   }
 
-  // Bind redraw on relevant graph events
   const handlers = [
-    ['finished', draw],
-    ['rendered', draw],
-    ['graphLayoutEnd', draw],
-    ['graphRoam', draw],
+    ["finished", draw],
+    ["rendered", draw],
+    ["graphLayoutEnd", draw],
+    ["graphRoam", draw],
   ];
   handlers.forEach(([ev, fn]) => chart.on(ev, fn));
-
-  // Initial draw
   draw();
 
   return {
@@ -135,9 +118,7 @@ function attachClientsOverlay(graph, options = {}) {
       try {
         handlers.forEach(([ev, fn]) => chart.off(ev, fn));
       } catch (e) {}
-      if (overlay && overlay.parent) {
-        overlay.parent.remove(overlay);
-      }
+      if (overlay && overlay.parent) overlay.parent.remove(overlay);
     },
   };
 }

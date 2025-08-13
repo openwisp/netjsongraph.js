@@ -1,0 +1,37 @@
+{
+  "label": "Network Nodes (clients)",
+  "nodes": [
+    {"id": "A", "label": "Node A", "clients_wifi24": 12, "clients_wifi5": 6},
+    {"id": "B", "label": "Node B", "clients_wifi24": 5, "clients_wifi5": 2},
+    {"id": "C", "label": "Node C", "clients_wifi24": 10, "clients_wifi5": 3},
+    {"id": "D", "label": "Node D", "clients_wifi24": 1, "clients_wifi5": 7},
+    {"id": "E", "label": "Node E", "clients_wifi24": 4, "clients_wifi5": 1},
+    {"id": "F", "label": "Node F", "clients_wifi24": 2, "clients_wifi5": 3},
+    {"id": "G", "label": "Node G", "clients_wifi24": 0, "clients_wifi5": 0},
+    {"id": "H", "label": "Node H", "clients_wifi24": 3, "clients_wifi5": 0},
+    {"id": "I", "label": "Node I", "clients_wifi24": 0, "clients_wifi5": 1},
+    {"id": "J", "label": "Node J", "clients_wifi24": 7, "clients_wifi5": 4},
+    {"id": "K", "label": "Node K", "clients_wifi24": 6, "clients_wifi5": 5},
+    {"id": "L", "label": "Node L", "clients_wifi24": 8, "clients_wifi5": 2},
+    {"id": "M", "label": "Node M", "clients_wifi24": 9, "clients_wifi5": 1}
+  ],
+  "links": [
+    {"source": "A", "target": "B"},
+    {"source": "A", "target": "C"},
+    {"source": "B", "target": "D"},
+    {"source": "C", "target": "D"},
+    {"source": "C", "target": "E"},
+    {"source": "D", "target": "E"},
+    {"source": "D", "target": "F"},
+    {"source": "E", "target": "F"},
+    {"source": "F", "target": "G"},
+    {"source": "H", "target": "C"},
+    {"source": "I", "target": "B"},
+    {"source": "J", "target": "K"},
+    {"source": "K", "target": "L"},
+    {"source": "L", "target": "M"},
+    {"source": "J", "target": "M"}
+  ]
+}
+
+
