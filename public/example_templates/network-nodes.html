@@ -60,25 +60,48 @@
         },
         onReady() {
           const ec = this.echarts;
+          const g = echarts.graphic;
 
-          // Colors for 2.4GHz, 5GHz, other
           const bandColors = {
-            wifi24: "#d35454", // red-ish
-            wifi5: "#2ecc71",  // green
-            other: "#bdc3c7",  // gray
+            wifi24: "#d35454",
+            wifi5: "#2ecc71",
+            other: "#bdc3c7",
           };
 
           const nodeRadius = (typeof this.config.graphConfig.series.nodeSize === "number")
             ? this.config.graphConfig.series.nodeSize
             : 18;
 
+          // Create persistent overlay group as a child of the graph series view group
+          // so it inherits pan/zoom and force layout transforms automatically.
+          const seriesModel = ec.getModel().getSeriesByIndex(0);
+          const seriesView = (ec._chartsViews || []).find(
+            (v) => v && v.__model && v.__model.uid === seriesModel.uid,
+          );
+          if (!this._clientOverlay && seriesView && seriesView.group) {
+            this._clientOverlay = new g.Group({silent: true, z: 100, zlevel: 1});
+            seriesView.group.add(this._clientOverlay);
+          }
+
+          let currentScale = 1;
+          let currentX = 0;
+          let currentY = 0;
+
+          const applyTransform = () => {
+            this._clientOverlay.attr({
+              scale: [currentScale, currentScale],
+              position: [currentX, currentY],
+            });
+          };
+
           const drawClients = () => {
-            const seriesModel = ec.getModel().getSeriesByIndex(0);
-            if (!seriesModel) return;
-            const seriesData = seriesModel.getData();
+            const sModel = ec.getModel().getSeriesByIndex(0);
+            if (!sModel) return;
+            const seriesData = sModel.getData();
             if (!seriesData) return;
 
-            const graphics = [];
+            const group = this._clientOverlay;
+            group.removeAll();
 
             const placeOrbit = (centerX, centerY, counts, startDistance) => {
               const radius = 3;
@@ -92,32 +115,26 @@
                 const n = Math.max(1, Math.floor((Math.PI * distance) / (a * radius)));
                 const delta = total - i;
                 for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
-                  // Determine band by index i
                   let color = bandColors.other;
-                  if (i < counts[0].count) color = counts[0].color; // 2.4GHz
-                  else if (i < counts[0].count + counts[1].count) color = counts[1].color; // 5GHz
-                  else color = counts[2].color; // other
+                  if (i < counts[0].count) color = counts[0].color;
+                  else if (i < counts[0].count + counts[1].count) color = counts[1].color;
+                  else color = counts[2].color;
 
                   const angle = (2 * Math.PI / n) * j;
                   const x = centerX + distance * Math.cos(angle);
                   const y = centerY + distance * Math.sin(angle);
 
-                  graphics.push({
-                    type: "circle",
+                  group.add(new g.Circle({
                     shape: { cx: x, cy: y, r: radius },
-                    style: { fill: color, stroke: null },
+                    style: { fill: color },
                     silent: true,
                     z: 100,
                     zlevel: 1,
-                  });
+                  }));
                 }
               }
             };
 
-            // Clear previous client graphics
-            ec.setOption({ graphic: { elements: [] } });
-
-            // Build new graphics positioned around each node
             const count = seriesData.count ? seriesData.count() : seriesData._rawData.length;
             for (let idx = 0; idx < count; idx += 1) {
               const layout = seriesData.getItemLayout(idx);
@@ -136,14 +153,16 @@
                 { count: other, color: bandColors.other },
               ], startDistance);
             }
-
-            // Add all circles in a single update
-            ec.setOption({ graphic: { elements: graphics } });
           };
 
-          // Draw initially and on chart updates/resize
+          ec.off("finished");
+          ec.off("rendered");
+          ec.off("graphRoam");
+          ec.off("graphLayoutEnd");
           ec.on("finished", drawClients);
           ec.on("rendered", drawClients);
+          ec.on("graphLayoutEnd", drawClients);
+          ec.on("graphRoam", drawClients);
           drawClients();
         }
       });
