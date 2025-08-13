@@ -15,6 +15,7 @@ import {
 import {SVGRenderer} from "echarts/renderers";
 import L from "leaflet/dist/leaflet";
 import "echarts-gl";
+import {addPolygonOverlays} from "./netjsongraph.geojson";
 
 echarts.use([
   GraphChart,
@@ -142,7 +143,7 @@ class NetJSONGraphRender {
         itemStyle: nodeEmphasisConfig.nodeStyle,
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
-      nodeResult.name = typeof node.label === "string" ? node.label : node.id;
+      nodeResult.name = typeof node.label === "string" ? node.label : "";
 
       return nodeResult;
     });
@@ -205,6 +206,23 @@ class NetJSONGraphRender {
     let nodesData = [];
 
     nodes.forEach((node) => {
+      if (node.properties) {
+        // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
+        if (!JSONData.flatNodes) {
+          flatNodes[node.id] = JSON.parse(JSON.stringify(node));
+        }
+      }
+
+      // Non-Point geometries should not become scatter markers, but we still need them for lines
+      if (
+        node.properties &&
+        // eslint-disable-next-line no-underscore-dangle
+        node.properties._featureType &&
+        // eslint-disable-next-line no-underscore-dangle
+        node.properties._featureType !== "Point"
+      ) {
+        return; // skip marker push only
+      }
       if (!node.properties) {
         console.error(`Node ${node.id} position is undefined!`);
       } else {
@@ -213,23 +231,21 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
-            self.utils.getNodeStyle(node, configs, "map");
+          const {nodeEmphasisConfig} = self.utils.getNodeStyle(
+            node,
+            configs,
+            "map",
+          );
 
           nodesData.push({
-            name: typeof node.label === "string" ? node.label : node.id,
+            name: typeof node.label === "string" ? node.label : "",
             value: [location.lng, location.lat],
-            symbolSize: nodeSizeConfig,
-            itemStyle: nodeStyleConfig,
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
               symbolSize: nodeEmphasisConfig.nodeSize,
             },
             node,
           });
-          if (!JSONData.flatNodes) {
-            flatNodes[node.id] = JSON.parse(JSON.stringify(node));
-          }
         }
       }
     });
@@ -265,15 +281,74 @@ class NetJSONGraphRender {
     nodesData = nodesData.concat(clusters);
 
     const series = [
-      Object.assign(configs.mapOptions.nodeConfig, {
+      {
         type:
           configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
             : "scatter",
+        name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
-      }),
+        label: configs.mapOptions.nodeConfig.label,
+        itemStyle: {
+          color: (params) => {
+            if (
+              params.data &&
+              params.data.cluster &&
+              params.data.itemStyle &&
+              params.data.itemStyle.color
+            ) {
+              return params.data.itemStyle.color;
+            }
+            if (params.data && params.data.node && params.data.node.category) {
+              const category = configs.nodeCategories.find(
+                (cat) => cat.name === params.data.node.category,
+              );
+              const nodeColor =
+                (category && category.nodeStyle && category.nodeStyle.color) ||
+                (configs.mapOptions.nodeConfig &&
+                  configs.mapOptions.nodeConfig.nodeStyle &&
+                  configs.mapOptions.nodeConfig.nodeStyle.color) ||
+                "#6c757d";
+              return nodeColor;
+            }
+            const defaultColor =
+              (configs.mapOptions.nodeConfig &&
+                configs.mapOptions.nodeConfig.nodeStyle &&
+                configs.mapOptions.nodeConfig.nodeStyle.color) ||
+              "#6c757d";
+            return defaultColor;
+          },
+        },
+        symbolSize: (value, params) => {
+          if (params.data && params.data.cluster) {
+            return (
+              (configs.mapOptions.clusterConfig &&
+                configs.mapOptions.clusterConfig.symbolSize) ||
+              30
+            );
+          }
+          if (params.data && params.data.node) {
+            const {nodeSizeConfig} = self.utils.getNodeStyle(
+              params.data.node,
+              configs,
+              "map",
+            );
+            return typeof nodeSizeConfig === "object"
+              ? (configs.mapOptions.nodeConfig &&
+                  configs.mapOptions.nodeConfig.nodeSize) ||
+                  17
+              : nodeSizeConfig;
+          }
+          return (
+            (configs.mapOptions.nodeConfig &&
+              configs.mapOptions.nodeConfig.nodeSize) ||
+            17
+          );
+        },
+        emphasis: configs.mapOptions.nodeConfig.emphasis,
+      },
       Object.assign(configs.mapOptions.linkConfig, {
         type: "lines",
         coordinateSystem: "leaflet",
@@ -329,12 +404,14 @@ class NetJSONGraphRender {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
 
-    // Convert GeoJSON FeatureCollection input to NetJSON so the rest of the
-    // pipeline can always follow the NetJSON branch.
-    if (self.type === "geojson") {
-      self.originalGeoJSON = JSONData;
+    // Accept both NetJSON and GeoJSON inputs. If GeoJSON is detected,
+    // deep-copy it for polygon overlays and convert the working copy to
+    // NetJSON so the rest of the pipeline can operate uniformly.
+    if (self.utils.isGeoJSON(JSONData)) {
+      self.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
       JSONData = self.utils.geojsonToNetjson(JSONData);
-      self.type = "netjson";
+      // From this point forward we treat the data as NetJSON internally,
+      // but keep the public-facing `type` value unchanged ("geojson").
     }
 
     const initialMapOptions = self.utils.generateMapOption(JSONData, self);
@@ -365,65 +442,38 @@ class NetJSONGraphRender {
       self.config.geoOptions,
     );
 
-    // Render Polygon/MultiPolygon geometries on a dedicated Leaflet pane when
-    // original GeoJSON data exists (converted earlier to NetJSON).
-    if (
-      self.type === "netjson" &&
-      self.originalGeoJSON &&
-      Array.isArray(self.originalGeoJSON.features)
-    ) {
-      const polygonFeatures = self.originalGeoJSON.features.filter(
-        (f) =>
-          f &&
-          f.geometry &&
-          (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"),
-      );
+    // Render Polygon and MultiPolygon features from the original GeoJSON data.
+    // While nodes (Points) and links (LineStrings) are handled by ECharts,
+    // polygon features are rendered directly onto the Leaflet map using
+    // a separate L.geoJSON layer. This allows for displaying geographical
+    // areas like parks or districts alongside the network topology.
+    if (self.originalGeoJSON) {
+      addPolygonOverlays(self);
+      // Auto-fit view to encompass ALL geometries (polygons + nodes)
+      let bounds = null;
 
-      if (polygonFeatures.length) {
-        let polygonPane = self.leaflet.getPane("njg-polygons");
-        if (!polygonPane) {
-          polygonPane = self.leaflet.createPane("njg-polygons");
-          polygonPane.style.zIndex = 410; // above overlayPane (400)
+      // 1. Polygon overlays (if any)
+      if (
+        self.leaflet.polygonGeoJSON &&
+        typeof self.leaflet.polygonGeoJSON.getBounds === "function"
+      ) {
+        bounds = self.leaflet.polygonGeoJSON.getBounds();
+      }
+
+      // 2. Nodes (Points)
+      if (JSONData.nodes && JSONData.nodes.length) {
+        const latlngs = JSONData.nodes
+          .map((n) => n.properties.location)
+          .map((loc) => [loc.lat, loc.lng]);
+        if (bounds) {
+          latlngs.forEach((ll) => bounds.extend(ll));
+        } else {
+          bounds = L.latLngBounds(latlngs);
         }
+      }
 
-        const defaultStyle = {
-          fillColor: "#1566a9",
-          color: "#1566a9",
-          weight: 0,
-          fillOpacity: 0.6,
-        };
-
-        const polygonLayer = L.geoJSON(
-          {type: "FeatureCollection", features: polygonFeatures},
-          {
-            pane: "njg-polygons",
-            style: (feature) => {
-              const echartsStyle =
-                (feature.properties && feature.properties.echartsStyle) || {};
-              const leafletStyle = {
-                ...defaultStyle,
-                ...(self.config.geoOptions && self.config.geoOptions.style),
-              };
-              if (echartsStyle.areaColor)
-                leafletStyle.fillColor = echartsStyle.areaColor;
-              if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
-              if (typeof echartsStyle.opacity !== "undefined")
-                leafletStyle.fillOpacity = echartsStyle.opacity;
-              if (typeof echartsStyle.borderWidth !== "undefined")
-                leafletStyle.weight = echartsStyle.borderWidth;
-              return leafletStyle;
-            },
-            onEachFeature: (feature, layer) => {
-              layer.on("click", () => {
-                self.config.onClickElement.call(self, "Feature", {
-                  ...feature.properties,
-                });
-              });
-            },
-          },
-        ).addTo(self.leaflet);
-
-        self.leaflet.polygonGeoJSON = polygonLayer;
+      if (bounds && bounds.isValid()) {
+        self.leaflet.fitBounds(bounds, {padding: [20, 20]});
       }
     }
 
@@ -434,6 +484,11 @@ class NetJSONGraphRender {
             label: {
               show: false,
             },
+            emphasis: {
+              label: {
+                show: false,
+              },
+            },
           },
         ],
       });
@@ -441,11 +496,17 @@ class NetJSONGraphRender {
 
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
+      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
       self.echarts.setOption({
         series: [
           {
             label: {
-              show: currentZoom >= self.config.showLabelsAtZoomLevel,
+              show: showLabel,
+            },
+            emphasis: {
+              label: {
+                show: showLabel,
+              },
             },
           },
         ],
@@ -476,38 +537,19 @@ class NetJSONGraphRender {
     self.leaflet.on("moveend", async () => {
       const bounds = self.leaflet.getBounds();
       const removeBBoxData = () => {
-        if (self.type === "netjson") {
-          const removeNodes = new Set(self.bboxData.nodes);
-          const removeLinks = new Set(self.bboxData.links);
-          const updatedNodes = JSONData.nodes.filter(
-            (node) => !removeNodes.has(node),
-          );
-          const updatedLinks = JSONData.links.filter(
-            (link) => !removeLinks.has(link),
-          );
+        const removeNodes = new Set(self.bboxData.nodes);
+        const removeLinks = new Set(self.bboxData.links);
 
-          JSONData = {
-            ...JSONData,
-            nodes: updatedNodes,
-            links: updatedLinks,
-          };
+        JSONData = {
+          ...JSONData,
+          nodes: JSONData.nodes.filter((node) => !removeNodes.has(node)),
+          links: JSONData.links.filter((link) => !removeLinks.has(link)),
+        };
 
-          self.data = JSONData;
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-          self.bboxData.nodes = [];
-          self.bboxData.links = [];
-        } else {
-          const removeFeatures = new Set(self.bboxData.features);
-          const updatedFeatures = JSONData.features.filter(
-            (feature) => !removeFeatures.has(feature),
-          );
-          JSONData = {
-            ...JSONData,
-            features: updatedFeatures,
-          };
-          self.utils.overrideData(JSONData, self);
-          self.bboxData.features = [];
-        }
+        self.data = JSONData;
+        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        self.bboxData.nodes = [];
+        self.bboxData.links = [];
       };
       if (
         self.leaflet.getZoom() >= self.config.loadMoreAtZoomLevel &&
@@ -518,58 +560,38 @@ class NetJSONGraphRender {
           self.JSONParam,
           bounds,
         );
-        if (self.type === "netjson") {
-          self.config.prepareData.call(this, data);
-          const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
-          const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
-          const targetLinkSet = new Set(self.data.links.map((l) => l.target));
-          const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
-          const links = data.links.filter(
-            (link) =>
-              !sourceLinkSet.has(link.source) &&
-              !targetLinkSet.has(link.target),
-          );
-          const boundsDataSet = new Set(data.nodes.map((n) => n.id));
-          const nonCommonNodes = self.bboxData.nodes.filter(
-            (node) => !boundsDataSet.has(node.id),
-          );
-          const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
+        self.config.prepareData.call(self, data);
+        const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
+        const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
+        const targetLinkSet = new Set(self.data.links.map((l) => l.target));
+        const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
+        const links = data.links.filter(
+          (link) =>
+            !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
+        );
+        const boundsDataSet = new Set(data.nodes.map((n) => n.id));
+        const nonCommonNodes = self.bboxData.nodes.filter(
+          (node) => !boundsDataSet.has(node.id),
+        );
+        const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
 
-          JSONData.nodes = JSONData.nodes.filter(
-            (node) => !removableNodes.has(node.id),
-          );
-          self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
-          self.bboxData.links = self.bboxData.links.concat(links);
-          JSONData = {
-            ...JSONData,
-            nodes: JSONData.nodes.concat(nodes),
-            links: JSONData.links.concat(links),
-          };
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-          self.data = JSONData;
-        } else {
-          const dataSet = new Set(self.data.features);
-          const features = data.features.filter(
-            (feature) => !dataSet.has(feature),
-          );
-          const boundsDataSet = new Set(data.features);
-          const nonCommonFeatures = self.bboxData.features.filter(
-            (feature) => !boundsDataSet.has(feature),
-          );
-          const removableFeatures = new Set(nonCommonFeatures);
-
-          JSONData.features = JSONData.features.filter(
-            (feature) => !removableFeatures.has(feature),
-          );
-          self.bboxData.features = self.bboxData.features.concat(features);
-          self.utils.appendData(features, self);
-        }
+        JSONData.nodes = JSONData.nodes.filter(
+          (node) => !removableNodes.has(node.id),
+        );
+        self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
+        self.bboxData.links = self.bboxData.links.concat(links);
+        JSONData = {
+          ...JSONData,
+          nodes: JSONData.nodes.concat(nodes),
+          links: JSONData.links.concat(links),
+        };
+        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
       }
     });
     if (
-      self.type === "netjson" &&
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
@@ -601,21 +623,16 @@ class NetJSONGraphRender {
             params.componentSubType === "effectScatter") &&
           params.data.cluster
         ) {
-          nonClusterNodes = nonClusterNodes.concat(params.data.childNodes);
-          clusters = clusters.filter(
-            (cluster) => cluster.id !== params.data.id,
+          // Zoom into the clicked cluster instead of expanding it
+          const currentZoom = self.leaflet.getZoom();
+          const targetZoom = Math.min(
+            currentZoom + 2,
+            self.leaflet.getMaxZoom(),
           );
-          self.echarts.setOption(
-            self.utils.generateMapOption(
-              {
-                ...JSONData,
-                nodes: nonClusterNodes,
-              },
-              self,
-              clusters,
-            ),
+          self.leaflet.setView(
+            [params.data.value[1], params.data.value[0]],
+            targetZoom,
           );
-          self.leaflet.setView([params.data.value[1], params.data.value[0]]);
         }
       });
 
@@ -663,25 +680,13 @@ class NetJSONGraphRender {
       throw new Error("AppendData function can only be used for map render!");
     }
 
-    if (self.type === "netjson") {
+    if (self.config.render === self.utils.mapRender) {
       const opts = self.utils.generateMapOption(JSONData, self);
       opts.series.forEach((obj, index) => {
         self.echarts.appendData({seriesIndex: index, data: obj.data});
       });
       // modify this.data
       self.utils.mergeData(JSONData, self);
-    }
-
-    if (self.type === "geojson") {
-      self.data = {
-        ...self.data,
-        features: self.data.features.concat(JSONData.features),
-      };
-
-      // Remove the existing points from the map. Otherwise,
-      // the original points are duplicated on the map.
-      self.leaflet.geoJSON.removeFrom(self.leaflet);
-      self.utils.render();
     }
 
     self.config.afterUpdate.call(self);
