@@ -125,10 +125,17 @@ describe("NetJSONGraph Specification", () => {
     nodeConfig: {
       type: "scatter",
       label: {
-        show: true,
+        show: false,
         color: "#000000",
         position: "top",
         formatter: "{b}",
+        fontSize: 13,
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        padding: [6, 8],
+        borderRadius: 5,
+      },
+      emphasis: {
+        scale: 1,
       },
       nodeStyle: {
         color: "#1566a9",
@@ -161,6 +168,7 @@ describe("NetJSONGraph Specification", () => {
         position: "inside",
         color: "#fff",
         offset: [0, 0],
+        backgroundColor: "transparent",
       },
     },
     baseOptions: {
