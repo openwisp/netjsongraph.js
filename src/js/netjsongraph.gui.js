@@ -71,7 +71,7 @@ class NetJSONGraphGUI {
     metadataContainer.classList.add("njg-metaData");
     metaInfoContainer.classList.add("njg-metaInfoContainer");
     const closeButton = document.createElement("span");
-    closeButton.setAttribute("id", "closeButton");
+    closeButton.classList.add("njg-closeButton");
     header.innerHTML = "Info";
     closeButton.innerHTML = " &#x2715;";
     header.appendChild(closeButton);
@@ -122,12 +122,25 @@ class NetJSONGraphGUI {
 
     infoContainer.classList.add("njg-infoContainer");
     headerContainer.classList.add("njg-headerContainer");
-    closeButton.setAttribute("id", "closeButton");
+    closeButton.classList.add("njg-closeButton");
     this.nodeLinkInfoContainer.style.display = "flex";
     header.innerHTML = `${type} Info`;
     closeButton.innerHTML = " &#x2715;";
 
     Object.keys(data).forEach((key) => {
+      const val = data[key];
+
+      // Hide keys whose value is not provided or is explicitly undefined/null/empty
+      if (
+        val === undefined ||
+        val === null ||
+        (typeof val === "string" &&
+          (val.trim() === "" || /^(undefined|null)$/i.test(val.trim())) &&
+          val !== "0")
+      ) {
+        return;
+      }
+
       const infoItems = document.createElement("div");
       infoItems.classList.add("njg-infoItems");
       const keyLabel = document.createElement("span");
@@ -144,7 +157,10 @@ class NetJSONGraphGUI {
         valueLabel.innerHTML = data[key].join("<br/>");
       } else {
         keyLabel.innerHTML = key;
-        valueLabel.innerHTML = data[key];
+        // Preserve multiline values
+        const displayVal =
+          typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
+        valueLabel.innerHTML = displayVal;
       }
 
       infoItems.appendChild(keyLabel);

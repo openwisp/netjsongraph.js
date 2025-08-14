@@ -120,13 +120,22 @@ describe("NetJSONGraph Specification", () => {
   const NetJSONGraphMapOptions = {
     roam: true,
     zoomAnimation: false,
+    minZoom: 3,
+    maxZoom: 18,
     nodeConfig: {
       type: "scatter",
       label: {
-        show: true,
+        show: false,
         color: "#000000",
         position: "top",
         formatter: "{b}",
+        fontSize: 13,
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        padding: [6, 8],
+        borderRadius: 5,
+      },
+      emphasis: {
+        scale: 1,
       },
       nodeStyle: {
         color: "#1566a9",
@@ -159,6 +168,7 @@ describe("NetJSONGraph Specification", () => {
         position: "inside",
         color: "#fff",
         offset: [0, 0],
+        backgroundColor: "transparent",
       },
     },
     baseOptions: {
@@ -251,8 +261,6 @@ describe("NetJSONGraph Specification", () => {
           process.env.MAPBOX_URL_TEMPLATE ||
           "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         options: {
-          minZoom: 3,
-          maxZoom: 32,
           attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,
          tiles offered by <a href="https://www.mapbox.com">Mapbox</a>`,
         },
@@ -269,7 +277,26 @@ describe("NetJSONGraph Specification", () => {
         radius: 8,
       },
     });
-    expect(graph.config.nodeCategories).toEqual([]);
+    expect(graph.config.nodeCategories).toEqual([
+      {
+        name: "ok",
+        nodeStyle: {
+          color: "#28a745",
+        },
+      },
+      {
+        name: "problem",
+        nodeStyle: {
+          color: "#ffc107",
+        },
+      },
+      {
+        name: "critical",
+        nodeStyle: {
+          color: "#dc3545",
+        },
+      },
+    ]);
     expect(graph.config.linkCategories).toEqual([]);
     expect(graph.config.onInit).toBeInstanceOf(Function);
     expect(graph.config.onInit.call(graph)).toBe(graph.config);

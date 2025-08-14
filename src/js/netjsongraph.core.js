@@ -144,9 +144,19 @@ class NetJSONGraph {
       } else {
         this.el = document.querySelector(this.config.el);
       }
-      if (this.el === document.body) {
-        this.el.classList.add("njg-relativePosition");
-        this.el.setAttribute("id", "graphChartContainer");
+      if (this.el) {
+        this.el.classList.add("njg-container");
+        if (this.el === document.body) {
+          const htmlEl = document.documentElement;
+          htmlEl.style.width = "100%";
+          htmlEl.style.height = "100%";
+
+          this.el.classList.add("njg-relativePosition");
+        }
+      } else {
+        console.error(
+          "NetJSONGraph: The specified element for rendering was not found and could not be set.",
+        );
       }
     } else if (config && config.el) {
       console.error("Can't change el again!");
@@ -174,12 +184,20 @@ class NetJSONGraph {
         if (this.utils.isNetJSON(JSONData)) {
           this.type = "netjson";
         } else if (this.utils.isGeoJSON(JSONData)) {
+          // Treat GeoJSON as a first-class citizen by converting it once
+          // to NetJSON shape while keeping the original for polygon rendering.
           this.type = "geojson";
+          // Preserve the original GeoJSON so that non-point geometries (e.g. Polygons)
+          // can still be rendered as filled shapes via a separate Leaflet layer later
+          // in the rendering pipeline, while the converted NetJSON shape is used for
+          // clustering and ECharts overlays.
+          this.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
+          JSONData = this.utils.geojsonToNetjson(JSONData);
         } else {
           throw new Error("Invalid data format!");
         }
 
-        if (this.type === "netjson") {
+        if (this.utils.isNetJSON(JSONData)) {
           if (JSONData.nodes.length > this.config.maxPointsFetched) {
             this.hasMoreData = true;
           }
@@ -199,8 +217,8 @@ class NetJSONGraph {
             }
             return false;
           });
-          this.config.prepareData.call(this, JSONData);
         }
+        this.config.prepareData.call(this, JSONData);
         this.data = JSONData;
 
         if (this.config.dealDataByWorker) {

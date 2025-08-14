@@ -1,79 +1,88 @@
-.leaflet-control-zoom-in,
-.leaflet-control-zoom-out {
+.njg-container .leaflet-control-zoom-in,
+.njg-container .leaflet-control-zoom-out {
+  pointer-events: auto;
+  opacity: 1;
+  cursor: pointer;
   background: rgba(217, 79, 52, 0.85) !important;
   color: #fff !important;
 }
 
-.leaflet-control-layers {
+.njg-container .leaflet-control-zoom-in.leaflet-disabled,
+.njg-container .leaflet-control-zoom-out.leaflet-disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.njg-container .leaflet-control-layers {
   background: rgba(217, 79, 52, 0.85) !important;
   color: #fff !important;
 }
 
-.switch-wrap {
+.njg-container .switch-wrap {
   color: #fff;
 }
 
-.switch-wrap label {
+.njg-container .switch-wrap label {
   border: 1px solid #dfdfdf;
   background: #ffffff;
 }
 
-.switch-wrap label::before {
+.njg-container .switch-wrap label::before {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 1);
   background-color: #fff;
 }
 
-.switch-wrap input[type="checkbox"]:checked + label {
+.njg-container .switch-wrap input[type="checkbox"]:checked + label {
   background: grey;
 }
 
-.njg-date {
+.njg-container .njg-date {
   color: #fff;
 }
 
-.njg-selectIcon {
+.njg-container .njg-selectIcon {
   background: rgba(217, 79, 52, 0.85);
   color: #ffffff;
 }
 
-.njg-searchBtn {
+.njg-container .njg-searchBtn {
   background-color: white;
 }
 
-.njg-sideBar {
+.njg-container .njg-sideBar {
   background-color: #fff;
 }
 
-.sideBarHandle {
+.njg-container .sideBarHandle {
   background: rgba(217, 79, 52, 0.85);
 }
 
-.sideBarHandle::before {
+.njg-container .sideBarHandle::before {
   color: #fff;
 }
 
-.njg-metaData,
-.njg-infoContainer {
+.njg-container .njg-metaData,
+.njg-container .njg-infoContainer {
   background-color: inherit;
 }
 
-.njg-tooltip {
+.njg-container .njg-tooltip {
   background: #fff !important;
   border: none !important;
 }
 
-.njg-tooltip-key,
-.njg-tooltip-value {
+.njg-container .njg-tooltip-key,
+.njg-container .njg-tooltip-value {
   color: #000;
 }
 
-.marker-cluster div {
+.njg-container .marker-cluster div {
   color: #fff;
   background-color: rgba(21, 102, 169, 0.8) !important;
 }
 
 @media only screen and (max-width: 850px) {
-  .njg-sideBar {
+  .njg-container .njg-sideBar {
     background: rgba(255, 255, 255, 0.96);
     color: #000;
   }

@@ -1,3 +1,4 @@
+import L from "leaflet/dist/leaflet";
 /**
  * Default options
  *
@@ -38,8 +39,10 @@ const NetJSONGraphDefaultConfig = {
   clusteringThreshold: 100,
   disableClusteringAtLevel: 8,
   clusterRadius: 80,
+  clusterSeparation: 20,
   showMetaOnNarrowScreens: false,
-  showLabelsAtZoomLevel: 7,
+  showLabelsAtZoomLevel: 13,
+  crs: L.CRS.EPSG3857,
   echartsOption: {
     aria: {
       show: true,
@@ -190,13 +193,22 @@ const NetJSONGraphDefaultConfig = {
   mapOptions: {
     roam: true,
     zoomAnimation: false,
+    minZoom: 3,
+    maxZoom: 18,
     nodeConfig: {
       type: "scatter",
       label: {
-        show: true,
+        show: false,
         color: "#000000",
         position: "top",
         formatter: "{b}",
+        fontSize: 13,
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        padding: [6, 8],
+        borderRadius: 5,
+      },
+      emphasis: {
+        scale: 1,
       },
       nodeStyle: {
         color: "#1566a9",
@@ -260,6 +272,7 @@ const NetJSONGraphDefaultConfig = {
         position: "inside",
         color: "#fff",
         offset: [0, 0],
+        backgroundColor: "transparent",
       },
     },
     baseOptions: {
@@ -297,8 +310,6 @@ const NetJSONGraphDefaultConfig = {
         process.env.MAPBOX_URL_TEMPLATE ||
         "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       options: {
-        minZoom: 3,
-        maxZoom: 32,
         attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,
          tiles offered by <a href="https://www.mapbox.com">Mapbox</a>`,
       },
@@ -312,7 +323,26 @@ const NetJSONGraphDefaultConfig = {
       radius: 8,
     },
   },
-  nodeCategories: [],
+  nodeCategories: [
+    {
+      name: "ok",
+      nodeStyle: {
+        color: "#28a745",
+      },
+    },
+    {
+      name: "problem",
+      nodeStyle: {
+        color: "#ffc107",
+      },
+    },
+    {
+      name: "critical",
+      nodeStyle: {
+        color: "#dc3545",
+      },
+    },
+  ],
   linkCategories: [],
 
   /**
@@ -325,8 +355,24 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  // eslint-disable-next-line no-unused-vars
-  prepareData(JSONData) {},
+  prepareData(JSONData) {
+    if (JSONData && JSONData.nodes) {
+      JSONData.nodes.forEach((node) => {
+        if (node.properties && node.properties.status) {
+          const status = node.properties.status.toLowerCase();
+          if (
+            status === "ok" ||
+            status === "problem" ||
+            status === "critical"
+          ) {
+            node.category = status;
+          } else {
+            // Unrecognized status – leave category undefined to avoid test mismatches
+          }
+        }
+      });
+    }
+  },
 
   /**
    * @function
@@ -341,18 +387,21 @@ const NetJSONGraphDefaultConfig = {
    */
   onClickElement(type, data) {
     let nodeLinkData;
-    if (this.type === "netjson") {
+    if (this.utils && this.utils.isNetJSON(this.data)) {
       if (type === "node") {
         nodeLinkData = this.utils.nodeInfo(data);
-      } else {
+      } else if (type === "link") {
         nodeLinkData = this.utils.linkInfo(data);
+      } else {
+        // For GeoJSON Feature (e.g., polygons, points) just forward its properties as-is
+        nodeLinkData = data;
       }
 
       if (this.config.showMetaOnNarrowScreens || this.el.clientWidth > 850) {
         this.gui.metaInfoContainer.style.display = "flex";
       }
     } else {
-      nodeLinkData = data;
+      ({nodeLinkData} = {nodeLinkData: data});
     }
 
     this.gui.getNodeLinkInfo(type, nodeLinkData);
@@ -371,4 +420,5 @@ const NetJSONGraphDefaultConfig = {
   onReady() {},
 };
 
+export const {prepareData} = NetJSONGraphDefaultConfig;
 export default {...NetJSONGraphDefaultConfig};
