@@ -25,21 +25,25 @@ You can now render small colored circles around each node to represent the numbe
 Example usage:
 
 ```js
-const graph = new NetJSONGraph('../assets/data/netjsongraph-network-nodes.json', {
-  render: 'graph',
-  onReady() {
-    this.attachClientsOverlay({
-      colors: { wifi24: '#d35454', wifi5: '#2ecc71', other: '#bdc3c7' },
-      radius: 3, // dot radius in px
-      gap: 8,    // distance from node edge to first orbit
-      // fields: { wifi24: 'clients_wifi24', wifi5: 'clients_wifi5', other: 'clients_other' }
-    });
-  }
-});
+const graph = new NetJSONGraph(
+  "../assets/data/netjsongraph-network-nodes.json",
+  {
+    render: "graph",
+    onReady() {
+      this.attachClientsOverlay({
+        colors: {wifi24: "#d35454", wifi5: "#2ecc71", other: "#bdc3c7"},
+        radius: 3, // dot radius in px
+        gap: 8, // distance from node edge to first orbit
+        // fields: { wifi24: 'clients_wifi24', wifi5: 'clients_wifi5', other: 'clients_other' }
+      });
+    },
+  },
+);
 graph.render();
 ```
 
 Expected fields per node (customizable via `options.fields`):
+
 - `clients_wifi24`
 - `clients_wifi5`
 - `clients_other` (optional)
