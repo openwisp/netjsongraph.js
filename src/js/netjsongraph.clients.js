@@ -34,10 +34,14 @@ function attachClientsOverlay(graph, options = {}) {
   const overlay = new g.Group({silent: true, z: 100, zlevel: 1});
   parent.add(overlay);
 
+  const seriesCfg =
+    (graph &&
+      graph.config &&
+      graph.config.graphConfig &&
+      graph.config.graphConfig.series) ||
+    {};
   const nodeRadius =
-    typeof graph.config.graphConfig?.series?.nodeSize === "number"
-      ? graph.config.graphConfig.series.nodeSize
-      : 18;
+    typeof seriesCfg.nodeSize === "number" ? seriesCfg.nodeSize : 18;
 
   function draw() {
     const seriesModel = chart.getModel().getSeriesByIndex(0);
@@ -83,34 +87,35 @@ function attachClientsOverlay(graph, options = {}) {
     const count = data.count ? data.count() : data._rawData.length;
     for (let idx = 0; idx < count; idx += 1) {
       const layout = data.getItemLayout(idx);
-      if (!layout) continue;
-      const x = Array.isArray(layout) ? layout[0] : layout.x;
-      const y = Array.isArray(layout) ? layout[1] : layout.y;
-      const node = data.getRawDataItem(idx) || {};
-      const c24 =
-        node[fields.wifi24] ||
-        (node.properties && node.properties[fields.wifi24]) ||
-        0;
-      const c5 =
-        node[fields.wifi5] ||
-        (node.properties && node.properties[fields.wifi5]) ||
-        0;
-      const other =
-        node[fields.other] ||
-        (node.properties && node.properties[fields.other]) ||
-        0;
+      if (layout) {
+        const x = Array.isArray(layout) ? layout[0] : layout.x;
+        const y = Array.isArray(layout) ? layout[1] : layout.y;
+        const node = data.getRawDataItem(idx) || {};
+        const c24 =
+          node[fields.wifi24] ||
+          (node.properties && node.properties[fields.wifi24]) ||
+          0;
+        const c5 =
+          node[fields.wifi5] ||
+          (node.properties && node.properties[fields.wifi5]) ||
+          0;
+        const other =
+          node[fields.other] ||
+          (node.properties && node.properties[fields.other]) ||
+          0;
 
-      const startDistance = nodeRadius + gap;
-      placeOrbit(
-        x,
-        y,
-        [
-          {count: c24, color: colors.wifi24},
-          {count: c5, color: colors.wifi5},
-          {count: other, color: colors.other},
-        ],
-        startDistance,
-      );
+        const startDistance = nodeRadius + gap;
+        placeOrbit(
+          x,
+          y,
+          [
+            {count: c24, color: colors.wifi24},
+            {count: c5, color: colors.wifi5},
+            {count: other, color: colors.other},
+          ],
+          startDistance,
+        );
+      }
     }
   }
 
@@ -125,9 +130,11 @@ function attachClientsOverlay(graph, options = {}) {
 
   return {
     destroy() {
-      try {
-        handlers.forEach(([ev, fn]) => chart.off(ev, fn));
-      } catch (e) {}
+      handlers.forEach(([ev, fn]) => {
+        if (chart && chart.off) {
+          chart.off(ev, fn);
+        }
+      });
       if (overlay && overlay.parent) overlay.parent.remove(overlay);
     },
   };
