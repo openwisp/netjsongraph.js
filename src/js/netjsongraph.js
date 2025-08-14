@@ -151,6 +151,8 @@ class NetJSONGraph {
           document.querySelector(".leaflet-control-zoom").style.display =
             "block";
         }
+
+        this.selection.highlightSelected(this.echarts);
       };
     }
     this.utils.hideLoading.call(this);

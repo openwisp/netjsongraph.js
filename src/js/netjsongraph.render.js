@@ -29,6 +29,30 @@ echarts.use([
 ]);
 
 class NetJSONGraphRender {
+  echartsSetEventHandler(self) {
+    self.echarts.on(
+      "click",
+      (params) => {
+        self.selection.changeSelection(self.echarts, params);
+
+        const clickElement = self.config.onClickElement.bind(self);
+        if (params.componentSubType === "graph") {
+          return clickElement(
+            params.dataType === "edge" ? "link" : "node",
+            params.data,
+          );
+        }
+        if (params.componentSubType === "graphGL") {
+          return clickElement("node", params.data);
+        }
+        return params.componentSubType === "lines"
+          ? clickElement("link", params.data.link)
+          : !params.data.cluster && clickElement("node", params.data.node);
+      },
+      {passive: true},
+    );
+  }
+
   /**
    * @function
    * @name echartsSetOption
@@ -92,25 +116,6 @@ class NetJSONGraphRender {
     );
 
     echartsLayer.setOption(self.utils.deepMergeObj(commonOption, customOption));
-    echartsLayer.on(
-      "click",
-      (params) => {
-        const clickElement = configs.onClickElement.bind(self);
-        if (params.componentSubType === "graph") {
-          return clickElement(
-            params.dataType === "edge" ? "link" : "node",
-            params.data,
-          );
-        }
-        if (params.componentSubType === "graphGL") {
-          return clickElement("node", params.data);
-        }
-        return params.componentSubType === "lines"
-          ? clickElement("link", params.data.link)
-          : !params.data.cluster && clickElement("node", params.data.node);
-      },
-      {passive: true},
-    );
 
     return echartsLayer;
   }
