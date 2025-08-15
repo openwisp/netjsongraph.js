@@ -10,6 +10,7 @@ import {
   TitleComponent,
   ToolboxComponent,
   LegendComponent,
+  GraphicComponent,
 } from "echarts/components";
 import {SVGRenderer} from "echarts/renderers";
 import L from "leaflet/dist/leaflet";
@@ -26,6 +27,7 @@ echarts.use([
   LegendComponent,
   SVGRenderer,
   ScatterChart,
+  GraphicComponent,
 ]);
 
 class NetJSONGraphRender {
