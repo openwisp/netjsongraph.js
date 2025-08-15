@@ -24,12 +24,20 @@
         metadata: true,
         graphConfig: {
           series: {
+            force: {
+            gravity: 0.1,
+            edgeLength: [80, 100],
+            repulsion: 700,
+          },
+          emphasis: {
+            disabled: true,
+          },
             layout: "force",
             roam: true,
             label: { show: true, color: "#fff" },
-            nodeStyle: { color: "#6aa9ff" },
+            nodeStyle: { color: "#fff", opacity:"0.7" },
             linkStyle: { color: "#1ba619", width: 4 },
-            nodeSize: 18
+            nodeSize: 30,
           },
           baseOptions: {
             backgroundColor: "#222"
@@ -39,8 +47,8 @@
           // Attach reusable overlay plugin shipped with the bundle
           this.attachClientsOverlay({
             colors: { wifi24: "#d35454", wifi5: "#2ecc71", other: "#bdc3c7" },
-            radius: 3,
-            gap: 8,
+            radius: 5,
+            gap: 5,
           });
         }
       });
