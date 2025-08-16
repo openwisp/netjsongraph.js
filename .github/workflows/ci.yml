@@ -38,6 +38,7 @@ jobs:
           yarn install
           python --version
           pip install "openwisp-utils[qa] @ https://github.com/openwisp/openwisp-utils/tarball/1.2"
+          sudo npm install -g prettier
 
       - name: QA checks
         run: ./run-qa-checks
