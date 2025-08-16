@@ -300,14 +300,7 @@ describe("Test paginatedDataParse", () => {
   test("Should return the data", () => {
     paginatedDataParse.call(graph, param).then((data) => {
       expect(data).toEqual({
-        nodes: [
-          {id: "1"},
-          {id: "2"},
-          {id: "3"},
-          {id: "4"},
-          {id: "5"},
-          {id: "6"},
-        ],
+        nodes: [{id: "1"}, {id: "2"}, {id: "3"}, {id: "4"}, {id: "5"}, {id: "6"}],
         links: [],
       });
     });
@@ -483,9 +476,7 @@ describe("Test when invalid data is passed", () => {
   test("Handle the error", () => {
     expect(map.render).toThrow();
     expect(console.error).toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalledWith(
-      new Error("Invalid data format!"),
-    );
+    expect(console.error).toHaveBeenCalledWith(new Error("Invalid data format!"));
   });
 });
 
@@ -1216,9 +1207,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
       echarts: {
         setOption: jest.fn(),
         _api: {
-          getCoordinateSystems: jest.fn(() => [
-            {getLeaflet: () => mockLeaflet},
-          ]),
+          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => mockLeaflet}]),
         },
       },
       utils: {
@@ -1227,9 +1216,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         generateMapOption: jest.fn(() => ({series: [{data: []}]})),
         echartsSetOption: jest.fn(),
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
-        getBBoxData: jest.fn(() =>
-          Promise.resolve({nodes: [{id: "n1"}], links: []}),
-        ),
+        getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
       },
       event: {emit: jest.fn()},
     };

@@ -1,7 +1,7 @@
 {
   "name": "netjsongraph.js",
   "version": "0.2.0",
-  "description": "NetJson format data visualization",
+  "description": "NetJSON NetworkGraph visualizer",
   "main": "index.js",
   "scripts": {
     "test": "jest --silent",
@@ -12,9 +12,7 @@
     "coveralls": "jest --silent -f ./coverage/lcov.info && cat ./coverage/lcov.info | coveralls || echo 'no coverage file found'",
     "precommit": "lint-staged",
     "lint": "eslint '**/*.js'",
-    "lint:fix": "eslint '**/*.js' --fix",
-    "format": "prettier --write \"**/*.+(js|json|css|md)\"",
-    "format:check": "prettier -c \"**/*.+(js|json|css|md)\""
+    "lint:fix": "eslint '**/*.js' --fix"
   },
   "lint-staged": {
     "src/**/*.js": [
