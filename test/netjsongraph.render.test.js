@@ -300,14 +300,7 @@ describe("Test paginatedDataParse", () => {
   test("Should return the data", () => {
     paginatedDataParse.call(graph, param).then((data) => {
       expect(data).toEqual({
-        nodes: [
-          {id: "1"},
-          {id: "2"},
-          {id: "3"},
-          {id: "4"},
-          {id: "5"},
-          {id: "6"},
-        ],
+        nodes: [{id: "1"}, {id: "2"}, {id: "3"}, {id: "4"}, {id: "5"}, {id: "6"}],
         links: [],
       });
     });
@@ -486,9 +479,7 @@ describe("Test when invalid data is passed", () => {
   test("Handle the error", () => {
     expect(map.render).toThrow();
     expect(console.error).toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalledWith(
-      new Error("Invalid data format!"),
-    );
+    expect(console.error).toHaveBeenCalledWith(new Error("Invalid data format!"));
   });
 });
 
