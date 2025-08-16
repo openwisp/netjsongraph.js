@@ -1,0 +1,3086 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.513805512578, 55.658412382779]
+      },
+      "properties": {
+        "id": "1",
+        "name": "OK Node 1",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.513805512578, 55.658412382779]
+      },
+      "properties": {
+        "id": "2",
+        "name": "OK Node 2",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.513805512578, 55.658412382779]
+      },
+      "properties": {
+        "id": "3",
+        "name": "Critical Node 1",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.588239243528, 55.692070962718]
+      },
+      "properties": {
+        "id": "4",
+        "name": "OK Node 3",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.513805512578, 55.658412382779]
+      },
+      "properties": {
+        "id": "5",
+        "name": "Critical Node 2",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.512311689794, 55.658725363043]
+      },
+      "properties": {
+        "id": "6",
+        "name": "Critical Node 3",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.455250710461, 55.658276176852]
+      },
+      "properties": {
+        "id": "7",
+        "name": "Critical Node 4",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.48180978628, 55.494873111832]
+      },
+      "properties": {
+        "id": "8",
+        "name": "OK Node 4",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.576918, 55.679851]
+      },
+      "properties": {
+        "id": "9",
+        "name": "Critical Node 5",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.488506, 55.896709]
+      },
+      "properties": {
+        "id": "10",
+        "name": "OK Node 5",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.526502, 56.891763]
+      },
+      "properties": {
+        "id": "11",
+        "name": "OK Node 6",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.577295, 55.68046]
+      },
+      "properties": {
+        "id": "12",
+        "name": "OK Node 7",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.571790010003, 55.703608694348]
+      },
+      "properties": {
+        "id": "13",
+        "name": "OK Node 8",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.357953312042, 55.52638923541]
+      },
+      "properties": {
+        "id": "14",
+        "name": "OK Node 9",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.580684466558, 55.668154417383]
+      },
+      "properties": {
+        "id": "15",
+        "name": "Problem Node 1",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.317532520889, 55.614531610913]
+      },
+      "properties": {
+        "id": "16",
+        "name": "OK Node 10",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.459815243473, 55.625093772833]
+      },
+      "properties": {
+        "id": "17",
+        "name": "Problem Node 2",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.462043572432, 55.624678281892]
+      },
+      "properties": {
+        "id": "18",
+        "name": "Problem Node 3",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.460523765749, 55.625310906035]
+      },
+      "properties": {
+        "id": "19",
+        "name": "Problem Node 4",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.374583929952, 56.949920247751]
+      },
+      "properties": {
+        "id": "20",
+        "name": "OK Node 11",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.598584523703, 55.710549245454]
+      },
+      "properties": {
+        "id": "21",
+        "name": "Critical Node 6",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.625227073499, 55.693637288964]
+      },
+      "properties": {
+        "id": "22",
+        "name": "Critical Node 7",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.27215, 55.658687]
+      },
+      "properties": {
+        "id": "23",
+        "name": "OK Node 12",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.294172, 55.581914]
+      },
+      "properties": {
+        "id": "24",
+        "name": "OK Node 13",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.472124, 55.785279]
+      },
+      "properties": {
+        "id": "25",
+        "name": "OK Node 14",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.472124, 55.785279]
+      },
+      "properties": {
+        "id": "26",
+        "name": "OK Node 15",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.286028, 55.642709]
+      },
+      "properties": {
+        "id": "27",
+        "name": "Problem Node 5",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.473377, 55.66286]
+      },
+      "properties": {
+        "id": "28",
+        "name": "OK Node 16",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.503334, 57.332708]
+      },
+      "properties": {
+        "id": "29",
+        "name": "OK Node 17",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.58642892008, 55.603671514245]
+      },
+      "properties": {
+        "id": "30",
+        "name": "Critical Node 8",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.606889313369, 55.668281319397]
+      },
+      "properties": {
+        "id": "31",
+        "name": "OK Node 18",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.488322, 55.780384]
+      },
+      "properties": {
+        "id": "32",
+        "name": "Problem Node 6",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.847029, 55.293069]
+      },
+      "properties": {
+        "id": "33",
+        "name": "Problem Node 7",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.458278, 55.4681]
+      },
+      "properties": {
+        "id": "34",
+        "name": "OK Node 19",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.530886657783, 55.815608732316]
+      },
+      "properties": {
+        "id": "35",
+        "name": "OK Node 20",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.574482, 55.728604]
+      },
+      "properties": {
+        "id": "36",
+        "name": "OK Node 21",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.737374, 55.995755]
+      },
+      "properties": {
+        "id": "37",
+        "name": "OK Node 22",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.600841, 55.677641]
+      },
+      "properties": {
+        "id": "38",
+        "name": "OK Node 23",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.814699, 55.458199]
+      },
+      "properties": {
+        "id": "39",
+        "name": "Problem Node 8",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.211023292603, 56.14826224565]
+      },
+      "properties": {
+        "id": "40",
+        "name": "Problem Node 9",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.481582, 55.626604]
+      },
+      "properties": {
+        "id": "41",
+        "name": "Critical Node 9",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.448167, 55.637165]
+      },
+      "properties": {
+        "id": "42",
+        "name": "OK Node 24",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.47363951638, 55.622653004538]
+      },
+      "properties": {
+        "id": "43",
+        "name": "Problem Node 10",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.448328, 55.632185]
+      },
+      "properties": {
+        "id": "44",
+        "name": "OK Node 25",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.475166, 55.662587]
+      },
+      "properties": {
+        "id": "45",
+        "name": "Problem Node 11",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.038631, 55.121819]
+      },
+      "properties": {
+        "id": "46",
+        "name": "OK Node 26",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.53188, 55.694174]
+      },
+      "properties": {
+        "id": "47",
+        "name": "OK Node 27",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.884778, 54.75999]
+      },
+      "properties": {
+        "id": "48",
+        "name": "OK Node 28",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.50611, 55.74286]
+      },
+      "properties": {
+        "id": "49",
+        "name": "OK Node 29",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.646017, 55.17804]
+      },
+      "properties": {
+        "id": "50",
+        "name": "OK Node 30",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.005764, 57.455335]
+      },
+      "properties": {
+        "id": "51",
+        "name": "Problem Node 12",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.390106, 56.443423]
+      },
+      "properties": {
+        "id": "52",
+        "name": "OK Node 31",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.578498, 56.491277]
+      },
+      "properties": {
+        "id": "53",
+        "name": "OK Node 32",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.400005, 56.466799]
+      },
+      "properties": {
+        "id": "54",
+        "name": "OK Node 33",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.038181, 56.446061]
+      },
+      "properties": {
+        "id": "55",
+        "name": "Problem Node 13",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.593358, 55.695087]
+      },
+      "properties": {
+        "id": "56",
+        "name": "Problem Node 14",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.264779, 55.593029]
+      },
+      "properties": {
+        "id": "57",
+        "name": "Problem Node 15",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.517551, 55.652806]
+      },
+      "properties": {
+        "id": "58",
+        "name": "OK Node 34",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.51114, 55.736293]
+      },
+      "properties": {
+        "id": "59",
+        "name": "OK Node 35",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.497572, 55.887847]
+      },
+      "properties": {
+        "id": "60",
+        "name": "OK Node 36",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.564937, 55.684776]
+      },
+      "properties": {
+        "id": "61",
+        "name": "OK Node 37",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.464222448163, 55.642792035659]
+      },
+      "properties": {
+        "id": "62",
+        "name": "OK Node 38",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.304135, 55.645562]
+      },
+      "properties": {
+        "id": "63",
+        "name": "Problem Node 16",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.572989, 55.753362]
+      },
+      "properties": {
+        "id": "64",
+        "name": "OK Node 39",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.268939, 55.566953]
+      },
+      "properties": {
+        "id": "65",
+        "name": "OK Node 40",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.431828823142, 55.827331033455]
+      },
+      "properties": {
+        "id": "66",
+        "name": "OK Node 41",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.948053, 56.044505]
+      },
+      "properties": {
+        "id": "67",
+        "name": "OK Node 42",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.272181, 55.418396]
+      },
+      "properties": {
+        "id": "68",
+        "name": "OK Node 43",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.448563, 55.633071]
+      },
+      "properties": {
+        "id": "69",
+        "name": "OK Node 44",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.212445488096, 55.649937174903]
+      },
+      "properties": {
+        "id": "70",
+        "name": "Problem Node 17",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.593306858369, 55.707650280421]
+      },
+      "properties": {
+        "id": "71",
+        "name": "OK Node 45",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.505594600227, 55.768761982102]
+      },
+      "properties": {
+        "id": "72",
+        "name": "OK Node 46",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.455299744595, 55.760783332289]
+      },
+      "properties": {
+        "id": "73",
+        "name": "OK Node 47",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.530946420753, 55.680148292184]
+      },
+      "properties": {
+        "id": "74",
+        "name": "Critical Node 10",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.551374208439, 55.648551450879]
+      },
+      "properties": {
+        "id": "75",
+        "name": "OK Node 48",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.5465165, 55.9954508]
+      },
+      "properties": {
+        "id": "76",
+        "name": "OK Node 49",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.229272, 55.248964]
+      },
+      "properties": {
+        "id": "77",
+        "name": "OK Node 50",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.511017272487, 55.735739337157]
+      },
+      "properties": {
+        "id": "78",
+        "name": "Problem Node 18",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.520379690696, 55.729507559784]
+      },
+      "properties": {
+        "id": "79",
+        "name": "Problem Node 19",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.479593601301, 55.654064689602]
+      },
+      "properties": {
+        "id": "80",
+        "name": "OK Node 51",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.49325669021, 55.741675191439]
+      },
+      "properties": {
+        "id": "81",
+        "name": "OK Node 52",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.524113744741, 55.960272250679]
+      },
+      "properties": {
+        "id": "82",
+        "name": "OK Node 53",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.499410180608, 55.757944758869]
+      },
+      "properties": {
+        "id": "83",
+        "name": "OK Node 54",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.496767366536, 55.756582490055]
+      },
+      "properties": {
+        "id": "84",
+        "name": "OK Node 55",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.742269548467, 55.569654398397]
+      },
+      "properties": {
+        "id": "85",
+        "name": "OK Node 56",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.167746570039, 55.454004334963]
+      },
+      "properties": {
+        "id": "86",
+        "name": "OK Node 57",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.95926231889, 55.752151061665]
+      },
+      "properties": {
+        "id": "87",
+        "name": "Problem Node 20",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.851065611397, 55.965081451444]
+      },
+      "properties": {
+        "id": "88",
+        "name": "OK Node 58",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.268508, 55.638745]
+      },
+      "properties": {
+        "id": "89",
+        "name": "OK Node 59",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.212445, 55.649937]
+      },
+      "properties": {
+        "id": "90",
+        "name": "Problem Node 21",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.550860397774, 55.694459637485]
+      },
+      "properties": {
+        "id": "91",
+        "name": "Problem Node 22",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.539171330882, 55.706363197279]
+      },
+      "properties": {
+        "id": "92",
+        "name": "OK Node 60",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.555128, 55.691513]
+      },
+      "properties": {
+        "id": "93",
+        "name": "OK Node 61",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.239638296533, 55.362565650308]
+      },
+      "properties": {
+        "id": "94",
+        "name": "OK Node 62",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.530083503821, 55.814390087414]
+      },
+      "properties": {
+        "id": "95",
+        "name": "OK Node 63",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.555458123123, 55.673284561221]
+      },
+      "properties": {
+        "id": "96",
+        "name": "OK Node 64",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.557095, 55.681668]
+      },
+      "properties": {
+        "id": "97",
+        "name": "Critical Node 11",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.474518, 55.79526]
+      },
+      "properties": {
+        "id": "98",
+        "name": "OK Node 65",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.576073, 55.705883]
+      },
+      "properties": {
+        "id": "99",
+        "name": "OK Node 66",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.5893, 55.710601]
+      },
+      "properties": {
+        "id": "100",
+        "name": "OK Node 67",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.819319, 55.458127]
+      },
+      "properties": {
+        "id": "101",
+        "name": "OK Node 68",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.014931, 55.635651]
+      },
+      "properties": {
+        "id": "102",
+        "name": "Problem Node 23",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.490435, 55.801137]
+      },
+      "properties": {
+        "id": "103",
+        "name": "Critical Node 12",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.448316, 55.627224]
+      },
+      "properties": {
+        "id": "104",
+        "name": "OK Node 69",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.49586, 55.775355]
+      },
+      "properties": {
+        "id": "105",
+        "name": "OK Node 70",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.835911, 55.844649]
+      },
+      "properties": {
+        "id": "106",
+        "name": "OK Node 71",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.314611, 55.837083]
+      },
+      "properties": {
+        "id": "107",
+        "name": "OK Node 72",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.259728, 55.679738]
+      },
+      "properties": {
+        "id": "108",
+        "name": "Problem Node 24",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.108378, 55.27414]
+      },
+      "properties": {
+        "id": "109",
+        "name": "Critical Node 13",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.481124, 55.719492]
+      },
+      "properties": {
+        "id": "110",
+        "name": "OK Node 73",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.44609, 55.632279]
+      },
+      "properties": {
+        "id": "111",
+        "name": "Problem Node 25",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.565503, 55.739141]
+      },
+      "properties": {
+        "id": "112",
+        "name": "OK Node 74",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.565503, 55.739141]
+      },
+      "properties": {
+        "id": "113",
+        "name": "Problem Node 26",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.490631, 55.620454]
+      },
+      "properties": {
+        "id": "114",
+        "name": "OK Node 75",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.437618, 55.667573]
+      },
+      "properties": {
+        "id": "115",
+        "name": "Critical Node 14",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.390774, 55.656907]
+      },
+      "properties": {
+        "id": "116",
+        "name": "Critical Node 15",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.437688, 55.665827]
+      },
+      "properties": {
+        "id": "117",
+        "name": "Critical Node 16",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.488986613457, 55.63031842263]
+      },
+      "properties": {
+        "id": "118",
+        "name": "Problem Node 27",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.38861, 55.628062]
+      },
+      "properties": {
+        "id": "119",
+        "name": "OK Node 76",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.38861, 55.628062]
+      },
+      "properties": {
+        "id": "120",
+        "name": "OK Node 77",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.561891, 55.676964]
+      },
+      "properties": {
+        "id": "121",
+        "name": "OK Node 78",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.55083, 55.41101]
+      },
+      "properties": {
+        "id": "122",
+        "name": "Problem Node 28",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.26398, 55.640031]
+      },
+      "properties": {
+        "id": "123",
+        "name": "OK Node 79",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.503353, 55.64972]
+      },
+      "properties": {
+        "id": "124",
+        "name": "Problem Node 29",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.478961, 55.751125]
+      },
+      "properties": {
+        "id": "125",
+        "name": "Critical Node 17",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.110339, 55.656904]
+      },
+      "properties": {
+        "id": "126",
+        "name": "Critical Node 18",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.454905962783, 55.632321152665]
+      },
+      "properties": {
+        "id": "127",
+        "name": "OK Node 80",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.477073, 55.648838]
+      },
+      "properties": {
+        "id": "128",
+        "name": "OK Node 81",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.51264, 55.770051]
+      },
+      "properties": {
+        "id": "129",
+        "name": "OK Node 82",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.57463407356974, 55.68247670106706]
+      },
+      "properties": {
+        "id": "130",
+        "name": "OK Node 83",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.345615, 55.873798]
+      },
+      "properties": {
+        "id": "131",
+        "name": "OK Node 84",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.326339135098436, 55.597804768755]
+      },
+      "properties": {
+        "id": "132",
+        "name": "OK Node 85",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.512256, 55.705927]
+      },
+      "properties": {
+        "id": "133",
+        "name": "Problem Node 30",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.512255950138098, 55.70592742213324]
+      },
+      "properties": {
+        "id": "134",
+        "name": "OK Node 86",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.512255950138098, 55.70592742213324]
+      },
+      "properties": {
+        "id": "135",
+        "name": "Problem Node 31",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.530946, 55.680148]
+      },
+      "properties": {
+        "id": "136",
+        "name": "Problem Node 32",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.478534, 55.489758]
+      },
+      "properties": {
+        "id": "137",
+        "name": "OK Node 87",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.473492, 55.754799]
+      },
+      "properties": {
+        "id": "138",
+        "name": "Problem Node 33",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.632725188803278, 55.64303464984661]
+      },
+      "properties": {
+        "id": "139",
+        "name": "Problem Node 34",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.91834, 57.04822]
+      },
+      "properties": {
+        "id": "140",
+        "name": "OK Node 88",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.389672, 55.395788]
+      },
+      "properties": {
+        "id": "141",
+        "name": "Critical Node 19",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.031433606534932, 55.97664164657547]
+      },
+      "properties": {
+        "id": "142",
+        "name": "Problem Node 35",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.577791704134, 55.68079353109039]
+      },
+      "properties": {
+        "id": "143",
+        "name": "Problem Node 36",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.07975220680237, 56.038184842708084]
+      },
+      "properties": {
+        "id": "144",
+        "name": "Problem Node 37",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.500860668952043, 55.68491503861031]
+      },
+      "properties": {
+        "id": "145",
+        "name": "Problem Node 38",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.464041399054253, 55.626188323658965]
+      },
+      "properties": {
+        "id": "146",
+        "name": "OK Node 89",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.717114451209596, 55.5288370025944]
+      },
+      "properties": {
+        "id": "147",
+        "name": "Critical Node 20",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.381662, 55.728434]
+      },
+      "properties": {
+        "id": "148",
+        "name": "Critical Node 21",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.153384, 56.116025]
+      },
+      "properties": {
+        "id": "149",
+        "name": "OK Node 90",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.449459, 55.632438]
+      },
+      "properties": {
+        "id": "150",
+        "name": "Problem Node 39",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.475965, 55.654832]
+      },
+      "properties": {
+        "id": "151",
+        "name": "OK Node 91",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.451173, 55.62723]
+      },
+      "properties": {
+        "id": "152",
+        "name": "OK Node 92",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.451173, 55.62723]
+      },
+      "properties": {
+        "id": "153",
+        "name": "OK Node 93",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.449701, 55.627649]
+      },
+      "properties": {
+        "id": "154",
+        "name": "Problem Node 40",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.476794, 55.64426]
+      },
+      "properties": {
+        "id": "155",
+        "name": "OK Node 94",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.478261, 55.625935]
+      },
+      "properties": {
+        "id": "156",
+        "name": "OK Node 95",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.478642, 55.642822]
+      },
+      "properties": {
+        "id": "157",
+        "name": "Problem Node 41",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.466518, 55.654512]
+      },
+      "properties": {
+        "id": "158",
+        "name": "OK Node 96",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.477073, 55.648838]
+      },
+      "properties": {
+        "id": "159",
+        "name": "OK Node 97",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.485087, 55.63467]
+      },
+      "properties": {
+        "id": "160",
+        "name": "OK Node 98",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.54394, 55.651574]
+      },
+      "properties": {
+        "id": "161",
+        "name": "Problem Node 42",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.26398, 55.640031]
+      },
+      "properties": {
+        "id": "162",
+        "name": "Critical Node 22",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.464963, 55.625191]
+      },
+      "properties": {
+        "id": "163",
+        "name": "OK Node 99",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.4873, 55.640747]
+      },
+      "properties": {
+        "id": "164",
+        "name": "Problem Node 43",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.475419, 55.644741]
+      },
+      "properties": {
+        "id": "165",
+        "name": "OK Node 100",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.445729, 55.638517]
+      },
+      "properties": {
+        "id": "166",
+        "name": "OK Node 101",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.48228, 55.622679]
+      },
+      "properties": {
+        "id": "167",
+        "name": "OK Node 102",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.48228, 55.622679]
+      },
+      "properties": {
+        "id": "168",
+        "name": "OK Node 103",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.483341, 55.646728]
+      },
+      "properties": {
+        "id": "169",
+        "name": "OK Node 104",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.464222, 55.642792]
+      },
+      "properties": {
+        "id": "170",
+        "name": "OK Node 105",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.472558, 55.643808]
+      },
+      "properties": {
+        "id": "171",
+        "name": "OK Node 106",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.479378, 55.653186]
+      },
+      "properties": {
+        "id": "172",
+        "name": "OK Node 107",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.483092, 55.630918]
+      },
+      "properties": {
+        "id": "173",
+        "name": "OK Node 108",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.445729, 55.638517]
+      },
+      "properties": {
+        "id": "174",
+        "name": "OK Node 109",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.447061, 55.632321]
+      },
+      "properties": {
+        "id": "175",
+        "name": "OK Node 110",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.440504, 55.627913]
+      },
+      "properties": {
+        "id": "176",
+        "name": "OK Node 111",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.468121, 55.643311]
+      },
+      "properties": {
+        "id": "177",
+        "name": "OK Node 112",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.477626, 55.654533]
+      },
+      "properties": {
+        "id": "178",
+        "name": "OK Node 113",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.446544, 55.632576]
+      },
+      "properties": {
+        "id": "179",
+        "name": "OK Node 114",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.447067, 55.632521]
+      },
+      "properties": {
+        "id": "180",
+        "name": "OK Node 115",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.482835, 55.63125]
+      },
+      "properties": {
+        "id": "181",
+        "name": "OK Node 116",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.47776, 55.644347]
+      },
+      "properties": {
+        "id": "182",
+        "name": "OK Node 117",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.547718, 55.729978]
+      },
+      "properties": {
+        "id": "183",
+        "name": "OK Node 118",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.533445, 55.679713]
+      },
+      "properties": {
+        "id": "184",
+        "name": "OK Node 119",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.15939, 56.09805]
+      },
+      "properties": {
+        "id": "185",
+        "name": "Critical Node 23",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.618045, 55.665703]
+      },
+      "properties": {
+        "id": "186",
+        "name": "OK Node 120",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.470961, 55.725116]
+      },
+      "properties": {
+        "id": "187",
+        "name": "OK Node 121",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.089789, 55.632578]
+      },
+      "properties": {
+        "id": "188",
+        "name": "Critical Node 24",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.061958, 55.63515]
+      },
+      "properties": {
+        "id": "189",
+        "name": "Critical Node 25",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.304519, 55.649742]
+      },
+      "properties": {
+        "id": "190",
+        "name": "OK Node 122",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.496221, 55.883117]
+      },
+      "properties": {
+        "id": "191",
+        "name": "Problem Node 44",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.527921, 55.831969]
+      },
+      "properties": {
+        "id": "192",
+        "name": "OK Node 123",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.167712, 55.483331]
+      },
+      "properties": {
+        "id": "193",
+        "name": "OK Node 124",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.526203, 55.681983]
+      },
+      "properties": {
+        "id": "194",
+        "name": "OK Node 125",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.527874, 55.682528]
+      },
+      "properties": {
+        "id": "195",
+        "name": "OK Node 126",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.613755, 55.641834]
+      },
+      "properties": {
+        "id": "196",
+        "name": "OK Node 127",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.612634, 55.642805]
+      },
+      "properties": {
+        "id": "197",
+        "name": "OK Node 128",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.61541, 55.642781]
+      },
+      "properties": {
+        "id": "198",
+        "name": "Problem Node 45",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.613126, 55.642354]
+      },
+      "properties": {
+        "id": "199",
+        "name": "OK Node 129",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.612468, 55.641679]
+      },
+      "properties": {
+        "id": "200",
+        "name": "OK Node 130",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.616047, 55.642115]
+      },
+      "properties": {
+        "id": "201",
+        "name": "OK Node 131",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.613111, 55.641756]
+      },
+      "properties": {
+        "id": "202",
+        "name": "OK Node 132",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.610825, 55.641686]
+      },
+      "properties": {
+        "id": "203",
+        "name": "OK Node 133",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.61181, 55.641599]
+      },
+      "properties": {
+        "id": "204",
+        "name": "OK Node 134",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.612175, 55.64243]
+      },
+      "properties": {
+        "id": "205",
+        "name": "OK Node 135",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.614399, 55.64191]
+      },
+      "properties": {
+        "id": "206",
+        "name": "OK Node 136",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.611167, 55.641523]
+      },
+      "properties": {
+        "id": "207",
+        "name": "OK Node 137",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.614437, 55.643017]
+      },
+      "properties": {
+        "id": "208",
+        "name": "OK Node 138",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.347722, 55.888761]
+      },
+      "properties": {
+        "id": "209",
+        "name": "OK Node 139",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.563467, 55.670167]
+      },
+      "properties": {
+        "id": "210",
+        "name": "Problem Node 46",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.446492, 55.781548]
+      },
+      "properties": {
+        "id": "211",
+        "name": "Problem Node 47",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.056646, 55.460689]
+      },
+      "properties": {
+        "id": "212",
+        "name": "OK Node 140",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.357557, 55.65755]
+      },
+      "properties": {
+        "id": "213",
+        "name": "OK Node 141",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.589834, 56.028439]
+      },
+      "properties": {
+        "id": "214",
+        "name": "OK Node 142",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.458303, 55.756449]
+      },
+      "properties": {
+        "id": "215",
+        "name": "OK Node 143",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.585231, 55.672071]
+      },
+      "properties": {
+        "id": "216",
+        "name": "OK Node 144",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.543004, 55.882191]
+      },
+      "properties": {
+        "id": "217",
+        "name": "Critical Node 26",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.73219, 56.970539]
+      },
+      "properties": {
+        "id": "218",
+        "name": "OK Node 145",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.513902, 55.657608]
+      },
+      "properties": {
+        "id": "219",
+        "name": "OK Node 146",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.811272, 55.457099]
+      },
+      "properties": {
+        "id": "220",
+        "name": "Problem Node 48",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.349364, 55.611059]
+      },
+      "properties": {
+        "id": "221",
+        "name": "OK Node 147",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.507341, 55.771418]
+      },
+      "properties": {
+        "id": "222",
+        "name": "OK Node 148",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.871147, 54.765557]
+      },
+      "properties": {
+        "id": "223",
+        "name": "Critical Node 27",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.299296, 55.250574]
+      },
+      "properties": {
+        "id": "224",
+        "name": "OK Node 149",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.629887, 55.660432]
+      },
+      "properties": {
+        "id": "225",
+        "name": "OK Node 150",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.207529, 55.620916]
+      },
+      "properties": {
+        "id": "226",
+        "name": "OK Node 151",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.47572, 56.081219]
+      },
+      "properties": {
+        "id": "227",
+        "name": "OK Node 152",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.60046592569, 55.709295270829]
+      },
+      "properties": {
+        "id": "228",
+        "name": "Problem Node 49",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.32329, 55.743541]
+      },
+      "properties": {
+        "id": "229",
+        "name": "Problem Node 50",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.031434, 55.976642]
+      },
+      "properties": {
+        "id": "230",
+        "name": "Problem Node 51",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.390956, 55.656856]
+      },
+      "properties": {
+        "id": "231",
+        "name": "OK Node 153",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.537422, 55.684058]
+      },
+      "properties": {
+        "id": "232",
+        "name": "Problem Node 52",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.057959, 55.838692]
+      },
+      "properties": {
+        "id": "233",
+        "name": "OK Node 154",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.50339, 55.769214]
+      },
+      "properties": {
+        "id": "234",
+        "name": "OK Node 155",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.35963, 55.728333]
+      },
+      "properties": {
+        "id": "235",
+        "name": "OK Node 156",
+        "status": "ok",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.905445145865, 56.133972274202]
+      },
+      "properties": {
+        "id": "236",
+        "name": "Critical Node 28",
+        "status": "critical",
+        "country": "Denmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.76062, 55.749685]
+      },
+      "properties": {
+        "id": "237",
+        "name": "Problem Node 53",
+        "status": "problem",
+        "country": "Denmark"
+      }
+    }
+  ]
+}

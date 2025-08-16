@@ -9,12 +9,12 @@ const duplicateNodeTestData = new Map([
       input: {
         nodes: [
           {
-            id: "node1",
-            label: "Node 1",
+            id: "test1",
+            label: "Test Node 1",
           },
           {
-            id: "node1",
-            label: "Node 1 Duplicate",
+            id: "test1",
+            label: "Test Node 1 Duplicate",
           },
           {
             id: "node2",
@@ -23,7 +23,7 @@ const duplicateNodeTestData = new Map([
         ],
         links: [
           {
-            source: "node1",
+            source: "test1",
             target: "node2",
           },
         ],
@@ -32,7 +32,7 @@ const duplicateNodeTestData = new Map([
         nodeCount: 2,
         linkCount: 1,
         flatNodeCount: 2,
-        node1Count: 1,
+        test1Count: 1,
       },
     },
   ],
@@ -44,8 +44,8 @@ const duplicateNodeTestData = new Map([
       initialData: {
         nodes: [
           {
-            id: "node1",
-            label: "Node 1",
+            id: "test1",
+            label: "Test Node 1",
           },
           {
             id: "node2",
@@ -54,7 +54,7 @@ const duplicateNodeTestData = new Map([
         ],
         links: [
           {
-            source: "node1",
+            source: "test1",
             target: "node2",
           },
         ],
@@ -62,8 +62,8 @@ const duplicateNodeTestData = new Map([
       newData: {
         nodes: [
           {
-            id: "node1",
-            label: "Node 1 Updated",
+            id: "test1",
+            label: "Test Node 1 Updated",
           },
           {
             id: "node3",
@@ -80,7 +80,7 @@ const duplicateNodeTestData = new Map([
       expected: {
         finalNodeCount: 3,
         finalLinkCount: 2,
-        node1Count: 1,
+        test1Count: 1,
         node3Count: 1,
       },
     },
@@ -93,12 +93,12 @@ const duplicateNodeTestData = new Map([
       corruptData: {
         nodes: [
           {
-            id: "node1",
-            label: "Node 1",
+            id: "test1",
+            label: "Test Node 1",
           },
           {
-            id: "node1",
-            label: "Node 1 Duplicate",
+            id: "test1",
+            label: "Test Node 1 Duplicate",
           },
           {
             id: "node2",
@@ -113,7 +113,7 @@ const duplicateNodeTestData = new Map([
       },
       expected: {
         finalNodeCount: 2,
-        node1Count: 1,
+        test1Count: 1,
       },
     },
   ],
@@ -124,10 +124,6 @@ global.L = {
   circleMarker: jest.fn(),
   divIcon: jest.fn(),
   point: jest.fn(),
-  markerClusterGroup: jest.fn(() => ({
-    addTo: jest.fn(() => ({})),
-    addLayer: jest.fn(),
-  })),
   geoJSON: jest.fn(() => ({
     addTo: jest.fn(),
     removeFrom: jest.fn(),
@@ -159,11 +155,11 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     });
 
     expect(Object.keys(processedData.flatNodes).length).toBe(2);
-    expect(processedData.flatNodes.node1).toBeDefined();
+    expect(processedData.flatNodes.test1).toBeDefined();
     expect(processedData.flatNodes.node2).toBeDefined();
 
-    const node1 = processedData.nodes.find((node) => node.id === "node1");
-    expect(node1.label).toBe("Node 1");
+    const node1 = processedData.nodes.find((node) => node.id === "test1");
+    expect(node1.label).toBe("Test Node 1");
   });
 
   test("mergeData should handle duplicate node IDs correctly", () => {
@@ -185,8 +181,8 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     netJSONGraphRender.mergeData(newData, self);
 
     // Ensure that adding a duplicate node does not result in multiple entries.
-    expect(self.data.nodes.filter((node) => node.id === "node1").length).toBe(
-      expected.node1Count,
+    expect(self.data.nodes.filter((node) => node.id === "test1").length).toBe(
+      expected.test1Count,
     );
 
     // Verify that the new node was added
@@ -229,8 +225,8 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     netJSONGraphRender.addData(newData, self);
 
     // Verify that the duplicate node was removed by the safeguard
-    expect(self.data.nodes.filter((node) => node.id === "node1").length).toBe(
-      expected.node1Count,
+    expect(self.data.nodes.filter((node) => node.id === "test1").length).toBe(
+      expected.test1Count,
     );
 
     // Verify total node count

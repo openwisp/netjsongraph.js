@@ -37,7 +37,7 @@ jobs:
         run: |
           yarn install
           python --version
-          pip install openwisp-utils[qa]
+          pip install openwisp-utils[qa] @ https://github.com/openwisp/openwisp-utils/tarball/1.2
 
       - name: QA checks
         run: ./run-qa-checks
@@ -72,7 +72,7 @@ jobs:
         run: npx wait-on http://localhost:8080
 
       - name: Set up Chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
 
       - name: Set up ChromeDriver
         uses: nanasess/setup-chromedriver@v2

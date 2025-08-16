@@ -33,6 +33,7 @@ export const getDriver = async () => {
 export const urls = {
   basicUsage: `${url}/examples/netjsongraph.html`,
   geographicMap: `${url}/examples/netjsonmap.html`,
+  indoorMap: `${url}/examples/netjsonmap-indoormap.html`,
 };
 
 export const getElementByCss = async (driver, css, waitTime = 1000) => {

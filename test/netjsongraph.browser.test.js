@@ -76,4 +76,20 @@ describe("Chart Rendering Test", () => {
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
   });
+
+  test("render floorplan map without console errors", async () => {
+    driver.get(urls.indoorMap);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
+    const consoleErrors = await captureConsoleErrors(driver);
+    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const {nodesPresent, linksPresent} =
+      await getPresentNodesAndLinksCount("Indoor map");
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(floorplanImage).not.toBeNull();
+    expect(nodesRendered).toBe(nodesPresent);
+    expect(linksRendered).toBe(linksPresent);
+  });
 });
