@@ -494,6 +494,20 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const latParam = params.get("lat");
+      const lngParam = params.get("lng");
+      const zoomParam = params.get("zoom");
+      const lat = parseFloat(latParam);
+      const lng = parseFloat(lngParam);
+      const zoom = parseFloat(zoomParam);
+      self.leaflet.invalidateSize();
+      self.leaflet.setView([lat, lng], zoom);
+    } catch (err) {
+      console.warn("Failed to fetch data from params params:", err);
+    }
+
     self.config.geoOptions = self.utils.deepMergeObj(
       {
         pointToLayer: (feature, latlng) =>
