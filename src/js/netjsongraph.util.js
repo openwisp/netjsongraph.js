@@ -112,10 +112,7 @@ class NetJSONGraphUtil {
       dateParseArr[1] % 400 === 0;
     const limitBoundaries = new Map([
       ["dateMonth", 12],
-      [
-        "dateDay",
-        [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
-      ],
+      ["dateDay", [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]],
       ["dateHour", 24],
     ]);
 
@@ -130,8 +127,7 @@ class NetJSONGraphUtil {
         dateNumberObject[dateNumberFields[i - 1]] += carry;
         break;
       } else if (dateNumberFields[i - 1] === "dateDay") {
-        limitBoundary =
-          limitBoundaries.get("dateDay")[dateNumberObject.dateMonth - 1];
+        limitBoundary = limitBoundaries.get("dateDay")[dateNumberObject.dateMonth - 1];
       } else {
         limitBoundary = limitBoundaries.get(dateNumberFields[i - 1]);
       }
@@ -232,9 +228,7 @@ class NetJSONGraphUtil {
   isNetJSON(param) {
     if (param.nodes && param.links) {
       return (
-        this.isObject(param) &&
-        this.isArray(param.nodes) &&
-        this.isArray(param.links)
+        this.isObject(param) && this.isArray(param.nodes) && this.isArray(param.links)
       );
     }
 
@@ -331,8 +325,7 @@ class NetJSONGraphUtil {
     // 1. Project all nodes to screen (pixel) coordinates for spatial clustering
     nodes.forEach((node) => {
       // Normalize location reference (GeoJSON may store it under properties.location)
-      const loc =
-        (node.properties && node.properties.location) || node.location;
+      const loc = (node.properties && node.properties.location) || node.location;
       if (!loc || loc.lat === undefined || loc.lng === undefined) {
         return; // Skip nodes without valid coordinates
       }
@@ -493,8 +486,7 @@ class NetJSONGraphUtil {
               basePoint.y + separationPx * Math.sin(angle),
             ];
             // Convert back to lat/lng for display
-            const offsetLatLng =
-              self.leaflet.containerPointToLatLng(offsetPoint);
+            const offsetLatLng = self.leaflet.containerPointToLatLng(offsetPoint);
             centroidLng = offsetLatLng.lng;
             centroidLat = offsetLatLng.lat;
           }
@@ -511,8 +503,7 @@ class NetJSONGraphUtil {
           if (self.config.clusteringAttribute) {
             const category = self.config.nodeCategories.find(
               (cat) =>
-                cat.name ===
-                groupNodes[0].properties[self.config.clusteringAttribute],
+                cat.name === groupNodes[0].properties[self.config.clusteringAttribute],
             );
             if (category) {
               cluster.itemStyle = {
@@ -535,10 +526,7 @@ class NetJSONGraphUtil {
 
     // Only keep links between non-clustered nodes
     links.forEach((link) => {
-      if (
-        nodeMap.get(link.source) === null &&
-        nodeMap.get(link.target) === null
-      ) {
+      if (nodeMap.get(link.source) === null && nodeMap.get(link.target) === null) {
         nonClusterLinks.push(link);
       }
     });
@@ -743,10 +731,7 @@ class NetJSONGraphUtil {
             dateString: node.properties[key],
           });
           nodeInfo[key] = time;
-        } else if (
-          typeof node.properties[key] === "object" ||
-          key.startsWith("_")
-        ) {
+        } else if (typeof node.properties[key] === "object" || key.startsWith("_")) {
           // Skip nested objects and internal metadata
           // eslint-disable-next-line no-useless-return
           return;
@@ -818,10 +803,7 @@ class NetJSONGraphUtil {
           container.appendChild(this.createTooltipItem("time", time));
         } else {
           container.appendChild(
-            this.createTooltipItem(
-              `${key.replace(/_/g, " ")}`,
-              node.properties[key],
-            ),
+            this.createTooltipItem(`${key.replace(/_/g, " ")}`, node.properties[key]),
           );
         }
       });
@@ -831,10 +813,7 @@ class NetJSONGraphUtil {
     }
     if (node.local_addresses) {
       container.appendChild(
-        this.createTooltipItem(
-          "Local Addresses",
-          node.local_addresses.join("<br/>"),
-        ),
+        this.createTooltipItem("Local Addresses", node.local_addresses.join("<br/>")),
       );
     }
     return container;
@@ -844,8 +823,7 @@ class NetJSONGraphUtil {
     const container = document.createElement("div");
     container.classList.add("njg-tooltip-inner");
 
-    const isGeneratedId = (val) =>
-      typeof val === "string" && val.startsWith("gjn_");
+    const isGeneratedId = (val) => typeof val === "string" && val.startsWith("gjn_");
 
     if (!isGeneratedId(link.source)) {
       container.appendChild(this.createTooltipItem("source", link.source));
@@ -891,8 +869,7 @@ class NetJSONGraphUtil {
   linkInfo(link) {
     const linkInfo = {};
 
-    const isGeneratedId = (val) =>
-      typeof val === "string" && val.startsWith("gjn_");
+    const isGeneratedId = (val) => typeof val === "string" && val.startsWith("gjn_");
 
     // Only include source/target if they are not autogenerated ids
     if (!isGeneratedId(link.source)) {
@@ -926,8 +903,7 @@ class NetJSONGraphUtil {
   }
 
   generateStyle(styleConfig, item) {
-    const styles =
-      typeof styleConfig === "function" ? styleConfig(item) : styleConfig;
+    const styles = typeof styleConfig === "function" ? styleConfig(item) : styleConfig;
     return styles;
   }
 
@@ -937,14 +913,8 @@ class NetJSONGraphUtil {
     let nodeEmphasisConfig = {};
     let categoryFound = false;
 
-    if (
-      node.category &&
-      config.nodeCategories &&
-      config.nodeCategories.length
-    ) {
-      const category = config.nodeCategories.find(
-        (cat) => cat.name === node.category,
-      );
+    if (node.category && config.nodeCategories && config.nodeCategories.length) {
+      const category = config.nodeCategories.find((cat) => cat.name === node.category);
 
       if (category) {
         categoryFound = true;
@@ -960,10 +930,7 @@ class NetJSONGraphUtil {
             node,
           );
           // Corrected typo: empahsis -> emphasis
-          emphasisNodeSize = this.generateStyle(
-            category.emphasis.nodeSize || {},
-            node,
-          );
+          emphasisNodeSize = this.generateStyle(category.emphasis.nodeSize || {}, node);
           nodeEmphasisConfig = {
             nodeStyle: emphasisNodeStyle,
             nodeSize: emphasisNodeSize,
@@ -1032,9 +999,7 @@ class NetJSONGraphUtil {
     let linkStyleConfig;
     let linkEmphasisConfig = {};
     if (link.category && config.linkCategories.length) {
-      const category = config.linkCategories.find(
-        (cat) => cat.name === link.category,
-      );
+      const category = config.linkCategories.find((cat) => cat.name === link.category);
 
       linkStyleConfig = this.generateStyle(category.linkStyle || {}, link);
 
@@ -1050,10 +1015,7 @@ class NetJSONGraphUtil {
         link,
       );
     } else {
-      linkStyleConfig = this.generateStyle(
-        config.graphConfig.series.linkStyle,
-        link,
-      );
+      linkStyleConfig = this.generateStyle(config.graphConfig.series.linkStyle, link);
     }
 
     return {linkStyleConfig, linkEmphasisConfig};

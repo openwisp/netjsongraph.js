@@ -1,7 +1,7 @@
 {
   "name": "netjsongraph.js",
   "version": "0.2.0",
-  "description": "NetJson format data visualization",
+  "description": "NetJSON NetworkGraph visualizer",
   "main": "index.js",
   "scripts": {
     "test": "jest --silent",
@@ -12,9 +12,7 @@
     "coveralls": "jest --silent -f ./coverage/lcov.info && cat ./coverage/lcov.info | coveralls || echo 'no coverage file found'",
     "precommit": "lint-staged",
     "lint": "eslint '**/*.js'",
-    "lint:fix": "eslint '**/*.js' --fix",
-    "format": "prettier --write \"**/*.+(js|json|css|md)\"",
-    "format:check": "prettier -c \"**/*.+(js|json|css|md)\""
+    "lint:fix": "eslint '**/*.js' --fix"
   },
   "lint-staged": {
     "src/**/*.js": [
@@ -52,7 +50,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.23.9",
     "@testing-library/jest-dom": "^6.4.2",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^30.0.0",
     "acorn": "^8.11.3",
     "copy-webpack-plugin": "^13.0.0",
     "coveralls": "^3.1.1",
@@ -67,8 +65,8 @@
     "html-webpack-plugin": "^5.6.0",
     "husky": "^9.0.11",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest": "^30.0.3",
+    "jest-environment-jsdom": "^30.0.5",
     "lint-staged": "^16.1.0",
     "prettier": "^3.2.5",
     "selenium-webdriver": "^4.29.0",

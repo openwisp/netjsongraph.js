@@ -111,14 +111,16 @@ export const getPresentNodesAndLinksCount = async (example) => {
     throw new Error("Invalid example type");
   }
   const data = mapping[example];
-  return {nodesPresent: data.nodes.length, linksPresent: data.links.length};
+  return {
+    nodesPresent: data.nodes.length,
+    linksPresent: data.links.length,
+  };
 };
 
 export const captureConsoleErrors = async (driver) => {
   const logs = await driver.manage().logs().get("browser");
   return logs.filter(
-    (log) =>
-      log.level.name === "SEVERE" && !log.message.includes("favicon.ico"),
+    (log) => log.level.name === "SEVERE" && !log.message.includes("favicon.ico"),
   );
 };
 

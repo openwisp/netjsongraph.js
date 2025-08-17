@@ -37,7 +37,8 @@ jobs:
         run: |
           yarn install
           python --version
-          pip install openwisp-utils[qa]
+          pip install "openwisp-utils[qa] @ https://github.com/openwisp/openwisp-utils/tarball/1.2"
+          sudo npm install -g prettier
 
       - name: QA checks
         run: ./run-qa-checks
@@ -86,7 +87,7 @@ jobs:
 
       - name: Unit tests
         run: yarn coverage --testPathIgnorePatterns=test/netjsongraph.browser.test.js
-  
+
       - name: Browser tests
         # Test timeout set to 30 seconds in CI since it runs slower
         run: yarn test --runInBand --testTimeout=30000 test/netjsongraph.browser.test.js
