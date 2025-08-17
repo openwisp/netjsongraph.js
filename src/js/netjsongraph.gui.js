@@ -36,8 +36,7 @@ class NetJSONGraphGUI {
       sideBar.classList.toggle("hidden");
       const metaInfo = document.querySelector(".njg-metaInfoContainer");
       if (
-        (this.self.config.showMetaOnNarrowScreens ||
-          this.self.el.clientWidth > 850) &&
+        (this.self.config.showMetaOnNarrowScreens || this.self.el.clientWidth > 850) &&
         metaInfo
       ) {
         metaInfo.style.display = "flex";
@@ -48,10 +47,7 @@ class NetJSONGraphGUI {
   }
 
   hideInfoOnNarrowScreen() {
-    if (
-      !this.self.config.showMetaOnNarrowScreens &&
-      this.self.el.clientWidth < 850
-    ) {
+    if (!this.self.config.showMetaOnNarrowScreens && this.self.el.clientWidth < 850) {
       this.metaInfoContainer.style.display = "none";
     }
 
@@ -102,11 +98,8 @@ class NetJSONGraphGUI {
   }
 
   getNodeLinkInfo(type, data) {
-    const nodeLinkInfoChildren =
-      document.querySelectorAll(".njg-infoContainer");
-    const headerInfoChildren = document.querySelectorAll(
-      ".njg-headerContainer",
-    );
+    const nodeLinkInfoChildren = document.querySelectorAll(".njg-infoContainer");
+    const headerInfoChildren = document.querySelectorAll(".njg-headerContainer");
     for (let i = 0; i < nodeLinkInfoChildren.length; i += 1) {
       nodeLinkInfoChildren[i].remove();
     }
@@ -158,8 +151,7 @@ class NetJSONGraphGUI {
       } else {
         keyLabel.innerHTML = key;
         // Preserve multiline values
-        const displayVal =
-          typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
+        const displayVal = typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
         valueLabel.innerHTML = displayVal;
       }
 
