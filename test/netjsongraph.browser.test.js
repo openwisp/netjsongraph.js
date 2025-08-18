@@ -92,4 +92,22 @@ describe("Chart Rendering Test", () => {
     expect(nodesRendered).toBe(nodesPresent);
     expect(linksRendered).toBe(linksPresent);
   });
+
+  test("render custom attributes example without errors", async () => {
+    driver.get(urls.customAttributes);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    const canvasHeight = await driver.executeScript("return graph.echarts.getRenderedCanvas().height");
+    const windowHeight = await driver.executeScript("return window.innerHeight");
+    expect(canvasHeight).not.toBe(0);
+    expect(canvasHeight).toBe(windowHeight);
+    const nodesCount = await driver.executeScript("return graph.data.nodes.length");
+    const linksCount = await driver.executeScript("return graph.data.links.length");
+    expect(nodesCount).toBe(6);
+    expect(linksCount).toBe(7);
+  });
 });
