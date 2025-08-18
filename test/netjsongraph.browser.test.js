@@ -71,7 +71,7 @@ describe("Chart Rendering Test", () => {
       zoomIn.click();
       click += 1;
     }
-    await driver.sleep(15000);
+    await driver.sleep(500);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
