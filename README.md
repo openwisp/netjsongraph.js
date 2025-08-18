@@ -14,9 +14,9 @@ Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) a
 
 Build powerful and interoperable visualizations without losing flexibility!
 
-## New: Client Markers Overlay (Graph mode)
+## Client Markers Overlay (Graph mode)
 
-You can now render small colored circles around each node to represent the number of connected clients (e.g., 2.4 GHz vs 5 GHz). This feature is implemented as a tiny helper that draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
+It's possible to render small colored circles around each node to represent things like the amount of connected WiFi clients. This feature is implemented as a tiny helper that draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
 
 - Helper file: `src/js/netjsongraph.clients.js`
 - Exposed on every instance inside `onLoad` as `attachClientsOverlay(options)`.
