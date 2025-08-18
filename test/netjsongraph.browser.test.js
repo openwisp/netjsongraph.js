@@ -101,7 +101,9 @@ describe("Chart Rendering Test", () => {
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
-    const canvasHeight = await driver.executeScript("return graph.echarts.getRenderedCanvas().height");
+    const canvasHeight = await driver.executeScript(
+      "return graph.echarts.getRenderedCanvas().height",
+    );
     const windowHeight = await driver.executeScript("return window.innerHeight");
     expect(canvasHeight).not.toBe(0);
     expect(canvasHeight).toBe(windowHeight);
