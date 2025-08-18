@@ -495,17 +495,16 @@ class NetJSONGraphRender {
     self.leaflet._zoomAnimated = false;
 
     try {
-      const params = new URLSearchParams(window.location.search);
-      const latParam = params.get("lat");
-      const lngParam = params.get("lng");
-      const zoomParam = params.get("zoom");
-      const lat = parseFloat(latParam);
-      const lng = parseFloat(lngParam);
-      const zoom = parseFloat(zoomParam);
-      self.leaflet.invalidateSize();
-      self.leaflet.setView([lat, lng], zoom);
-    } catch (err) {
-      console.warn("Failed to fetch data from params params:", err);
+      if (self.utils && typeof self.utils.restoreBoundsFromUrl === "function") {
+        self.utils.restoreBoundsFromUrl(self);
+      }
+      if (self.utils && typeof self.utils.enableBoundsUrlSync === "function") {
+        const debounceMs = 300;
+        const precision = 6;
+        self._destroyUrlSync = self.utils.enableBoundsUrlSync(self, { debounceMs, precision });
+      }
+    } catch (e) {
+      console.warn("bbox URL restore/sync failed", e);
     }
 
     self.config.geoOptions = self.utils.deepMergeObj(

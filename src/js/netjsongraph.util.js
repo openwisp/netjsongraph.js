@@ -1216,173 +1216,91 @@ class NetJSONGraphUtil {
     };
   }
 
-  parseUrlParams() {
+  parseUrlBounds() {
     const params = new URLSearchParams(window.location.search);
     const getFloat = (k) => {
       const v = params.get(k);
       return v == null ? null : parseFloat(v);
     };
+    const swLat = getFloat('swLat');
+    const swLng = getFloat('swLng');
+    const neLat = getFloat('neLat');
+    const neLng = getFloat('neLng');
     return {
-      swLat: getFloat("swLat"),
-      swLng: getFloat("swLng"),
-      neLat: getFloat("neLat"),
-      neLng: getFloat("neLng"),
-      lat: getFloat("lat"),
-      lng: getFloat("lng"),
-      node: params.has("node") ? decodeURIComponent(params.get("node")) : null,
-      mode: params.has("mode") ? params.get("mode") : null,
+      swLat, swLng, neLat, neLng,
+      hasBounds:
+        swLat !== null &&
+        swLng !== null &&
+        neLat !== null &&
+        neLng !== null,
     };
   }
 
-  writeBBoxToUrl(self, {usePush = false, precision = 6} = {}) {
+  writeBoundsToUrl(self, { precision = 6 } = {}) {
     if (!self || !self.leaflet) return;
     try {
-      const bounds = self.leaflet.getBounds();
-      if (!bounds || !bounds.isValid()) return;
-      const sw = bounds.getSouthWest();
-      const ne = bounds.getNorthEast();
+      const b = self.leaflet.getBounds();
+      if (!b || !b.isValid()) return;
 
+      const sw = b.getSouthWest();
+      const ne = b.getNorthEast();
       const url = new URL(window.location.href);
       const params = url.searchParams;
 
-      params.set("swLat", (+sw.lat).toFixed(precision));
-      params.set("swLng", (+sw.lng).toFixed(precision));
-      params.set("neLat", (+ne.lat).toFixed(precision));
-      params.set("neLng", (+ne.lng).toFixed(precision));
+      params.set('swLat', (+sw.lat).toFixed(precision));
+      params.set('swLng', (+sw.lng).toFixed(precision));
+      params.set('neLat', (+ne.lat).toFixed(precision));
+      params.set('neLng', (+ne.lng).toFixed(precision));
 
       url.search = params.toString();
-      if (usePush) window.history.pushState({}, "", url.toString());
-      else window.history.replaceState({}, "", url.toString());
+      window.history.replaceState({}, '', url.toString());
     } catch (err) {
-      console.warn("writeBBoxToUrl failed", err);
+      console.warn('writeBoundsToUrl error', err);
     }
   }
 
-  async restoreViewFromUrl(self, {openFloorplanOverlay} = {}) {
-    if (!self) return;
-    const p = this.parseUrlParams();
-
-    if (
-      p.mode === "floorplan" &&
-      p.floorUrl &&
-      typeof openFloorplanOverlay === "function"
-    ) {
-      const floorGraphOrPromise = openFloorplanOverlay(p.floorUrl);
-      const floorGraph =
-        floorGraphOrPromise instanceof Promise
-          ? await floorGraphOrPromise
-          : floorGraphOrPromise;
-      if (!floorGraph || !floorGraph.leaflet) return;
-      floorGraph.leaflet.invalidateSize();
-
-      if (
-        p.swLat != null &&
-        p.swLng != null &&
-        p.neLat != null &&
-        p.neLng != null
-      ) {
-        floorGraph.leaflet.fitBounds(
-          self.leaflet.latLngBounds([p.swLat, p.swLng], [p.neLat, p.neLng]),
-          {animate: false},
-        );
-      } else if (p.lat != null && p.lng != null) {
-        floorGraph.leaflet.setView(
-          [p.lat, p.lng],
-          p.zoom != null ? p.zoom : floorGraph.leaflet.getZoom(),
-          {animate: false},
-        );
-      }
-
-      if (p.node) {
-        if (floorGraph.event && typeof floorGraph.event.once === "function") {
-          floorGraph.event.once("onReady", () => {
-            this._openNodePopup(floorGraph, p.node);
-          });
-        } else {
-          setTimeout(() => this._openNodePopup(floorGraph, p.node), 200);
+  restoreBoundsFromUrl(self) {
+    if (!self || !self.leaflet) return;
+    try {
+      const b = this.parseUrlBounds();
+      if (!b.hasBounds) return;
+      this._suspendUrlWrites = true;
+      self.leaflet.whenReady(() => {
+        if (typeof self.leaflet.invalidateSize === 'function') {
+          self.leaflet.invalidateSize();
         }
-      }
-      return;
-    }
-
-    if (!self.leaflet) return;
-    self.leaflet.invalidateSize();
-
-    if (
-      p.swLat != null &&
-      p.swLng != null &&
-      p.neLat != null &&
-      p.neLng != null
-    ) {
-      self.leaflet.fitBounds(
-        self.leaflet.latLngBounds([p.swLat, p.swLng], [p.neLat, p.neLng]),
-        {animate: false},
-      );
-    } else if (p.lat != null && p.lng != null) {
-      self.leaflet.setView(
-        [p.lat, p.lng],
-        p.zoom != null ? p.zoom : self.leaflet.getZoom(),
-        {animate: false},
-      );
-    }
-
-    if (p.node) {
-      if (self.event && typeof self.event.once === "function") {
-        self.event.once("onReady", () => {
-          this._openNodePopup(self, p.node);
-        });
-      } else {
-        setTimeout(() => this._openNodePopup(self, p.node), 200);
-      }
+        self.leaflet.fitBounds(
+          L.latLngBounds([b.swLat, b.swLng], [b.neLat, b.neLng]),
+          { animate: false },
+        );
+        setTimeout(() => {
+          this._suspendUrlWrites = false;
+        }, 50);
+      });
+    } catch (e) {
+      console.warn('restoreBoundsFromUrl failed', e);
     }
   }
 
-  enableBBoxUrlSync(
-    self,
-    {debounceMs = 300, usePush = false, precision = 6} = {},
-  ) {
+  enableBoundsUrlSync(self, { debounceMs = 300, precision = 6 } = {}) {
     if (!self || !self.leaflet) return () => {};
     let timer = null;
-    let suspended = false;
     const write = () => {
-      if (suspended) return;
-      const bounds = self.leaflet.getBounds();
-      if (!bounds || !bounds.isValid()) return;
-      const sw = bounds.getSouthWest();
-      const ne = bounds.getNorthEast();
-
-      const url = new URL(window.location.href);
-      const params = url.searchParams;
-      params.set("swLat", (+sw.lat).toFixed(precision));
-      params.set("swLng", (+sw.lng).toFixed(precision));
-      params.set("neLat", (+ne.lat).toFixed(precision));
-      params.set("neLng", (+ne.lng).toFixed(precision));
-      url.search = params.toString();
-      if (usePush) window.history.pushState({}, "", url.toString());
-      else window.history.replaceState({}, "", url.toString());
+      if (this._suspendUrlWrites) return;
+      this.writeBoundsToUrl(self, { precision });
     };
     const debounced = () => {
       clearTimeout(timer);
       timer = setTimeout(write, debounceMs);
     };
-    self.leaflet.on("moveend", debounced);
-    self.leaflet.on("zoomend", debounced);
-    window.addEventListener("resize", debounced);
 
-    return {
-      disable() {
-        suspended = true;
-      },
-      enable() {
-        suspended = false;
-        debounced();
-      },
-      destroy() {
-        self.leaflet.off("moveend", debounced);
-        self.leaflet.off("zoomend", debounced);
-        window.removeEventListener("resize", debounced);
-        clearTimeout(timer);
-      },
+    self.leaflet.on('moveend', debounced);
+    self.leaflet.on('zoomend', debounced);
+
+    return () => {
+      self.leaflet.off('moveend', debounced);
+      self.leaflet.off('zoomend', debounced);
+      clearTimeout(timer);
     };
   }
 }
