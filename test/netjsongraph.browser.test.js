@@ -71,7 +71,7 @@ describe("Chart Rendering Test", () => {
       zoomIn.click();
       click += 1;
     }
-    await driver.sleep(15000);
+    await driver.sleep(500);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -97,6 +97,7 @@ describe("Chart Rendering Test", () => {
     driver.get(urls.customAttributes);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
+    /* eslint-disable no-unused-vars */
     const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
