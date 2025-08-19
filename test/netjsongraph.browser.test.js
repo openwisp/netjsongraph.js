@@ -97,6 +97,7 @@ describe("Chart Rendering Test", () => {
     driver.get(urls.customAttributes);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
+    /* eslint-disable no-unused-vars */
     const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
