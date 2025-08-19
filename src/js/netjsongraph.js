@@ -3,7 +3,6 @@ import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
 import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
 import NetJSONGraphGUI from "./netjsongraph.gui";
 import attachClientsOverlay from "./netjsongraph.clients";
-import attachHighlight from "./netjsongraph.highlight";
 
 const colorTool = require("zrender/lib/tool/color");
 const {each} = require("zrender/lib/core/util");
@@ -158,9 +157,6 @@ class NetJSONGraph {
     // Not enabled by default to avoid side effects.
     this.attachClientsOverlay = (opts) => attachClientsOverlay(this, opts);
 
-    // Expose highlight helper for examples (node/link selection with dimming)
-    this.attachHighlight = (opts) => attachHighlight(this, opts);
-    return this.config;
   }
 }
 
