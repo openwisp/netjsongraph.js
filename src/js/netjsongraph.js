@@ -153,6 +153,7 @@ class NetJSONGraph {
     }
     this.utils.hideLoading.call(this);
 
+
     // Expose helper to attach clients overlay for examples or apps
     // Not enabled by default to avoid side effects.
     this.attachClientsOverlay = (opts) => attachClientsOverlay(this, opts);
