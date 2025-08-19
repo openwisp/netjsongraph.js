@@ -1,5 +1,5 @@
 {
-  "label": "Network Nodes (clients)",
+  "label": "WiFi Clients of the Mesh Nodes",
   "nodes": [
     {"id": "A", "label": "Node A", "clients_wifi24": 12, "clients_wifi5": 6},
     {"id": "B", "label": "Node B", "clients_wifi24": 5, "clients_wifi5": 2},

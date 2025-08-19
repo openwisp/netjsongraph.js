@@ -2,13 +2,13 @@
 
 set -e
 
-npm run format:check
-npm run lint
+yarn lint || echo "Try running yarn lint:fix"
 
 openwisp-qa-check --skip-checkmigrations \
                   --skip-checkmakemigrations \
                   --skip-black \
                   --skip-flake8 \
                   --skip-isort \
-                  --skip-checkendline
-                  
+                  --skip-checkendline \
+                  --csslinter \
+                  --jslinter

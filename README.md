@@ -14,9 +14,9 @@ Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) a
 
 Build powerful and interoperable visualizations without losing flexibility!
 
-## New: Client Markers Overlay (Graph mode)
+## Client Markers Overlay (Graph mode)
 
-You can now render small colored circles around each node to represent the number of connected clients (e.g., 2.4 GHz vs 5 GHz). This feature is implemented as a tiny helper that draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
+It's possible to render small colored circles around each node to represent things like the amount of connected WiFi clients. This feature is implemented as a tiny helper that draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
 
 - Helper file: `src/js/netjsongraph.clients.js`
 - Exposed on every instance inside `onLoad` as `attachClientsOverlay(options)`.
@@ -130,7 +130,6 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Note on Styling**:
   The library's core CSS styles are scoped under the `.njg-container` class to prevent conflicts with your project's styles. This class is automatically added to the `el` element.
-
   - If `el` is `document.body` (the default), the library automatically styles both the `<html>` and `<body>` elements for full-page rendering (e.g., `width: 100%`, `height: 100%`, `margin: 0`).
   - If you provide a custom element for `el`, you are responsible for ensuring that this element and its parent elements have appropriate dimensions (width, height) for the graph to be visible.
 

@@ -57,7 +57,7 @@ function attachClientsOverlay(graph, options = {}) {
       const total = counts.reduce((s, v) => s + v.count, 0);
       if (total === 0) return;
       for (let orbit = 0; i < total; orbit += 1) {
-        const distance = startDistance + orbit * 2 * radius * a;
+        const distance = Math.max(0.1, startDistance + orbit * 2 * radius * a);
         const n = Math.max(1, Math.floor((Math.PI * distance) / (a * radius)));
         const delta = total - i;
         for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
