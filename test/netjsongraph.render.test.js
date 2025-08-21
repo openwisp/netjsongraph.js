@@ -1448,9 +1448,9 @@ describe("map series ids and name fallbacks", () => {
 
     render.mapRender(mockSelf.data, mockSelf);
     // After zoomend, we expect a setOption call targeting map-nodes id
-    const calls = mockSelf.echarts.setOption.mock.calls;
+    const {calls} = mockSelf.echarts.setOption.mock;
     expect(calls.length).toBeGreaterThan(0);
-    const lastArg = calls[calls.length - 1][0];
+    const [lastArg] = calls[calls.length - 1];
     expect(lastArg.series[0].id).toBe("map-nodes");
   });
 });
