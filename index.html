@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>netjsongraph.js: Examples</title>
@@ -33,12 +33,13 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        transition: background-color var(--transition-speed) ease,
-                    color var(--transition-speed) ease;
+        transition:
+          background-color var(--transition-speed) ease,
+          color var(--transition-speed) ease;
       }
 
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: "Inter", sans-serif;
         background-color: var(--bg-primary);
         color: var(--text-primary);
         line-height: 1.6;
@@ -244,23 +245,27 @@
     </main>
 
     <script>
-      const themeToggle = document.querySelector('.theme-toggle');
+      const themeToggle = document.querySelector(".theme-toggle");
       const htmlElement = document.documentElement;
 
       // Check for saved theme preference or system preference
-      const savedTheme = localStorage.getItem('theme');
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const savedTheme = localStorage.getItem("theme");
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
 
-      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-        htmlElement.classList.add('dark-mode');
+      if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
+        htmlElement.classList.add("dark-mode");
       }
 
-      themeToggle.addEventListener('click', () => {
-        htmlElement.classList.toggle('dark-mode');
-        
+      themeToggle.addEventListener("click", () => {
+        htmlElement.classList.toggle("dark-mode");
+
         // Save theme preference
-        const currentTheme = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', currentTheme);
+        const currentTheme = htmlElement.classList.contains("dark-mode")
+          ? "dark"
+          : "light";
+        localStorage.setItem("theme", currentTheme);
       });
     </script>
   </body>

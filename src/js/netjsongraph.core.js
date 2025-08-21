@@ -133,7 +133,9 @@ class NetJSONGraph {
 
     if (resParam.length) {
       const renderArray = function _renderArray() {
-        resParam.map((file) => this.utils.JSONDataUpdate.call(this, file, false));
+        resParam.map((file) =>
+          this.utils.JSONDataUpdate.call(this, file, false),
+        );
       };
       this.JSONParam = [JSONParam];
       this.event.once("renderArray", renderArray.bind(this));

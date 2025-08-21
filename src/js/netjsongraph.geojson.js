@@ -32,7 +32,8 @@ export function geojsonToNetjson(geojson) {
     // If the data source specifies an identifier (or label) keep it public,
     // otherwise generate an internal id and flag it so UI layers can hide it.
     const providedId = baseProps.id || baseProps.node_id || null;
-    const displayLabel = baseProps.label || baseProps.name || providedId || null;
+    const displayLabel =
+      baseProps.label || baseProps.name || providedId || null;
 
     const newId = providedId ? String(providedId) : `gjn_${nodes.length}`;
     const generatedIdentity = !providedId;
@@ -79,11 +80,17 @@ export function geojsonToNetjson(geojson) {
         createNode(coordinates, {...props, _featureType: "Point"});
         break;
       case "MultiPoint":
-        coordinates.forEach((pt) => createNode(pt, {...props, _featureType: "Point"}));
+        coordinates.forEach((pt) =>
+          createNode(pt, {...props, _featureType: "Point"}),
+        );
         break;
       case "LineString":
         // Tag nodes coming from line geometries
-        processCoordsSeq(coordinates, {...props, _featureType: "LineString"}, false);
+        processCoordsSeq(
+          coordinates,
+          {...props, _featureType: "LineString"},
+          false,
+        );
         break;
       case "MultiLineString":
         coordinates.forEach((line) =>
@@ -107,7 +114,9 @@ export function geojsonToNetjson(geojson) {
     const baseProps = {
       ...(feature.properties || {}),
       // Preserve original GeoJSON feature id (location primary-key) if present.
-      ...(feature.id !== undefined && feature.id !== null ? {id: feature.id} : {}),
+      ...(feature.id !== undefined && feature.id !== null
+        ? {id: feature.id}
+        : {}),
     };
 
     handleGeometry(feature.geometry, baseProps);
@@ -166,7 +175,8 @@ export function addPolygonOverlays(self) {
           ...defaultStyle,
           ...(self.config.geoOptions && self.config.geoOptions.style),
         };
-        if (echartsStyle.areaColor) leafletStyle.fillColor = echartsStyle.areaColor;
+        if (echartsStyle.areaColor)
+          leafletStyle.fillColor = echartsStyle.areaColor;
         if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
         if (typeof echartsStyle.opacity !== "undefined")
           leafletStyle.fillOpacity = echartsStyle.opacity;

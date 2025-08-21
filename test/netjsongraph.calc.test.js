@@ -235,7 +235,10 @@ describe("Test netjsongraph function utils", () => {
   const utilsObj = {
     "Parse the infomation of incoming node data.": ["nodeInfo", nodeInfoData],
     "Parse the infomation of incoming link data.": ["linkInfo", linkInfoData],
-    "Guaranteed minimum number of digits": ["numberMinDigit", numberMinDigitData],
+    "Guaranteed minimum number of digits": [
+      "numberMinDigit",
+      numberMinDigitData,
+    ],
     "Parse the time in the browser's current time zone based on the incoming matching rules.":
       ["dateParse", dateParseData],
     "Judge parameter type is object": ["isObject", isObjectData],

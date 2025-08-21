@@ -43,7 +43,9 @@ const operations = {
       const targetNode = JSONData.flatNodes[link.target];
       if (sourceNode && targetNode) {
         if (sourceNode.id === targetNode.id) {
-          console.error(`Link source and target (${sourceNode.id}) are duplicated!`);
+          console.error(
+            `Link source and target (${sourceNode.id}) are duplicated!`,
+          );
           return;
         }
 
@@ -130,7 +132,9 @@ const operations = {
       if (flag) {
         copyArr.splice(i, 1);
       } else {
-        const value = ordered ? tempValueArr.join("") : tempValueArr.sort().join("");
+        const value = ordered
+          ? tempValueArr.join("")
+          : tempValueArr.sort().join("");
         if (tempStack.indexOf(value) !== -1) {
           copyArr.splice(i, 1);
         } else {

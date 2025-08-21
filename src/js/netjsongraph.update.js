@@ -43,7 +43,8 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
 
       if (
         !window.history.state ||
-        (window.history.state && window.history.state.searchValue !== searchValue)
+        (window.history.state &&
+          window.history.state.searchValue !== searchValue)
       ) {
         window.history.pushState({searchValue}, "");
         return self.utils.JSONDataUpdate.call(

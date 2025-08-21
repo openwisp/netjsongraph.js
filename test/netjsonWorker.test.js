@@ -1,6 +1,7 @@
 const {operations, dealJSONData} = require("../src/js/netjsonWorker");
 
-const {addFlatNodes, arrayDeduplication, changeInterfaceID, addNodeLinks} = operations;
+const {addFlatNodes, arrayDeduplication, changeInterfaceID, addNodeLinks} =
+  operations;
 
 const addFlatNodesJSONData = new Map([
   [
@@ -435,7 +436,10 @@ const operationsObj = {
     arrayDeduplicationJSONData,
   ],
   "Flattened nodes array by id": [addFlatNodes, addFlatNodesJSONData],
-  "Netjson multi-interface id process": [changeInterfaceID, changeInterfaceIDJSONData],
+  "Netjson multi-interface id process": [
+    changeInterfaceID,
+    changeInterfaceIDJSONData,
+  ],
   "Add node linkCount field": [addNodeLinks, addNodeLinksJSONData],
 };
 
