@@ -6,9 +6,9 @@ function attachClientsOverlay(graph, options = {}) {
   const chart = graph.echarts;
   const g = echarts.graphic;
 
+  // Use a single color for any WiFi clients (combined 2.4 GHz + 5 GHz)
   const colors = {
-    wifi24: (options.colors && options.colors.wifi24) || "#d35454",
-    wifi5: (options.colors && options.colors.wifi5) || "#2ecc71",
+    wifi: (options.colors && (options.colors.wifi || options.colors.wifi24 || options.colors.wifi5)) || "#d35454",
     other: (options.colors && options.colors.other) || "#bdc3c7",
   };
   const radius = options.radius || 3;
@@ -61,11 +61,16 @@ function attachClientsOverlay(graph, options = {}) {
         const n = Math.max(1, Math.floor((Math.PI * distance) / (a * radius)));
         const delta = total - i;
         for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
+          // Determine which category this marker belongs to based on cumulative counts
           let color = colors.other;
-          if (i < counts[0].count) color = counts[0].color;
-          else if (i < counts[0].count + counts[1].count)
-            color = counts[1].color;
-          else color = counts[2].color;
+          let cum = 0;
+          for (let k = 0; k < counts.length; k += 1) {
+            cum += counts[k].count;
+            if (i < cum) {
+              color = counts[k].color;
+              break;
+            }
+          }
 
           const angle = ((2 * Math.PI) / n) * j;
           const x = centerX + distance * Math.cos(angle);
@@ -105,12 +110,12 @@ function attachClientsOverlay(graph, options = {}) {
           0;
 
         const startDistance = nodeRadius + gap;
+        const wifi = c24 + c5;
         placeOrbit(
           x,
           y,
           [
-            {count: c24, color: colors.wifi24},
-            {count: c5, color: colors.wifi5},
+            {count: wifi, color: colors.wifi},
             {count: other, color: colors.other},
           ],
           startDistance,
