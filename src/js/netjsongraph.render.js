@@ -136,14 +136,15 @@ class NetJSONGraphRender {
         itemStyle: nodeEmphasisConfig.nodeStyle,
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
-      nodeResult.name =
-        typeof node.label === "string"
-          ? node.label
-          : typeof node.name === "string"
-          ? node.name
-          : node.id !== undefined && node.id !== null
-          ? String(node.id)
-          : "";
+      let resolvedName = "";
+      if (typeof node.label === "string") {
+        resolvedName = node.label;
+      } else if (typeof node.name === "string") {
+        resolvedName = node.name;
+      } else if (node.id !== undefined && node.id !== null) {
+        resolvedName = String(node.id);
+      }
+      nodeResult.name = resolvedName;
 
       return nodeResult;
     });
@@ -162,8 +163,8 @@ class NetJSONGraphRender {
     });
 
     // Clone label config to avoid mutating defaults
-    const baseGraphSeries = Object.assign({}, configs.graphConfig.series);
-    const baseGraphLabel = Object.assign({}, baseGraphSeries.label || {});
+    const baseGraphSeries = {...configs.graphConfig.series};
+    const baseGraphLabel = {...(baseGraphSeries.label || {})};
     if (typeof self.config.showGraphLabelsAtZoom === "number") {
       const threshold = self.config.showGraphLabelsAtZoom;
       // Use a closure over the ECharts instance to read zoom when formatting
@@ -180,7 +181,7 @@ class NetJSONGraphRender {
         }
         return 1;
       };
-      baseGraphLabel.formatter = function (params) {
+      baseGraphLabel.formatter = (params) => {
         const zoom = getCurrentGraphZoom();
         if (zoom < threshold) {
           return "";
@@ -190,7 +191,8 @@ class NetJSONGraphRender {
     }
     baseGraphSeries.label = baseGraphLabel;
     const series = [
-      Object.assign(baseGraphSeries, {
+      {
+        ...baseGraphSeries,
         id: "graph-series",
         type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
@@ -199,7 +201,7 @@ class NetJSONGraphRender {
             : configs.graphConfig.series.layout,
         nodes,
         links,
-      }),
+      },
     ];
     const legend = categories.length
       ? {
@@ -261,15 +263,16 @@ class NetJSONGraphRender {
         } else {
           const {nodeEmphasisConfig} = self.utils.getNodeStyle(node, configs, "map");
 
+          let displayName = "";
+          if (typeof node.label === "string") {
+            displayName = node.label;
+          } else if (typeof node.name === "string") {
+            displayName = node.name;
+          } else if (node.id !== undefined && node.id !== null) {
+            displayName = String(node.id);
+          }
           nodesData.push({
-            name:
-              typeof node.label === "string"
-                ? node.label
-                : typeof node.name === "string"
-                ? node.name
-                : node.id !== undefined && node.id !== null
-                ? String(node.id)
-                : "",
+            name: displayName,
             value: [location.lng, location.lat],
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
@@ -380,12 +383,13 @@ class NetJSONGraphRender {
         },
         emphasis: configs.mapOptions.nodeConfig.emphasis,
       },
-      Object.assign(configs.mapOptions.linkConfig, {
+      {
+        ...configs.mapOptions.linkConfig,
         id: "map-links",
         type: "lines",
         coordinateSystem: "leaflet",
         data: linesData,
-      }),
+      },
     ];
 
     return {
