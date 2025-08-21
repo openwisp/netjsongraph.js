@@ -1,0 +1,48 @@
+{
+  "aa:bb:cc:00:00:01": [
+    {
+      "mac": "aa:bb:cc:00:00:01",
+      "type": "wireless",
+      "wireless": {
+        "ssid": "mesh-home",
+        "channel": 1,
+        "mode": "ap",
+        "country": "US",
+        "clients": [
+          {"mac": "aa:bb:cc:00:00:02", "signal": -58}
+        ]
+      }
+    },
+    {"mac": "aa:bb:cc:10:00:01", "type": "ethernet"}
+  ],
+  "aa:bb:cc:00:00:02": [
+    {
+      "mac": "aa:bb:cc:00:00:02",
+      "type": "wireless",
+      "wireless": {
+        "ssid": "mesh-home",
+        "channel": 1,
+        "mode": "ap",
+        "country": "US",
+        "clients": [
+          {"mac": "aa:bb:cc:00:00:01", "signal": -60},
+          {"mac": "aa:bb:cc:00:00:03", "signal": -67}
+        ]
+      }
+    },
+    {"mac": "aa:bb:cc:10:00:02", "type": "ethernet"}
+  ],
+  "aa:bb:cc:00:00:03": [
+    {
+      "mac": "aa:bb:cc:00:00:03",
+      "type": "wireless",
+      "wireless": {
+        "ssid": "mesh-home",
+        "channel": 6,
+        "mode": "ap",
+        "country": "US",
+        "clients": []
+      }
+    }
+  ]
+}

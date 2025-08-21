@@ -18,6 +18,9 @@ function attachClientsOverlay(graph, options = {}) {
     wifi5: (options.fields && options.fields.wifi5) || "clients_wifi5",
     other: (options.fields && options.fields.other) || "clients_other",
   };
+  // Combined wifi clients (2.4 + 5) optional field name
+  const wifiCombinedField =
+    (options.fields && options.fields.wifi) || "clients_wifi";
 
   function getSeriesViewGroup() {
     const seriesModel = chart.getModel().getSeriesByIndex(0);
@@ -110,7 +113,14 @@ function attachClientsOverlay(graph, options = {}) {
           0;
 
         const startDistance = nodeRadius + gap;
-        const wifi = c24 + c5;
+        // Prefer a combined wifi count if available, otherwise sum 2.4 + 5
+        const combinedWifi =
+          node[wifiCombinedField] ||
+          (node.properties && node.properties[wifiCombinedField]);
+        const wifi =
+          typeof combinedWifi === "number"
+            ? combinedWifi
+            : (Number(c24) || 0) + (Number(c5) || 0);
         placeOrbit(
           x,
           y,

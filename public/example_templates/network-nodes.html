@@ -15,8 +15,8 @@
   <body>
     <div id="graph"></div>
     <script type="text/javascript">
-      // Minimal inline NetJSON-like data with client counts per node
-      const data = "../assets/data/netjsongraph-network-nodes.json";
+      // Load Mesh-format data which will be converted to NetJSON automatically
+      const data = "../assets/data/mesh-network-nodes.json";
 
       const graph = new NetJSONGraph(data, {
         el: "#graph",

@@ -82,6 +82,11 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
     return self.utils.paginatedDataParse
       .call(self, Data)
       .then((JSONData) => {
+        // Convert Mesh data to NetJSON upfront so downstream logic works unchanged
+        if (self.utils.isMeshData && self.utils.isMeshData(JSONData)) {
+          JSONData = self.utils.meshToNetjson(JSONData);
+          self.type = "netjson";
+        }
         function update() {
           // override data.
           if (override) {
