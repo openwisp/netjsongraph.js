@@ -137,9 +137,11 @@ class NetJSONGraph {
             this.echarts.getZr()._backgroundColor;
 
           // Hide Openstreetmap credits in the bottom right corner
-          document.querySelector(".leaflet-control-attribution").style.display = "none";
+          document.querySelector(".leaflet-control-attribution").style.display =
+            "none";
           // Hide zoom control buttons in top right corner
-          document.querySelector(".leaflet-control-zoom").style.display = "none";
+          document.querySelector(".leaflet-control-zoom").style.display =
+            "none";
         } else {
           this.echarts.clear();
           this.config.render = this.utils.mapRender;
@@ -147,17 +149,16 @@ class NetJSONGraph {
           // Show OpenStreetMap credits and zoom control buttons in map mode
           document.querySelector(".leaflet-control-attribution").style.display =
             "block";
-          document.querySelector(".leaflet-control-zoom").style.display = "block";
+          document.querySelector(".leaflet-control-zoom").style.display =
+            "block";
         }
       };
     }
     this.utils.hideLoading.call(this);
 
-
     // Expose helper to attach clients overlay for examples or apps
     // Not enabled by default to avoid side effects.
     this.attachClientsOverlay = (opts) => attachClientsOverlay(this, opts);
-
   }
 }
 

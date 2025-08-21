@@ -161,7 +161,7 @@
             "vendor": "Intel Corporate",
             "mesh_non_peer_ps": "ACTIVE"
           },
-           {
+          {
             "auth": true,
             "authorized": true,
             "mac": "d8:5d:4c:f1:aa:61",
@@ -235,7 +235,7 @@
       "wireless": {
         "channel": 11,
         "clients": [
-           {
+          {
             "auth": true,
             "authorized": true,
             "mac": "2a:9a:fb:12:11:77",
@@ -286,7 +286,7 @@
       "wireless": {
         "channel": 11,
         "clients": [
-           {
+          {
             "auth": true,
             "authorized": true,
             "mac": "d8:5d:4c:f1:aa:11",

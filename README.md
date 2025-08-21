@@ -388,20 +388,17 @@ It's possible to render small colored circles around each node to represent thin
 Example usage:
 
 ```js
-const graph = new NetJSONGraph(
-  "../assets/data/mesh-network-nodes.json",
-  {
-    render: "graph",
-    onReady() {
-      this.attachClientsOverlay({
-        colors: {wifi: "#d35454", other: "#bdc3c7"},
-        radius: 3, // dot radius in px
-        gap: 8, // distance from node edge to first orbit
-        // fields: { wifi: 'clients_wifi', other: 'clients_other' }
-      });
-    },
+const graph = new NetJSONGraph("../assets/data/mesh-network-nodes.json", {
+  render: "graph",
+  onReady() {
+    this.attachClientsOverlay({
+      colors: {wifi: "#d35454", other: "#bdc3c7"},
+      radius: 3, // dot radius in px
+      gap: 8, // distance from node edge to first orbit
+      // fields: { wifi: 'clients_wifi', other: 'clients_other' }
+    });
   },
-);
+});
 graph.render();
 ```
 
