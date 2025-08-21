@@ -161,8 +161,36 @@ class NetJSONGraphRender {
       return linkResult;
     });
 
+    // Clone label config to avoid mutating defaults
+    const baseGraphSeries = Object.assign({}, configs.graphConfig.series);
+    const baseGraphLabel = Object.assign({}, baseGraphSeries.label || {});
+    if (typeof self.config.showGraphLabelsAtZoom === "number") {
+      const threshold = self.config.showGraphLabelsAtZoom;
+      // Use a closure over the ECharts instance to read zoom when formatting
+      const getCurrentGraphZoom = () => {
+        try {
+          const option = self.echarts.getOption();
+          const series = Array.isArray(option.series) ? option.series : [];
+          const graphSeries = series.find((s) => s && s.id === "graph-series");
+          if (graphSeries && typeof graphSeries.zoom === "number") {
+            return graphSeries.zoom;
+          }
+        } catch (e) {
+          // ignore
+        }
+        return 1;
+      };
+      baseGraphLabel.formatter = function (params) {
+        const zoom = getCurrentGraphZoom();
+        if (zoom < threshold) {
+          return "";
+        }
+        return (params && params.data && params.data.name) || "";
+      };
+    }
+    baseGraphSeries.label = baseGraphLabel;
     const series = [
-      Object.assign(configs.graphConfig.series, {
+      Object.assign(baseGraphSeries, {
         id: "graph-series",
         type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
@@ -386,67 +414,10 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
-    // Optional label visibility gate for graph mode based on ECharts zoom.
-    // If showGraphLabelsAtZoom is set (number), hide labels when current
-    // graph zoom is below the threshold; otherwise rely on hideOverlap only.
-    const graphZoomThreshold = self.config.showGraphLabelsAtZoom;
-    if (typeof graphZoomThreshold === "number") {
-      let labelsCurrentlyShown = null;
-      const getCurrentGraphZoom = () => {
-        try {
-          const option = self.echarts.getOption();
-          const series = Array.isArray(option.series) ? option.series : [];
-          const graphSeries = series.find(
-            (s) => s && s.id === "graph-series",
-          );
-          if (graphSeries && typeof graphSeries.zoom === "number") {
-            return graphSeries.zoom;
-          }
-        } catch (e) {
-          // no-op, fallback below
-        }
-        // Reasonable fallback if zoom is not retrievable
-        return 1;
-      };
-
-      const applyLabelVisibility = (zoom) => {
-        const showLabel = zoom >= graphZoomThreshold;
-        if (labelsCurrentlyShown === showLabel) {
-          return;
-        }
-        labelsCurrentlyShown = showLabel;
-        self.echarts.setOption({
-          series: [
-            {
-              id: "graph-series",
-              label: {
-                show: showLabel,
-              },
-              emphasis: {
-                label: {
-                  show: showLabel,
-                },
-              },
-            },
-          ],
-        });
-      };
-
-      // Initialize visibility based on initial zoom
-      let graphCurrentZoom = getCurrentGraphZoom();
-      applyLabelVisibility(graphCurrentZoom);
-
-      // Update on roam (zoom/pan) in graph mode
-      self.echarts.on("graphRoam", (params) => {
-        if (typeof params?.zoom === "number") {
-          // ECharts emits zoom as a relative scale factor; accumulate it.
-          graphCurrentZoom *= params.zoom;
-        } else {
-          graphCurrentZoom = getCurrentGraphZoom();
-        }
-        applyLabelVisibility(graphCurrentZoom);
-      });
-    }
+    // Re-evaluate label formatter during roam without changing zoom/center
+    self.echarts.on("graphRoam", () => {
+      self.echarts.resize();
+    });
 
     self.event.emit("onLoad");
     self.event.emit("onReady");
