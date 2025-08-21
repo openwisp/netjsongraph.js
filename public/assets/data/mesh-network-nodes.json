@@ -1,222 +1,514 @@
 {
-    "64:70:02:C3:03:B2": [
-      {
-        "mac": "64:70:02:c3:03:b3",
-        "mtu": 1500,
-        "multicast": true,
-        "name": "mesh0",
-        "txqueuelen": 1000,
-        "type": "wireless",
-        "up": true,
-        "wireless": {
-          "channel": 11,
-          "clients": [
-            {
-              "auth": true,
-              "authorized": true,
-              "ht": true,
-              "mac": "a4:bc:3f:ae:c7:0c",
-              "mfp": false,
-              "noise": -90,
-              "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
-              "vht": false,
-              "wmm": true,
-              "mesh_llid": 19000,
-              "mesh_plid": 24000,
-              "mesh_non_peer_ps": "ACTIVE"
-            },
-            {
-              "auth": true,
-              "authorized": true,
-              "ht": true,
-              "mac": "2a:9a:fb:12:11:77",
-              "mfp": false,
-              "noise": -94,
-              "signal": -58,
-              "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
-              "vht": false,
-              "wmm": true,
-              "mesh_llid": 19500,
-              "mesh_plid": 24500,
-              "mesh_non_peer_ps": "ACTIVE"
-            }
-          ],
-          "country": "ES",
-          "frequency": 2462,
-          "htmode": "HT20",
-          "mode": "802.11s",
-          "noise": -95,
-          "signal": -61,
-          "ssid": "Test Mesh",
-          "tx_power": 17
-        }
-      }
-    ],
-    "A4:BC:3F:AE:C7:0B": [
-      {
-        "mac": "a4:bc:3f:ae:c7:0c",
-        "mtu": 1500,
-        "multicast": true,
-        "name": "mesh1",
-        "txqueuelen": 1000,
-        "type": "wireless",
-        "up": true,
-        "wireless": {
-          "channel": 11,
-          "clients": [
-            {
-              "auth": true,
-              "authorized": true,
-              "ht": true,
-              "mac": "64:70:02:C3:03:B3",
-              "mfp": false,
-              "noise": -98,
-              "signal": -58,
-              "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
-              "vht": false,
-              "wmm": true,
-              "mesh_llid": 20000,
-              "mesh_plid": 25000,
-              "mesh_non_peer_ps": "ACTIVE"
-            },
-            {
-              "auth": true,
-              "authorized": true,
-              "ht": true,
-              "mac": "2a:9a:fb:12:11:77",
-              "mfp": false,
-              "noise": -96,
-              "signal": -60,
-              "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
-              "vht": false,
-              "wmm": true,
-              "mesh_llid": 19500,
-              "mesh_plid": 24500,
-              "mesh_non_peer_ps": "ACTIVE"
-            }
-          ],
-          "country": "ES",
-          "frequency": 2462,
-          "htmode": "HT20",
-          "mode": "802.11s",
-          "noise": -95,
-          "signal": -56,
-          "ssid": "Test Mesh",
-          "tx_power": 17
-        }
-      }
-    ],
-    "2A:9A:FB:12:11:76": [
-      {
-        "mac": "2a:9a:fb:12:11:77",
-        "mtu": 1500,
-        "multicast": true,
-        "name": "mesh2",
-        "txqueuelen": 1000,
-        "type": "wireless",
-        "up": true,
-        "wireless": {
-          "channel": 11,
-          "clients": [
-            {
-              "auth": true,
-              "authorized": true,
-              "noise": -92,
-              "signal": -56,
-              "ht": true,
-              "mfp": false,
-              "vht": false,
-              "wmm": true,
-              "mac": "a4:bc:3f:ae:c7:0c",
-              "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
-              "mesh_non_peer_ps": "LISTEN"
-            },
-            {
-              "mac": "0a:cc:ae:34:ff:3d",
-              "wps": false,
-              "wds": false,
-              "ht": true,
-              "preauth": false,
-              "assoc": true,
-              "authorized": true,
-              "vht": false,
-              "wmm": false,
-              "aid": 1,
-              "mfp": false,
-              "auth": true,
-              "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
-              "signature": "test_signature",
-              "mesh_plink": "LISTEN"
-            }
-          ],
-          "country": "ES",
-          "frequency": 2462,
-          "htmode": "HT20",
-          "mode": "802.11s",
-          "noise": -95,
-          "signal": -64,
-          "ssid": "Test Mesh",
-          "tx_power": 17
-        }
-      },
-      {
-        "addresses": [
+  "64:70:02:C3:03:B2": [
+    {
+      "mac": "64:70:02:c3:03:b3",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh0",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
           {
-            "address": "192.168.1.1",
-            "family": "ipv4",
-            "mask": 24,
-            "proto": "static"
+            "auth": true,
+            "authorized": true,
+            "ht": true,
+            "mac": "a4:bc:3f:ae:c7:0c",
+            "mfp": false,
+            "noise": -90,
+            "signal": -59,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "vht": false,
+            "wmm": true,
+            "mesh_llid": 19000,
+            "mesh_plid": 24000,
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "ht": true,
+            "mac": "2a:9a:fb:12:11:77",
+            "mfp": false,
+            "noise": -94,
+            "signal": -65,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "vht": false,
+            "wmm": true,
+            "mesh_llid": 19500,
+            "mesh_plid": 24500,
+            "mesh_non_peer_ps": "ACTIVE"
           }
         ],
-        "bridge_members": ["eth0.1", "mesh0"],
-        "mac": "2a:9a:fb:12:11:76",
-        "mtu": 1500,
-        "multicast": true,
-        "name": "br-lan",
-        "speed": "-1F",
-        "stp": false,
-        "txqueuelen": 1000,
-        "type": "bridge",
-        "up": true
-      },
-      {
-        "name": "wlan0",
-        "type": "wireless",
-        "up": true,
-        "mac": "2a:9a:fb:12:11:78",
-        "txqueuelen": 1000,
-        "multicast": true,
-        "mtu": 1500,
-        "wireless": {
-          "frequency": 2437,
-          "mode": "access_point",
-          "signal": -29,
-          "tx_power": 6,
-          "channel": 6,
-          "ssid": "testnet",
-          "noise": -95,
-          "country": "US",
-          "htmode": "HT20",
-          "clients": [
-            {
-              "mac": "00:ee:ad:34:f5:3b",
-              "wps": false,
-              "wds": false,
-              "ht": true,
-              "preauth": false,
-              "assoc": true,
-              "authorized": true,
-              "vht": false,
-              "wmm": true,
-              "aid": 1,
-              "mfp": false,
-              "auth": true,
-              "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
-              "signature": "test_signature"
-            }
-          ]
-        }
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -61,
+        "ssid": "Test Mesh",
+        "tx_power": 17
       }
-    ]
-  }
-  
+    }
+  ],
+  "A4:BC:3F:AE:C7:0B": [
+    {
+      "mac": "a4:bc:3f:ae:c7:0c",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh1",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+          {
+            "auth": true,
+            "authorized": true,
+            "ht": true,
+            "mac": "64:70:02:c3:03:b3",
+            "mfp": false,
+            "noise": -98,
+            "signal": -58,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "vht": false,
+            "wmm": true,
+            "mesh_llid": 20000,
+            "mesh_plid": 25000,
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "ht": true,
+            "mac": "2a:9a:fb:12:11:77",
+            "mfp": false,
+            "noise": -96,
+            "signal": -60,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "vht": false,
+            "wmm": true,
+            "mesh_llid": 19500,
+            "mesh_plid": 24500,
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "ht": true,
+            "mac": "d8:5d:4c:f1:aa:11",
+            "mfp": false,
+            "noise": -91,
+            "signal": -70,
+            "vendor": "Intel Corporate",
+            "vht": false,
+            "wmm": true,
+            "mesh_llid": 21500,
+            "mesh_plid": 26500,
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -56,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    }
+  ],
+  "2A:9A:FB:12:11:76": [
+    {
+      "mac": "2a:9a:fb:12:11:77",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh2",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "a4:bc:3f:ae:c7:0c",
+            "noise": -92,
+            "signal": -56,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "64:70:02:c3:03:b3",
+            "noise": -93,
+            "signal": -66,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:11",
+            "noise": -90,
+            "signal": -54,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+           {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:61",
+            "noise": -95,
+            "signal": -68,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -64,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    },
+    {
+      "addresses": [
+        {
+          "address": "192.168.1.1",
+          "family": "ipv4",
+          "mask": 24,
+          "proto": "static"
+        }
+      ],
+      "bridge_members": ["eth0.1", "mesh2"],
+      "mac": "2a:9a:fb:12:11:76",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "br-lan",
+      "speed": "-1F",
+      "stp": false,
+      "txqueuelen": 1000,
+      "type": "bridge",
+      "up": true
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "up": true,
+      "mac": "2a:9a:fb:12:11:78",
+      "txqueuelen": 1000,
+      "multicast": true,
+      "mtu": 1500,
+      "wireless": {
+        "frequency": 2437,
+        "mode": "access_point",
+        "signal": -29,
+        "tx_power": 20,
+        "channel": 6,
+        "ssid": "TestNet_Main",
+        "noise": -95,
+        "country": "US",
+        "htmode": "HT20",
+        "clients": []
+      }
+    }
+  ],
+  "d8:5d:4c:f1:aa:10": [
+    {
+      "mac": "d8:5d:4c:f1:aa:11",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh3",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+           {
+            "auth": true,
+            "authorized": true,
+            "mac": "2a:9a:fb:12:11:77",
+            "noise": -91,
+            "signal": -55,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "a4:bc:3f:ae:c7:0c",
+            "noise": -90,
+            "signal": -69,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:21",
+            "noise": -94,
+            "signal": -61,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -58,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    }
+  ],
+  "d8:5d:4c:f1:aa:20": [
+    {
+      "mac": "d8:5d:4c:f1:aa:21",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh4",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+           {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:11",
+            "noise": -92,
+            "signal": -60,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:31",
+            "noise": -93,
+            "signal": -52,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -59,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    }
+  ],
+  "d8:5d:4c:f1:aa:30": [
+    {
+      "mac": "d8:5d:4c:f1:aa:31",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh5",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:21",
+            "noise": -94,
+            "signal": -53,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -50,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    }
+  ],
+  "d8:5d:4c:f1:aa:40": [
+    {
+      "mac": "d8:5d:4c:f1:aa:41",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh6",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:51",
+            "noise": -91,
+            "signal": -63,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -60,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    },
+    {
+      "name": "wlan0",
+      "type": "wireless",
+      "up": true,
+      "mac": "d8:5d:4c:f1:aa:42",
+      "txqueuelen": 1000,
+      "multicast": true,
+      "mtu": 1500,
+      "wireless": {
+        "frequency": 2412,
+        "mode": "access_point",
+        "signal": -33,
+        "tx_power": 18,
+        "channel": 1,
+        "ssid": "TestNet_Extender",
+        "noise": -95,
+        "country": "US",
+        "htmode": "HT20",
+        "clients": []
+      }
+    }
+  ],
+  "d8:5d:4c:f1:aa:50": [
+    {
+      "mac": "d8:5d:4c:f1:aa:51",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh7",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:41",
+            "noise": -90,
+            "signal": -62,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -61,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    }
+  ],
+  "d8:5d:4c:f1:aa:60": [
+    {
+      "mac": "d8:5d:4c:f1:aa:61",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh8",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "2a:9a:fb:12:11:77",
+            "noise": -94,
+            "signal": -67,
+            "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+            "mesh_non_peer_ps": "ACTIVE"
+          },
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:71",
+            "noise": -92,
+            "signal": -50,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -55,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    }
+  ],
+  "d8:5d:4c:f1:aa:70": [
+    {
+      "mac": "d8:5d:4c:f1:aa:71",
+      "mtu": 1500,
+      "multicast": true,
+      "name": "mesh9",
+      "txqueuelen": 1000,
+      "type": "wireless",
+      "up": true,
+      "wireless": {
+        "channel": 11,
+        "clients": [
+          {
+            "auth": true,
+            "authorized": true,
+            "mac": "d8:5d:4c:f1:aa:61",
+            "noise": -93,
+            "signal": -51,
+            "vendor": "Intel Corporate",
+            "mesh_non_peer_ps": "ACTIVE"
+          }
+        ],
+        "country": "ES",
+        "frequency": 2462,
+        "htmode": "HT20",
+        "mode": "802.11s",
+        "noise": -95,
+        "signal": -54,
+        "ssid": "Test Mesh",
+        "tx_power": 17
+      }
+    }
+  ]
+}

@@ -10,9 +10,60 @@
       body, html { height: 100%; }
       body { margin: 0; }
       #container { width: 100%; height: 100vh; }
+      
+      #legend {
+        position: absolute;
+        top: auto;
+        right: 15px;
+        bottom: 15px;
+        width: auto;
+        height: auto;
+        max-width: 250px;
+        padding: 0 15px;
+        background: #fbfbfb;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        color: #6d6357;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        z-index: 2;
+      }
+
+      #legend h4 {
+        margin: 10px 0;
+        text-align: center;
+      }
+
+      #legend p {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+      }
+
+      #legend span {
+        width: 16px;
+        margin-right: 5px;
+      }
+
+      #legend span.circle {
+        display: inline-block;
+        border-radius: 50%;
+        height: 16px;
+      }
+
+      @media only screen and (max-width: 850px) {
+        #legend {
+          right: 15px;
+        }
+      }
     </style>
   </head>
   <body>
+    <div id="legend">
+      <h4>Legend</h4>
+      <p><span class="circle" style="background-color: #d35454;">&nbsp;</span> WiFi clients</p>
+      <p><span class="circle" style="background-color: #bdc3c7;">&nbsp;</span> Mesh nodes</p>
+    </div>
     <div id="container"></div>
     <script type="text/javascript">
       // Load Mesh-format data which will be converted to NetJSON automatically
@@ -46,8 +97,8 @@
         onReady() {
           // Attach reusable overlay plugin shipped with the bundle
           this.attachClientsOverlay({
-            radius: 6,
-            gap: 4,
+            radius: 5,
+            gap: 5,
           });
         }
       });
