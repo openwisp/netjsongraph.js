@@ -136,7 +136,14 @@ class NetJSONGraphRender {
         itemStyle: nodeEmphasisConfig.nodeStyle,
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
-      nodeResult.name = typeof node.label === "string" ? node.label : "";
+      nodeResult.name =
+        typeof node.label === "string"
+          ? node.label
+          : typeof node.name === "string"
+          ? node.name
+          : node.id !== undefined && node.id !== null
+          ? String(node.id)
+          : "";
 
       return nodeResult;
     });
@@ -156,6 +163,7 @@ class NetJSONGraphRender {
 
     const series = [
       Object.assign(configs.graphConfig.series, {
+        id: "graph-series",
         type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
           configs.graphConfig.series.type === "graphGL"
@@ -226,7 +234,14 @@ class NetJSONGraphRender {
           const {nodeEmphasisConfig} = self.utils.getNodeStyle(node, configs, "map");
 
           nodesData.push({
-            name: typeof node.label === "string" ? node.label : "",
+            name:
+              typeof node.label === "string"
+                ? node.label
+                : typeof node.name === "string"
+                ? node.name
+                : node.id !== undefined && node.id !== null
+                ? String(node.id)
+                : "",
             value: [location.lng, location.lat],
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
@@ -270,6 +285,7 @@ class NetJSONGraphRender {
 
     const series = [
       {
+        id: "map-nodes",
         type:
           configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
@@ -337,6 +353,7 @@ class NetJSONGraphRender {
         emphasis: configs.mapOptions.nodeConfig.emphasis,
       },
       Object.assign(configs.mapOptions.linkConfig, {
+        id: "map-links",
         type: "lines",
         coordinateSystem: "leaflet",
         data: linesData,
@@ -368,6 +385,68 @@ class NetJSONGraphRender {
     window.onresize = () => {
       self.echarts.resize();
     };
+
+    // Optional label visibility gate for graph mode based on ECharts zoom.
+    // If showGraphLabelsAtZoom is set (number), hide labels when current
+    // graph zoom is below the threshold; otherwise rely on hideOverlap only.
+    const graphZoomThreshold = self.config.showGraphLabelsAtZoom;
+    if (typeof graphZoomThreshold === "number") {
+      let labelsCurrentlyShown = null;
+      const getCurrentGraphZoom = () => {
+        try {
+          const option = self.echarts.getOption();
+          const series = Array.isArray(option.series) ? option.series : [];
+          const graphSeries = series.find(
+            (s) => s && s.id === "graph-series",
+          );
+          if (graphSeries && typeof graphSeries.zoom === "number") {
+            return graphSeries.zoom;
+          }
+        } catch (e) {
+          // no-op, fallback below
+        }
+        // Reasonable fallback if zoom is not retrievable
+        return 1;
+      };
+
+      const applyLabelVisibility = (zoom) => {
+        const showLabel = zoom >= graphZoomThreshold;
+        if (labelsCurrentlyShown === showLabel) {
+          return;
+        }
+        labelsCurrentlyShown = showLabel;
+        self.echarts.setOption({
+          series: [
+            {
+              id: "graph-series",
+              label: {
+                show: showLabel,
+              },
+              emphasis: {
+                label: {
+                  show: showLabel,
+                },
+              },
+            },
+          ],
+        });
+      };
+
+      // Initialize visibility based on initial zoom
+      let graphCurrentZoom = getCurrentGraphZoom();
+      applyLabelVisibility(graphCurrentZoom);
+
+      // Update on roam (zoom/pan) in graph mode
+      self.echarts.on("graphRoam", (params) => {
+        if (typeof params?.zoom === "number") {
+          // ECharts emits zoom as a relative scale factor; accumulate it.
+          graphCurrentZoom *= params.zoom;
+        } else {
+          graphCurrentZoom = getCurrentGraphZoom();
+        }
+        applyLabelVisibility(graphCurrentZoom);
+      });
+    }
 
     self.event.emit("onLoad");
     self.event.emit("onReady");
@@ -465,6 +544,7 @@ class NetJSONGraphRender {
       self.echarts.setOption({
         series: [
           {
+            id: "map-nodes",
             label: {
               show: false,
             },
@@ -484,6 +564,7 @@ class NetJSONGraphRender {
       self.echarts.setOption({
         series: [
           {
+            id: "map-nodes",
             label: {
               show: showLabel,
             },
@@ -531,7 +612,8 @@ class NetJSONGraphRender {
         };
 
         self.data = JSONData;
-        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        const next = self.utils.generateMapOption(JSONData, self);
+        self.echarts.setOption({series: next.series});
         self.bboxData.nodes = [];
         self.bboxData.links = [];
       };
@@ -562,7 +644,8 @@ class NetJSONGraphRender {
           nodes: JSONData.nodes.concat(nodes),
           links: JSONData.links.concat(links),
         };
-        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        const next2 = self.utils.generateMapOption(JSONData, self);
+        self.echarts.setOption({series: next2.series});
         self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
@@ -581,17 +664,16 @@ class NetJSONGraphRender {
         nonClusterLinks = JSONData.links;
       }
 
-      self.echarts.setOption(
-        self.utils.generateMapOption(
-          {
-            ...JSONData,
-            nodes: nonClusterNodes,
-            links: nonClusterLinks,
-          },
-          self,
-          clusters,
-        ),
+      const optionWithClusters = self.utils.generateMapOption(
+        {
+          ...JSONData,
+          nodes: nonClusterNodes,
+          links: nonClusterLinks,
+        },
+        self,
+        clusters,
       );
+      self.echarts.setOption({series: optionWithClusters.series});
 
       self.echarts.on("click", (params) => {
         if (
@@ -616,20 +698,20 @@ class NetJSONGraphRender {
           clusters = nodeData.clusters;
           nonClusterNodes = nodeData.nonClusterNodes;
           nonClusterLinks = nodeData.nonClusterLinks;
-          self.echarts.setOption(
-            self.utils.generateMapOption(
-              {
-                ...JSONData,
-                nodes: nonClusterNodes,
-                links: nonClusterLinks,
-              },
-              self,
-              clusters,
-            ),
+          const updated = self.utils.generateMapOption(
+            {
+              ...JSONData,
+              nodes: nonClusterNodes,
+              links: nonClusterLinks,
+            },
+            self,
+            clusters,
           );
+          self.echarts.setOption({series: updated.series});
         } else {
           // When above the threshold, show all nodes without clustering
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+          const noCluster = self.utils.generateMapOption(JSONData, self);
+          self.echarts.setOption({series: noCluster.series});
         }
       });
     }
