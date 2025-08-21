@@ -136,7 +136,16 @@ class NetJSONGraphRender {
         itemStyle: nodeEmphasisConfig.nodeStyle,
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
-      nodeResult.name = typeof node.label === "string" ? node.label : "";
+      // Ensure label text is present: prefer node.label, then node.name, then node.id
+      if (typeof node.label === "string" && node.label.trim() !== "") {
+        nodeResult.name = node.label;
+      } else if (typeof node.name === "string" && node.name.trim() !== "") {
+        nodeResult.name = node.name;
+      } else if (typeof node.id === "string") {
+        nodeResult.name = node.id;
+      } else {
+        nodeResult.name = "";
+      }
 
       return nodeResult;
     });
@@ -364,6 +373,64 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
+
+    // Graph mode: use dedicated graphLabelScaleThreshold (scale factor), default 1.0
+    const threshold =
+      typeof self.config.graphLabelScaleThreshold === "number"
+        ? self.config.graphLabelScaleThreshold
+        : 1;
+    const scaleLimit =
+      (self.config.graphConfig && self.config.graphConfig.series &&
+        self.config.graphConfig.series.scaleLimit) || {};
+    const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+    const minScale = typeof scaleLimit.min === "number" ? scaleLimit.min : 0.1;
+    const maxScale = typeof scaleLimit.max === "number" ? scaleLimit.max : 10;
+
+    let lastShowLabel = null;
+    let debounceTimer = null;
+    const getCurrentScale = () => {
+      const opt = self.echarts.getOption();
+      const z = opt && opt.series && opt.series[0] && typeof opt.series[0].zoom === "number"
+        ? opt.series[0].zoom
+        : 1;
+      return clamp(z, minScale, maxScale);
+    };
+
+    const applyLabelVisibility = () => {
+      const currentScale = getCurrentScale();
+      const showLabel = currentScale >= threshold;
+      if (lastShowLabel === showLabel) return;
+      lastShowLabel = showLabel;
+      if (debounceTimer) window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(() => {
+        try {
+          // Minimal merge update to avoid resetting zoom/roam transform
+          self.echarts.setOption(
+            {
+              series: [
+                {
+                  label: {show: showLabel},
+                  emphasis: {label: {show: showLabel}},
+                },
+              ],
+            },
+            false,
+            true,
+          );
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.warn("Graph label visibility update failed:", err);
+        }
+      }, 60);
+    };
+
+    // Initial application
+    applyLabelVisibility();
+
+    // Update on roam (zoom/pan) based on current option zoom to avoid desync and resets
+    self.echarts.on("graphRoam", () => {
+      applyLabelVisibility();
+    });
 
     window.onresize = () => {
       self.echarts.resize();
