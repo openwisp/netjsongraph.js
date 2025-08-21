@@ -42,7 +42,7 @@ function attachClientsOverlay(graph, options = {}) {
       graph.config.graphConfig.series) ||
     {};
   const nodeRadius =
-    typeof seriesCfg.nodeSize === "number" ? seriesCfg.nodeSize : 18;
+    (typeof seriesCfg.nodeSize === "number" ? seriesCfg.nodeSize : 18) / 2;
 
   function draw() {
     const seriesModel = chart.getModel().getSeriesByIndex(0);
@@ -102,7 +102,7 @@ function attachClientsOverlay(graph, options = {}) {
           (node.properties && node.properties[fields.other]) ||
           0;
 
-        const startDistance = nodeRadius + gap;
+        const startDistance = nodeRadius + radius + Math.max(0, gap);
         const wifi =
           node[wifiCombinedField] ||
           (node.properties && node.properties[wifiCombinedField]) ||
