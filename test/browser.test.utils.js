@@ -121,8 +121,7 @@ export const getPresentNodesAndLinksCount = async (example) => {
 export const captureConsoleErrors = async (driver) => {
   const logs = await driver.manage().logs().get("browser");
   return logs.filter(
-    (log) =>
-      log.level.name === "SEVERE" && !log.message.includes("favicon.ico"),
+    (log) => log.level.name === "SEVERE" && !log.message.includes("favicon.ico"),
   );
 };
 

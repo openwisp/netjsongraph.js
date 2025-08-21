@@ -71,48 +71,51 @@
   <body>
     <script type="text/javascript">
       // Load dataset from external JSON file and initialize the map
-      const map = new NetJSONGraph("../assets/data/netjson-clustering.json", {
-        render: "map",
-        clustering: true,
-        clusteringThreshold: 2,
-        clusterRadius: 80,
-        disableClusteringAtLevel: 18,
-        clusteringAttribute: "status",
-        clusterSeparation: 20,
-        mapOptions: {
-          center: [55.78, 11.54],
-          zoom: 5,
-          minZoom: 1,
-          maxZoom: 18,
-          // No label configuration to keep the view clean
-        },
-        nodeCategories: [
-          {name: "ok", nodeStyle: {color: "#1ba619"}},
-          {name: "problem", nodeStyle: {color: "#ffa500"}},
-          {name: "critical", nodeStyle: {color: "#c92517"}},
-        ],
-        nodeLabel: function (node) {
-          // Return just the node name without the ID
-          return node.name || "";
-        },
-        prepareData: (data) => {
-          data.nodes.forEach((node) => {
-            // Keep location inside properties for later usage
-            node.properties = {
-              ...node.properties,
-              location: node.location,
-            };
+      const map = new NetJSONGraph(
+        "../assets/data/netjson-clustering.json",
+        {
+          render: "map",
+          clustering: true,
+          clusteringThreshold: 2,
+          clusterRadius: 80,
+          disableClusteringAtLevel: 18,
+          clusteringAttribute: "status",
+          clusterSeparation: 20,
+          mapOptions: {
+            center: [55.78, 11.54],
+            zoom: 5,
+            minZoom: 1,
+            maxZoom: 18,
+            // No label configuration to keep the view clean
+          },
+          nodeCategories: [
+            {name: "ok", nodeStyle: {color: "#1ba619"}},
+            {name: "problem", nodeStyle: {color: "#ffa500"}},
+            {name: "critical", nodeStyle: {color: "#c92517"}},
+          ],
+          nodeLabel: function(node) {
+            // Return just the node name without the ID
+            return node.name || '';
+          },
+          prepareData: (data) => {
+            data.nodes.forEach((node) => {
+              // Keep location inside properties for later usage
+              node.properties = {
+                ...node.properties,
+                location: node.location,
+              };
 
-            const status = (node.properties?.status || "").toLowerCase();
-            if (["ok", "problem", "critical"].includes(status)) {
-              node.category = status;
-            } else {
-              node.category = "unknown";
-            }
-            // No `node.label` assignment to suppress labels
-          });
+              const status = (node.properties?.status || "").toLowerCase();
+              if (["ok", "problem", "critical"].includes(status)) {
+                node.category = status;
+              } else {
+                node.category = "unknown";
+              }
+              // No `node.label` assignment to suppress labels
+            });
+          },
         },
-      });
+      );
 
       // Build legend UI
       const createLegend = (key, className) => {

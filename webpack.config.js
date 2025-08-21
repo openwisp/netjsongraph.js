@@ -5,9 +5,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 
-const examples = fs.readdirSync(
-  path.resolve(__dirname, "public/example_templates"),
-);
+const examples = fs.readdirSync(path.resolve(__dirname, "public/example_templates"));
 const templates = examples.map(
   (example) =>
     new HtmlWebpackPlugin({

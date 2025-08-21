@@ -26,8 +26,7 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
-    const {nodesRendered, linksRendered} =
-      await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Basic usage");
     expect(consoleErrors.length).toBe(0);
@@ -47,8 +46,7 @@ describe("Chart Rendering Test", () => {
       driver,
       ".ec-extension-leaflet .leaflet-overlay-pane canvas",
     );
-    const {nodesRendered, linksRendered} =
-      await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Geographic map");
     const consoleErrors = await captureConsoleErrors(driver);
@@ -62,11 +60,7 @@ describe("Chart Rendering Test", () => {
 
   test("no blank tiles on canvas at max zoom", async () => {
     driver.get(urls.geographicMap);
-    const zoomIn = await getElementByCss(
-      driver,
-      ".leaflet-control-zoom-in",
-      2000,
-    );
+    const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
     let click = 0;
     while (click < 50) {
       // eslint-disable-next-line no-await-in-loop
@@ -88,8 +82,7 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
     const consoleErrors = await captureConsoleErrors(driver);
-    const {nodesRendered, linksRendered} =
-      await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Indoor map");
     printConsoleErrors(consoleErrors);
@@ -105,25 +98,18 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     /* eslint-disable no-unused-vars */
-    const {nodesRendered, linksRendered} =
-      await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
     const canvasHeight = await driver.executeScript(
       "return graph.echarts.getRenderedCanvas().height",
     );
-    const windowHeight = await driver.executeScript(
-      "return window.innerHeight",
-    );
+    const windowHeight = await driver.executeScript("return window.innerHeight");
     expect(canvasHeight).not.toBe(0);
     expect(canvasHeight).toBe(windowHeight);
-    const nodesCount = await driver.executeScript(
-      "return graph.data.nodes.length",
-    );
-    const linksCount = await driver.executeScript(
-      "return graph.data.links.length",
-    );
+    const nodesCount = await driver.executeScript("return graph.data.nodes.length");
+    const linksCount = await driver.executeScript("return graph.data.links.length");
     expect(nodesCount).toBe(6);
     expect(linksCount).toBe(7);
   });
