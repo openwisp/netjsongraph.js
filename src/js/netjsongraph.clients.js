@@ -1,21 +1,19 @@
 /* eslint-disable no-underscore-dangle */
 /* global echarts */
 
-// Attach client markers (2.4/5/other) around nodes in graph mode
+// Attach client markers (WiFi / other) around nodes in graph mode
 function attachClientsOverlay(graph, options = {}) {
   const chart = graph.echarts;
   const g = echarts.graphic;
 
   // Use a single color for any WiFi clients (combined 2.4 GHz + 5 GHz)
   const colors = {
-    wifi: (options.colors && (options.colors.wifi || options.colors.wifi24 || options.colors.wifi5)) || "#d35454",
+    wifi: (options.colors && options.colors.wifi) || "#d35454",
     other: (options.colors && options.colors.other) || "#bdc3c7",
   };
   const radius = options.radius || 3;
   const gap = options.gap || 8;
   const fields = {
-    wifi24: (options.fields && options.fields.wifi24) || "clients_wifi24",
-    wifi5: (options.fields && options.fields.wifi5) || "clients_wifi5",
     other: (options.fields && options.fields.other) || "clients_other",
   };
   // Combined wifi clients (2.4 + 5) optional field name
@@ -99,28 +97,16 @@ function attachClientsOverlay(graph, options = {}) {
         const x = Array.isArray(layout) ? layout[0] : layout.x;
         const y = Array.isArray(layout) ? layout[1] : layout.y;
         const node = data.getRawDataItem(idx) || {};
-        const c24 =
-          node[fields.wifi24] ||
-          (node.properties && node.properties[fields.wifi24]) ||
-          0;
-        const c5 =
-          node[fields.wifi5] ||
-          (node.properties && node.properties[fields.wifi5]) ||
-          0;
         const other =
           node[fields.other] ||
           (node.properties && node.properties[fields.other]) ||
           0;
 
         const startDistance = nodeRadius + gap;
-        // Prefer a combined wifi count if available, otherwise sum 2.4 + 5
-        const combinedWifi =
-          node[wifiCombinedField] ||
-          (node.properties && node.properties[wifiCombinedField]);
         const wifi =
-          typeof combinedWifi === "number"
-            ? combinedWifi
-            : (Number(c24) || 0) + (Number(c5) || 0);
+          node[wifiCombinedField] ||
+          (node.properties && node.properties[wifiCombinedField]) ||
+          0;
         placeOrbit(
           x,
           y,
