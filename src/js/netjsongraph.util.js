@@ -355,9 +355,19 @@ class NetJSONGraphUtil {
       const ifaces = mesh[deviceId] || [];
       const agg = aggregateWireless(ifaces);
 
+      // Try to find a meaningful name from interfaces, fallback to device ID
+      let nodeName = deviceId;
+      if (ifaces.length > 0) {
+        // Look for the first interface with a name property
+        const namedIface = ifaces.find(iface => iface.name && typeof iface.name === 'string');
+        if (namedIface) {
+          nodeName = namedIface.name;
+        }
+      }
+
       const node = {
         id: deviceId,
-        label: deviceId,
+        label: nodeName,
         properties: {
           clients_wifi: agg.clients_wifi,
           wireless_channels: agg.channels,
@@ -866,25 +876,24 @@ class NetJSONGraphUtil {
       nodeInfo.location = node.location;
     }
 
+    // Helper to copy values while formatting a few known fields
+    const normalizeValue = (key, val) => {
+      if (key === "location" && val && typeof val === "object") {
+        return {lat: val.lat, lng: val.lng};
+      }
+      if (key === "time" && typeof val === "string") {
+        return this.dateParse({dateString: val});
+      }
+      return val;
+    };
+
+    // Include ALL properties, including nested structures, so the sidebar can
+    // render every detail. Internal metadata keys (starting with "_") are also
+    // included to satisfy the "show every detail" requirement.
     if (node.properties) {
       Object.keys(node.properties).forEach((key) => {
-        if (key === "location") {
-          nodeInfo[key] = {
-            lat: node.properties.location.lat,
-            lng: node.properties.location.lng,
-          };
-        } else if (key === "time") {
-          const time = this.dateParse({
-            dateString: node.properties[key],
-          });
-          nodeInfo[key] = time;
-        } else if (typeof node.properties[key] === "object" || key.startsWith("_")) {
-          // Skip nested objects and internal metadata
-          // eslint-disable-next-line no-useless-return
-          return;
-        } else {
-          nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
-        }
+        const val = normalizeValue(key, node.properties[key]);
+        nodeInfo[key] = val;
       });
     }
     if (node.linkCount) {

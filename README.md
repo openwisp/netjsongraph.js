@@ -14,42 +14,6 @@ Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) a
 
 Build powerful and interoperable visualizations without losing flexibility!
 
-## Client Markers Overlay (Graph mode)
-
-It's possible to render small colored circles around each node to represent things like the amount of connected WiFi clients. This feature is implemented as a tiny helper that draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
-
-- Helper file: `src/js/netjsongraph.clients.js`
-- Exposed on every instance inside `onLoad` as `attachClientsOverlay(options)`.
-- Used in the new example `public/example_templates/network-nodes.html` with dataset `public/assets/data/netjsongraph-network-nodes.json`.
-
-Example usage:
-
-```js
-const graph = new NetJSONGraph(
-  "../assets/data/netjsongraph-network-nodes.json",
-  {
-    render: "graph",
-    onReady() {
-      this.attachClientsOverlay({
-        colors: {wifi24: "#d35454", wifi5: "#2ecc71", other: "#bdc3c7"},
-        radius: 3, // dot radius in px
-        gap: 8, // distance from node edge to first orbit
-        // fields: { wifi24: 'clients_wifi24', wifi5: 'clients_wifi5', other: 'clients_other' }
-      });
-    },
-  },
-);
-graph.render();
-```
-
-Expected fields per node (customizable via `options.fields`):
-
-- `clients_wifi24`
-- `clients_wifi5`
-- `clients_other` (optional)
-
-See the example "Network nodes (graph)" in the landing page after `yarn start`.
-
 ### Install and run demo examples
 
 ```
@@ -412,6 +376,41 @@ For graph, you need to configure `graphConfig` property. We only support [graph]
 For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer) are required for the map render. You can customize the nodes and links with [`nodeConfig`](https://echarts.apache.org/en/option.html#series-scatter) and [`linkConfig`](https://echarts.apache.org/en/option.html#series-lines) optionally. For map nodes, you can also change the `type` to [`effectScatter`](https://echarts.apache.org/en/option.html#series-effectScatter) series to enable animation effects.
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
+
+## Client Markers Overlay (Graph mode)
+
+It's possible to render small colored circles around each node to represent things like the amount of connected WiFi clients. The overlay counts WiFi clients as a single total (combined across any bands) and optionally displays a separate "other" category. This helper draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
+
+- Helper file: `src/js/netjsongraph.clients.js`
+- Exposed on every instance inside `onLoad` as `attachClientsOverlay(options)`.
+- Used in the example `public/example_templates/network-nodes.html` with dataset `public/assets/data/mesh-network-nodes.json`.
+
+Example usage:
+
+```js
+const graph = new NetJSONGraph(
+  "../assets/data/mesh-network-nodes.json",
+  {
+    render: "graph",
+    onReady() {
+      this.attachClientsOverlay({
+        colors: {wifi: "#d35454", other: "#bdc3c7"},
+        radius: 3, // dot radius in px
+        gap: 8, // distance from node edge to first orbit
+        // fields: { wifi: 'clients_wifi', other: 'clients_other' }
+      });
+    },
+  },
+);
+graph.render();
+```
+
+Expected fields per node (customizable via `options.fields`):
+
+- `clients_wifi` (combined across all bands)
+- `clients_other` (optional)
+
+See the example "WiFi Clients Graph" in the landing page after `yarn start`.
 
 ### GeoJSON handling
 

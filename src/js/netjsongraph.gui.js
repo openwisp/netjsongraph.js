@@ -120,10 +120,9 @@ class NetJSONGraphGUI {
     header.innerHTML = `${type} Info`;
     closeButton.innerHTML = " &#x2715;";
 
-    Object.keys(data).forEach((key) => {
-      const val = data[key];
-
-      // Hide keys whose value is not provided or is explicitly undefined/null/empty
+    // Recursive renderer for nested objects/arrays so every detail is visible
+    const renderEntry = (parent, key, val, depth = 0) => {
+      // Hide undefined/null and empty strings (except "0")
       if (
         val === undefined ||
         val === null ||
@@ -134,31 +133,111 @@ class NetJSONGraphGUI {
         return;
       }
 
+      // Handle arrays
+      if (Array.isArray(val)) {
+        if (val.length === 0) {
+          const item = document.createElement("div");
+          item.classList.add("njg-infoItems");
+          item.style.paddingLeft = `${depth * 12}px`;
+          const k = document.createElement("span");
+          k.setAttribute("class", "njg-keyLabel");
+          const v = document.createElement("span");
+          v.setAttribute("class", "njg-valueLabel");
+          k.innerHTML = key;
+          v.innerHTML = "[]";
+          item.appendChild(k);
+          item.appendChild(v);
+          parent.appendChild(item);
+          return;
+        }
+        // If array of primitives, show as multiline
+        if (val.every((x) => typeof x !== "object" || x === null)) {
+          const item = document.createElement("div");
+          item.classList.add("njg-infoItems");
+          item.style.paddingLeft = `${depth * 12}px`;
+          const k = document.createElement("span");
+          k.setAttribute("class", "njg-keyLabel");
+          const v = document.createElement("span");
+          v.setAttribute("class", "njg-valueLabel");
+          k.innerHTML = key === "localAddresses" ? "Local Addresses" : key;
+          v.innerHTML = val
+            .map((x) => (typeof x === "string" ? x.replace(/\n/g, "<br/>") : String(x)))
+            .join("<br/>");
+          item.appendChild(k);
+          item.appendChild(v);
+          parent.appendChild(item);
+          return;
+        }
+        // Otherwise, render each element recursively
+        val.forEach((child, idx) => {
+          renderEntry(parent, `${key}[${idx}]`, child, depth);
+        });
+        return;
+      }
+
+      // Handle plain objects (including location)
+      if (typeof val === "object") {
+        // Special pretty-print for {lat,lng}
+        if (
+          key === "location" &&
+          typeof val.lat === "number" &&
+          typeof val.lng === "number"
+        ) {
+          const item = document.createElement("div");
+          item.classList.add("njg-infoItems");
+          item.style.paddingLeft = `${depth * 12}px`;
+          const k = document.createElement("span");
+          k.setAttribute("class", "njg-keyLabel");
+          const v = document.createElement("span");
+          v.setAttribute("class", "njg-valueLabel");
+          k.innerHTML = "Location";
+          v.innerHTML = `${Math.round(val.lat * 1000) / 1000}, ${
+            Math.round(val.lng * 1000) / 1000
+          }`;
+          item.appendChild(k);
+          item.appendChild(v);
+          parent.appendChild(item);
+          return;
+        }
+
+        // Header row for the object key
+        const headerItem = document.createElement("div");
+        headerItem.classList.add("njg-infoItems");
+        headerItem.style.paddingLeft = `${depth * 12}px`;
+        const hk = document.createElement("span");
+        hk.setAttribute("class", "njg-keyLabel");
+        const hv = document.createElement("span");
+        hv.setAttribute("class", "njg-valueLabel");
+        hk.innerHTML = key;
+        hv.innerHTML = "";
+        headerItem.appendChild(hk);
+        headerItem.appendChild(hv);
+        parent.appendChild(headerItem);
+
+        Object.keys(val).forEach((childKey) => {
+          renderEntry(parent, childKey, val[childKey], depth + 1);
+        });
+        return;
+      }
+
+      // Primitive value
       const infoItems = document.createElement("div");
       infoItems.classList.add("njg-infoItems");
+      infoItems.style.paddingLeft = `${depth * 12}px`;
       const keyLabel = document.createElement("span");
       keyLabel.setAttribute("class", "njg-keyLabel");
       const valueLabel = document.createElement("span");
       valueLabel.setAttribute("class", "njg-valueLabel");
-      if (key === "location") {
-        keyLabel.innerHTML = "Location";
-        valueLabel.innerHTML = `${Math.round(data[key].lat * 1000) / 1000}, ${
-          Math.round(data[key].lng * 1000) / 1000
-        }`;
-      } else if (key === "localAddresses") {
-        keyLabel.innerHTML = "Local Addresses";
-        valueLabel.innerHTML = data[key].join("<br/>");
-      } else {
-        keyLabel.innerHTML = key;
-        // Preserve multiline values
-        const displayVal = typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
-        valueLabel.innerHTML = displayVal;
-      }
-
+      keyLabel.innerHTML = key;
+      const displayVal =
+        typeof val === "string" ? val.replace(/\n/g, "<br/>") : String(val);
+      valueLabel.innerHTML = displayVal;
       infoItems.appendChild(keyLabel);
       infoItems.appendChild(valueLabel);
-      infoContainer.appendChild(infoItems);
-    });
+      parent.appendChild(infoItems);
+    };
+
+    Object.keys(data).forEach((key) => renderEntry(infoContainer, key, data[key], 0));
     headerContainer.appendChild(header);
     headerContainer.appendChild(closeButton);
     this.nodeLinkInfoContainer.appendChild(headerContainer);

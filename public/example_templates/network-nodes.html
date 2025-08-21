@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>netjsongraph.js: Network Nodes (graph)</title>
+    <title>netjsongraph.js: WiFi Clients Graph</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
@@ -9,17 +9,17 @@
     <style>
       body, html { height: 100%; }
       body { margin: 0; }
-      #graph { width: 100%; height: 100vh; }
+      #container { width: 100%; height: 100vh; }
     </style>
   </head>
   <body>
-    <div id="graph"></div>
+    <div id="container"></div>
     <script type="text/javascript">
       // Load Mesh-format data which will be converted to NetJSON automatically
       const data = "../assets/data/mesh-network-nodes.json";
 
       const graph = new NetJSONGraph(data, {
-        el: "#graph",
+        el: "#container",
         render: "graph",
         metadata: true,
         graphConfig: {
