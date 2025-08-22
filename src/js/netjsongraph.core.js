@@ -71,11 +71,6 @@ class NetJSONGraph {
     this.utils.paginatedDataParse
       .call(this, JSONParam)
       .then((JSONData) => {
-        // Support Mesh data format by converting it to NetJSON upfront
-        if (this.utils.isMeshData && this.utils.isMeshData(JSONData)) {
-          JSONData = this.utils.meshToNetjson(JSONData);
-          this.type = "netjson";
-        }
         if (this.utils.isNetJSON(JSONData)) {
           this.type = "netjson";
         } else if (this.utils.isGeoJSON(JSONData)) {

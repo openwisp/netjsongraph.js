@@ -1,10 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import KDBush from "kdbush";
 import {geojsonToNetjson as convertGeojson} from "./netjsongraph.geojson";
-import {
-  isMeshData as meshIsData,
-  meshToNetjson as meshConvert,
-} from "./netjsongraph.mesh";
 
 class NetJSONGraphUtil {
   /**
@@ -270,22 +266,6 @@ class NetJSONGraphUtil {
     return convertGeojson(geojson);
   }
 
-  /**
-   * Thin wrappers delegating to the dedicated mesh utilities module.
-   * Kept here to maintain the public API surface.
-   */
-  isMeshData(param) {
-    return meshIsData.call(this, param);
-  }
-
-  meshToNetjson(mesh) {
-    return meshConvert.call(this, mesh);
-  }
-
-  /**
-   * Detects if the input object is a Mesh data structure keyed by device MACs
-   * mapping to arrays of interface objects which may contain a `wireless` block.
-   */
 
   /**
    * merge two object deeply
