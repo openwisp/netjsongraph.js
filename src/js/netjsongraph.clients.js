@@ -15,10 +15,46 @@ function attachClientsOverlay(graph, options = {}) {
   const gap = options.gap || 8;
   const fields = {
     other: (options.fields && options.fields.other) || "clients_other",
+    wifi: (options.fields && options.fields.wifi) || "clients_wifi",
   };
-  // Combined wifi clients (2.4 + 5) optional field name
-  const wifiCombinedField =
-    (options.fields && options.fields.wifi) || "clients_wifi";
+
+  // Generic extractor for counting clients from various shapes
+  const readCountFromField = (fieldName, obj) => {
+    if (!fieldName || !obj) return 0;
+    const top = obj[fieldName];
+    const nested = obj.properties && obj.properties[fieldName];
+    const val = top !== undefined ? top : nested;
+    if (typeof val === "number") return val;
+    if (Array.isArray(val)) return val.length;
+    return 0;
+  };
+
+  const getClientCount = (node) => {
+    if (!node) return 0;
+    // 1) Explicit override via fields.wifi, supporting number or array
+    const overrideCount = readCountFromField(fields.wifi, node);
+    if (overrideCount > 0) return overrideCount;
+    // 2) Preferred simple formats
+    const directCount =
+      (typeof node.clients_count === "number" && node.clients_count) ||
+      (Array.isArray(node.clients) && node.clients.length) ||
+      (node.properties &&
+        ((typeof node.properties.clients_count === "number" &&
+          node.properties.clients_count) ||
+          (Array.isArray(node.properties.clients) &&
+            node.properties.clients.length))) ||
+      0;
+    if (directCount > 0) return directCount;
+    // 3) Legacy combined field (clients_wifi)
+    const combined =
+      (typeof node.clients_wifi === "number" && node.clients_wifi) ||
+      (node.properties &&
+        typeof node.properties.clients_wifi === "number" &&
+        node.properties.clients_wifi) ||
+      0;
+    if (combined > 0) return combined;
+    return 0;
+  };
 
   function getSeriesViewGroup() {
     const seriesModel = chart.getModel().getSeriesByIndex(0);
@@ -103,10 +139,7 @@ function attachClientsOverlay(graph, options = {}) {
           0;
 
         const startDistance = nodeRadius + radius + Math.max(0, gap);
-        const wifi =
-          node[wifiCombinedField] ||
-          (node.properties && node.properties[wifiCombinedField]) ||
-          0;
+        const wifi = getClientCount(node);
         placeOrbit(
           x,
           y,

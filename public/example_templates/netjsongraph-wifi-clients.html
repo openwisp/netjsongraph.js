@@ -66,8 +66,8 @@
     </div>
     <div id="container"></div>
     <script type="text/javascript">
-      // Load Mesh-format data which will be converted to NetJSON automatically
-      const data = "../assets/data/mesh-network-nodes.json";
+      // Use simplified NetJSON-format data with clients/clients_count support
+      const data = "../assets/data/netjsongraph-network-nodes.json";
 
       const graph = new NetJSONGraph(data, {
         el: "#container",

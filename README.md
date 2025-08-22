@@ -383,12 +383,12 @@ It's possible to render small colored circles around each node to represent thin
 
 - Helper file: `src/js/netjsongraph.clients.js`
 - Exposed on every instance inside `onLoad` as `attachClientsOverlay(options)`.
-- Used in the example `public/example_templates/network-nodes.html` with dataset `public/assets/data/mesh-network-nodes.json`.
+- Used in the example `public/example_templates/netjsongraph-wifi-clients.html` with dataset `public/assets/data/netjsongraph-network-nodes.json`.
 
 Example usage:
 
 ```js
-const graph = new NetJSONGraph("../assets/data/mesh-network-nodes.json", {
+const graph = new NetJSONGraph("../assets/data/netjsongraph-network-nodes.json", {
   render: "graph",
   onReady() {
     this.attachClientsOverlay({

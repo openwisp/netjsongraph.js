@@ -752,6 +752,36 @@ class NetJSONGraphUtil {
       nodeInfo.location = node.location;
     }
 
+    // Compute unified clients count for sidebar display
+    const computeClientCount = (n) => {
+      if (!n) return 0;
+      if (typeof n.clients_count === "number") return n.clients_count;
+      if (Array.isArray(n.clients)) return n.clients.length;
+      if (n.properties) {
+        if (typeof n.properties.clients_count === "number") {
+          return n.properties.clients_count;
+        }
+        if (Array.isArray(n.properties.clients)) {
+          return n.properties.clients.length;
+        }
+        if (typeof n.properties.clients_wifi === "number") {
+          return n.properties.clients_wifi;
+        }
+      }
+      if (typeof n.clients_wifi === "number") return n.clients_wifi;
+      return 0;
+    };
+
+    const unifiedClientsCount = computeClientCount(node);
+    // Always include clients_count (including 0) for clarity
+    nodeInfo.clients_count = unifiedClientsCount;
+    // Also surface raw clients array if present at top-level or under properties
+    if (Array.isArray(node.clients)) {
+      nodeInfo.clients = node.clients;
+    } else if (node.properties && Array.isArray(node.properties.clients)) {
+      nodeInfo.clients = node.properties.clients;
+    }
+
     // Helper to copy values while formatting a few known fields
     const normalizeValue = (key, val) => {
       if (key === "location" && val && typeof val === "object") {
