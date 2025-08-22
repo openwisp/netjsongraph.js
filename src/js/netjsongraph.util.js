@@ -773,13 +773,26 @@ class NetJSONGraphUtil {
     };
 
     const unifiedClientsCount = computeClientCount(node);
-    // Always include clients_count (including 0) for clarity
-    nodeInfo.clients_count = unifiedClientsCount;
-    // Also surface raw clients array if present at top-level or under properties
-    if (Array.isArray(node.clients)) {
-      nodeInfo.clients = node.clients;
-    } else if (node.properties && Array.isArray(node.properties.clients)) {
-      nodeInfo.clients = node.properties.clients;
+    const hasClientsField = Array.isArray(node.clients);
+    const hasPropsClientsField =
+      node.properties && Array.isArray(node.properties.clients);
+    const hasClientsCountField =
+      Object.prototype.hasOwnProperty.call(node, "clients_count") ||
+      (node.properties &&
+        Object.prototype.hasOwnProperty.call(node.properties, "clients_count"));
+    const hasClientsWifiField =
+      Object.prototype.hasOwnProperty.call(node, "clients_wifi") ||
+      (node.properties &&
+        Object.prototype.hasOwnProperty.call(node.properties, "clients_wifi"));
+
+    // Only include clients info when any client-related field exists on the node
+    if (hasClientsField || hasPropsClientsField || hasClientsCountField || hasClientsWifiField) {
+      nodeInfo.clients_count = unifiedClientsCount;
+      if (hasClientsField) {
+        nodeInfo.clients = node.clients;
+      } else if (hasPropsClientsField) {
+        nodeInfo.clients = node.properties.clients;
+      }
     }
 
     // Helper to copy values while formatting a few known fields
