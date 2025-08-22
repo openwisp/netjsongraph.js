@@ -179,7 +179,7 @@ class NetJSONGraphGUI {
         }
         // Otherwise, render each element recursively
         val.forEach((child, idx) => {
-          renderEntry(parent, `${key}[${idx}]`, child, depth);
+          renderEntry(parent, `${key} [${idx + 1}]`, child, depth);
         });
         return;
       }
