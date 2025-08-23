@@ -377,6 +377,38 @@ For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletj
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
 
+## Client Markers Overlay (Graph mode)
+
+It's possible to render small colored circles around each node to represent things like the amount of connected WiFi clients. The overlay counts WiFi clients as a single total (combined across any bands) and optionally displays a separate "other" category. This helper draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
+
+- Helper file: `src/js/netjsongraph.clients.js`
+- Exposed on every instance inside `onLoad` as `attachClientsOverlay(options)`.
+- Used in the example `public/example_templates/netjsongraph-wifi-clients.html` with dataset `public/assets/data/netjsongraph-network-nodes.json`.
+
+Example usage:
+
+```js
+const graph = new NetJSONGraph("../assets/data/netjsongraph-network-nodes.json", {
+  render: "graph",
+  onReady() {
+    this.attachClientsOverlay({
+      colors: {wifi: "#d35454", other: "#bdc3c7"},
+      radius: 3, // dot radius in px
+      gap: 8, // distance from node edge to first orbit
+      // fields: { wifi: 'clients_wifi', other: 'clients_other' }
+    });
+  },
+});
+graph.render();
+```
+
+Expected fields per node (customizable via `options.fields`):
+
+- `clients_wifi` (combined across all bands)
+- `clients_other` (optional)
+
+See the example "WiFi Clients Graph" in the landing page after `yarn start`.
+
 ### GeoJSON handling
 
 netjsongraph.js will now **always** convert GeoJSON input into an internal
