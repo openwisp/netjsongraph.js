@@ -786,17 +786,52 @@ class NetJSONGraphUtil {
       return val;
     };
 
-    // Include ALL properties, including nested structures, so the sidebar can
-    // render every detail. Internal metadata keys (starting with "_") are also
-    // included to satisfy the "show every detail" requirement.
-    if (node.properties) {
-      Object.keys(node.properties).forEach((key) => {
-        const val = normalizeValue(key, node.properties[key]);
+    // Decide which object is the primary source for the sidebar:
+    // 1) If the render pipeline attached a `_source` snapshot, prefer that.
+    // 2) Otherwise, fallback to the standard `node` object (including `properties`).
+    const source = node._source && this.isObject(node._source) ? node._source : node;
+
+    // Copy top-level fields from the source, excluding internals and fields we normalize separately.
+    Object.keys(source).forEach((key) => {
+      if (
+        key === "properties" ||
+        key === "_source" ||
+        key === "_generatedIdentity" ||
+        key === "local_addresses" ||
+        key === "linkCount"
+      ) {
+        return;
+      }
+      const val = normalizeValue(key, source[key]);
+      if (val !== undefined && val !== null && val !== "") {
         nodeInfo[key] = val;
+      }
+    });
+
+    // Include ALL fields under `properties` as-is (normalized), so any custom
+    // dataset-specific keys show up automatically. Nested structures are preserved.
+    if (source.properties && this.isObject(source.properties)) {
+      Object.keys(source.properties).forEach((key) => {
+        const val = normalizeValue(key, source.properties[key]);
+        if (val !== undefined && val !== null && !(typeof val === "string" && val.trim() === "")) {
+          nodeInfo[key] = val;
+        }
       });
     }
     if (node.linkCount) {
       nodeInfo.links = node.linkCount;
+    }
+    if (Array.isArray(source.local_addresses)) {
+      const normalized = source.local_addresses
+        .map((entry) => {
+          if (typeof entry === "string") return entry;
+          if (entry && typeof entry.address === "string") return entry.address;
+          return null;
+        })
+        .filter((v) => v);
+      if (normalized.length) {
+        nodeInfo.localAddresses = normalized;
+      }
     }
     if (node.local_addresses) {
       nodeInfo.localAddresses = node.local_addresses;

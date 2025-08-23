@@ -139,6 +139,8 @@ class NetJSONGraphRender {
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
       nodeResult.name = typeof node.label === "string" ? node.label : "";
+      // Preserve original NetJSON node for sidebar use
+      nodeResult._source = JSON.parse(JSON.stringify(node));
 
       return nodeResult;
     });
@@ -235,6 +237,7 @@ class NetJSONGraphRender {
               symbolSize: nodeEmphasisConfig.nodeSize,
             },
             node,
+            _source: JSON.parse(JSON.stringify(node)),
           });
         }
       }

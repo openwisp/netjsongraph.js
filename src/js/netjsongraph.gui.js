@@ -127,6 +127,15 @@ class NetJSONGraphGUI {
     header.innerHTML = `${type} Info`;
     closeButton.innerHTML = " &#x2715;";
 
+    // Key label normalization to improve readability
+    const formatKeyLabel = (k) => {
+      if (k === "clients_count") return "Client";
+      if (k === "clients") return "Client";
+      if (/^clients\s*\[\d+\]$/i.test(k)) return k.replace(/^clients/i, "Client");
+      if (k === "localAddresses") return "Local Addresses";
+      return k.replace(/_/g, " ");
+    };
+
     // Recursive renderer for nested objects/arrays so every detail is visible
     const renderEntry = (parent, key, val, depth = 0) => {
       // Hide undefined/null and empty strings (except "0")
@@ -150,7 +159,7 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = key;
+          k.innerHTML = formatKeyLabel(key);
           v.innerHTML = "[]";
           item.appendChild(k);
           item.appendChild(v);
@@ -166,7 +175,7 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = key === "localAddresses" ? "Local Addresses" : key;
+          k.innerHTML = formatKeyLabel(key);
           v.innerHTML = val
             .map((x) =>
               typeof x === "string" ? x.replace(/\n/g, "<br/>") : String(x),
@@ -217,7 +226,7 @@ class NetJSONGraphGUI {
         hk.setAttribute("class", "njg-keyLabel");
         const hv = document.createElement("span");
         hv.setAttribute("class", "njg-valueLabel");
-        hk.innerHTML = key;
+        hk.innerHTML = formatKeyLabel(key);
         hv.innerHTML = "";
         headerItem.appendChild(hk);
         headerItem.appendChild(hv);
@@ -237,7 +246,7 @@ class NetJSONGraphGUI {
       keyLabel.setAttribute("class", "njg-keyLabel");
       const valueLabel = document.createElement("span");
       valueLabel.setAttribute("class", "njg-valueLabel");
-      keyLabel.innerHTML = key;
+      keyLabel.innerHTML = formatKeyLabel(key);
       const displayVal =
         typeof val === "string" ? val.replace(/\n/g, "<br/>") : String(val);
       valueLabel.innerHTML = displayVal;
