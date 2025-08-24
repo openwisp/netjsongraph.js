@@ -410,6 +410,19 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
+    try {
+      if (self.utils && typeof self.utils.restoreBoundsFromUrl === "function") {
+        self.utils.restoreBoundsFromUrl(self);
+      }
+      if (self.utils && typeof self.utils.enableBoundsUrlSync === "function") {
+        const debounceMs = 300;
+        const precision = 6;
+        self._destroyUrlSync = self.utils.enableBoundsUrlSync(self, { debounceMs, precision });
+      }
+    } catch (e) {
+      console.warn("bbox URL restore/sync failed", e);
+    }
+
     self.config.geoOptions = self.utils.deepMergeObj(
       {
         pointToLayer: (feature, latlng) =>
