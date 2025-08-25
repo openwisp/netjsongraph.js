@@ -300,7 +300,14 @@ describe("Test paginatedDataParse", () => {
   test("Should return the data", () => {
     paginatedDataParse.call(graph, param).then((data) => {
       expect(data).toEqual({
-        nodes: [{id: "1"}, {id: "2"}, {id: "3"}, {id: "4"}, {id: "5"}, {id: "6"}],
+        nodes: [
+          {id: "1"},
+          {id: "2"},
+          {id: "3"},
+          {id: "4"},
+          {id: "5"},
+          {id: "6"},
+        ],
         links: [],
       });
     });
@@ -476,7 +483,9 @@ describe("Test when invalid data is passed", () => {
   test("Handle the error", () => {
     expect(map.render).toThrow();
     expect(console.error).toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalledWith(new Error("Invalid data format!"));
+    expect(console.error).toHaveBeenCalledWith(
+      new Error("Invalid data format!"),
+    );
   });
 });
 
@@ -1207,7 +1216,9 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
       echarts: {
         setOption: jest.fn(),
         _api: {
-          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => mockLeaflet}]),
+          getCoordinateSystems: jest.fn(() => [
+            {getLeaflet: () => mockLeaflet},
+          ]),
         },
       },
       utils: {
@@ -1216,7 +1227,9 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         generateMapOption: jest.fn(() => ({series: [{data: []}]})),
         echartsSetOption: jest.fn(),
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
-        getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
+        getBBoxData: jest.fn(() =>
+          Promise.resolve({nodes: [{id: "n1"}], links: []}),
+        ),
       },
       event: {emit: jest.fn()},
     };
@@ -1255,5 +1268,200 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
     expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(1);
     // Data should now include the fetched node
     expect(mockSelf.data.nodes.some((n) => n.id === "n1")).toBe(true);
+  });
+});
+
+describe("graph label visibility and fallbacks", () => {
+  test("generateGraphOption sets series id and uses name/label/id fallback", () => {
+    const render = new NetJSONGraphRender();
+    const mockSelf = {
+      config: {
+        graphConfig: {
+          series: {layout: "force", label: {show: true}},
+          baseOptions: {},
+        },
+        // no threshold here: formatter not injected
+      },
+      utils: {
+        getNodeStyle: jest.fn(() => ({
+          nodeStyleConfig: {},
+          nodeSizeConfig: 10,
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
+        })),
+      },
+      echarts: {
+        getOption: jest.fn(() => ({series: [{id: "graph-series", zoom: 1}]})),
+      },
+    };
+
+    const option = render.generateGraphOption(
+      {
+        nodes: [{id: "n1", label: "L"}, {id: "n2", name: "N"}, {id: "n3"}],
+        links: [],
+      },
+      mockSelf,
+    );
+
+    expect(option.series[0].id).toBe("graph-series");
+    const names = option.series[0].nodes.map((n) => n.name);
+    expect(names).toEqual(["L", "N", "n3"]);
+  });
+
+  test("label formatter hides below threshold and shows above", () => {
+    const render = new NetJSONGraphRender();
+    const mockSelf = {
+      config: {
+        graphConfig: {
+          series: {layout: "force", label: {show: true}},
+          baseOptions: {},
+        },
+        showGraphLabelsAtZoom: 2,
+      },
+      utils: {
+        getNodeStyle: jest.fn(() => ({
+          nodeStyleConfig: {},
+          nodeSizeConfig: 10,
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
+        })),
+      },
+      echarts: {
+        getOption: jest
+          .fn()
+          .mockReturnValueOnce({series: [{id: "graph-series", zoom: 1}]})
+          .mockReturnValue({series: [{id: "graph-series", zoom: 3}]}),
+      },
+    };
+
+    const option = render.generateGraphOption(
+      {nodes: [{id: "1", name: "Node1"}], links: []},
+      mockSelf,
+    );
+    const fmt = option.series[0].label.formatter;
+    expect(typeof fmt).toBe("function");
+    // First call with zoom 1 -> hidden
+    expect(fmt({data: {name: "Node1"}})).toBe("");
+    // Subsequent call with zoom 3 -> visible
+    expect(fmt({data: {name: "Node1"}})).toBe("Node1");
+  });
+
+  test("graphRender registers roam handler that triggers resize", () => {
+    const render = new NetJSONGraphRender();
+    const handlers = {};
+    const mockSelf = {
+      utils: {
+        generateGraphOption: jest.fn(() => ({series: []})),
+        echartsSetOption: jest.fn(),
+      },
+      echarts: {
+        on: jest.fn((evt, cb) => {
+          handlers[evt] = cb;
+        }),
+        resize: jest.fn(),
+      },
+      event: {emit: jest.fn()},
+      config: {},
+    };
+
+    render.graphRender({nodes: [], links: []}, mockSelf);
+    expect(typeof handlers.graphRoam).toBe("function");
+    handlers.graphRoam();
+    expect(mockSelf.echarts.resize).toHaveBeenCalled();
+  });
+});
+
+describe("map series ids and name fallbacks", () => {
+  test("generateMapOption assigns stable ids and name fallback", () => {
+    const render = new NetJSONGraphRender();
+    const mockSelf = {
+      config: {
+        mapOptions: {
+          nodeConfig: {type: "scatter", label: {}, emphasis: {}, nodeStyle: {}},
+          linkConfig: {},
+          baseOptions: {},
+        },
+        mapTileConfig: [{}],
+        nodeCategories: [],
+      },
+      utils: {
+        getNodeStyle: jest.fn(() => ({
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 10},
+          nodeSizeConfig: 10,
+        })),
+        getLinkStyle: jest.fn(() => ({
+          linkStyleConfig: {},
+          linkEmphasisConfig: {linkStyle: {}},
+        })),
+      },
+    };
+
+    const option = render.generateMapOption(
+      {
+        nodes: [
+          {id: "a", properties: {location: {lng: 1, lat: 2}}, label: "L"},
+          {id: "b", properties: {location: {lng: 1, lat: 2}}, name: "N"},
+          {id: "c", properties: {location: {lng: 1, lat: 2}}},
+        ],
+        links: [{source: "a", target: "b"}],
+        flatNodes: {
+          a: {properties: {location: {lng: 1, lat: 2}}},
+          b: {properties: {location: {lng: 1, lat: 2}}},
+        },
+      },
+      mockSelf,
+    );
+    expect(option.series[0].id).toBe("map-nodes");
+    expect(option.series[1].id).toBe("map-links");
+    const names = option.series[0].data.map((d) => d.name);
+    expect(names).toEqual(["L", "N", "c"]);
+  });
+
+  test("mapRender zoomend toggles labels using map-nodes id", () => {
+    const render = new NetJSONGraphRender();
+    const leafletMap = {
+      on: jest.fn((evt, cb) => {
+        if (evt === "zoomend") {
+          // call right away simulating a zoom end at zoom 5
+          leafletMap.getZoom = jest.fn(() => 5);
+          cb();
+        }
+      }),
+      getMinZoom: jest.fn(() => 1),
+      getMaxZoom: jest.fn(() => 6),
+      getZoom: jest.fn(() => 1),
+      getBounds: jest.fn(() => ({})),
+    };
+    const mockSelf = {
+      type: "geojson",
+      data: {type: "FeatureCollection", features: []},
+      config: {
+        geoOptions: {},
+        mapOptions: {},
+        mapTileConfig: [{}],
+        showLabelsAtZoomLevel: 3,
+        onClickElement: jest.fn(),
+        prepareData: jest.fn(),
+      },
+      echarts: {
+        setOption: jest.fn(),
+        _api: {
+          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => leafletMap}]),
+        },
+      },
+      utils: {
+        deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
+        generateMapOption: jest.fn(() => ({series: []})),
+        echartsSetOption: jest.fn(),
+      },
+      event: {emit: jest.fn()},
+    };
+
+    render.mapRender(mockSelf.data, mockSelf);
+    // After zoomend, we expect a setOption call targeting map-nodes id
+    const {calls} = mockSelf.echarts.setOption.mock;
+    expect(calls.length).toBeGreaterThan(0);
+    const [lastArg] = calls[calls.length - 1];
+    expect(lastArg.series[0].id).toBe("map-nodes");
   });
 });
