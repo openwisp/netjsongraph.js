@@ -263,16 +263,8 @@ class NetJSONGraphRender {
         } else {
           const {nodeEmphasisConfig} = self.utils.getNodeStyle(node, configs, "map");
 
-          let displayName = "";
-          if (typeof node.label === "string") {
-            displayName = node.label;
-          } else if (typeof node.name === "string") {
-            displayName = node.name;
-          } else if (node.id !== undefined && node.id !== null) {
-            displayName = String(node.id);
-          }
           nodesData.push({
-            name: displayName,
+            name: typeof node.label === "string" ? node.label : "",
             value: [location.lng, location.lat],
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
@@ -383,13 +375,12 @@ class NetJSONGraphRender {
         },
         emphasis: configs.mapOptions.nodeConfig.emphasis,
       },
-      {
-        ...configs.mapOptions.linkConfig,
+      Object.assign(configs.mapOptions.linkConfig, {
         id: "map-links",
         type: "lines",
         coordinateSystem: "leaflet",
         data: linesData,
-      },
+      }),
     ];
 
     return {
@@ -587,8 +578,7 @@ class NetJSONGraphRender {
         };
 
         self.data = JSONData;
-        const next = self.utils.generateMapOption(JSONData, self);
-        self.echarts.setOption({series: next.series});
+        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         self.bboxData.nodes = [];
         self.bboxData.links = [];
       };
@@ -619,8 +609,7 @@ class NetJSONGraphRender {
           nodes: JSONData.nodes.concat(nodes),
           links: JSONData.links.concat(links),
         };
-        const next2 = self.utils.generateMapOption(JSONData, self);
-        self.echarts.setOption({series: next2.series});
+        self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
@@ -639,16 +628,17 @@ class NetJSONGraphRender {
         nonClusterLinks = JSONData.links;
       }
 
-      const optionWithClusters = self.utils.generateMapOption(
-        {
-          ...JSONData,
-          nodes: nonClusterNodes,
-          links: nonClusterLinks,
-        },
-        self,
-        clusters,
+      self.echarts.setOption(
+        self.utils.generateMapOption(
+          {
+            ...JSONData,
+            nodes: nonClusterNodes,
+            links: nonClusterLinks,
+          },
+          self,
+          clusters,
+        ),
       );
-      self.echarts.setOption({series: optionWithClusters.series});
 
       self.echarts.on("click", (params) => {
         if (
@@ -673,20 +663,20 @@ class NetJSONGraphRender {
           clusters = nodeData.clusters;
           nonClusterNodes = nodeData.nonClusterNodes;
           nonClusterLinks = nodeData.nonClusterLinks;
-          const updated = self.utils.generateMapOption(
-            {
-              ...JSONData,
-              nodes: nonClusterNodes,
-              links: nonClusterLinks,
-            },
-            self,
-            clusters,
+          self.echarts.setOption(
+            self.utils.generateMapOption(
+              {
+                ...JSONData,
+                nodes: nonClusterNodes,
+                links: nonClusterLinks,
+              },
+              self,
+              clusters,
+            ),
           );
-          self.echarts.setOption({series: updated.series});
         } else {
           // When above the threshold, show all nodes without clustering
-          const noCluster = self.utils.generateMapOption(JSONData, self);
-          self.echarts.setOption({series: noCluster.series});
+          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
       });
     }
