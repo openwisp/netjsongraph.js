@@ -1,8 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 /* global echarts */
+
+// Attach client markers (WiFi / other) around nodes in graph mode
 function attachClientsOverlay(graph, options = {}) {
   const chart = graph.echarts;
   const g = echarts.graphic;
+
+  // Use a single color for any WiFi clients (combined 2.4 GHz + 5 GHz)
   const colors = {
     wifi: (options.colors && options.colors.wifi) || "#d35454",
     other: (options.colors && options.colors.other) || "#bdc3c7",
@@ -14,6 +18,7 @@ function attachClientsOverlay(graph, options = {}) {
     wifi: (options.fields && options.fields.wifi) || "clients_wifi",
   };
 
+  // Generic extractor for counting clients from various shapes
   const readCountFromField = (fieldName, obj) => {
     if (!fieldName || !obj) return 0;
     const top = obj[fieldName];
@@ -26,8 +31,10 @@ function attachClientsOverlay(graph, options = {}) {
 
   const getClientCount = (node) => {
     if (!node) return 0;
+    // 1) Explicit override via fields.wifi, supporting number or array
     const overrideCount = readCountFromField(fields.wifi, node);
     if (overrideCount > 0) return overrideCount;
+    // 2) Preferred simple formats
     const directCount =
       (typeof node.clients_count === "number" && node.clients_count) ||
       (Array.isArray(node.clients) && node.clients.length) ||
@@ -38,6 +45,7 @@ function attachClientsOverlay(graph, options = {}) {
             node.properties.clients.length))) ||
       0;
     if (directCount > 0) return directCount;
+    // 3) Legacy combined field (clients_wifi)
     const combined =
       (typeof node.clients_wifi === "number" && node.clients_wifi) ||
       (node.properties &&
@@ -59,8 +67,8 @@ function attachClientsOverlay(graph, options = {}) {
   }
 
   const parent = getSeriesViewGroup();
-  if (!parent) return { destroy() {} };
-  const overlay = new g.Group({ silent: true, z: 100, zlevel: 1 });
+  if (!parent) return {destroy() {}};
+  const overlay = new g.Group({silent: true, z: 100, zlevel: 1});
   parent.add(overlay);
 
   const seriesCfg =
@@ -72,151 +80,96 @@ function attachClientsOverlay(graph, options = {}) {
   const nodeRadius =
     (typeof seriesCfg.nodeSize === "number" ? seriesCfg.nodeSize : 18) / 2;
 
-  function draw(isDestroying = false) {
+  function draw() {
     const seriesModel = chart.getModel().getSeriesByIndex(0);
     if (!seriesModel) return;
     const data = seriesModel.getData();
     if (!data) return;
 
-    const desiredDots = new Map();
+    overlay.removeAll();
 
-    // Step 1: Calculate where all dots SHOULD be, unless we are destroying.
-    if (!isDestroying) {
-        const count = data.count ? data.count() : data._rawData.length;
-        for (let idx = 0; idx < count; idx += 1) {
-            const layout = data.getItemLayout(idx);
-            if (!layout) continue;
-
-            const x = Array.isArray(layout) ? layout[0] : layout.x;
-            const y = Array.isArray(layout) ? layout[1] : layout.y;
-            const node = data.getRawDataItem(idx) || {};
-            const startDistance = nodeRadius + radius + Math.max(0, gap);
-
-            const counts = [
-                { count: getClientCount(node), color: colors.wifi },
-                { count: readCountFromField(fields.other, node), color: colors.other },
-            ];
-
-            let i = 0;
-            const total = counts.reduce((s, v) => s + v.count, 0);
-            if (total === 0) continue;
-
-            for (let orbit = 0; i < total; orbit += 1) {
-                const a = 1.2;
-                const distance = Math.max(0.1, startDistance + orbit * 2 * radius * a);
-                const n = Math.max(1, Math.floor((Math.PI * distance) / (a * radius)));
-                const delta = total - i;
-
-                for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
-                    let color = colors.other;
-                    let cum = 0;
-                    for (let k = 0; k < counts.length; k += 1) {
-                        cum += counts[k].count;
-                        if (i < cum) {
-                            color = counts[k].color;
-                            break;
-                        }
-                    }
-                    const angle = ((2 * Math.PI) / n) * j;
-                    const dotX = x + distance * Math.cos(angle);
-                    const dotY = y + distance * Math.sin(angle);
-                    // Use a unique ID for each dot to track it
-                    const dotId = `dot-${node.id}-${i}`;
-                    desiredDots.set(dotId, { x: dotX, y: dotY, color });
-                }
+    const placeOrbit = (centerX, centerY, counts, startDistance) => {
+      const a = 1.2;
+      let i = 0;
+      const total = counts.reduce((s, v) => s + v.count, 0);
+      if (total === 0) return;
+      for (let orbit = 0; i < total; orbit += 1) {
+        const distance = Math.max(0.1, startDistance + orbit * 2 * radius * a);
+        const n = Math.max(1, Math.floor((Math.PI * distance) / (a * radius)));
+        const delta = total - i;
+        for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
+          // Determine which category this marker belongs to based on cumulative counts
+          let color = colors.other;
+          let cum = 0;
+          for (let k = 0; k < counts.length; k += 1) {
+            cum += counts[k].count;
+            if (i < cum) {
+              color = counts[k].color;
+              break;
             }
+          }
+
+          const angle = ((2 * Math.PI) / n) * j;
+          const x = centerX + distance * Math.cos(angle);
+          const y = centerY + distance * Math.sin(angle);
+
+          overlay.add(
+            new g.Circle({
+              shape: {cx: x, cy: y, r: radius},
+              style: {fill: color},
+              silent: true,
+              z: 100,
+              zlevel: 1,
+            }),
+          );
         }
+      }
+    };
+
+    const count = data.count ? data.count() : data._rawData.length;
+    for (let idx = 0; idx < count; idx += 1) {
+      const layout = data.getItemLayout(idx);
+      if (layout) {
+        const x = Array.isArray(layout) ? layout[0] : layout.x;
+        const y = Array.isArray(layout) ? layout[1] : layout.y;
+        const node = data.getRawDataItem(idx) || {};
+        const other =
+          node[fields.other] ||
+          (node.properties && node.properties[fields.other]) ||
+          0;
+
+        const startDistance = nodeRadius + radius + Math.max(0, gap);
+        const wifi = getClientCount(node);
+        placeOrbit(
+          x,
+          y,
+          [
+            {count: wifi, color: colors.wifi},
+            {count: other, color: colors.other},
+          ],
+          startDistance,
+        );
+      }
     }
-
-    const existingDots = new Map();
-    overlay.eachChild(child => {
-        if (child.id) existingDots.set(child.id, child);
-    });
-
-    // Step 2: (EXIT) Animate out any dots that exist but are no longer desired.
-    existingDots.forEach((child, id) => {
-        if (!desiredDots.has(id)) {
-            child.animateTo({
-                shape: { r: 0 },
-                style: { opacity: 0 },
-            }, {
-                duration: 300,
-                easing: 'cubicIn',
-                done: () => {
-                    // Important: remove the child only after animation is done.
-                    if (child.parent) child.parent.remove(child);
-                }
-            });
-        }
-    });
-
-    // Step 3: (ENTER/UPDATE) Add new dots and move existing ones to their new positions.
-    desiredDots.forEach((props, id) => {
-        const existing = existingDots.get(id);
-        if (existing) {
-            // (UPDATE) This dot already exists, so just animate it to its new position.
-            existing.animateTo({
-                shape: { cx: props.x, cy: props.y },
-            }, { duration: 300, easing: 'cubicOut' });
-        } else {
-            // (ENTER) This is a new dot. Create it, add it, and animate it in.
-            const circle = new g.Circle({
-                id: id,
-                shape: { cx: props.x, cy: props.y, r: 0 },
-                style: { fill: props.color, opacity: 0 },
-                silent: true, z: 100, zlevel: 1,
-            });
-            overlay.add(circle);
-            circle.animateTo({
-                shape: { r: radius },
-                style: { opacity: 1 },
-            }, { duration: 400, easing: 'cubicOut' });
-        }
-    });
   }
 
-  // Use a safer set of events to avoid the infinite loop
   const handlers = [
-    ["graphLayoutEnd", draw], // Fires once when the force layout stabilizes
-    ["graphRoam", draw],      // Fires when user zooms or pans
+    ["finished", draw],
+    ["rendered", draw],
+    ["graphLayoutEnd", draw],
+    ["graphRoam", draw],
   ];
   handlers.forEach(([ev, fn]) => chart.on(ev, fn));
-  
-  // Call draw once initially
   draw();
 
   return {
-    destroy(onDone) {
+    destroy() {
       handlers.forEach(([ev, fn]) => {
-        if (chart && chart.off) chart.off(ev, fn);
-      });
-      
-      const children = overlay.children() || [];
-      if (children.length === 0) {
-        if (overlay.parent) overlay.parent.remove(overlay);
-        if (onDone) onDone();
-        return;
-      }
-
-      children.forEach((child, index) => {
-        if (child && child.animateTo) {
-          child.animateTo({
-            shape: { r: 0 },
-            style: { opacity: 0 },
-          }, {
-            duration: 300,
-            easing: 'cubicIn',
-            done: () => {
-              if (index === children.length - 1) {
-                if (overlay && overlay.parent) {
-                  overlay.parent.remove(overlay);
-                }
-                if (onDone) onDone();
-              }
-            }
-          });
+        if (chart && chart.off) {
+          chart.off(ev, fn);
         }
       });
+      if (overlay && overlay.parent) overlay.parent.remove(overlay);
     },
   };
 }
