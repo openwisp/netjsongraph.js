@@ -140,7 +140,7 @@ class NetJSONGraphRender {
       };
       nodeResult.name = typeof node.label === "string" ? node.label : "";
       // Preserve original NetJSON node for sidebar use
-      /*eslint-disable no-underscore-dangle */
+      /* eslint-disable no-underscore-dangle */
       nodeResult._source = JSON.parse(JSON.stringify(node));
 
       return nodeResult;
