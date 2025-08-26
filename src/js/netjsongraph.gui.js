@@ -131,7 +131,8 @@ class NetJSONGraphGUI {
     const formatKeyLabel = (k) => {
       if (k === "clients_count") return "Client";
       if (k === "clients") return "Client";
-      if (/^clients\s*\[\d+\]$/i.test(k)) return k.replace(/^clients/i, "Client");
+      if (/^clients\s*\[\d+\]$/i.test(k))
+        return k.replace(/^clients/i, "Client");
       if (k === "localAddresses") return "Local Addresses";
       return k.replace(/_/g, " ");
     };

@@ -4,17 +4,12 @@
     {
       "id": "A",
       "label": "Node A",
-      "clients": [
-        { "mac": "d8:5d:4c:f1:aa:62" }
-      ]
+      "clients": [{"mac": "d8:5d:4c:f1:aa:62"}]
     },
     {
       "id": "B",
       "label": "Node B",
-      "clients": [
-        { "mac": "d8:5d:4c:f1:aa:61" },
-        { "mac": "2a:9a:fb:12:11:77" }
-      ]
+      "clients": [{"mac": "d8:5d:4c:f1:aa:61"}, {"mac": "2a:9a:fb:12:11:77"}]
     },
     {
       "id": "C",
@@ -28,8 +23,8 @@
     }
   ],
   "links": [
-    { "source": "A", "target": "B" },
-    { "source": "B", "target": "C" },
-    { "source": "C", "target": "D" }
+    {"source": "A", "target": "B"},
+    {"source": "B", "target": "C"},
+    {"source": "C", "target": "D"}
   ]
 }

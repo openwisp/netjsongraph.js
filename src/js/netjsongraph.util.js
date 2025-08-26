@@ -266,7 +266,6 @@ class NetJSONGraphUtil {
     return convertGeojson(geojson);
   }
 
-
   /**
    * merge two object deeply
    *
@@ -766,7 +765,12 @@ class NetJSONGraphUtil {
         Object.prototype.hasOwnProperty.call(node.properties, "clients_wifi"));
 
     // Only include clients info when any client-related field exists on the node
-    if (hasClientsField || hasPropsClientsField || hasClientsCountField || hasClientsWifiField) {
+    if (
+      hasClientsField ||
+      hasPropsClientsField ||
+      hasClientsCountField ||
+      hasClientsWifiField
+    ) {
       nodeInfo.clients_count = unifiedClientsCount;
       if (hasClientsField) {
         nodeInfo.clients = node.clients;
@@ -789,7 +793,8 @@ class NetJSONGraphUtil {
     // Decide which object is the primary source for the sidebar:
     // 1) If the render pipeline attached a `_source` snapshot, prefer that.
     // 2) Otherwise, fallback to the standard `node` object (including `properties`).
-    const source = node._source && this.isObject(node._source) ? node._source : node;
+    const source =
+      node._source && this.isObject(node._source) ? node._source : node;
 
     // Copy top-level fields from the source, excluding internals and fields we normalize separately.
     Object.keys(source).forEach((key) => {
@@ -813,7 +818,11 @@ class NetJSONGraphUtil {
     if (source.properties && this.isObject(source.properties)) {
       Object.keys(source.properties).forEach((key) => {
         const val = normalizeValue(key, source.properties[key]);
-        if (val !== undefined && val !== null && !(typeof val === "string" && val.trim() === "")) {
+        if (
+          val !== undefined &&
+          val !== null &&
+          !(typeof val === "string" && val.trim() === "")
+        ) {
           nodeInfo[key] = val;
         }
       });
