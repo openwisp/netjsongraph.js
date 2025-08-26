@@ -1,5 +1,10 @@
 import * as echarts from "echarts/core";
-import {GraphChart, EffectScatterChart, LinesChart, ScatterChart} from "echarts/charts";
+import {
+  GraphChart,
+  EffectScatterChart,
+  LinesChart,
+  ScatterChart,
+} from "echarts/charts";
 import {
   TooltipComponent,
   TitleComponent,
@@ -136,7 +141,15 @@ class NetJSONGraphRender {
         itemStyle: nodeEmphasisConfig.nodeStyle,
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
-      nodeResult.name = typeof node.label === "string" ? node.label : "";
+      let resolvedName = "";
+      if (typeof node.label === "string") {
+        resolvedName = node.label;
+      } else if (typeof node.name === "string") {
+        resolvedName = node.name;
+      } else if (node.id !== undefined && node.id !== null) {
+        resolvedName = String(node.id);
+      }
+      nodeResult.name = resolvedName;
 
       return nodeResult;
     });
@@ -154,16 +167,47 @@ class NetJSONGraphRender {
       return linkResult;
     });
 
+    // Clone label config to avoid mutating defaults
+    const baseGraphSeries = {...configs.graphConfig.series};
+    const baseGraphLabel = {...(baseGraphSeries.label || {})};
+    if (typeof self.config.showGraphLabelsAtZoom === "number") {
+      const threshold = self.config.showGraphLabelsAtZoom;
+      // Use a closure over the ECharts instance to read zoom when formatting
+      const getCurrentGraphZoom = () => {
+        try {
+          const option = self.echarts.getOption();
+          const series = Array.isArray(option.series) ? option.series : [];
+          const graphSeries = series.find((s) => s && s.id === "graph-series");
+          if (graphSeries && typeof graphSeries.zoom === "number") {
+            return graphSeries.zoom;
+          }
+        } catch (e) {
+          // ignore
+        }
+        return 1;
+      };
+      baseGraphLabel.formatter = (params) => {
+        const zoom = getCurrentGraphZoom();
+        if (zoom < threshold) {
+          return "";
+        }
+        return (params && params.data && params.data.name) || "";
+      };
+    }
+    baseGraphSeries.label = baseGraphLabel;
     const series = [
-      Object.assign(configs.graphConfig.series, {
-        type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
+      {
+        ...baseGraphSeries,
+        id: "graph-series",
+        type:
+          configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
           configs.graphConfig.series.type === "graphGL"
             ? "forceAtlas2"
             : configs.graphConfig.series.layout,
         nodes,
         links,
-      }),
+      },
     ];
     const legend = categories.length
       ? {
@@ -223,10 +267,22 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeEmphasisConfig} = self.utils.getNodeStyle(node, configs, "map");
+          const {nodeEmphasisConfig} = self.utils.getNodeStyle(
+            node,
+            configs,
+            "map",
+          );
 
+          let nodeName = '';
+          if (typeof node.label === 'string') {
+            nodeName = node.label;
+          } else if (typeof node.name === 'string') {
+            nodeName = node.name;
+          } else if (node.id !== undefined && node.id !== null) {
+            nodeName = String(node.id);
+          }
           nodesData.push({
-            name: typeof node.label === "string" ? node.label : "",
+            name: nodeName,
             value: [location.lng, location.lat],
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
@@ -270,6 +326,7 @@ class NetJSONGraphRender {
 
     const series = [
       {
+        id: "map-nodes",
         type:
           configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
@@ -330,13 +387,15 @@ class NetJSONGraphRender {
               : nodeSizeConfig;
           }
           return (
-            (configs.mapOptions.nodeConfig && configs.mapOptions.nodeConfig.nodeSize) ||
+            (configs.mapOptions.nodeConfig &&
+              configs.mapOptions.nodeConfig.nodeSize) ||
             17
           );
         },
         emphasis: configs.mapOptions.nodeConfig.emphasis,
       },
       Object.assign(configs.mapOptions.linkConfig, {
+        id: "map-links",
         type: "lines",
         coordinateSystem: "leaflet",
         data: linesData,
@@ -363,11 +422,19 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, self) {
-    self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
+    self.utils.echartsSetOption(
+      self.utils.generateGraphOption(JSONData, self),
+      self,
+    );
 
     window.onresize = () => {
       self.echarts.resize();
     };
+
+    // Re-evaluate label formatter during roam without changing zoom/center
+    self.echarts.on("graphRoam", () => {
+      self.echarts.resize();
+    });
 
     self.event.emit("onLoad");
     self.event.emit("onReady");
@@ -465,6 +532,7 @@ class NetJSONGraphRender {
       self.echarts.setOption({
         series: [
           {
+            id: "map-nodes",
             label: {
               show: false,
             },
@@ -484,6 +552,7 @@ class NetJSONGraphRender {
       self.echarts.setOption({
         series: [
           {
+            id: "map-nodes",
             label: {
               show: showLabel,
             },
@@ -539,14 +608,19 @@ class NetJSONGraphRender {
         self.leaflet.getZoom() >= self.config.loadMoreAtZoomLevel &&
         self.hasMoreData
       ) {
-        const data = await self.utils.getBBoxData.call(self, self.JSONParam, bounds);
+        const data = await self.utils.getBBoxData.call(
+          self,
+          self.JSONParam,
+          bounds,
+        );
         self.config.prepareData.call(self, data);
         const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
         const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
         const targetLinkSet = new Set(self.data.links.map((l) => l.target));
         const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
         const links = data.links.filter(
-          (link) => !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
+          (link) =>
+            !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
         );
         const boundsDataSet = new Set(data.nodes.map((n) => n.id));
         const nonCommonNodes = self.bboxData.nodes.filter(
@@ -554,7 +628,9 @@ class NetJSONGraphRender {
         );
         const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
 
-        JSONData.nodes = JSONData.nodes.filter((node) => !removableNodes.has(node.id));
+        JSONData.nodes = JSONData.nodes.filter(
+          (node) => !removableNodes.has(node.id),
+        );
         self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
         self.bboxData.links = self.bboxData.links.concat(links);
         JSONData = {
@@ -572,7 +648,8 @@ class NetJSONGraphRender {
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
-      let {clusters, nonClusterNodes, nonClusterLinks} = self.utils.makeCluster(self);
+      let {clusters, nonClusterNodes, nonClusterLinks} =
+        self.utils.makeCluster(self);
 
       // Only show clusters if we're below the disableClusteringAtLevel
       if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
@@ -601,7 +678,10 @@ class NetJSONGraphRender {
         ) {
           // Zoom into the clicked cluster instead of expanding it
           const currentZoom = self.leaflet.getZoom();
-          const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
+          const targetZoom = Math.min(
+            currentZoom + 2,
+            self.leaflet.getMaxZoom(),
+          );
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],
             targetZoom,
@@ -716,7 +796,9 @@ class NetJSONGraphRender {
         return true;
       }
       if (existingNodeIds.has(node.id)) {
-        console.warn(`Duplicate node ID ${node.id} detected during merge and skipped.`);
+        console.warn(
+          `Duplicate node ID ${node.id} detected during merge and skipped.`,
+        );
         return false;
       }
       return true;
