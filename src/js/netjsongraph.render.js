@@ -273,8 +273,16 @@ class NetJSONGraphRender {
             "map",
           );
 
+          let nodeName = '';
+          if (typeof node.label === 'string') {
+            nodeName = node.label;
+          } else if (typeof node.name === 'string') {
+            nodeName = node.name;
+          } else if (node.id !== undefined && node.id !== null) {
+            nodeName = String(node.id);
+          }
           nodesData.push({
-            name: typeof node.label === "string" ? node.label : "",
+            name: nodeName,
             value: [location.lng, location.lat],
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
