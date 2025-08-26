@@ -1,12 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* global echarts */
-
-// Attach client markers (WiFi / other) around nodes in graph mode
 function attachClientsOverlay(graph, options = {}) {
   const chart = graph.echarts;
   const g = echarts.graphic;
-
-  // Use a single color for any WiFi clients (combined 2.4 GHz + 5 GHz)
   const colors = {
     wifi: (options.colors && options.colors.wifi) || "#d35454",
     other: (options.colors && options.colors.other) || "#bdc3c7",
@@ -17,8 +13,10 @@ function attachClientsOverlay(graph, options = {}) {
     other: (options.fields && options.fields.other) || "clients_other",
     wifi: (options.fields && options.fields.wifi) || "clients_wifi",
   };
+  
+  const minZoomLevel = options.minZoomLevel || 1.5;
+  let currentZoom = 1;
 
-  // Generic extractor for counting clients from various shapes
   const readCountFromField = (fieldName, obj) => {
     if (!fieldName || !obj) return 0;
     const top = obj[fieldName];
@@ -31,10 +29,8 @@ function attachClientsOverlay(graph, options = {}) {
 
   const getClientCount = (node) => {
     if (!node) return 0;
-    // 1) Explicit override via fields.wifi, supporting number or array
     const overrideCount = readCountFromField(fields.wifi, node);
     if (overrideCount > 0) return overrideCount;
-    // 2) Preferred simple formats
     const directCount =
       (typeof node.clients_count === "number" && node.clients_count) ||
       (Array.isArray(node.clients) && node.clients.length) ||
@@ -80,23 +76,47 @@ function attachClientsOverlay(graph, options = {}) {
   const nodeRadius =
     (typeof seriesCfg.nodeSize === "number" ? seriesCfg.nodeSize : 18) / 2;
 
+  function getCurrentZoom() {
+    const option = chart.getOption();
+    if (option && option.series && option.series[0] && option.series[0].zoom) {
+      return option.series[0].zoom;
+    }
+    return 1;
+  }
+
+  function updateZoom() {
+    currentZoom = getCurrentZoom();
+    const shouldShow = currentZoom >= minZoomLevel;
+    overlay.attr('invisible', !shouldShow);
+  }
+
   function draw() {
     const seriesModel = chart.getModel().getSeriesByIndex(0);
     if (!seriesModel) return;
     const data = seriesModel.getData();
     if (!data) return;
 
+    updateZoom();
     overlay.removeAll();
+    
+    if (currentZoom < minZoomLevel) {
+      overlay.attr('invisible', true);
+      return;
+    }
+
+    overlay.attr('invisible', false);
 
     const placeOrbit = (centerX, centerY, counts, startDistance) => {
       const a = 1.2;
       let i = 0;
       const total = counts.reduce((s, v) => s + v.count, 0);
       if (total === 0) return;
+      
       for (let orbit = 0; i < total; orbit += 1) {
         const distance = Math.max(0.1, startDistance + orbit * 2 * radius * a);
         const n = Math.max(1, Math.floor((Math.PI * distance) / (a * radius)));
         const delta = total - i;
+        
         for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
           // Determine which category this marker belongs to based on cumulative counts
           let color = colors.other;
@@ -115,8 +135,8 @@ function attachClientsOverlay(graph, options = {}) {
 
           overlay.add(
             new g.Circle({
-              shape: {cx: x, cy: y, r: radius},
-              style: {fill: color},
+              shape: { cx: x, cy: y, r: radius },
+              style: { fill: color },
               silent: true,
               z: 100,
               zlevel: 1,
@@ -133,19 +153,17 @@ function attachClientsOverlay(graph, options = {}) {
         const x = Array.isArray(layout) ? layout[0] : layout.x;
         const y = Array.isArray(layout) ? layout[1] : layout.y;
         const node = data.getRawDataItem(idx) || {};
-        const other =
-          node[fields.other] ||
-          (node.properties && node.properties[fields.other]) ||
-          0;
+        const other = readCountFromField(fields.other, node);
 
         const startDistance = nodeRadius + radius + Math.max(0, gap);
         const wifi = getClientCount(node);
+        
         placeOrbit(
           x,
           y,
           [
-            {count: wifi, color: colors.wifi},
-            {count: other, color: colors.other},
+            { count: wifi, color: colors.wifi },
+            { count: other, color: colors.other },
           ],
           startDistance,
         );
@@ -155,11 +173,15 @@ function attachClientsOverlay(graph, options = {}) {
 
   const handlers = [
     ["finished", draw],
-    ["rendered", draw],
+    ["rendered", draw], 
     ["graphLayoutEnd", draw],
-    ["graphRoam", draw],
+    ["graphRoam", () => {
+      updateZoom();
+      draw();
+    }],
   ];
   handlers.forEach(([ev, fn]) => chart.on(ev, fn));
+  
   draw();
 
   return {
@@ -171,6 +193,13 @@ function attachClientsOverlay(graph, options = {}) {
       });
       if (overlay && overlay.parent) overlay.parent.remove(overlay);
     },
+    setMinZoomLevel(newLevel) {
+      minZoomLevel = newLevel;
+      draw();
+    },
+    getMinZoomLevel() {
+      return minZoomLevel;
+    }
   };
 }
 
