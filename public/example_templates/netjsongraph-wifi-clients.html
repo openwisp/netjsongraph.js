@@ -61,9 +61,9 @@
   <body>
     <div id="legend">
       <h4>Legend</h4>
-      <p><span class="circle" style="background-color: #d35454;">&nbsp;</span> WiFi clients</p>
       <p><span class="circle" style="background-color: #bdc3c7;">&nbsp;</span> Mesh nodes</p>
-      <p><span style="display:inline-block; width:16px; height:6px; background-color:#00ff04; margin-right:5px;"></span> Network links</p>
+      <p><span class="circle" style="background-color: #d35454;">&nbsp;</span> WiFi clients</p>
+      <p><span style="display:inline-block; width:16px; height:6px; background-color:#00ff04; margin-right:5px;"></span> Links</p>
     </div>
     <div id="container"></div>
     <script type="text/javascript">
@@ -86,9 +86,9 @@
             layout: "force",
             roam: true,
             label: { show: true, color: "#fff" },
-            nodeStyle: { color: "#fff", opacity:"0.75" },
-            linkStyle: { color: "#00ff04", width: 6 },
-            nodeSize: 22,
+            nodeStyle: { color: "#fff", opacity: "0.9" },
+            linkStyle: { color: "#38a91a", width: 6, opacity: "1" },
+            nodeSize: 20,
           },
           baseOptions: {
             backgroundColor: "#222"
@@ -97,8 +97,8 @@
         onReady() {
           // Attach reusable overlay plugin shipped with the bundle
           this.attachClientsOverlay({
-            radius:4,
-            gap:2,
+            radius: 3,
+            gap: 2,
           });
         }
       });
