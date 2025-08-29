@@ -377,7 +377,7 @@ For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletj
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
 
-## Client Markers Overlay (Graph mode)
+## Cirle Markers in Graph Mode
 
 It's possible to render small colored circles around each node to represent things like the amount of connected WiFi clients. The overlay counts WiFi clients as a single total (combined across any bands) and optionally displays a separate "other" category. This helper draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
 
