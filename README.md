@@ -38,7 +38,7 @@ Then, in a separate terminal, run:
 yarn test
 ```
 
-To run a spefic test suite:
+To run a specific test suite:
 
 ```
 yarn test test/netjsongraph.browser.test.js
@@ -107,7 +107,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Default**: `L.CRS.EPSG3857,`
 
-  Leaflet uses `L.CRS.EPSG3857` as the default CRS. If no CRS is spefied, this default is automatically applied. To support custom projections such as 2D planes you can override this by passing a custom CRS like `L.CRS.Simple`.
+  Leaflet uses `L.CRS.EPSG3857` as the default CRS. If no CRS is specified, this default is automatically applied. To support custom projections such as 2D planes you can override this by passing a custom CRS like `L.CRS.Simple`.
 
 - `metadata`
 
@@ -199,7 +199,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
             nodeSize: string|number,
         },
         baseOptions:{
-            // The global configuration for Echarts spefically for the graph.
+            // The global configuration for Echarts specifically for the graph.
         }
     }
 
