@@ -14,12 +14,12 @@
     {
       "id": "C",
       "label": "Node C",
-      "clients_count": 3
+      "clients" : 1
     },
     {
       "id": "D",
       "label": "Node D",
-      "clients_count": 0
+      "clients": 0
     }
   ],
   "links": [

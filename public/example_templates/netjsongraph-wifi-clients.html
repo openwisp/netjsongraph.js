@@ -87,8 +87,8 @@
             roam: true,
             label: { show: true, color: "#fff" },
             nodeStyle: { color: "#fff", opacity: "0.9" },
-            linkStyle: { color: "#38a91a", width: 6, opacity: "1" },
-            nodeSize: 20,
+            linkStyle: { color: "#38a91a", width: 7, opacity: "1" },
+            nodeSize: 30,
           },
           baseOptions: {
             backgroundColor: "#222"
@@ -97,8 +97,9 @@
         onReady() {
           // Attach reusable overlay plugin shipped with the bundle
           this.attachClientsOverlay({
-            radius: 3,
-            gap: 2,
+            radius: 5,
+            gap: 3,
+            minZoomLevel: 1,
           });
         }
       });

@@ -32,24 +32,13 @@ function attachClientsOverlay(graph, options = {}) {
     const overrideCount = readCountFromField(fields.wifi, node);
     if (overrideCount > 0) return overrideCount;
     const directCount =
-      (typeof node.clients_count === "number" && node.clients_count) ||
+      (typeof node.clients === "number" && node.clients) ||
       (Array.isArray(node.clients) && node.clients.length) ||
       (node.properties &&
-        ((typeof node.properties.clients_count === "number" &&
-          node.properties.clients_count) ||
-          (Array.isArray(node.properties.clients) &&
-            node.properties.clients.length))) ||
+        (Array.isArray(node.properties.clients) &&
+          node.properties.clients.length)) ||
       0;
-    if (directCount > 0) return directCount;
-    // 3) Legacy combined field (clients_wifi)
-    const combined =
-      (typeof node.clients_wifi === "number" && node.clients_wifi) ||
-      (node.properties &&
-        typeof node.properties.clients_wifi === "number" &&
-        node.properties.clients_wifi) ||
-      0;
-    if (combined > 0) return combined;
-    return 0;
+    return directCount;
   };
 
   function getSeriesViewGroup() {
