@@ -112,7 +112,10 @@ class NetJSONGraphUtil {
       dateParseArr[1] % 400 === 0;
     const limitBoundaries = new Map([
       ["dateMonth", 12],
-      ["dateDay", [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]],
+      [
+        "dateDay",
+        [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+      ],
       ["dateHour", 24],
     ]);
 
@@ -127,7 +130,8 @@ class NetJSONGraphUtil {
         dateNumberObject[dateNumberFields[i - 1]] += carry;
         break;
       } else if (dateNumberFields[i - 1] === "dateDay") {
-        limitBoundary = limitBoundaries.get("dateDay")[dateNumberObject.dateMonth - 1];
+        limitBoundary =
+          limitBoundaries.get("dateDay")[dateNumberObject.dateMonth - 1];
       } else {
         limitBoundary = limitBoundaries.get(dateNumberFields[i - 1]);
       }
@@ -228,7 +232,9 @@ class NetJSONGraphUtil {
   isNetJSON(param) {
     if (param.nodes && param.links) {
       return (
-        this.isObject(param) && this.isArray(param.nodes) && this.isArray(param.links)
+        this.isObject(param) &&
+        this.isArray(param.nodes) &&
+        this.isArray(param.links)
       );
     }
 
@@ -325,7 +331,8 @@ class NetJSONGraphUtil {
     // 1. Project all nodes to screen (pixel) coordinates for spatial clustering
     nodes.forEach((node) => {
       // Normalize location reference (GeoJSON may store it under properties.location)
-      const loc = (node.properties && node.properties.location) || node.location;
+      const loc =
+        (node.properties && node.properties.location) || node.location;
       if (!loc || loc.lat === undefined || loc.lng === undefined) {
         return; // Skip nodes without valid coordinates
       }
@@ -486,7 +493,8 @@ class NetJSONGraphUtil {
               basePoint.y + separationPx * Math.sin(angle),
             ];
             // Convert back to lat/lng for display
-            const offsetLatLng = self.leaflet.containerPointToLatLng(offsetPoint);
+            const offsetLatLng =
+              self.leaflet.containerPointToLatLng(offsetPoint);
             centroidLng = offsetLatLng.lng;
             centroidLat = offsetLatLng.lat;
           }
@@ -503,7 +511,8 @@ class NetJSONGraphUtil {
           if (self.config.clusteringAttribute) {
             const category = self.config.nodeCategories.find(
               (cat) =>
-                cat.name === groupNodes[0].properties[self.config.clusteringAttribute],
+                cat.name ===
+                groupNodes[0].properties[self.config.clusteringAttribute],
             );
             if (category) {
               cluster.itemStyle = {
@@ -526,7 +535,10 @@ class NetJSONGraphUtil {
 
     // Only keep links between non-clustered nodes
     links.forEach((link) => {
-      if (nodeMap.get(link.source) === null && nodeMap.get(link.target) === null) {
+      if (
+        nodeMap.get(link.source) === null &&
+        nodeMap.get(link.target) === null
+      ) {
         nonClusterLinks.push(link);
       }
     });
@@ -719,29 +731,97 @@ class NetJSONGraphUtil {
       nodeInfo.location = node.location;
     }
 
-    if (node.properties) {
-      Object.keys(node.properties).forEach((key) => {
-        if (key === "location") {
-          nodeInfo[key] = {
-            lat: node.properties.location.lat,
-            lng: node.properties.location.lng,
-          };
-        } else if (key === "time") {
-          const time = this.dateParse({
-            dateString: node.properties[key],
-          });
-          nodeInfo[key] = time;
-        } else if (typeof node.properties[key] === "object" || key.startsWith("_")) {
-          // Skip nested objects and internal metadata
-          // eslint-disable-next-line no-useless-return
-          return;
-        } else {
-          nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
+    // Compute unified clients count for sidebar display
+    const computeClientCount = (n) => {
+      if (!n) return 0;
+      // Check for 'clients' array at the root level
+      if (Array.isArray(n.clients)) {
+        return n.clients.length;
+      }
+      // Check for 'clients' array within the 'properties' object
+      if (n.properties && Array.isArray(n.properties.clients)) {
+        return n.properties.clients.length;
+      }
+      return 0;
+    };
+
+    const unifiedClientsCount = computeClientCount(node);
+    const hasClientsField = Array.isArray(node.clients);
+    const hasPropsClientsField =
+      node.properties && Array.isArray(node.properties.clients);
+
+    // Only include clients info if a 'clients' array exists on the node
+    if (hasClientsField || hasPropsClientsField) {
+      nodeInfo.clients_count = unifiedClientsCount;
+      if (hasClientsField) {
+        nodeInfo.clients = node.clients;
+      } else if (hasPropsClientsField) {
+        nodeInfo.clients = node.properties.clients;
+      }
+    }
+
+    // Helper to copy values while formatting a few known fields
+    const normalizeValue = (key, val) => {
+      if (key === "location" && val && typeof val === "object") {
+        return {lat: val.lat, lng: val.lng};
+      }
+      if (key === "time" && typeof val === "string") {
+        return this.dateParse({dateString: val});
+      }
+      return val;
+    };
+
+    // Decide which object is the primary source for the sidebar:
+    // 1) If the render pipeline attached a `_source` snapshot, prefer that.
+    // 2) Otherwise, fallback to the standard `node` object (including `properties`).
+    const source =
+      node._source && this.isObject(node._source) ? node._source : node;
+
+    // Copy top-level fields from the source, excluding internals and fields we normalize separately.
+    Object.keys(source).forEach((key) => {
+      if (
+        key === "properties" ||
+        key === "_source" ||
+        key === "_generatedIdentity" ||
+        key === "local_addresses" ||
+        key === "linkCount"
+      ) {
+        return;
+      }
+      const val = normalizeValue(key, source[key]);
+      if (val !== undefined && val !== null && val !== "") {
+        nodeInfo[key] = val;
+      }
+    });
+
+    // Include ALL fields under `properties` as-is (normalized), so any custom
+    // dataset-specific keys show up automatically. Nested structures are preserved.
+    if (source.properties && this.isObject(source.properties)) {
+      Object.keys(source.properties).forEach((key) => {
+        const val = normalizeValue(key, source.properties[key]);
+        if (
+          val !== undefined &&
+          val !== null &&
+          !(typeof val === "string" && val.trim() === "")
+        ) {
+          nodeInfo[key] = val;
         }
       });
     }
     if (node.linkCount) {
       nodeInfo.links = node.linkCount;
+    }
+    if (Array.isArray(source.local_addresses)) {
+      const normalized = source.local_addresses
+        .map((entry) => {
+          if (typeof entry === "string") return entry;
+          if (entry && typeof entry.address === "string") return entry.address;
+          return null;
+        })
+        .filter((v) => v);
+      if (normalized.length) {
+        nodeInfo.localAddresses = normalized;
+      }
     }
     if (node.local_addresses) {
       nodeInfo.localAddresses = node.local_addresses;
@@ -803,7 +883,10 @@ class NetJSONGraphUtil {
           container.appendChild(this.createTooltipItem("time", time));
         } else {
           container.appendChild(
-            this.createTooltipItem(`${key.replace(/_/g, " ")}`, node.properties[key]),
+            this.createTooltipItem(
+              `${key.replace(/_/g, " ")}`,
+              node.properties[key],
+            ),
           );
         }
       });
@@ -813,7 +896,10 @@ class NetJSONGraphUtil {
     }
     if (node.local_addresses) {
       container.appendChild(
-        this.createTooltipItem("Local Addresses", node.local_addresses.join("<br/>")),
+        this.createTooltipItem(
+          "Local Addresses",
+          node.local_addresses.join("<br/>"),
+        ),
       );
     }
     return container;
@@ -823,7 +909,8 @@ class NetJSONGraphUtil {
     const container = document.createElement("div");
     container.classList.add("njg-tooltip-inner");
 
-    const isGeneratedId = (val) => typeof val === "string" && val.startsWith("gjn_");
+    const isGeneratedId = (val) =>
+      typeof val === "string" && val.startsWith("gjn_");
 
     if (!isGeneratedId(link.source)) {
       container.appendChild(this.createTooltipItem("source", link.source));
@@ -869,7 +956,8 @@ class NetJSONGraphUtil {
   linkInfo(link) {
     const linkInfo = {};
 
-    const isGeneratedId = (val) => typeof val === "string" && val.startsWith("gjn_");
+    const isGeneratedId = (val) =>
+      typeof val === "string" && val.startsWith("gjn_");
 
     // Only include source/target if they are not autogenerated ids
     if (!isGeneratedId(link.source)) {
@@ -903,7 +991,8 @@ class NetJSONGraphUtil {
   }
 
   generateStyle(styleConfig, item) {
-    const styles = typeof styleConfig === "function" ? styleConfig(item) : styleConfig;
+    const styles =
+      typeof styleConfig === "function" ? styleConfig(item) : styleConfig;
     return styles;
   }
 
@@ -913,8 +1002,14 @@ class NetJSONGraphUtil {
     let nodeEmphasisConfig = {};
     let categoryFound = false;
 
-    if (node.category && config.nodeCategories && config.nodeCategories.length) {
-      const category = config.nodeCategories.find((cat) => cat.name === node.category);
+    if (
+      node.category &&
+      config.nodeCategories &&
+      config.nodeCategories.length
+    ) {
+      const category = config.nodeCategories.find(
+        (cat) => cat.name === node.category,
+      );
 
       if (category) {
         categoryFound = true;
@@ -930,7 +1025,10 @@ class NetJSONGraphUtil {
             node,
           );
           // Corrected typo: empahsis -> emphasis
-          emphasisNodeSize = this.generateStyle(category.emphasis.nodeSize || {}, node);
+          emphasisNodeSize = this.generateStyle(
+            category.emphasis.nodeSize || {},
+            node,
+          );
           nodeEmphasisConfig = {
             nodeStyle: emphasisNodeStyle,
             nodeSize: emphasisNodeSize,
@@ -999,7 +1097,9 @@ class NetJSONGraphUtil {
     let linkStyleConfig;
     let linkEmphasisConfig = {};
     if (link.category && config.linkCategories.length) {
-      const category = config.linkCategories.find((cat) => cat.name === link.category);
+      const category = config.linkCategories.find(
+        (cat) => cat.name === link.category,
+      );
 
       linkStyleConfig = this.generateStyle(category.linkStyle || {}, link);
 
@@ -1015,7 +1115,10 @@ class NetJSONGraphUtil {
         link,
       );
     } else {
-      linkStyleConfig = this.generateStyle(config.graphConfig.series.linkStyle, link);
+      linkStyleConfig = this.generateStyle(
+        config.graphConfig.series.linkStyle,
+        link,
+      );
     }
 
     return {linkStyleConfig, linkEmphasisConfig};
