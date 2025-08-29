@@ -29,16 +29,14 @@ function attachClientsOverlay(graph, options = {}) {
 
   const getClientCount = (node) => {
     if (!node) return 0;
-    const overrideCount = readCountFromField(fields.wifi, node);
-    if (overrideCount > 0) return overrideCount;
-    const directCount =
+    const count =
       (typeof node.clients === "number" && node.clients) ||
       (Array.isArray(node.clients) && node.clients.length) ||
       (node.properties &&
         (Array.isArray(node.properties.clients) &&
           node.properties.clients.length)) ||
       0;
-    return directCount;
+    return count;
   };
 
   function getSeriesViewGroup() {

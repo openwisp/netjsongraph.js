@@ -381,33 +381,80 @@ You can also customize some global properties with [`echartsOption`](https://ech
 
 It's possible to render small colored circles around each node to represent things like the amount of connected WiFi clients. The overlay counts WiFi clients as a single total (combined across any bands) and optionally displays a separate "other" category. This helper draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
 
-- Helper file: `src/js/netjsongraph.clients.js`
-- Exposed on every instance inside `onLoad` as `attachClientsOverlay(options)`.
-- Used in the example `public/example_templates/netjsongraph-wifi-clients.html` with dataset `public/assets/data/netjsongraph-network-nodes.json`.
+### Configuration
 
-Example usage:
+- **Example**: See `public/example_templates/netjsongraph-wifi-clients.html` with dataset `public/assets/data/netjsongraph-wifi-clients.json`
 
-```js
-const graph = new NetJSONGraph("../assets/data/netjsongraph-network-nodes.json", {
+#### Example Usage
+
+```javascript
+const graph = new NetJSONGraph("../assets/data/netjsongraph-wifi-clients.json", {
   render: "graph",
   onReady() {
+    // Attach the client overlay once the graph is ready
     this.attachClientsOverlay({
-      colors: {wifi: "#d35454", other: "#bdc3c7"},
-      radius: 3, // dot radius in px
-      gap: 8, // distance from node edge to first orbit
-      // fields: { wifi: 'clients_wifi', other: 'clients_other' }
+      // --- Optional configuration ---
+      radius: 5, // Radius of each client dot in pixels
+      gap: 3,    // Distance from the node's edge to the first ring of dots
+      colors: {
+        wifi: "#d35454",  // Color for primary clients
+        other: "#bdc3c7" // Color for secondary clients
+      },
+      minZoomLevel: 1 // Only show dots when zoom level is at or above this value
     });
-  },
+  }
 });
 graph.render();
 ```
 
-Expected fields per node (customizable via `options.fields`):
+For a live demo, see the [WiFi Clients Graph example](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-wifi-clients.html).
 
-- `clients_wifi` (combined across all bands)
-- `clients_other` (optional)
+#### Data Format
 
-See the example "WiFi Clients Graph" in the landing page after `yarn start`.
+The number of dots rendered around a node is determined by specific fields in your NetJSON `nodes` data. The system supports several fields with a clear order of priority.
+
+**For Primary Clients (e.g., WiFi)**:
+The number of primary dots (red by default) is determined by checking for the following fields in order:
+- `clients` (Number or Array): The recommended and most common field.
+  - If it's an Array, its length is used as the client count. This is the preferred format as it also allows the sidebar to display detailed information about each client (e.g., MAC addresses).
+  - If it's a Number, the value is used directly as the count.
+
+**For Secondary Clients**:
+- `clients_other` (Number or Array): An optional field to display a second category of clients (gray by default).
+
+**Example Node Data**:
+
+```json
+{
+  "nodes": [
+    {
+      "id": "A",
+      "label": "Node A",
+      // Shows 1 primary client dot. Displays details in the sidebar.
+      "clients": [{"mac": "d8:5d:4c:f1:aa:62"}]
+    },
+    {
+      "id": "B",
+      "label": "Node B",
+      // Shows 2 primary client dots.
+      "clients": [{"mac": "..."}, {"mac": "..."}]
+    },
+    {
+      "id": "C",
+      "label": "Node C",
+      // Shows 1 primary client dot.
+      "clients": 1
+    },
+    {
+      "id": "E",
+      "label": "Node E",
+      // Shows 3 primary client dots because `clients_wifi` is the override.
+      "clients_wifi": 3,
+      "clients": [] // This field is ignored for the overlay
+    }
+  ]
+}
+```
 
 ### GeoJSON handling
 
