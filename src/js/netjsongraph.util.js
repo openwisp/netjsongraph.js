@@ -734,20 +734,14 @@ class NetJSONGraphUtil {
     // Compute unified clients count for sidebar display
     const computeClientCount = (n) => {
       if (!n) return 0;
-      if (typeof n.clients_count === "number") return n.clients_count;
-      if (Array.isArray(n.clients)) return n.clients.length;
-      if (n.properties) {
-        if (typeof n.properties.clients_count === "number") {
-          return n.properties.clients_count;
-        }
-        if (Array.isArray(n.properties.clients)) {
-          return n.properties.clients.length;
-        }
-        if (typeof n.properties.clients_wifi === "number") {
-          return n.properties.clients_wifi;
-        }
+      // Check for 'clients' array at the root level
+      if (Array.isArray(n.clients)) {
+        return n.clients.length;
       }
-      if (typeof n.clients_wifi === "number") return n.clients_wifi;
+      // Check for 'clients' array within the 'properties' object
+      if (n.properties && Array.isArray(n.properties.clients)) {
+        return n.properties.clients.length;
+      }
       return 0;
     };
 
@@ -755,22 +749,9 @@ class NetJSONGraphUtil {
     const hasClientsField = Array.isArray(node.clients);
     const hasPropsClientsField =
       node.properties && Array.isArray(node.properties.clients);
-    const hasClientsCountField =
-      Object.prototype.hasOwnProperty.call(node, "clients_count") ||
-      (node.properties &&
-        Object.prototype.hasOwnProperty.call(node.properties, "clients_count"));
-    const hasClientsWifiField =
-      Object.prototype.hasOwnProperty.call(node, "clients_wifi") ||
-      (node.properties &&
-        Object.prototype.hasOwnProperty.call(node.properties, "clients_wifi"));
 
-    // Only include clients info when any client-related field exists on the node
-    if (
-      hasClientsField ||
-      hasPropsClientsField ||
-      hasClientsCountField ||
-      hasClientsWifiField
-    ) {
+    // Only include clients info if a 'clients' array exists on the node
+    if (hasClientsField || hasPropsClientsField) {
       nodeInfo.clients_count = unifiedClientsCount;
       if (hasClientsField) {
         nodeInfo.clients = node.clients;

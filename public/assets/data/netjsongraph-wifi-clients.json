@@ -19,12 +19,19 @@
     {
       "id": "D",
       "label": "Node D",
-      "clients": 0
+      "clients": 0,
+      "clients_count": 10
+    },
+    {
+      "id": "E",
+      "label": "Node E",
+      "clients_wifi": 3
     }
   ],
   "links": [
     {"source": "A", "target": "B"},
     {"source": "B", "target": "C"},
-    {"source": "C", "target": "D"}
+    {"source": "C", "target": "D"},
+    {"source": "D", "target": "E"}
   ]
 }
