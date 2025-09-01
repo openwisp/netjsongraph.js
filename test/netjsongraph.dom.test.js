@@ -270,7 +270,8 @@ describe("Test netjsongraph gui", () => {
 
     graph.gui.sideBar = graph.gui.createSideBar();
     graph.gui.nodeLinkInfoContainer = graph.gui.createNodeLinkInfoContainer();
-    graph.gui.getNodeLinkInfo("node", nodeData);
+    const nodeInfo = graph.utils.nodeInfo(nodeData);
+    graph.gui.getNodeLinkInfo("node", nodeInfo);
 
     const infoContainer = document.querySelector(".njg-infoContainer");
     expect(infoContainer.innerHTML).toContain("Clients");
@@ -287,7 +288,8 @@ describe("Test netjsongraph gui", () => {
     };
     graph.gui.sideBar = graph.gui.createSideBar();
     graph.gui.nodeLinkInfoContainer = graph.gui.createNodeLinkInfoContainer();
-    graph.gui.getNodeLinkInfo("node", nodeData);
+    const nodeInfo = graph.utils.nodeInfo(nodeData);
+    graph.gui.getNodeLinkInfo("node", nodeInfo);
     const infoContainer = document.querySelector(".njg-infoContainer");
     expect(infoContainer.innerHTML).not.toContain("Clients</span><span class=\"njg-valueLabel\">0");
     // Empty array formatting
