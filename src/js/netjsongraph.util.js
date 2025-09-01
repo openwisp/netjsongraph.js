@@ -748,7 +748,9 @@ class NetJSONGraphUtil {
       clientsTotal = node.properties.clients;
     }
 
-    nodeInfo.clients = clientsTotal;
+    if (clientsTotal > 0) {
+      nodeInfo.clients = clientsTotal;
+    }
     if (clientsArray && clientsArray.length) {
       clientsArray.forEach((c, idx) => {
         nodeInfo[`clients [${idx + 1}]`] = c;
