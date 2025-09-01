@@ -388,21 +388,24 @@ It's possible to render small colored circles around each node to represent the 
 #### Example Usage
 
 ```javascript
-const graph = new NetJSONGraph("../assets/data/netjsongraph-wifi-clients.json", {
-  render: "graph",
-  onReady() {
-    // Attach the client overlay once the graph is ready
-    this.attachClientsOverlay({
-      // --- Optional configuration ---
-      radius: 5, // Radius of each client dot in pixels
-      gap: 3,    // Distance from the node's edge to the first ring of dots
-      colors: {
-        wifi: "#d35454"
-      },
-      minZoomLevel: 1 // Only show dots when zoom level is at or above this value
-    });
-  }
-});
+const graph = new NetJSONGraph(
+  "../assets/data/netjsongraph-wifi-clients.json",
+  {
+    render: "graph",
+    onReady() {
+      // Attach the client overlay once the graph is ready
+      this.attachClientsOverlay({
+        // --- Optional configuration ---
+        radius: 5, // Radius of each client dot in pixels
+        gap: 3, // Distance from the node's edge to the first ring of dots
+        colors: {
+          wifi: "#d35454",
+        },
+        minZoomLevel: 1, // Only show dots when zoom level is at or above this value
+      });
+    },
+  },
+);
 graph.render();
 ```
 
@@ -411,6 +414,7 @@ For a live demo, see the [WiFi Clients Graph example](https://openwisp.github.io
 #### Data Format
 
 The number of dots rendered around a node is determined by the `clients` field in your NetJSON `nodes` data:
+
 - `clients` (Number or Array)
   - If it's an Array, its length is used as the client count (and the sidebar lists Client [i] entries, e.g., MAC addresses).
   - If it's a Number, the value is used directly as the count.
