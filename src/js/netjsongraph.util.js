@@ -731,15 +731,28 @@ class NetJSONGraphUtil {
       nodeInfo.location = node.location;
     }
 
-    // Clients: prefer top-level `clients`; show only `clients` (no separate count)
+    // Clients: show numeric total as `clients`; if array exists, also add `clients [i]` entries
+    let clientsArray = null;
     if (Array.isArray(node.clients)) {
-      nodeInfo.clients = node.clients;
-    } else if (typeof node.clients === "number") {
-      nodeInfo.clients = node.clients;
+      clientsArray = node.clients;
     } else if (node.properties && Array.isArray(node.properties.clients)) {
-      nodeInfo.clients = node.properties.clients;
+      clientsArray = node.properties.clients;
+    }
+
+    let clientsTotal = 0;
+    if (clientsArray) {
+      clientsTotal = clientsArray.length;
+    } else if (typeof node.clients === "number") {
+      clientsTotal = node.clients;
     } else if (node.properties && typeof node.properties.clients === "number") {
-      nodeInfo.clients = node.properties.clients;
+      clientsTotal = node.properties.clients;
+    }
+
+    nodeInfo.clients = clientsTotal;
+    if (clientsArray && clientsArray.length) {
+      clientsArray.forEach((c, idx) => {
+        nodeInfo[`clients [${idx + 1}]`] = c;
+      });
     }
 
     // Helper to copy values while formatting a few known fields
@@ -763,6 +776,7 @@ class NetJSONGraphUtil {
     Object.keys(source).forEach((key) => {
       if (
         key === "properties" ||
+        key === "clients" ||
         key === "_source" ||
         key === "_generatedIdentity" ||
         key === "local_addresses" ||
@@ -780,6 +794,9 @@ class NetJSONGraphUtil {
     // dataset-specific keys show up automatically. Nested structures are preserved.
     if (source.properties && this.isObject(source.properties)) {
       Object.keys(source.properties).forEach((key) => {
+        if (key === "clients") {
+          return;
+        }
         const val = normalizeValue(key, source.properties[key]);
         if (
           val !== undefined &&
