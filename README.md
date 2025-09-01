@@ -379,7 +379,7 @@ You can also customize some global properties with [`echartsOption`](https://ech
 
 ## Circle Markers in Graph Mode
 
-It's possible to render small colored circles around each node to represent things like the amount of connected WiFi clients. The overlay counts WiFi clients as a single total (combined across any bands) and optionally displays a separate "other" category. This helper draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
+It's possible to render small colored circles around each node to represent the amount of connected WiFi clients. The overlay counts WiFi clients as a single total. This helper draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
 
 ### Configuration
 
@@ -397,8 +397,7 @@ const graph = new NetJSONGraph("../assets/data/netjsongraph-wifi-clients.json", 
       radius: 5, // Radius of each client dot in pixels
       gap: 3,    // Distance from the node's edge to the first ring of dots
       colors: {
-        wifi: "#d35454",  // Color for primary clients
-        other: "#bdc3c7" // Color for secondary clients
+        wifi: "#d35454"
       },
       minZoomLevel: 1 // Only show dots when zoom level is at or above this value
     });
@@ -411,16 +410,10 @@ For a live demo, see the [WiFi Clients Graph example](https://openwisp.github.io
 
 #### Data Format
 
-The number of dots rendered around a node is determined by specific fields in your NetJSON `nodes` data. The system supports several fields with a clear order of priority.
-
-**For Primary Clients (e.g., WiFi)**:
-The number of primary dots (red by default) is determined by checking for the following fields in order:
-- `clients` (Number or Array): The recommended and most common field.
-  - If it's an Array, its length is used as the client count. This is the preferred format as it also allows the sidebar to display detailed information about each client (e.g., MAC addresses).
+The number of dots rendered around a node is determined by the `clients` field in your NetJSON `nodes` data:
+- `clients` (Number or Array)
+  - If it's an Array, its length is used as the client count (and the sidebar lists Client [i] entries, e.g., MAC addresses).
   - If it's a Number, the value is used directly as the count.
-
-**For Secondary Clients**:
-- `clients_other` (Number or Array): An optional field to display a second category of clients (gray by default).
 
 **Example Node Data**:
 
@@ -444,13 +437,6 @@ The number of primary dots (red by default) is determined by checking for the fo
       "label": "Node C",
       // Shows 1 primary client dot.
       "clients": 1
-    },
-    {
-      "id": "E",
-      "label": "Node E",
-      // Shows 3 primary client dots because `clients_wifi` is the override.
-      "clients_wifi": 3,
-      "clients": [] // This field is ignored for the overlay
     }
   ]
 }
