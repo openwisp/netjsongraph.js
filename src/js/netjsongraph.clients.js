@@ -5,38 +5,18 @@ function attachClientsOverlay(graph, options = {}) {
   const g = echarts.graphic;
   const colors = {
     wifi: (options.colors && options.colors.wifi) || "#d35454",
-    other: (options.colors && options.colors.other) || "#bdc3c7",
   };
   const radius = options.radius || 3;
   const gap = options.gap || 8;
-  const fields = {
-    other: (options.fields && options.fields.other) || "clients_other",
-    wifi: (options.fields && options.fields.wifi) || "clients_wifi",
-  };
 
   let minZoomLevel = options.minZoomLevel || 1.5;
   let currentZoom = 1;
 
-  const readCountFromField = (fieldName, obj) => {
-    if (!fieldName || !obj) return 0;
-    const top = obj[fieldName];
-    const nested = obj.properties && obj.properties[fieldName];
-    const val = top !== undefined ? top : nested;
-    if (typeof val === "number") return val;
-    if (Array.isArray(val)) return val.length;
-    return 0;
-  };
-
   const getClientCount = (node) => {
     if (!node) return 0;
-    const count =
-      (typeof node.clients === "number" && node.clients) ||
-      (Array.isArray(node.clients) && node.clients.length) ||
-      (node.properties &&
-        (Array.isArray(node.properties.clients) &&
-          node.properties.clients.length)) ||
-      0;
-    return count;
+    if (typeof node.clients === "number") return node.clients;
+    if (Array.isArray(node.clients)) return node.clients.length;
+    return 0;
   };
 
   function getSeriesViewGroup() {
@@ -93,10 +73,9 @@ function attachClientsOverlay(graph, options = {}) {
 
     overlay.attr("invisible", false);
 
-    const placeOrbit = (centerX, centerY, counts, startDistance) => {
+    const placeOrbit = (centerX, centerY, total, startDistance, color) => {
       const a = 1.2;
       let i = 0;
-      const total = counts.reduce((s, v) => s + v.count, 0);
       if (total === 0) return;
 
       for (let orbit = 0; i < total; orbit += 1) {
@@ -105,17 +84,6 @@ function attachClientsOverlay(graph, options = {}) {
         const delta = total - i;
 
         for (let j = 0; j < Math.min(delta, n); j += 1, i += 1) {
-          // Determine which category this marker belongs to based on cumulative counts
-          let color = colors.other;
-          let cum = 0;
-          for (let k = 0; k < counts.length; k += 1) {
-            cum += counts[k].count;
-            if (i < cum) {
-              color = counts[k].color;
-              break;
-            }
-          }
-
           const angle = ((2 * Math.PI) / n) * j;
           const x = centerX + distance * Math.cos(angle);
           const y = centerY + distance * Math.sin(angle);
@@ -140,20 +108,11 @@ function attachClientsOverlay(graph, options = {}) {
         const x = Array.isArray(layout) ? layout[0] : layout.x;
         const y = Array.isArray(layout) ? layout[1] : layout.y;
         const node = data.getRawDataItem(idx) || {};
-        const other = readCountFromField(fields.other, node);
 
         const startDistance = nodeRadius + radius + Math.max(0, gap);
         const wifi = getClientCount(node);
 
-        placeOrbit(
-          x,
-          y,
-          [
-            {count: wifi, color: colors.wifi},
-            {count: other, color: colors.other},
-          ],
-          startDistance,
-        );
+        placeOrbit(x, y, wifi, startDistance, colors.wifi);
       }
     }
   }

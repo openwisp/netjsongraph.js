@@ -731,33 +731,15 @@ class NetJSONGraphUtil {
       nodeInfo.location = node.location;
     }
 
-    // Compute unified clients count for sidebar display
-    const computeClientCount = (n) => {
-      if (!n) return 0;
-      // Check for 'clients' array at the root level
-      if (Array.isArray(n.clients)) {
-        return n.clients.length;
-      }
-      // Check for 'clients' array within the 'properties' object
-      if (n.properties && Array.isArray(n.properties.clients)) {
-        return n.properties.clients.length;
-      }
-      return 0;
-    };
-
-    const unifiedClientsCount = computeClientCount(node);
-    const hasClientsField = Array.isArray(node.clients);
-    const hasPropsClientsField =
-      node.properties && Array.isArray(node.properties.clients);
-
-    // Only include clients info if a 'clients' array exists on the node
-    if (hasClientsField || hasPropsClientsField) {
-      nodeInfo.clients_count = unifiedClientsCount;
-      if (hasClientsField) {
-        nodeInfo.clients = node.clients;
-      } else if (hasPropsClientsField) {
-        nodeInfo.clients = node.properties.clients;
-      }
+    // Clients: prefer top-level `clients`; show only `clients` (no separate count)
+    if (Array.isArray(node.clients)) {
+      nodeInfo.clients = node.clients;
+    } else if (typeof node.clients === "number") {
+      nodeInfo.clients = node.clients;
+    } else if (node.properties && Array.isArray(node.properties.clients)) {
+      nodeInfo.clients = node.properties.clients;
+    } else if (node.properties && typeof node.properties.clients === "number") {
+      nodeInfo.clients = node.properties.clients;
     }
 
     // Helper to copy values while formatting a few known fields
