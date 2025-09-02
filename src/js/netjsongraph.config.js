@@ -42,9 +42,6 @@ const NetJSONGraphDefaultConfig = {
   clusterSeparation: 20,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 13,
-  // Graph mode: labels are controlled by ECharts series zoom (continuous scale).
-  // When set to a number, labels are shown only when series.zoom >= this value.
-  // To disable thresholding entirely, set this to 0.
   showGraphLabelsAtZoom: 1,
   crs: L.CRS.EPSG3857,
   echartsOption: {
