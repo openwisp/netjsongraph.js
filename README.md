@@ -891,6 +891,9 @@ Similiar to the first method, but easier.
 The demo shows the clustering of nodes.
 [ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
 
+The demo shows how to use the wifi-clients functionality to display connected clients around nodes.
+[WiFi Clients Graph demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-wifi-clients.html)
+
 ### Upgrading from 0.1.x versions to 0.2.x
 
 We advise all users of netjsongraph.js who are using the 0.1.x version to
