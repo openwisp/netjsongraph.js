@@ -2,7 +2,7 @@
 /* global echarts */
 /**
  * Attaches a visual overlay to display WiFi clients as colored dots around nodes.
- * 
+ *
  * The overlay renders small circles in expanding orbital rings around each node,
  * where the number of circles represents the count of connected WiFi clients.
  * The overlay integrates with ECharts' rendering system and follows pan/zoom/layout
@@ -96,10 +96,10 @@ function attachClientsOverlay(graph, options = {}) {
 
     /**
      * Draw client dots in expanding orbital rings around a node.
-     * 
+     *
      * Uses a spiral algorithm to place dots evenly distributed in concentric
      * circles, with ring capacity increasing based on circumference.
-     * 
+     *
      */
     const placeOrbit = (centerX, centerY, total, startDistance, color) => {
       const a = 1.2;

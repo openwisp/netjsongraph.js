@@ -36,8 +36,7 @@ class NetJSONGraphGUI {
       sideBar.classList.toggle("hidden");
       const metaInfo = document.querySelector(".njg-metaInfoContainer");
       if (
-        (this.self.config.showMetaOnNarrowScreens ||
-          this.self.el.clientWidth > 850) &&
+        (this.self.config.showMetaOnNarrowScreens || this.self.el.clientWidth > 850) &&
         metaInfo
       ) {
         metaInfo.style.display = "flex";
@@ -48,10 +47,7 @@ class NetJSONGraphGUI {
   }
 
   hideInfoOnNarrowScreen() {
-    if (
-      !this.self.config.showMetaOnNarrowScreens &&
-      this.self.el.clientWidth < 850
-    ) {
+    if (!this.self.config.showMetaOnNarrowScreens && this.self.el.clientWidth < 850) {
       this.metaInfoContainer.style.display = "none";
     }
 
@@ -102,11 +98,8 @@ class NetJSONGraphGUI {
   }
 
   getNodeLinkInfo(type, data) {
-    const nodeLinkInfoChildren =
-      document.querySelectorAll(".njg-infoContainer");
-    const headerInfoChildren = document.querySelectorAll(
-      ".njg-headerContainer",
-    );
+    const nodeLinkInfoChildren = document.querySelectorAll(".njg-infoContainer");
+    const headerInfoChildren = document.querySelectorAll(".njg-headerContainer");
     for (let i = 0; i < nodeLinkInfoChildren.length; i += 1) {
       nodeLinkInfoChildren[i].remove();
     }
@@ -130,8 +123,7 @@ class NetJSONGraphGUI {
     // Key label normalization to improve readability
     const formatKeyLabel = (k) => {
       if (k === "clients") return "Clients";
-      if (/^clients\s*\[\d+\]$/i.test(k))
-        return k.replace(/^clients/i, "Client");
+      if (/^clients\s*\[\d+\]$/i.test(k)) return k.replace(/^clients/i, "Client");
       if (k === "localAddresses") return "Local Addresses";
       return k.replace(/_/g, " ");
     };
@@ -177,9 +169,7 @@ class NetJSONGraphGUI {
           v.setAttribute("class", "njg-valueLabel");
           k.innerHTML = formatKeyLabel(key);
           v.innerHTML = val
-            .map((x) =>
-              typeof x === "string" ? x.replace(/\n/g, "<br/>") : String(x),
-            )
+            .map((x) => (typeof x === "string" ? x.replace(/\n/g, "<br/>") : String(x)))
             .join("<br/>");
           item.appendChild(k);
           item.appendChild(v);
@@ -255,9 +245,7 @@ class NetJSONGraphGUI {
       parent.appendChild(infoItems);
     };
 
-    Object.keys(data).forEach((key) =>
-      renderEntry(infoContainer, key, data[key], 0),
-    );
+    Object.keys(data).forEach((key) => renderEntry(infoContainer, key, data[key], 0));
     headerContainer.appendChild(header);
     headerContainer.appendChild(closeButton);
     this.nodeLinkInfoContainer.appendChild(headerContainer);

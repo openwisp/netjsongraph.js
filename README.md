@@ -388,24 +388,21 @@ It's possible to render small colored circles around each node to represent the 
 #### Example Usage
 
 ```javascript
-const graph = new NetJSONGraph(
-  "../assets/data/netjsongraph-wifi-clients.json",
-  {
-    render: "graph",
-    onReady() {
-      // Attach the client overlay once the graph is ready
-      this.attachClientsOverlay({
-        // --- Optional configuration ---
-        radius: 5, // Radius of each client dot in pixels
-        gap: 3, // Distance from the node's edge to the first ring of dots
-        colors: {
-          wifi: "#d35454",
-        },
-        minZoomLevel: 1, // Only show dots when zoom level is at or above this value
-      });
-    },
+const graph = new NetJSONGraph("../assets/data/netjsongraph-wifi-clients.json", {
+  render: "graph",
+  onReady() {
+    // Attach the client overlay once the graph is ready
+    this.attachClientsOverlay({
+      // --- Optional configuration ---
+      radius: 5, // Radius of each client dot in pixels
+      gap: 3, // Distance from the node's edge to the first ring of dots
+      colors: {
+        wifi: "#d35454",
+      },
+      minZoomLevel: 1, // Only show dots when zoom level is at or above this value
+    });
   },
-);
+});
 graph.render();
 ```
 
