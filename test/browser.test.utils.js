@@ -35,6 +35,7 @@ export const urls = {
   geographicMap: `${url}/examples/netjsonmap.html`,
   indoorMap: `${url}/examples/netjsonmap-indoormap.html`,
   customAttributes: `${url}/examples/netjsongraph-elementsLegend.html`,
+  wifiClients: `${url}/examples/netjsongraph-wifi-clients.html`,
 };
 
 export const getElementByCss = async (driver, css, waitTime = 1000) => {

@@ -377,6 +377,72 @@ For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletj
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
 
+## Circle Markers in Graph Mode
+
+It's possible to render small colored circles around each node to represent the amount of connected WiFi clients. The overlay counts WiFi clients as a single total. This helper draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
+
+### Configuration
+
+- **Example**: See `public/example_templates/netjsongraph-wifi-clients.html` with dataset `public/assets/data/netjsongraph-wifi-clients.json`
+
+#### Example Usage
+
+```javascript
+const graph = new NetJSONGraph("../assets/data/netjsongraph-wifi-clients.json", {
+  render: "graph",
+  onReady() {
+    // Attach the client overlay once the graph is ready
+    this.attachClientsOverlay({
+      // --- Optional configuration ---
+      radius: 5, // Radius of each client dot in pixels
+      gap: 3, // Distance from the node's edge to the first ring of dots
+      colors: {
+        wifi: "#d35454",
+      },
+      minZoomLevel: 1, // Only show dots when zoom level is at or above this value
+    });
+  },
+});
+graph.render();
+```
+
+For a live demo, see the [WiFi Clients Graph example](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-wifi-clients.html).
+
+#### Data Format
+
+The number of dots rendered around a node is determined by the `clients` field in your NetJSON `nodes` data:
+
+- `clients` (Number or Array)
+  - If it's an Array, its length is used as the client count (and the sidebar lists Client [i] entries, e.g., MAC addresses).
+  - If it's a Number, the value is used directly as the count.
+
+**Example Node Data**:
+
+```javascript
+{
+  "nodes": [
+    {
+      "id": "A",
+      "label": "Node A",
+      // Shows 1 primary client dot. Displays details in the sidebar.
+      "clients": [{"mac": "d8:5d:4c:f1:aa:62"}]
+    },
+    {
+      "id": "B",
+      "label": "Node B",
+      // Shows 2 primary client dots.
+      "clients": [{"mac": "..."}, {"mac": "..."}]
+    },
+    {
+      "id": "C",
+      "label": "Node C",
+      // Shows 1 primary client dot.
+      "clients": 1
+    }
+  ]
+}
+```
+
 ### GeoJSON handling
 
 netjsongraph.js will now **always** convert GeoJSON input into an internal
@@ -821,6 +887,9 @@ Similiar to the first method, but easier.
 
 The demo shows the clustering of nodes.
 [ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
+
+The demo shows how to display connected WiFi clients around nodes.
+[WiFi Clients Graph demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-wifi-clients.html)
 
 ### Upgrading from 0.1.x versions to 0.2.x
 
