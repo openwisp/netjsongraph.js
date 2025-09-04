@@ -27,6 +27,7 @@ class NetJSONGraph {
    * @return {object}     this.config
    */
   setConfig(config) {
+    // deepMergeObj is overriding the crs from the NetJSONGraphDefaultConfig after deep copy.
     this.utils.deepMergeObj(this.config, config);
     if (!this.el) {
       if (!this.config.el) {
