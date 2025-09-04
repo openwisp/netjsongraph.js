@@ -1096,6 +1096,94 @@ class NetJSONGraphUtil {
       },
     };
   }
+
+  parseUrlBounds() {
+    const params = new URLSearchParams(window.location.search);
+    const getFloat = (k) => {
+      const v = params.get(k);
+      return v == null ? null : parseFloat(v);
+    };
+    const swLat = getFloat('swLat');
+    const swLng = getFloat('swLng');
+    const neLat = getFloat('neLat');
+    const neLng = getFloat('neLng');
+    return {
+      swLat, swLng, neLat, neLng,
+      hasBounds:
+        swLat !== null &&
+        swLng !== null &&
+        neLat !== null &&
+        neLng !== null,
+    };
+  }
+
+  writeBoundsToUrl(self, { precision = 6 } = {}) {
+    if (!self || !self.leaflet) return;
+    try {
+      const b = self.leaflet.getBounds();
+      if (!b || !b.isValid()) return;
+
+      const sw = b.getSouthWest();
+      const ne = b.getNorthEast();
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+
+      params.set('swLat', (+sw.lat).toFixed(precision));
+      params.set('swLng', (+sw.lng).toFixed(precision));
+      params.set('neLat', (+ne.lat).toFixed(precision));
+      params.set('neLng', (+ne.lng).toFixed(precision));
+
+      url.search = params.toString();
+      window.history.replaceState({}, '', url.toString());
+    } catch (err) {
+      console.warn('writeBoundsToUrl error', err);
+    }
+  }
+
+  restoreBoundsFromUrl(self) {
+    if (!self || !self.leaflet) return;
+    try {
+      const b = this.parseUrlBounds();
+      if (!b.hasBounds) return;
+      this._suspendUrlWrites = true;
+      self.leaflet.whenReady(() => {
+        if (typeof self.leaflet.invalidateSize === 'function') {
+          self.leaflet.invalidateSize();
+        }
+        self.leaflet.fitBounds(
+          L.latLngBounds([b.swLat, b.swLng], [b.neLat, b.neLng]),
+          { animate: false },
+        );
+        setTimeout(() => {
+          this._suspendUrlWrites = false;
+        }, 50);
+      });
+    } catch (e) {
+      console.warn('restoreBoundsFromUrl failed', e);
+    }
+  }
+
+  enableBoundsUrlSync(self, { debounceMs = 300, precision = 6 } = {}) {
+    if (!self || !self.leaflet) return () => {};
+    let timer = null;
+    const write = () => {
+      if (this._suspendUrlWrites) return;
+      this.writeBoundsToUrl(self, { precision });
+    };
+    const debounced = () => {
+      clearTimeout(timer);
+      timer = setTimeout(write, debounceMs);
+    };
+
+    self.leaflet.on('moveend', debounced);
+    self.leaflet.on('zoomend', debounced);
+
+    return () => {
+      self.leaflet.off('moveend', debounced);
+      self.leaflet.off('zoomend', debounced);
+      clearTimeout(timer);
+    };
+  }
 }
 
 export default NetJSONGraphUtil;
