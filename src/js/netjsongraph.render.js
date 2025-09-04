@@ -136,7 +136,15 @@ class NetJSONGraphRender {
         itemStyle: nodeEmphasisConfig.nodeStyle,
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
-      nodeResult.name = typeof node.label === "string" ? node.label : "";
+      let resolvedName = "";
+      if (typeof node.label === "string") {
+        resolvedName = node.label;
+      } else if (typeof node.name === "string") {
+        resolvedName = node.name;
+      } else if (node.id !== undefined && node.id !== null) {
+        resolvedName = String(node.id);
+      }
+      nodeResult.name = resolvedName;
 
       return nodeResult;
     });
@@ -154,8 +162,38 @@ class NetJSONGraphRender {
       return linkResult;
     });
 
+    // Clone label config to avoid mutating defaults
+    const baseGraphSeries = {...configs.graphConfig.series};
+    const baseGraphLabel = {...(baseGraphSeries.label || {})};
+    if (typeof self.config.showGraphLabelsAtZoom === "number") {
+      const threshold = self.config.showGraphLabelsAtZoom;
+      // Use a closure over the ECharts instance to read zoom when formatting
+      const getCurrentGraphZoom = () => {
+        try {
+          const option = self.echarts.getOption();
+          const series = Array.isArray(option.series) ? option.series : [];
+          const graphSeries = series.find((s) => s && s.id === "graph-series");
+          if (graphSeries && typeof graphSeries.zoom === "number") {
+            return graphSeries.zoom;
+          }
+        } catch (e) {
+          // ignore
+        }
+        return 1;
+      };
+      baseGraphLabel.formatter = (params) => {
+        const zoom = getCurrentGraphZoom();
+        if (zoom < threshold) {
+          return "";
+        }
+        return (params && params.data && params.data.name) || "";
+      };
+    }
+    baseGraphSeries.label = baseGraphLabel;
     const series = [
-      Object.assign(configs.graphConfig.series, {
+      {
+        ...baseGraphSeries,
+        id: "graph-series",
         type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
           configs.graphConfig.series.type === "graphGL"
@@ -163,7 +201,7 @@ class NetJSONGraphRender {
             : configs.graphConfig.series.layout,
         nodes,
         links,
-      }),
+      },
     ];
     const legend = categories.length
       ? {
@@ -225,8 +263,16 @@ class NetJSONGraphRender {
         } else {
           const {nodeEmphasisConfig} = self.utils.getNodeStyle(node, configs, "map");
 
+          let nodeName = "";
+          if (typeof node.label === "string") {
+            nodeName = node.label;
+          } else if (typeof node.name === "string") {
+            nodeName = node.name;
+          } else if (node.id !== undefined && node.id !== null) {
+            nodeName = String(node.id);
+          }
           nodesData.push({
-            name: typeof node.label === "string" ? node.label : "",
+            name: nodeName,
             value: [location.lng, location.lat],
             emphasis: {
               itemStyle: nodeEmphasisConfig.nodeStyle,
@@ -270,6 +316,7 @@ class NetJSONGraphRender {
 
     const series = [
       {
+        id: "map-nodes",
         type:
           configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
@@ -337,6 +384,7 @@ class NetJSONGraphRender {
         emphasis: configs.mapOptions.nodeConfig.emphasis,
       },
       Object.assign(configs.mapOptions.linkConfig, {
+        id: "map-links",
         type: "lines",
         coordinateSystem: "leaflet",
         data: linesData,
@@ -368,6 +416,11 @@ class NetJSONGraphRender {
     window.onresize = () => {
       self.echarts.resize();
     };
+
+    // Re-evaluate label formatter during roam without changing zoom/center
+    self.echarts.on("graphRoam", () => {
+      self.echarts.resize();
+    });
 
     self.event.emit("onLoad");
     self.event.emit("onReady");
@@ -465,6 +518,7 @@ class NetJSONGraphRender {
       self.echarts.setOption({
         series: [
           {
+            id: "map-nodes",
             label: {
               show: false,
             },
@@ -484,6 +538,7 @@ class NetJSONGraphRender {
       self.echarts.setOption({
         series: [
           {
+            id: "map-nodes",
             label: {
               show: showLabel,
             },
