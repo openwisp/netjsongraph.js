@@ -13,6 +13,8 @@ class NetJSONGraph {
   constructor(JSONParam) {
     this.utils = new NetJSONGraphUpdate();
     this.config = cloneDeep(NetJSONGraphDefaultConfig);
+    // deepMergeObj is overriding the crs from the NetJSONGraphDefaultConfig after deep copy.
+    this.config.crs = NetJSONGraphDefaultConfig.crs;
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
   }
 
@@ -27,6 +29,7 @@ class NetJSONGraph {
    * @return {object}     this.config
    */
   setConfig(config) {
+    
     this.utils.deepMergeObj(this.config, config);
     if (!this.el) {
       if (!this.config.el) {
