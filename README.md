@@ -11,7 +11,7 @@ Build powerful and interoperable visualizations without losing flexibility!
 
 ## Example Demos
 
-Explore the live demos. Click a preview to open the example. GIFs are recorded from the hosted pages and stored in `docs/gifs`.
+Explore the demos below. Click a preview to open.
 
 ### Basic usage
 
@@ -73,12 +73,6 @@ Use a 2D floorplan (Leaflet CRS.Simple) to place and connect indoor nodes.
 
 Use draw/measure and other Leaflet plugins in map mode.
 
-### GraphGL render for big data
-
-[![GraphGL render for big data](docs/gifs/netjsongraph-graphGL.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-graphGL.html)
-
-Render very large graphs using WebGL and forceAtlas2 for higher performance.
-
 ### Custom attributes
 
 [![Custom attributes](docs/gifs/netjsongraph-elementsLegend.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)
@@ -108,12 +102,6 @@ Append new nodes/links on the fly without a full reload.
 [![Multiple tiles render](docs/gifs/netjsonmap-multipleTiles.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-multipleTiles.html)
 
 Switch between different tile providers and styles.
-
-### Geographic map animated links
-
-[![Geographic map animated links](docs/gifs/netjsonmap-animation.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-animation.html)
-
-Animate traffic/path flows across the map.
 
 ### Append data using arrays
 
