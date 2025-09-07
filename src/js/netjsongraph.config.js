@@ -284,6 +284,10 @@ const NetJSONGraphDefaultConfig = {
     },
   ],
   linkCategories: [],
+  hashParams: {
+    show: false,
+    type: null,
+  },
 
   /**
    * @function
