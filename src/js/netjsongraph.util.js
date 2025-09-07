@@ -1216,92 +1216,67 @@ class NetJSONGraphUtil {
     };
   }
 
-  parseUrlBounds() {
-    const params = new URLSearchParams(window.location.search);
-    const getFloat = (k) => {
-      const v = params.get(k);
-      return v == null ? null : parseFloat(v);
-    };
-    const swLat = getFloat('swLat');
-    const swLng = getFloat('swLng');
-    const neLat = getFloat('neLat');
-    const neLng = getFloat('neLng');
-    return {
-      swLat, swLng, neLat, neLng,
-      hasBounds:
-        swLat !== null &&
-        swLng !== null &&
-        neLat !== null &&
-        neLng !== null,
-    };
+  /**
+   * Current implementation of hash params covers three scenarios:
+   * 1. For graph visualizations (e.g. network topology), triggers only a click event on the node.
+   * 2. For geographic maps, first stores the clicked node separately in a diffrent key selectedNode
+   * to avoid extra traversal, then sets the map view to the node's [lat, lng] as center and that zoom level.
+   * 3. For indoor maps, only triggers the click event without altering the map view. Any zoom applied via
+   * parameters is overridden because setting the image overlay redefines the map’s center and zoom level.
+   */
+  parseHashParams() {
+    const raw = window.location.hash.replace(/^#/, "");
+    return new URLSearchParams(raw);
   }
 
-  writeBoundsToUrl(self, { precision = 6 } = {}) {
-    if (!self || !self.leaflet) return;
-    try {
-      const b = self.leaflet.getBounds();
-      if (!b || !b.isValid()) return;
+  setHashParams(self, params) {
+    if (!self.config.hashParams.show) return;
+    const {type} = self.config.hashParams;
+      let nodeId;
+      let zoom = null;
+    if (params.componentSubType === "graph") {
+      nodeId = params.data.id;
+    }
+    // scatter, effectScatter signifies the instance of leaflet map
+    // graph signifies the instance of echarts graph
+    if (["scatter", "effectScatter"].includes(params.componentSubType)) {
+      nodeId = params.data.node.id;
+      zoom = self.leaflet.getZoom();
+    }
+    const hashParams = new URLSearchParams();
+    hashParams.set("type", type);
+    hashParams.set("nodeId", nodeId);
+    // Only adding zoom for geoMap as graph does not have much zoom levels and for indoor
+    // map zoom is redefined after after adding the image overlay in indoor map
+    if (zoom != null && type === "geoMap") hashParams.set("zoom", zoom);
+    window.location.hash = hashParams.toString();
+  }
 
-      const sw = b.getSouthWest();
-      const ne = b.getNorthEast();
-      const url = new URL(window.location.href);
-      const params = url.searchParams;
-
-      params.set('swLat', (+sw.lat).toFixed(precision));
-      params.set('swLng', (+sw.lng).toFixed(precision));
-      params.set('neLat', (+ne.lat).toFixed(precision));
-      params.set('neLng', (+ne.lng).toFixed(precision));
-
-      url.search = params.toString();
-      window.history.replaceState({}, '', url.toString());
-    } catch (err) {
-      console.warn('writeBoundsToUrl error', err);
+  // Getting the node from params and saving it as diffrent key so that it
+  // can be retrived afterwadrs without looping over the data.
+  getSelectedNodeFromHashParams(self, params, node) {
+    if (!self.config.hashParams.show) return;
+    const nodeId = params.get("nodeId");
+      const type = params.get("type");
+      const zoom = params.get("zoom");
+    if (nodeId === node.id) {
+      self.data.selectedNode = node;
+      self.data.selectedNode.type = type;
+      if (zoom != null) self.data.selectedNode.zoom = Number(zoom);
     }
   }
 
-  restoreBoundsFromUrl(self) {
-    if (!self || !self.leaflet) return;
-    try {
-      const b = this.parseUrlBounds();
-      if (!b.hasBounds) return;
-      this._suspendUrlWrites = true;
-      self.leaflet.whenReady(() => {
-        if (typeof self.leaflet.invalidateSize === 'function') {
-          self.leaflet.invalidateSize();
-        }
-        self.leaflet.fitBounds(
-          L.latLngBounds([b.swLat, b.swLng], [b.neLat, b.neLng]),
-          { animate: false },
-        );
-        setTimeout(() => {
-          this._suspendUrlWrites = false;
-        }, 50);
-      });
-    } catch (e) {
-      console.warn('restoreBoundsFromUrl failed', e);
+  applyHashState(self) {
+    console.log(self);
+    if (!self.config.hashParams.show) return;
+    const node = self.data.selectedNode;
+    if (!node) return;
+    const nodeType = self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
+    const {location, zoom} = node;
+    if (["scatter", "effectScatter"].includes(nodeType) && zoom != null) {
+      self.leaflet.setView([location.lat, location.lng], zoom);
     }
-  }
-
-  enableBoundsUrlSync(self, { debounceMs = 300, precision = 6 } = {}) {
-    if (!self || !self.leaflet) return () => {};
-    let timer = null;
-    const write = () => {
-      if (this._suspendUrlWrites) return;
-      this.writeBoundsToUrl(self, { precision });
-    };
-    const debounced = () => {
-      clearTimeout(timer);
-      timer = setTimeout(write, debounceMs);
-    };
-
-    self.leaflet.on('moveend', debounced);
-    self.leaflet.on('zoomend', debounced);
-
-    return () => {
-      self.leaflet.off('moveend', debounced);
-      self.leaflet.off('zoomend', debounced);
-      clearTimeout(timer);
-    };
+    self.config.onClickElement.call(self, "node", node);
   }
 }
 

@@ -47,6 +47,10 @@
           render: "map",
           crs: L.CRS.Simple,
           // set map initial state.
+          hashParams: {
+            show: true,
+            type: "indoorMap"
+          },
           mapOptions: {
             // disable leaflet worldCopyJump on the indoor map
             // because it's incompatible (raises a JS error) and not needed
