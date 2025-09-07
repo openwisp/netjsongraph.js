@@ -93,6 +93,7 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
+        self.utils.setHashParams(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -127,6 +128,7 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
+    const params = self.utils.parseHashParams();
     const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
@@ -142,6 +144,7 @@ class NetJSONGraphRender {
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
       nodeResult._source = JSON.parse(JSON.stringify(node));
+      self.utils.getSelectedNodeFromHashParams(self, params, node);
 
       return nodeResult;
     });
@@ -201,7 +204,7 @@ class NetJSONGraphRender {
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
     let nodesData = [];
-
+    const hashparams = self.utils.parseHashParams();
     nodes.forEach((node) => {
       if (node.properties) {
         // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
@@ -242,6 +245,7 @@ class NetJSONGraphRender {
           });
         }
       }
+      self.utils.getSelectedNodeFromHashParams(self, hashparams, node);
     });
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
@@ -370,12 +374,11 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-
     window.onresize = () => {
       self.echarts.resize();
     };
-
     self.event.emit("onLoad");
+    self.event.emit("applyHashState");
     self.event.emit("onReady");
     self.event.emit("renderArray");
   }
@@ -652,8 +655,8 @@ class NetJSONGraphRender {
         }
       });
     }
-
     self.event.emit("onLoad");
+    self.event.emit("applyHashState");
     self.event.emit("onReady");
     self.event.emit("renderArray");
   }

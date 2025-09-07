@@ -67,6 +67,10 @@
       // `graph` render defaultly.
       // We can add data gradually by array.
       const graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
+        hashParams: {
+          show: true,
+          type: "basicUsage",
+        },
         linkCategories: [
           {
             name: "down",
