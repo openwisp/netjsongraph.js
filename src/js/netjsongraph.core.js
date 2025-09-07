@@ -1,5 +1,3 @@
-import {cloneDeep} from "lodash";
-
 import NetJSONGraphDefaultConfig from "./netjsongraph.config";
 import NetJSONGraphUpdate from "./netjsongraph.update";
 
@@ -12,7 +10,7 @@ class NetJSONGraph {
    */
   constructor(JSONParam) {
     this.utils = new NetJSONGraphUpdate();
-    this.config = cloneDeep(NetJSONGraphDefaultConfig);
+    this.config = this.utils.deepCopy(NetJSONGraphDefaultConfig);
     // deepMergeObj is overriding the crs from the NetJSONGraphDefaultConfig after deep copy.
     this.config.crs = NetJSONGraphDefaultConfig.crs;
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
