@@ -1277,7 +1277,7 @@ describe("graph label visibility and fallbacks", () => {
         })),
       },
       echarts: {
-        getOption: jest.fn(() => ({series: [{id: "graph-series", zoom: 1}]})),
+        getOption: jest.fn(() => ({series: [{id: "network-graph", zoom: 1}]})),
       },
     };
 
@@ -1289,7 +1289,7 @@ describe("graph label visibility and fallbacks", () => {
       mockSelf,
     );
 
-    expect(option.series[0].id).toBe("graph-series");
+    expect(option.series[0].id).toBe("network-graph");
     const names = option.series[0].nodes.map((n) => n.name);
     expect(names).toEqual(["L", "N", "n3"]);
   });
@@ -1314,8 +1314,8 @@ describe("graph label visibility and fallbacks", () => {
       echarts: {
         getOption: jest
           .fn()
-          .mockReturnValueOnce({series: [{id: "graph-series", zoom: 1}]})
-          .mockReturnValue({series: [{id: "graph-series", zoom: 3}]}),
+          .mockReturnValueOnce({series: [{id: "network-graph", zoom: 1}]})
+          .mockReturnValue({series: [{id: "network-graph", zoom: 3}]}),
       },
     };
 
@@ -1331,9 +1331,10 @@ describe("graph label visibility and fallbacks", () => {
     expect(fmt({data: {name: "Node1"}})).toBe("Node1");
   });
 
-  test("graphRender registers roam handler that triggers resize", () => {
+  test("graphRender registers roam handler (conditional) that triggers resize on zoom", () => {
     const render = new NetJSONGraphRender();
     const handlers = {};
+    let zoom = 0.5;
     const mockSelf = {
       utils: {
         generateGraphOption: jest.fn(() => ({series: []})),
@@ -1344,14 +1345,17 @@ describe("graph label visibility and fallbacks", () => {
           handlers[evt] = cb;
         }),
         resize: jest.fn(),
+        getOption: jest.fn(() => ({series: [{id: "network-graph", zoom}]})),
       },
       event: {emit: jest.fn()},
-      config: {},
+      config: {showGraphLabelsAtZoom: 1},
     };
 
     render.graphRender({nodes: [], links: []}, mockSelf);
     expect(typeof handlers.graphRoam).toBe("function");
-    handlers.graphRoam();
+    // cross threshold upwards
+    zoom = 1.2;
+    handlers.graphRoam({zoom});
     expect(mockSelf.echarts.resize).toHaveBeenCalled();
   });
 });
@@ -1396,13 +1400,13 @@ describe("map series ids and name fallbacks", () => {
       },
       mockSelf,
     );
-    expect(option.series[0].id).toBe("map-nodes");
+    expect(option.series[0].id).toBe("geo-map");
     expect(option.series[1].id).toBe("map-links");
     const names = option.series[0].data.map((d) => d.name);
     expect(names).toEqual(["L", "N", "c"]);
   });
 
-  test("mapRender zoomend toggles labels using map-nodes id", () => {
+  test("mapRender zoomend toggles labels using geo-map id", () => {
     const render = new NetJSONGraphRender();
     const leafletMap = {
       on: jest.fn((evt, cb) => {
@@ -1445,10 +1449,10 @@ describe("map series ids and name fallbacks", () => {
     };
 
     render.mapRender(mockSelf.data, mockSelf);
-    // After zoomend, we expect a setOption call targeting map-nodes id
+    // After zoomend, we expect a setOption call targeting geo-map id
     const {calls} = mockSelf.echarts.setOption.mock;
     expect(calls.length).toBeGreaterThan(0);
     const [lastArg] = calls[calls.length - 1];
-    expect(lastArg.series[0].id).toBe("map-nodes");
+    expect(lastArg.series[0].id).toBe("geo-map");
   });
 });

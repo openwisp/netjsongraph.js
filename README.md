@@ -136,11 +136,10 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
 - `showGraphLabelsAtZoom`
 
-  Provide an explicit label-visibility threshold for graph mode (ECharts `graph`/`graphGL`).
-  This is a continuous scale factor, not a Leaflet zoom level. When set to a number, node
+  Provide an explicit label-visibility threshold for graph mode (ECharts `graph`).
+  This is a continuous scale factor, not a Leaflet zoom level. When set to a number (> 0), node
   labels are shown only when the current series zoom is greater than or equal to the value.
-  Default: `1`. To disable thresholding entirely, set it to `0` (labels always eligible,
-  still subject to `labelLayout.hideOverlap`).
+  Default: disabled. To enable it, set a positive number like `1.2`.
 
   Example:
 

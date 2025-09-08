@@ -169,14 +169,17 @@ class NetJSONGraphRender {
     // Clone label config to avoid mutating defaults
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
-    if (typeof self.config.showGraphLabelsAtZoom === "number") {
+    if (
+      typeof self.config.showGraphLabelsAtZoom === "number" &&
+      self.config.showGraphLabelsAtZoom > 0
+    ) {
       const threshold = self.config.showGraphLabelsAtZoom;
       // Use a closure over the ECharts instance to read zoom when formatting
       const getCurrentGraphZoom = () => {
         try {
           const option = self.echarts.getOption();
           const series = Array.isArray(option.series) ? option.series : [];
-          const graphSeries = series.find((s) => s && s.id === "graph-series");
+          const graphSeries = series.find((s) => s && s.id === "network-graph");
           if (graphSeries && typeof graphSeries.zoom === "number") {
             return graphSeries.zoom;
           }
@@ -197,7 +200,7 @@ class NetJSONGraphRender {
     const series = [
       {
         ...baseGraphSeries,
-        id: "graph-series",
+        id: "network-graph",
         type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
           configs.graphConfig.series.type === "graphGL"
@@ -321,7 +324,7 @@ class NetJSONGraphRender {
 
     const series = [
       {
-        id: "map-nodes",
+        id: "geo-map",
         type:
           configs.mapOptions.nodeConfig.type === "effectScatter"
             ? "effectScatter"
@@ -422,10 +425,41 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
-    // Re-evaluate label formatter during roam without changing zoom/center
-    self.echarts.on("graphRoam", () => {
-      self.echarts.resize();
-    });
+    // Re-evaluate label formatter only on zoom when thresholding is enabled
+    if (
+      typeof self.config.showGraphLabelsAtZoom === "number" &&
+      self.config.showGraphLabelsAtZoom > 0
+    ) {
+      const threshold = self.config.showGraphLabelsAtZoom;
+      try {
+        const option = self.echarts.getOption();
+        const series = Array.isArray(option.series) ? option.series : [];
+        const graphSeries = series.find((s) => s && s.id === "network-graph");
+        const currentZoom = graphSeries && typeof graphSeries.zoom === "number" ? graphSeries.zoom : 1;
+        self._labelsShown = currentZoom >= threshold;
+      } catch (e) {
+        self._labelsShown = false;
+      }
+      self.echarts.on("graphRoam", (params) => {
+        if (!params || params.zoom === undefined) return;
+        let zoom = 1;
+        try {
+          const option = self.echarts.getOption();
+          const series = Array.isArray(option.series) ? option.series : [];
+          const graphSeries = series.find((s) => s && s.id === "network-graph");
+          if (graphSeries && typeof graphSeries.zoom === "number") {
+            zoom = graphSeries.zoom;
+          }
+        } catch (e) {
+          // ignore
+        }
+        const shouldShow = zoom >= threshold;
+        if (shouldShow !== self._labelsShown) {
+          self.echarts.resize({animation: false, silent: true});
+          self._labelsShown = shouldShow;
+        }
+      });
+    }
 
     self.event.emit("onLoad");
     self.event.emit("onReady");
@@ -523,7 +557,7 @@ class NetJSONGraphRender {
       self.echarts.setOption({
         series: [
           {
-            id: "map-nodes",
+            id: "geo-map",
             label: {
               show: false,
             },
@@ -543,7 +577,7 @@ class NetJSONGraphRender {
       self.echarts.setOption({
         series: [
           {
-            id: "map-nodes",
+            id: "geo-map",
             label: {
               show: showLabel,
             },

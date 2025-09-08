@@ -42,7 +42,7 @@ const NetJSONGraphDefaultConfig = {
   clusterSeparation: 20,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 13,
-  showGraphLabelsAtZoom: 1,
+  showGraphLabelsAtZoom: null,
   crs: L.CRS.EPSG3857,
   echartsOption: {
     aria: {
