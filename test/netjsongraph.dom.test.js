@@ -261,6 +261,44 @@ describe("Test netjsongraph gui", () => {
     );
   });
 
+  test("GUI shows Clients number and Client [i] entries", () => {
+    const nodeData = {
+      id: "B",
+      label: "Node B",
+      clients: [{mac: "aa"}, {mac: "bb"}],
+    };
+
+    graph.gui.sideBar = graph.gui.createSideBar();
+    graph.gui.nodeLinkInfoContainer = graph.gui.createNodeLinkInfoContainer();
+    const nodeInfo = graph.utils.nodeInfo(nodeData);
+    graph.gui.getNodeLinkInfo("node", nodeInfo);
+
+    const infoContainer = document.querySelector(".njg-infoContainer");
+    expect(infoContainer.innerHTML).toContain("Clients");
+    expect(infoContainer.innerHTML).toContain("Client [1]");
+    expect(infoContainer.innerHTML).toContain("Client [2]");
+  });
+
+  test("GUI hides Clients when total is zero and renders empty arrays", () => {
+    const nodeData = {
+      id: "Z",
+      label: "Node Z",
+      clients: 0,
+      properties: {tags: []},
+    };
+    graph.gui.sideBar = graph.gui.createSideBar();
+    graph.gui.nodeLinkInfoContainer = graph.gui.createNodeLinkInfoContainer();
+    const nodeInfo = graph.utils.nodeInfo(nodeData);
+    graph.gui.getNodeLinkInfo("node", nodeInfo);
+    const infoContainer = document.querySelector(".njg-infoContainer");
+    expect(infoContainer.innerHTML).not.toContain(
+      'Clients</span><span class="njg-valueLabel">0',
+    );
+    // Empty array formatting
+    expect(infoContainer.innerHTML).toContain("tags");
+    expect(infoContainer.innerHTML).toContain("[]");
+  });
+
   test("Create sidebar on loading", () => {
     expect(graph.gui.sideBar).toBe(null);
     graph.gui.init();

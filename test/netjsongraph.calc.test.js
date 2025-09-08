@@ -104,6 +104,68 @@ describe("Test netjsongraph function utils", () => {
       },
     ],
   ]);
+  // Additional cases to cover clients logic (number and array forms)
+  nodeInfoData.set(
+    [
+      {
+        id: "C",
+        label: "Node C",
+        clients: 3,
+      },
+    ],
+    {
+      id: "C",
+      label: "Node C",
+      clients: 3,
+    },
+  );
+
+  nodeInfoData.set(
+    [
+      {
+        id: "B",
+        label: "Node B",
+        clients: [{mac: "aa"}, {mac: "bb"}],
+      },
+    ],
+    {
+      id: "B",
+      label: "Node B",
+      clients: 2,
+      "clients [1]": {mac: "aa"},
+      "clients [2]": {mac: "bb"},
+    },
+  );
+
+  nodeInfoData.set(
+    [
+      {
+        id: "P1",
+        label: "Node P1",
+        properties: {clients: [{mac: "cc"}]},
+      },
+    ],
+    {
+      id: "P1",
+      label: "Node P1",
+      clients: 1,
+      "clients [1]": {mac: "cc"},
+    },
+  );
+
+  nodeInfoData.set(
+    [
+      {
+        id: "Z",
+        label: "Node Z",
+        clients: 0,
+      },
+    ],
+    {
+      id: "Z",
+      label: "Node Z",
+    },
+  );
   const linkInfoData = new Map([
     [
       // key
