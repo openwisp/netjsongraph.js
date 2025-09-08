@@ -21,25 +21,25 @@ yarn install
 yarn start
 ```
 
-## Build Variants
+## Building the library
 
-NetJSONGraph.js offers **3 optimized build variants** to match different integration needs:
+NetJSONGraph.js offers **3 build variants** to match different needs.
 
-### **Chunked Build**
+**Note**: using `yarn build` will generate the all the variants.
+
+### Complete Bundle
 
 ```bash
-yarn build:chunks
+yarn build:complete
 ```
 
-**Output**: separate files for optimal loading
+**Output**: single file with all the dependencies (echarts and leaflet).
 
-- `netjsongraph.[hash].min.js` - Core library
-- `echarts.[hash].min.js` - Network graph rendering
-- `leaflet.[hash].min.js` - Geographic map rendering
+- `netjsongraph-complete.[hash].min.js`
 
-**Best for**: large applications with conditional loading
+**Best for**: apps that need to support both network graphs and geographic maps.
 
-### **ECharts Bundle**
+### ECharts Bundle
 
 ```bash
 yarn build:echarts
@@ -51,17 +51,19 @@ yarn build:echarts
 
 **Best for**: apps focused exclusively on network topology graphs.
 
-### **Complete Bundle**
+### Chunked Build
 
 ```bash
-yarn build:complete
+yarn build:chunks
 ```
 
-**Output**: single file with all the dependencies (echarts and leaflet).
+**Output**: separate files for optimal loading.
 
-- `netjsongraph-complete.[hash].min.js`
+- `netjsongraph.[hash].min.js` - Core library
+- `echarts.[hash].min.js` - Network graph rendering
+- `leaflet.[hash].min.js` - Geographic map rendering
 
-**Best for**: apps that need to support both network graphs and geographic maps.
+**Best for**: large applications with conditional loading.
 
 ### Run Tests
 
