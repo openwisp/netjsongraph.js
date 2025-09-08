@@ -27,7 +27,6 @@ class NetJSONGraph {
    * @return {object}     this.config
    */
   setConfig(config) {
-    
     this.utils.deepMergeObj(this.config, config);
     if (!this.el) {
       if (!this.config.el) {
