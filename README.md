@@ -15,7 +15,7 @@ Find below a rich set of live demos for the main use cases supported by NetJSONG
 
 ### Network graph
 
-[![Basic usage](docs/gifs/netjsongraph.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
+[![Network graph](docs/gifs/netjsongraph.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
 
 Visualize a NetJSON NetworkGraph with pan/zoom, labels and tooltips.
 
@@ -23,7 +23,7 @@ Visualize a NetJSON NetworkGraph with pan/zoom, labels and tooltips.
 
 [![Geographic map](docs/gifs/netjsonmap.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap.html)
 
-Plot nodes by geographic coordinates on a Leaflet basemap; pan/zoom with clustered markers.
+Plot nodes by geographic coordinates on a Leaflet basemap; pan/zoom with markers. 
 
 ### Multiple interfaces
 
@@ -65,7 +65,7 @@ Expand neighbors on click to focus on subgraphs; fold to declutter.
 
 [![Indoor map](docs/gifs/netjsonmap-indoormap.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
 
-
+Use a 2D floorplan (Leaflet CRS.Simple) to place and connect indoor nodes.
 This example demonstrates the visualization of a mesh network topology graph on a 2D floorplan image.
 
 ### Leaflet plugins
