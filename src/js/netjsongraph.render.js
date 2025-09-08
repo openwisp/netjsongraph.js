@@ -1,5 +1,5 @@
 import * as echarts from "echarts/core";
-import {GraphChart, EffectScatterChart, LinesChart, ScatterChart} from "echarts/charts";
+import {GraphChart, LinesChart, ScatterChart} from "echarts/charts";
 import {
   TooltipComponent,
   TitleComponent,
@@ -7,20 +7,19 @@ import {
   LegendComponent,
   GraphicComponent,
 } from "echarts/components";
-import {SVGRenderer} from "echarts/renderers";
-import L from "leaflet/dist/leaflet";
-import "echarts-gl";
+import {SVGRenderer, CanvasRenderer} from "echarts/renderers";
 import {addPolygonOverlays} from "./netjsongraph.geojson";
+import L from "./leaflet-loader";
 
 echarts.use([
   GraphChart,
-  EffectScatterChart,
   LinesChart,
   TooltipComponent,
   TitleComponent,
   ToolboxComponent,
   LegendComponent,
   SVGRenderer,
+  CanvasRenderer,
   ScatterChart,
   GraphicComponent,
 ]);
@@ -161,11 +160,8 @@ class NetJSONGraphRender {
 
     const series = [
       Object.assign(configs.graphConfig.series, {
-        type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
-        layout:
-          configs.graphConfig.series.type === "graphGL"
-            ? "forceAtlas2"
-            : configs.graphConfig.series.layout,
+        type: "graph",
+        layout: configs.graphConfig.series.layout || "force",
         nodes,
         links,
       }),
@@ -276,14 +272,10 @@ class NetJSONGraphRender {
 
     const series = [
       {
-        type:
-          configs.mapOptions.nodeConfig.type === "effectScatter"
-            ? "effectScatter"
-            : "scatter",
+        type: "scatter",
         name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
-        animationDuration: 1000,
         label: configs.mapOptions.nodeConfig.label,
         itemStyle: {
           color: (params) => {
@@ -600,11 +592,7 @@ class NetJSONGraphRender {
       );
 
       self.echarts.on("click", (params) => {
-        if (
-          (params.componentSubType === "scatter" ||
-            params.componentSubType === "effectScatter") &&
-          params.data.cluster
-        ) {
+        if (params.componentSubType === "scatter" && params.data.cluster) {
           // Zoom into the clicked cluster instead of expanding it
           const currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());

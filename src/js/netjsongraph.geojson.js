@@ -2,7 +2,7 @@
  * Dedicated GeoJSON utilities for netjsongraph.js.
  */
 
-import L from "leaflet/dist/leaflet";
+import L from "./leaflet-loader";
 
 /**
  * Convert a GeoJSON FeatureCollection into a NetJSON-style object
