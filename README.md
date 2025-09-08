@@ -9,11 +9,11 @@ Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) a
 
 Build powerful and interoperable visualizations without losing flexibility!
 
-## Example Demos
+## Live Demos
 
-Explore the demos below. Click a preview to open.
+Find below a rich set of live demos for the main use cases supported by NetJSONGraph.js.
 
-### Basic usage
+### Network graph
 
 [![Basic usage](docs/gifs/netjsongraph.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
 
@@ -43,13 +43,13 @@ Fetch filtered data and update the view in-place.
 
 Normalize ISO timestamps to the browser timezone in node/link details.
 
-### Switch render mode
+### Switch render mode (Canvas/SVG)
 
 [![Switch render mode](docs/gifs/netjson-switchRenderMode.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchRenderMode.html)
 
 Toggle the renderer to balance quality/performance.
 
-### Switch graph mode
+### Switch graph mode (Network Graph / Geographic Map)
 
 [![Switch graph mode](docs/gifs/netjson-switchGraphMode.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchGraphMode.html)
 
@@ -65,7 +65,8 @@ Expand neighbors on click to focus on subgraphs; fold to declutter.
 
 [![Indoor map](docs/gifs/netjsonmap-indoormap.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
 
-Use a 2D floorplan (Leaflet CRS.Simple) to place and connect indoor nodes.
+
+This example demonstrates the visualization of a mesh network topology graph on a 2D floorplan image.
 
 ### Leaflet plugins
 
@@ -73,11 +74,11 @@ Use a 2D floorplan (Leaflet CRS.Simple) to place and connect indoor nodes.
 
 Use draw/measure and other Leaflet plugins in map mode.
 
-### Custom attributes
+### Network Graph with custom attributes and legend
 
 [![Custom attributes](docs/gifs/netjsongraph-elementsLegend.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)
 
-Style nodes/links by categories and present them in a legend.
+This example shows how to use multiple nodes/links categories and explain these in a legend.
 
 ### Multiple links render
 
@@ -119,13 +120,15 @@ Load GeoJSON FeatureCollections; they are converted to NetJSON nodes/links autom
 
 [![Clustering](docs/gifs/netjson-clustering.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
 
-Aggregate nearby nodes into clusters; automatic overlap prevention for identical coordinates.
+Aggregate nearby nodes into clusters with automatic overlap prevention of clusters having different colors.
 
 ### WiFi Clients Graph
 
 [![WiFi Clients Graph](docs/gifs/netjsongraph-wifi-clients.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-wifi-clients.html)
 
-Show per-node client counts as small colored dots around each node.
+This example demonstrates how to visualize per-node client count as small colored dots around each node.
+
+This can be useful for showing WiFi Clients of mesh nodes, or Layer 2 Neighbors of TAP VPN clients. 
 
 ### Install and run demo examples
 
