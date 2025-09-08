@@ -925,7 +925,6 @@ yarn start
 </html>
 ```
 
-
 ### Upgrading from 0.1.x versions to 0.2.x
 
 We advise all users of netjsongraph.js who are using the 0.1.x version to
