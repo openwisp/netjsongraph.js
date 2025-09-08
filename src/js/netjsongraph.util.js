@@ -719,29 +719,97 @@ class NetJSONGraphUtil {
       nodeInfo.location = node.location;
     }
 
-    if (node.properties) {
-      Object.keys(node.properties).forEach((key) => {
-        if (key === "location") {
-          nodeInfo[key] = {
-            lat: node.properties.location.lat,
-            lng: node.properties.location.lng,
-          };
-        } else if (key === "time") {
-          const time = this.dateParse({
-            dateString: node.properties[key],
-          });
-          nodeInfo[key] = time;
-        } else if (typeof node.properties[key] === "object" || key.startsWith("_")) {
-          // Skip nested objects and internal metadata
-          // eslint-disable-next-line no-useless-return
+    // Clients: show numeric total as `clients`; if array exists, also add `clients [i]` entries
+    let clientsArray = null;
+    if (Array.isArray(node.clients)) {
+      clientsArray = node.clients;
+    } else if (node.properties && Array.isArray(node.properties.clients)) {
+      clientsArray = node.properties.clients;
+    }
+
+    let clientsTotal = 0;
+    if (clientsArray) {
+      clientsTotal = clientsArray.length;
+    } else if (typeof node.clients === "number") {
+      clientsTotal = node.clients;
+    } else if (node.properties && typeof node.properties.clients === "number") {
+      clientsTotal = node.properties.clients;
+    }
+
+    if (clientsTotal > 0) {
+      nodeInfo.clients = clientsTotal;
+    }
+    if (clientsArray && clientsArray.length) {
+      clientsArray.forEach((c, idx) => {
+        nodeInfo[`clients [${idx + 1}]`] = c;
+      });
+    }
+
+    // Helper to copy values while formatting a few known fields
+    const normalizeValue = (key, val) => {
+      if (key === "location" && val && typeof val === "object") {
+        return {lat: val.lat, lng: val.lng};
+      }
+      if (key === "time" && typeof val === "string") {
+        return this.dateParse({dateString: val});
+      }
+      return val;
+    };
+
+    // Decide which object is the primary source for the sidebar:
+    // 1) If the render pipeline attached a `_source` snapshot, prefer that.
+    // 2) Otherwise, fallback to the standard `node` object (including `properties`).
+    const source = node._source && this.isObject(node._source) ? node._source : node;
+
+    // Copy top-level fields from the source, excluding internals and fields we normalize separately.
+    Object.keys(source).forEach((key) => {
+      if (
+        key === "properties" ||
+        key === "clients" ||
+        key === "_source" ||
+        key === "_generatedIdentity" ||
+        key === "local_addresses" ||
+        key === "linkCount"
+      ) {
+        return;
+      }
+      const val = normalizeValue(key, source[key]);
+      if (val !== undefined && val !== null && val !== "") {
+        nodeInfo[key] = val;
+      }
+    });
+
+    // Include ALL fields under `properties` as-is (normalized), so any custom
+    // dataset-specific keys show up automatically. Nested structures are preserved.
+    if (source.properties && this.isObject(source.properties)) {
+      Object.keys(source.properties).forEach((key) => {
+        if (key === "clients") {
           return;
-        } else {
-          nodeInfo[key.replace(/_/g, " ")] = node.properties[key];
+        }
+        const val = normalizeValue(key, source.properties[key]);
+        if (
+          val !== undefined &&
+          val !== null &&
+          !(typeof val === "string" && val.trim() === "")
+        ) {
+          nodeInfo[key] = val;
         }
       });
     }
     if (node.linkCount) {
       nodeInfo.links = node.linkCount;
+    }
+    if (Array.isArray(source.local_addresses)) {
+      const normalized = source.local_addresses
+        .map((entry) => {
+          if (typeof entry === "string") return entry;
+          if (entry && typeof entry.address === "string") return entry.address;
+          return null;
+        })
+        .filter((v) => v);
+      if (normalized.length) {
+        nodeInfo.localAddresses = normalized;
+      }
     }
     if (node.local_addresses) {
       nodeInfo.localAddresses = node.local_addresses;

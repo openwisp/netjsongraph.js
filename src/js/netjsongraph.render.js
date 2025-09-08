@@ -5,6 +5,7 @@ import {
   TitleComponent,
   ToolboxComponent,
   LegendComponent,
+  GraphicComponent,
 } from "echarts/components";
 import {SVGRenderer} from "echarts/renderers";
 import L from "leaflet/dist/leaflet";
@@ -21,6 +22,7 @@ echarts.use([
   LegendComponent,
   SVGRenderer,
   ScatterChart,
+  GraphicComponent,
 ]);
 
 class NetJSONGraphRender {
@@ -145,7 +147,9 @@ class NetJSONGraphRender {
         resolvedName = String(node.id);
       }
       nodeResult.name = resolvedName;
-
+      // Preserve original NetJSON node for sidebar use
+      /* eslint-disable no-underscore-dangle */
+      nodeResult._source = JSON.parse(JSON.stringify(node));
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
@@ -279,6 +283,7 @@ class NetJSONGraphRender {
               symbolSize: nodeEmphasisConfig.nodeSize,
             },
             node,
+            _source: JSON.parse(JSON.stringify(node)),
           });
         }
       }
