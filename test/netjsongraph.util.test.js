@@ -137,3 +137,54 @@ describe("makeCluster cluster separation logic", () => {
     expect(dist).toBeGreaterThan(4); // clusterRadius/2 = 5, allow some tolerance
   });
 });
+
+describe("Test utils deepCopy function", () => {
+  test("creates a deep clone that is independent from the original object", () => {
+    const util = new NetJSONGraphUtil();
+
+    const config = {
+      render: "map",
+      mapOptions: {
+        center: [50, 50],
+        zoom: 5,
+        nodeConfig: {label: {offset: [0, -10]}},
+      },
+      linkCategories: [
+        {
+          name: "down",
+          linkStyle: {color: "#c92517", width: 5},
+        },
+      ],
+    };
+
+    const original = config;
+    const clone = util.deepCopy(original);
+
+    expect(clone).not.toBe(original);
+    expect(clone.mapOptions).not.toBe(original.mapOptions);
+    expect(clone.linkCategories).not.toBe(original.linkCategories);
+
+    clone.render = "graph";
+    clone.mapOptions.center = [0, 0];
+    clone.mapOptions.zoom = 10;
+    clone.linkCategories[0].linkStyle.color = "#000000";
+    clone.linkCategories.push({
+      name: "up",
+      linkStyle: {color: "#00ff00", width: 2},
+    });
+
+    expect(original.render).toBe("map");
+    expect(clone.render).toBe("graph");
+    expect(original.mapOptions.center).toEqual([50, 50]);
+    expect(clone.mapOptions.center).toEqual([0, 0]);
+    expect(original.mapOptions.zoom).toBe(5);
+    expect(clone.mapOptions.zoom).toBe(10);
+    expect(original.linkCategories.length).toBe(1);
+    expect(clone.linkCategories.length).toBe(2);
+    expect(original.linkCategories[0].linkStyle.color).toBe("#c92517");
+    expect(clone.linkCategories[0].linkStyle.color).toBe("#000000");
+    expect(original.linkCategories[0].name).toBe("down");
+    expect(clone.linkCategories[0].name).toBe("down");
+    expect(clone.linkCategories[1].name).toBe("up");
+  });
+});

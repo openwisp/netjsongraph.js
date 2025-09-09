@@ -260,6 +260,21 @@ class NetJSONGraphUtil {
     return convertGeojson(geojson);
   }
 
+  deepCopy(obj) {
+    if (obj === null || typeof obj !== "object") {
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.deepCopy(item));
+    }
+    const result = {};
+    const keys = Object.keys(obj);
+    keys.forEach((key) => {
+      result[key] = this.deepCopy(obj[key]);
+    });
+    return result;
+  }
+
   /**
    * merge two object deeply
    *
