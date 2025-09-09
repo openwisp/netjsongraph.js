@@ -73,8 +73,8 @@ class NetJSONGraph {
     this.config.onRender.call(this);
     this.event.once("onReady", this.config.onReady.bind(this));
     this.event.once("onLoad", this.config.onLoad.bind(this));
-    this.event.once("applyHashState", () => {
-      this.utils.applyHashState.call(this, this);
+    this.event.once("applyUrlFragmentState", () => {
+      this.utils.applyUrlFragmentState.call(this, this);
     });
     this.utils.paginatedDataParse
       .call(this, JSONParam)
