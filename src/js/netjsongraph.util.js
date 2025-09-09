@@ -1224,52 +1224,77 @@ class NetJSONGraphUtil {
    * 3. For indoor maps, only triggers the click event without altering the map view. Any zoom applied via
    * parameters is overridden because setting the image overlay redefines the map’s center and zoom level.
    */
-  parseHashParams() {
+  parseUrlFragments() {
     const raw = window.location.hash.replace(/^#/, "");
-    return new URLSearchParams(raw);
+    const fragments = {};
+    raw.split(";").forEach(fragmentStr => {
+      const params = new URLSearchParams(fragmentStr);
+      const id = params.get("id");
+      if (id!=null) {
+        fragments[id] = params;
+      }
+    });
+    return fragments;
   }
 
-  setHashParams(self, params) {
-    if (!self.config.hashParams.show) return;
-    const {type} = self.config.hashParams;
-      let nodeId;
-      let zoom = null;
+  setUrlFragments(self, params) {
+    if (!self.config.urlFragments.show) return;
+    const fragments = this.parseUrlFragments()
+    const id = self.config.urlFragments.id
+    let nodeId, zoom;
     if (params.componentSubType === "graph") {
       nodeId = params.data.id;
     }
-    // scatter, effectScatter signifies the instance of leaflet map
-    // graph signifies the instance of echarts graph
     if (["scatter", "effectScatter"].includes(params.componentSubType)) {
       nodeId = params.data.node.id;
-      zoom = self.leaflet.getZoom();
     }
-    const hashParams = new URLSearchParams();
-    hashParams.set("type", type);
-    hashParams.set("nodeId", nodeId);
-    // Only adding zoom for geoMap as graph does not have much zoom levels and for indoor
-    // map zoom is redefined after after adding the image overlay in indoor map
-    if (zoom != null && type === "geoMap") hashParams.set("zoom", zoom);
-    window.location.hash = hashParams.toString();
+    zoom = self?.leaflet?.getZoom();
+    if (!fragments[id]) {
+      fragments[id] = new URLSearchParams();
+      fragments[id].set("id", id);
+    }
+    fragments[id].set("nodeId", nodeId);
+    if (zoom != undefined) {
+      fragments[id].set("zoom", zoom);
+    }
+    const newHash = Object.values(fragments)
+      .map(urlParams => urlParams.toString())
+      .join(";");
+
+    window.location.hash = newHash;
+  }
+
+  removeUrlFragment(self) {
+    if (!self.config.urlFragments.show) return;
+
+    const fragments = this.parseUrlFragments();
+    const id = self.config.urlFragments.id;
+    if (fragments[id]) {
+      delete fragments[id]; // Remove the fragment for this id
+    }
+    const newHash = Object.values(fragments)
+      .map(urlParams => urlParams.toString())
+      .join(";");
+
+    window.location.hash = newHash;
   }
 
   // Getting the node from params and saving it as diffrent key so that it
   // can be retrived afterwadrs without looping over the data.
-  getSelectedNodeFromHashParams(self, params, node) {
-    if (!self.config.hashParams.show) return;
-    const nodeId = params.get("nodeId");
-      const type = params.get("type");
-      const zoom = params.get("zoom");
+  setSelectedNodeFromUrlFragments(self, fragments, node) {
+    if (!self.config.urlFragments.show || !Object.keys(fragments).length) return;
+    const id = self.config.urlFragments.id
+    const nodeId = fragments[id].get("nodeId");
+    const zoom = fragments[id].get("zoom");
     if (nodeId === node.id) {
-      self.data.selectedNode = node;
-      self.data.selectedNode.type = type;
-      if (zoom != null) self.data.selectedNode.zoom = Number(zoom);
+      self.selectedNode = node;
+      if (zoom != undefined) self.selectedNode.zoom = Number(zoom);
     }
   }
 
-  applyHashState(self) {
-    console.log(self);
-    if (!self.config.hashParams.show) return;
-    const node = self.data.selectedNode;
+  applyUrlFragmentState(self) {
+    if (!self.config.urlFragments.show) return;
+    const node = self.selectedNode;
     if (!node) return;
     const nodeType = self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
     const {location, zoom} = node;
