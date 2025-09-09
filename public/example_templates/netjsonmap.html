@@ -72,9 +72,9 @@
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
         // set map initial state.
-        hashParams: {
+        urlFragments: {
           show: true,
-          type: "GeoMap"
+          id: "geographicMap"
         },
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
