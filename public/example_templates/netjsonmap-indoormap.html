@@ -47,9 +47,9 @@
           render: "map",
           crs: L.CRS.Simple,
           // set map initial state.
-          hashParams: {
+          urlFragments: {
             show: true,
-            type: "indoorMap"
+            id: "indoorMap"
           },
           mapOptions: {
             // disable leaflet worldCopyJump on the indoor map
@@ -142,6 +142,11 @@
               L.imageOverlay(imageUrl, bounds).addTo(netjsonmap);
               netjsonmap.fitBounds(bounds);
               netjsonmap.setMaxBounds(bounds);
+              console.log(netjsonmap)
+              if(graph.selectedNode){
+                const {location, zoom} = graph.selectedNode 
+                netjsonmap.setView([location.lat, location.lng], zoom)
+              } 
             };
 
             // Remove any default tile layers and show only the floorplan image.

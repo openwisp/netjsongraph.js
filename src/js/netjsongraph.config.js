@@ -286,9 +286,9 @@ const NetJSONGraphDefaultConfig = {
     },
   ],
   linkCategories: [],
-  hashParams: {
+  urlFragments: {
     show: false,
-    type: null,
+    id: null,
   },
 
   /**
