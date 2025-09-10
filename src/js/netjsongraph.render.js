@@ -428,9 +428,9 @@ class NetJSONGraphRender {
         const option = self.echarts.getOption();
         const show = option && option.series && option.series[0] && 
           option.series[0].zoom >= self.config.showGraphLabelsAtZoom;
-        if (show !== self._labelsShown) {
+        if (show !== self.LabelShow) {
           self.echarts.resize({animation: false, silent: true});
-          self._labelsShown = show;
+          self.LabelShow = show;
         }
       });
     }
