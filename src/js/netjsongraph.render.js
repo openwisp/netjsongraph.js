@@ -169,31 +169,27 @@ class NetJSONGraphRender {
     // Clone label config to avoid mutating defaults
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
+    
+    // Shared helper to get current graph zoom level
+    const getGraphZoom = () => {
+      try {
+        const option = self.echarts.getOption();
+        const series = Array.isArray(option.series) ? option.series : [];
+        const graphSeries = series.find((s) => s && s.id === "network-graph");
+        return graphSeries && typeof graphSeries.zoom === "number" ? graphSeries.zoom : 1;
+      } catch (e) {
+        return 1;
+      }
+    };
+
+    // Set up dynamic label visibility based on zoom threshold
     if (
       typeof self.config.showGraphLabelsAtZoom === "number" &&
       self.config.showGraphLabelsAtZoom > 0
     ) {
       const threshold = self.config.showGraphLabelsAtZoom;
-      // Use a closure over the ECharts instance to read zoom when formatting
-      const getCurrentGraphZoom = () => {
-        try {
-          const option = self.echarts.getOption();
-          const series = Array.isArray(option.series) ? option.series : [];
-          const graphSeries = series.find((s) => s && s.id === "network-graph");
-          if (graphSeries && typeof graphSeries.zoom === "number") {
-            return graphSeries.zoom;
-          }
-        } catch (e) {
-          // ignore
-        }
-        return 1;
-      };
       baseGraphLabel.formatter = (params) => {
-        const zoom = getCurrentGraphZoom();
-        if (zoom < threshold) {
-          return "";
-        }
-        return (params && params.data && params.data.name) || "";
+        return getGraphZoom() >= threshold ? (params?.data?.name || "") : "";
       };
     }
     baseGraphSeries.label = baseGraphLabel;
