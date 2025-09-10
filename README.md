@@ -21,6 +21,28 @@ yarn install
 yarn start
 ```
 
+## Building the library
+
+To build the production-ready library:
+
+```bash
+yarn build
+```
+
+**Output**: Single optimized bundle with all dependencies included.
+
+- `netjsongraph.[hash].min.js` - Complete library with ECharts and Leaflet
+- `netjsongraph.[hash].min.js.map` - Source map for debugging
+- Compressed versions (`.gz` and `.br`) for optimized delivery
+
+The build includes:
+
+- **ECharts** for network graph rendering
+- **Leaflet** for geographic map rendering
+- **Core NetJSONGraph.js** functionality
+
+This unified bundle approach ensures compatibility and simplifies deployment while maintaining optimal performance through advanced webpack optimizations.
+
 ### Run Tests
 
 The test suite includes browser tests, so **ensure that ChromeDriver is installed** before running them.
@@ -371,9 +393,9 @@ The library mainly supports two rendering modes -- `graph` and `map`. You can ch
 
 In extreme cases, you can also pass your own render function if you don't want Echarts to render. We will pass in the processed netjson data and netjsongraph object.
 
-For graph, you need to configure `graphConfig` property. We only support [graph](https://echarts.apache.org/en/option.html#series-graph) and [graphGL](https://echarts.apache.org/zh/option-gl.html#series-graphGL). The main difference between **graph** and **graphGL** is the [`forceAtlas2`](https://echarts.apache.org/zh/option-gl.html#series-graphGL.forceAtlas2) param series in Echarts. The latter is mainly used for big data rendering. You can use **graphGL** by setting `graphConfig.type` to `graphGL`. We use **graph** series and **force** layout by default. You can modify them freely according to the documentation.
+For graph, you need to configure `graphConfig` property. We support [graph](https://echarts.apache.org/en/option.html#series-graph) rendering with force layout. We use **graph** series and **force** layout by default. You can modify them freely according to the documentation.
 
-For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer) are required for the map render. You can customize the nodes and links with [`nodeConfig`](https://echarts.apache.org/en/option.html#series-scatter) and [`linkConfig`](https://echarts.apache.org/en/option.html#series-lines) optionally. For map nodes, you can also change the `type` to [`effectScatter`](https://echarts.apache.org/en/option.html#series-effectScatter) series to enable animation effects.
+For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer) are required for the map render. You can customize the nodes and links with [`nodeConfig`](https://echarts.apache.org/en/option.html#series-scatter) and [`linkConfig`](https://echarts.apache.org/en/option.html#series-lines) optionally.
 
 You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
 
@@ -819,9 +841,6 @@ The demo shows default `graph` render.
 
 The demo shows `map` render.
 [Map demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap.html)
-
-The demo shows how to use `graphGL` to render big data.
-[graphGL(bigData) demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-graphGL.html)
 
 The demo shows how to set custom attributes.
 [Custom attributes demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)

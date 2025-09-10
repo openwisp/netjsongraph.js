@@ -1,5 +1,6 @@
+import {graphic} from "echarts/core";
+
 /* eslint-disable no-underscore-dangle */
-/* global echarts */
 /**
  * Attaches a visual overlay to display WiFi clients as colored dots around nodes.
  *
@@ -10,7 +11,6 @@
  */
 function attachClientsOverlay(graph, options = {}) {
   const chart = graph.echarts;
-  const g = echarts.graphic;
   const colors = {
     wifi: (options.colors && options.colors.wifi) || "#d35454",
   };
@@ -48,7 +48,7 @@ function attachClientsOverlay(graph, options = {}) {
   // Create the overlay group and attach it to the series view
   const parent = getSeriesViewGroup();
   if (!parent) return {destroy() {}};
-  const overlay = new g.Group({silent: true, z: 100, zlevel: 1});
+  const overlay = new graphic.Group({silent: true, z: 100, zlevel: 1});
   parent.add(overlay);
 
   // Extract node radius from graph configuration for positioning calculations
@@ -118,7 +118,7 @@ function attachClientsOverlay(graph, options = {}) {
           const y = centerY + distance * Math.sin(angle);
 
           overlay.add(
-            new g.Circle({
+            new graphic.Circle({
               shape: {cx: x, cy: y, r: radius},
               style: {fill: color},
               silent: true,
