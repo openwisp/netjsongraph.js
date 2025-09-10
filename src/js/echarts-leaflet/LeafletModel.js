@@ -1,4 +1,4 @@
-import { extendComponentModel } from "echarts/core";
+import {extendComponentModel} from "echarts/core";
 
 /**
  * extend echarts model

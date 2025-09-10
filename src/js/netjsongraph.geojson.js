@@ -1,8 +1,7 @@
+import {geoJSON} from "leaflet";
 /*
  * Dedicated GeoJSON utilities for netjsongraph.js.
  */
-
-import L from "./leaflet-loader";
 
 /**
  * Convert a GeoJSON FeatureCollection into a NetJSON-style object
@@ -155,7 +154,7 @@ export function addPolygonOverlays(self) {
     fillOpacity: 0.6,
   };
 
-  const polygonLayer = L.geoJSON(
+  const polygonLayer = geoJSON(
     {type: "FeatureCollection", features: polygonFeatures},
     {
       pane: "njg-polygons",

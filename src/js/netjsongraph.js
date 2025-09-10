@@ -1,14 +1,10 @@
 /* eslint-disable no-undef */
 import {init} from "echarts/core";
 import NetJSONGraphCore from "./netjsongraph.core";
-import {NetJSONGraphRender} from "./netjsongraph.render";
+import NetJSONGraphRender from "./netjsongraph.render";
 import NetJSONGraphGUI from "./netjsongraph.gui";
 import attachClientsOverlay from "./netjsongraph.clients";
-import L from "./leaflet-loader";
-
-const colorTool = require("zrender/lib/tool/color");
-const {each} = require("zrender/lib/core/util");
-const env = require("zrender/lib/core/env");
+import {registerLeafletSystem} from "./echarts-leaflet";
 
 /**
  * @class
@@ -41,7 +37,7 @@ class NetJSONGraph {
     return {
       ...config,
       render:
-        config.render === "map" && L
+        config.render === "map"
           ? NetJSONGraphRender.prototype.mapRender
           : NetJSONGraphRender.prototype.graphRender,
       onInit: this.onInit,
@@ -124,7 +120,7 @@ class NetJSONGraph {
     } else {
       this.gui.nodeLinkInfoContainer = this.gui.createNodeLinkInfoContainer();
     }
-    if (this.config.switchMode && this.utils.isNetJSON(this.data) && L) {
+    if (this.config.switchMode && this.utils.isNetJSON(this.data)) {
       this.gui.renderModeSelector.onclick = () => {
         // Switch from map to graph mode, first clear canvasContainer and then render
         if (this.config.render === this.utils.mapRender) {
@@ -162,16 +158,6 @@ class NetJSONGraph {
   }
 }
 
-if (L) {
-  // eslint-disable-next-line import/no-dynamic-require,global-require
-  const leafletModule = require("../../lib/js/echarts-leaflet/index");
-  leafletModule.default(L, {
-    colorTool,
-    each,
-    env,
-  });
-  window.L = L;
-}
+registerLeafletSystem();
 
 window.NetJSONGraph = NetJSONGraph;
-window.L = L;

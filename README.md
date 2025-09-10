@@ -36,6 +36,7 @@ yarn build
 - Compressed versions (`.gz` and `.br`) for optimized delivery
 
 The build includes:
+
 - **ECharts** for network graph rendering
 - **Leaflet** for geographic map rendering
 - **Core NetJSONGraph.js** functionality

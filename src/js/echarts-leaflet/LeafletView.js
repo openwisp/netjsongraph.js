@@ -2,9 +2,8 @@ import {extendComponentView, getInstanceByDom} from "echarts/core";
 /* eslint-disable no-underscore-dangle */
 /**
  * extend echarts view
- * @param {object} L
  */
-export default function extendLeafletView(L) {
+export default function extendLeafletView() {
   extendComponentView({
     type: "leaflet",
 
@@ -36,6 +35,7 @@ export default function extendLeafletView(L) {
       /**
        * handler for map move event.
        */
+      // eslint-disable-next-line no-unused-vars
       function moveHandler(e) {
         if (rendering) {
           return;
@@ -47,14 +47,14 @@ export default function extendLeafletView(L) {
         let dy = 0;
         if (transformStyle) {
           transformStyle = transformStyle.replace("translate3d(", "");
-          let parts = transformStyle.split(",");
+          const parts = transformStyle.split(",");
           dx = -parseInt(parts[0], 10);
           dy = -parseInt(parts[1], 10);
         } else {
           dx = -parseInt(offsetEl.style.left, 10);
           dy = -parseInt(offsetEl.style.top, 10);
         }
-        let mapOffset = [dx, dy];
+        const mapOffset = [dx, dy];
         moveContainer.style.left = `${mapOffset[0]}px`;
         moveContainer.style.top = `${mapOffset[1]}px`;
 

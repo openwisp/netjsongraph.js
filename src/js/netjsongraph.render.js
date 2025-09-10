@@ -1,4 +1,5 @@
 import {use} from "echarts/core";
+import {circleMarker, latLngBounds} from "leaflet";
 import {install as LinesChart} from "echarts/lib/chart/lines/install";
 import {install as GraphChart} from "echarts/lib/chart/graph/install";
 import {install as ScatterChart} from "echarts/lib/chart/scatter/install";
@@ -10,7 +11,6 @@ import {install as GraphicComponent} from "echarts/lib/component/graphic/install
 import {install as SVGRenderer} from "echarts/lib/renderer/installSVGRenderer";
 import {install as CanvasRenderer} from "echarts/lib/renderer/installCanvasRenderer";
 import {addPolygonOverlays} from "./netjsongraph.geojson";
-import L from "./leaflet-loader";
 
 use([
   GraphChart,
@@ -412,7 +412,7 @@ class NetJSONGraphRender {
     self.config.geoOptions = self.utils.deepMergeObj(
       {
         pointToLayer: (feature, latlng) =>
-          L.circleMarker(latlng, self.config.geoOptions.style),
+          circleMarker(latlng, self.config.geoOptions.style),
         onEachFeature: (feature, layer) => {
           layer.on("click", () => {
             const properties = {
@@ -451,7 +451,7 @@ class NetJSONGraphRender {
         if (bounds) {
           latlngs.forEach((ll) => bounds.extend(ll));
         } else {
-          bounds = L.latLngBounds(latlngs);
+          bounds = latLngBounds(latlngs);
         }
       }
 
@@ -729,4 +729,4 @@ class NetJSONGraphRender {
   }
 }
 
-export {NetJSONGraphRender, L};
+export default NetJSONGraphRender;

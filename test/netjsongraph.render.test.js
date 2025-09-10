@@ -1,5 +1,6 @@
+import L from "leaflet";
 import NetJSONGraph from "../src/js/netjsongraph.core";
-import {NetJSONGraphRender, L} from "../src/js/netjsongraph.render";
+import NetJSONGraphRender from "../src/js/netjsongraph.render";
 
 const JSONFILE = "test";
 const JSONData = {

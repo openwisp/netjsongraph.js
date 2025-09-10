@@ -1,4 +1,4 @@
-import L from "./leaflet-loader";
+import {CRS} from "leaflet";
 
 /**
  * Default options
@@ -43,7 +43,7 @@ const NetJSONGraphDefaultConfig = {
   clusterSeparation: 20,
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 13,
-  crs: L ? L.CRS.EPSG3857 : null,
+  crs: CRS.EPSG3857,
   echartsOption: {
     aria: {
       show: true,
