@@ -1,17 +1,18 @@
-import * as echarts from "echarts/core";
-import {GraphChart, LinesChart, ScatterChart} from "echarts/charts";
-import {
-  TooltipComponent,
-  TitleComponent,
-  ToolboxComponent,
-  LegendComponent,
-  GraphicComponent,
-} from "echarts/components";
-import {SVGRenderer, CanvasRenderer} from "echarts/renderers";
+import {use} from "echarts/core";
+import {install as LinesChart} from "echarts/lib/chart/lines/install";
+import {install as GraphChart} from "echarts/lib/chart/graph/install";
+import {install as ScatterChart} from "echarts/lib/chart/scatter/install";
+import {install as TooltipComponent} from "echarts/lib/component/tooltip/install";
+import {install as TitleComponent} from "echarts/lib/component/title/install";
+import {install as ToolboxComponent} from "echarts/lib/component/toolbox/install";
+import {install as LegendComponent} from "echarts/lib/component/legend/install";
+import {install as GraphicComponent} from "echarts/lib/component/graphic/install";
+import {install as SVGRenderer} from "echarts/lib/renderer/installSVGRenderer";
+import {install as CanvasRenderer} from "echarts/lib/renderer/installCanvasRenderer";
 import {addPolygonOverlays} from "./netjsongraph.geojson";
 import L from "./leaflet-loader";
 
-echarts.use([
+use([
   GraphChart,
   LinesChart,
   TooltipComponent,
@@ -728,4 +729,4 @@ class NetJSONGraphRender {
   }
 }
 
-export {NetJSONGraphRender, echarts, L};
+export {NetJSONGraphRender, L};

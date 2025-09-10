@@ -1,5 +1,7 @@
 {
   "trailingComma": "all",
   "bracketSpacing": false,
-  "tabWidth": 2
+  "tabWidth": 2,
+  "printWidth": 88,
+  "insertFinalNewLine": true
 }

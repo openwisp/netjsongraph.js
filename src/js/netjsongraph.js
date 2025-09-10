@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
+import {init} from "echarts/core";
 import NetJSONGraphCore from "./netjsongraph.core";
-import {NetJSONGraphRender, echarts} from "./netjsongraph.render";
+import {NetJSONGraphRender} from "./netjsongraph.render";
 import NetJSONGraphGUI from "./netjsongraph.gui";
 import attachClientsOverlay from "./netjsongraph.clients";
 import L from "./leaflet-loader";
@@ -66,7 +67,7 @@ class NetJSONGraph {
    * Initializes the ECharts rendering engine. Used in constructor
    */
   initializeECharts() {
-    this.graph.echarts = echarts.init(this.graph.el, null, {
+    this.graph.echarts = init(this.graph.el, null, {
       renderer: this.graph.config.svgRender ? "svg" : "canvas",
     });
   }
@@ -164,7 +165,7 @@ class NetJSONGraph {
 if (L) {
   // eslint-disable-next-line import/no-dynamic-require,global-require
   const leafletModule = require("../../lib/js/echarts-leaflet/index");
-  leafletModule.default(echarts, L, {
+  leafletModule.default(L, {
     colorTool,
     each,
     env,
@@ -173,5 +174,4 @@ if (L) {
 }
 
 window.NetJSONGraph = NetJSONGraph;
-window.echarts = echarts;
 window.L = L;

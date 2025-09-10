@@ -68,100 +68,20 @@ module.exports = (env, argv) => {
   const isProduction = argv.mode === "production";
   const isDevelopment = !isProduction;
 
-  const buildType = env?.BUILD_TYPE || "chunks";
-  const baseEntry = {
-    netjsongraph: "./src/js/netjsongraph.js",
-  };
-
-  // Build-specific configurations
-  const buildConfigs = {
-    // Separate chunks
-    chunks: {
-      entry: baseEntry,
-      splitChunks: {
-        chunks: "all",
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: "vendors",
-            priority: 10,
-            reuseExistingChunk: true,
-          },
-          echarts: {
-            test: /[\\/]node_modules[\\/](echarts|zrender)[\\/]/,
-            name: "echarts",
-            priority: 20,
-            reuseExistingChunk: true,
-          },
-          leaflet: {
-            test: /[\\/]node_modules[\\/]leaflet[\\/]/,
-            name: "leaflet",
-            priority: 20,
-            reuseExistingChunk: true,
-          },
-          common: {
-            name: "common",
-            minChunks: 2,
-            priority: 5,
-            reuseExistingChunk: true,
-          },
-        },
-      },
-      filename: isProduction ? "[name].[contenthash:8].min.js" : "[name].js",
-      chunkFilename: isProduction
-        ? "chunks/[name].[contenthash:8].chunk.js"
-        : "chunks/[name].chunk.js",
-      buildType: "chunks",
-    },
-
-    // Library + ECharts bundle (single file)
-    "echarts-bundle": {
-      entry: {
-        "netjsongraph-echarts": "./src/js/netjsongraph.js",
-      },
-      splitChunks: false,
-      filename: isProduction ? "[name].[contenthash:8].min.js" : "[name].js",
-      chunkFilename: isProduction
-        ? "bundles/[name].[contenthash:8].chunk.js"
-        : "bundles/[name].chunk.js",
-      buildType: "echarts-only",
-      externals: {
-        "leaflet/dist/leaflet": "{}",
-        leaflet: "{}",
-      },
-    },
-
-    // Complete bundle (everything)
-    "complete-bundle": {
-      entry: {
-        "netjsongraph-complete": "./src/js/netjsongraph.js",
-      },
-      splitChunks: false,
-      filename: isProduction ? "[name].[contenthash:8].min.js" : "[name].js",
-      chunkFilename: isProduction
-        ? "complete/[name].[contenthash:8].chunk.js"
-        : "complete/[name].chunk.js",
-      buildType: "complete",
-    },
-  };
-
-  const currentBuild = buildConfigs[buildType];
-
   return {
-    entry: currentBuild.entry,
+    entry: "./src/js/netjsongraph.js",
     output: {
       path: path.resolve(__dirname, "dist"),
-      filename: currentBuild.filename,
-      chunkFilename: currentBuild.chunkFilename,
-      clean: buildType === "chunks",
+      filename: isProduction
+        ? "netjsongraph.[contenthash:8].min.js"
+        : "netjsongraph.js",
+      clean: true,
       publicPath: "/",
     },
-    externals: currentBuild.externals || {},
-    devtool: argv.mode === "development" ? "eval-source-map" : "source-map",
+    devtool: isDevelopment ? "eval-source-map" : "source-map",
     optimization: {
       minimize: isProduction,
       minimizer: getMinimizers(isProduction),
-      splitChunks: currentBuild.splitChunks,
       usedExports: true,
       sideEffects: false,
       providedExports: true,
@@ -172,6 +92,7 @@ module.exports = (env, argv) => {
       removeEmptyChunks: true,
       mergeDuplicateChunks: true,
       innerGraph: true,
+      moduleIds: "deterministic",
     },
     module: {
       rules: [
@@ -211,12 +132,6 @@ module.exports = (env, argv) => {
       },
     },
     plugins: [
-      new webpack.DefinePlugin({
-        __BUILD_TYPE__: JSON.stringify(currentBuild.buildType),
-        __INCLUDE_LEAFLET__: JSON.stringify(
-          currentBuild.buildType === "complete" || currentBuild.buildType === "chunks",
-        ),
-      }),
       ...templates,
       new CopyPlugin({
         patterns: [
