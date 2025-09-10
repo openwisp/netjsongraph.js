@@ -421,26 +421,16 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
-    // Toggle labels only when crossing threshold during zoom (ignore pan)
-    if (
-      typeof self.config.showGraphLabelsAtZoom === "number" &&
-      self.config.showGraphLabelsAtZoom > 0
-    ) {
-      const threshold = self.config.showGraphLabelsAtZoom;
-      const getZoom = () => {
-        const option = self.echarts.getOption() || {};
-        const series = Array.isArray(option.series) ? option.series : [];
-        const graphSeries = series.find((s) => s && s.id === "network-graph");
-        return graphSeries && typeof graphSeries.zoom === "number" ? graphSeries.zoom : 1;
-      };
-      self._labelsShown = getZoom() >= threshold;
+    // Toggle labels on zoom threshold crossing
+    if (self.config.showGraphLabelsAtZoom > 0) {
       self.echarts.on("graphRoam", (params) => {
-        if (!params || params.zoom === undefined) return;
-        const zoom = getZoom();
-        const shouldShow = zoom >= threshold;
-        if (shouldShow !== self._labelsShown) {
+        if (!params || !params.zoom) return;
+        const option = self.echarts.getOption();
+        const show = option && option.series && option.series[0] && 
+          option.series[0].zoom >= self.config.showGraphLabelsAtZoom;
+        if (show !== self._labelsShown) {
           self.echarts.resize({animation: false, silent: true});
-          self._labelsShown = shouldShow;
+          self._labelsShown = show;
         }
       });
     }
