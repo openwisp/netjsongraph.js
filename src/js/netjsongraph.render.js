@@ -425,34 +425,22 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
-    // Re-evaluate label formatter only on zoom when thresholding is enabled
+    // Toggle labels only when crossing threshold during zoom (ignore pan)
     if (
       typeof self.config.showGraphLabelsAtZoom === "number" &&
       self.config.showGraphLabelsAtZoom > 0
     ) {
       const threshold = self.config.showGraphLabelsAtZoom;
-      try {
-        const option = self.echarts.getOption();
+      const getZoom = () => {
+        const option = self.echarts.getOption() || {};
         const series = Array.isArray(option.series) ? option.series : [];
         const graphSeries = series.find((s) => s && s.id === "network-graph");
-        const currentZoom = graphSeries && typeof graphSeries.zoom === "number" ? graphSeries.zoom : 1;
-        self._labelsShown = currentZoom >= threshold;
-      } catch (e) {
-        self._labelsShown = false;
-      }
+        return graphSeries && typeof graphSeries.zoom === "number" ? graphSeries.zoom : 1;
+      };
+      self._labelsShown = getZoom() >= threshold;
       self.echarts.on("graphRoam", (params) => {
         if (!params || params.zoom === undefined) return;
-        let zoom = 1;
-        try {
-          const option = self.echarts.getOption();
-          const series = Array.isArray(option.series) ? option.series : [];
-          const graphSeries = series.find((s) => s && s.id === "network-graph");
-          if (graphSeries && typeof graphSeries.zoom === "number") {
-            zoom = graphSeries.zoom;
-          }
-        } catch (e) {
-          // ignore
-        }
+        const zoom = getZoom();
         const shouldShow = zoom >= threshold;
         if (shouldShow !== self._labelsShown) {
           self.echarts.resize({animation: false, silent: true});
