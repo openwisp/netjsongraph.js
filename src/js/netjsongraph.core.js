@@ -10,7 +10,12 @@ class NetJSONGraph {
    */
   constructor(JSONParam) {
     this.utils = new NetJSONGraphUpdate();
-    this.config = {...NetJSONGraphDefaultConfig};
+    // This ensures the of the config is deep-copied, so changes in another instance won't affect it.
+    this.config = this.utils.deepCopy(NetJSONGraphDefaultConfig);
+    // Preserve the default CRS after merging because it's a Leaflet instance, not a plain object.
+    // In setConfig, deepMergeObj would override it, causing it to fall back to the default CRS even
+    // if explicitly set it to somthing like L.CRS.Simple.
+    this.config.crs = NetJSONGraphDefaultConfig.crs;
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
   }
 
