@@ -1219,10 +1219,10 @@ class NetJSONGraphUtil {
   parseUrlFragments() {
     const raw = window.location.hash.replace(/^#/, "");
     const fragments = {};
-    raw.split(";").forEach(fragmentStr => {
+    raw.split(";").forEach((fragmentStr) => {
       const params = new URLSearchParams(fragmentStr);
       const id = params.get("id");
-      if (id!=null) {
+      if (id != null) {
         fragments[id] = params;
       }
     });
@@ -1231,8 +1231,8 @@ class NetJSONGraphUtil {
 
   setUrlFragments(self, params) {
     if (!self.config.urlFragments.show) return;
-    const fragments = this.parseUrlFragments()
-    const id = self.config.urlFragments.id
+    const fragments = this.parseUrlFragments();
+    const id = self.config.urlFragments.id;
     let nodeId, zoom;
     if (params.componentSubType === "graph") {
       nodeId = params.data.id;
@@ -1250,7 +1250,7 @@ class NetJSONGraphUtil {
       fragments[id].set("zoom", zoom);
     }
     const newHash = Object.values(fragments)
-      .map(urlParams => urlParams.toString())
+      .map((urlParams) => urlParams.toString())
       .join(";");
 
     window.location.hash = newHash;
@@ -1265,7 +1265,7 @@ class NetJSONGraphUtil {
       delete fragments[id];
     }
     const newHash = Object.values(fragments)
-      .map(urlParams => urlParams.toString())
+      .map((urlParams) => urlParams.toString())
       .join(";");
 
     window.location.hash = newHash;
@@ -1273,7 +1273,7 @@ class NetJSONGraphUtil {
 
   setSelectedNodeFromUrlFragments(self, fragments, node) {
     if (!self.config.urlFragments.show || !Object.keys(fragments).length) return;
-    const id = self.config.urlFragments.id
+    const id = self.config.urlFragments.id;
     const nodeId = fragments[id]?.get("nodeId");
     const zoom = fragments[id]?.get("zoom");
     if (nodeId === node.id) {
@@ -1286,7 +1286,8 @@ class NetJSONGraphUtil {
     if (!self.config.urlFragments.show) return;
     const node = self.selectedNode;
     if (!node) return;
-    const nodeType = self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
+    const nodeType =
+      self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
     const {location, zoom} = node;
     if (["scatter", "effectScatter"].includes(nodeType) && zoom != null) {
       self.leaflet.setView([location.lat, location.lng], zoom);

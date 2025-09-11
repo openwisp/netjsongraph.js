@@ -505,7 +505,10 @@ class NetJSONGraphRender {
       if (self.utils && typeof self.utils.enableBoundsUrlSync === "function") {
         const debounceMs = 300;
         const precision = 6;
-        self._destroyUrlSync = self.utils.enableBoundsUrlSync(self, { debounceMs, precision });
+        self._destroyUrlSync = self.utils.enableBoundsUrlSync(self, {
+          debounceMs,
+          precision,
+        });
       }
     } catch (e) {
       console.warn("bbox URL restore/sync failed", e);
