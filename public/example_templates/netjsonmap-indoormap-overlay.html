@@ -36,7 +36,7 @@
         left: 50%;
         transform: translate(-50%, -50%);
         width: 80%;
-        height: 80%;
+        height: 90%;
         padding: 20px;
         border-radius: 8px;
         align-items: center;
@@ -167,24 +167,23 @@
                 n.properties.location = n.location;
               });
             },
-            onReady: function () {
+            onReady: async function () {
               const map = this.leaflet;
               map.eachLayer((layer) => layer._url && map.removeLayer(layer));
               const img = new Image();
               imageUrl = "../assets/images/floorplan.png";
               img.src = imageUrl;
-              img.onload = () => {
-                const aspectRatio = img.width / img.height;
-                const h = 700;
-                const w = aspectRatio * h;
-                const zoom = map.getMaxZoom() - 1;
-                const sw = map.unproject([0, h * 2], zoom);
-                const ne = map.unproject([w * 2, 0], zoom);
-                const bnds = new L.LatLngBounds(sw, ne);
-                L.imageOverlay(imageUrl, bnds).addTo(map);
-                map.fitBounds(bnds);
-                map.setMaxBounds(bnds);
-              };
+              await img.decode()
+              const aspectRatio = img.width / img.height;
+              const h = 700;
+              const w = aspectRatio * h;
+              const zoom = map.getMaxZoom() - 1;
+              const sw = map.unproject([0, h * 2], zoom);
+              const ne = map.unproject([w * 2, 0], zoom);
+              const bnds = new L.LatLngBounds(sw, ne);
+              L.imageOverlay(imageUrl, bnds).addTo(map);
+              map.fitBounds(bnds);
+              map.setMaxBounds(bnds);
             },
           },
         );
