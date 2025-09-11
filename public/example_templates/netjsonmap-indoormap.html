@@ -124,30 +124,23 @@
             });
           },
 
-          onReady: function presentIndoormap() {
+          onReady: async function presentIndoormap() {
             const netjsonmap = this.leaflet;
             const image = new Image();
             const imageUrl = "../assets/images/floorplan.png";
             image.src = imageUrl;
+            await image.decode()
+            const aspectRatio = image.width / image.height;
+            const h = 700;
+            const w = aspectRatio * h;
+            const zoom = netjsonmap.getMaxZoom() - 1;
+            const bottomLeft = netjsonmap.unproject([0, h * 2], zoom);
+            const upperRight = netjsonmap.unproject([w * 2, 0], zoom);
+            const bounds = new L.LatLngBounds(bottomLeft, upperRight);
 
-            image.onload = function () {
-              const aspectRatio = image.width / image.height;
-              const h = 700;
-              const w = aspectRatio * h;
-              const zoom = netjsonmap.getMaxZoom() - 1;
-              const bottomLeft = netjsonmap.unproject([0, h * 2], zoom);
-              const upperRight = netjsonmap.unproject([w * 2, 0], zoom);
-              const bounds = new L.LatLngBounds(bottomLeft, upperRight);
-
-              L.imageOverlay(imageUrl, bounds).addTo(netjsonmap);
-              netjsonmap.fitBounds(bounds);
-              netjsonmap.setMaxBounds(bounds);
-              console.log(netjsonmap)
-              if(graph.selectedNode){
-                const {location, zoom} = graph.selectedNode 
-                netjsonmap.setView([location.lat, location.lng], zoom)
-              } 
-            };
+            L.imageOverlay(imageUrl, bounds).addTo(netjsonmap);
+            netjsonmap.fitBounds(bounds);
+            netjsonmap.setMaxBounds(bounds);
 
             // Remove any default tile layers and show only the floorplan image.
             netjsonmap.eachLayer((layer) => {

@@ -81,9 +81,16 @@ class NetJSONGraphCore {
     const [JSONParam, ...resParam] = this.JSONParam;
 
     this.config.onRender.call(this);
-    this.event.once("onReady", this.config.onReady.bind(this));
+    // Using
+    const onReadyDone = new Promise((resolve) => {
+      this.event.once("onReady", async () => {
+        await this.config.onReady.call(this);
+        resolve();
+      });
+    });
     this.event.once("onLoad", this.config.onLoad.bind(this));
-    this.event.once("applyUrlFragmentState", () => {
+    this.event.once("applyUrlFragmentState", async () => {
+      await onReadyDone;
       this.utils.applyUrlFragmentState.call(this, this);
     });
     this.utils.paginatedDataParse
