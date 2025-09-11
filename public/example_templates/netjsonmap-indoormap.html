@@ -47,10 +47,6 @@
           render: "map",
           crs: L.CRS.Simple,
           // set map initial state.
-          urlFragments: {
-            show: true,
-            id: "indoorMap"
-          },
           mapOptions: {
             // disable leaflet worldCopyJump on the indoor map
             // because it's incompatible (raises a JS error) and not needed
@@ -112,6 +108,10 @@
                 },
               ],
             },
+          },
+          urlFragments: {
+            show: true,
+            id: "indoorMap"
           },
 
           // Convert to internal json format

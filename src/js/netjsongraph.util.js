@@ -1216,14 +1216,6 @@ class NetJSONGraphUtil {
     };
   }
 
-  /**
-   * Current implementation of hash params covers three scenarios:
-   * 1. For graph visualizations (e.g. network topology), triggers only a click event on the node.
-   * 2. For geographic maps, first stores the clicked node separately in a diffrent key selectedNode
-   * to avoid extra traversal, then sets the map view to the node's [lat, lng] as center and that zoom level.
-   * 3. For indoor maps, only triggers the click event without altering the map view. Any zoom applied via
-   * parameters is overridden because setting the image overlay redefines the map’s center and zoom level.
-   */
   parseUrlFragments() {
     const raw = window.location.hash.replace(/^#/, "");
     const fragments = {};
@@ -1270,7 +1262,7 @@ class NetJSONGraphUtil {
     const fragments = this.parseUrlFragments();
     const id = self.config.urlFragments.id;
     if (fragments[id]) {
-      delete fragments[id]; // Remove the fragment for this id
+      delete fragments[id];
     }
     const newHash = Object.values(fragments)
       .map(urlParams => urlParams.toString())
@@ -1279,13 +1271,11 @@ class NetJSONGraphUtil {
     window.location.hash = newHash;
   }
 
-  // Getting the node from params and saving it as diffrent key so that it
-  // can be retrived afterwadrs without looping over the data.
   setSelectedNodeFromUrlFragments(self, fragments, node) {
     if (!self.config.urlFragments.show || !Object.keys(fragments).length) return;
     const id = self.config.urlFragments.id
-    const nodeId = fragments[id].get("nodeId");
-    const zoom = fragments[id].get("zoom");
+    const nodeId = fragments[id]?.get("nodeId");
+    const zoom = fragments[id]?.get("zoom");
     if (nodeId === node.id) {
       self.selectedNode = node;
       if (zoom != undefined) self.selectedNode.zoom = Number(zoom);
