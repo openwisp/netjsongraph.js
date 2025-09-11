@@ -47,10 +47,6 @@
           render: "map",
           crs: L.CRS.Simple,
           // set map initial state.
-          urlFragments: {
-            show: true,
-            id: "indoorMap"
-          },
           mapOptions: {
             center: [48.577, 18.539],
             zoom: 0,
@@ -109,6 +105,10 @@
                 },
               ],
             },
+          },
+          urlFragments: {
+            show: true,
+            id: "indoorMap"
           },
 
           // Convert to internal json format
