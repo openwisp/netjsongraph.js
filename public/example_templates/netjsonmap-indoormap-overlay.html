@@ -146,7 +146,7 @@
             mapOptions: {
               center: [50, 50],
               zoom: 1,
-              minZoom: -1,
+              minZoom: -2,
               maxZoom: 2,
               nodeConfig: {
                 label: {
@@ -174,8 +174,9 @@
               imageUrl = "../assets/images/floorplan.png";
               img.src = imageUrl;
               img.onload = () => {
-                const w = img.width;
-                const h = img.height;
+                const aspectRatio = img.width / img.height;
+                const h = 700;
+                const w = aspectRatio * h;
                 const zoom = map.getMaxZoom() - 1;
                 const sw = map.unproject([0, h * 2], zoom);
                 const ne = map.unproject([w * 2, 0], zoom);
@@ -183,7 +184,6 @@
                 L.imageOverlay(imageUrl, bnds).addTo(map);
                 map.fitBounds(bnds);
                 map.setMaxBounds(bnds);
-                map.setView([0, 0], 0);
               };
             },
           },
