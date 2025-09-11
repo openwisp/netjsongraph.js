@@ -465,6 +465,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   You can customize the style of GeoJSON features using `style` property. The list of all available properties can be found in the [Leaflet documentation](https://leafletjs.com/reference.html#geojson).
 
+<!-- Todo: Update this -->
 - `hashParams`
 
   Configuration for adding hash parameters to the URL when a node is clicked.
@@ -480,7 +481,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   1. type – A prefix used to uniquely identify the map node.
   2. nodeId – The ID of the selected node.
   3. zoom – The current zoom level of the map.
-  **Note: Zoom is only applied when type is set to `geoMap`**
+     **Note: Zoom is only applied when type is set to `geoMap`**
 
 - `onInit`
 
