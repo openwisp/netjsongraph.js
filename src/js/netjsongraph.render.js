@@ -169,14 +169,16 @@ class NetJSONGraphRender {
     // Clone label config to avoid mutating defaults
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
-    
+
     // Shared helper to get current graph zoom level
     const getGraphZoom = () => {
       try {
         const option = self.echarts.getOption();
         const series = Array.isArray(option.series) ? option.series : [];
         const graphSeries = series.find((s) => s && s.id === "network-graph");
-        return graphSeries && typeof graphSeries.zoom === "number" ? graphSeries.zoom : 1;
+        return graphSeries && typeof graphSeries.zoom === "number"
+          ? graphSeries.zoom
+          : 1;
       } catch (e) {
         return 1;
       }
@@ -188,9 +190,10 @@ class NetJSONGraphRender {
       self.config.showGraphLabelsAtZoom > 0
     ) {
       const threshold = self.config.showGraphLabelsAtZoom;
-      baseGraphLabel.formatter = (params) => {
-        return getGraphZoom() >= threshold ? (params?.data?.name || "") : "";
-      };
+      baseGraphLabel.formatter = (params) =>
+        getGraphZoom() >= threshold
+          ? (params && params.data && params.data.name) || ""
+          : "";
     }
     baseGraphSeries.label = baseGraphLabel;
     const series = [
@@ -426,7 +429,10 @@ class NetJSONGraphRender {
       self.echarts.on("graphRoam", (params) => {
         if (!params || !params.zoom) return;
         const option = self.echarts.getOption();
-        const show = option && option.series && option.series[0] && 
+        const show =
+          option &&
+          option.series &&
+          option.series[0] &&
           option.series[0].zoom >= self.config.showGraphLabelsAtZoom;
         if (show !== self.LabelShow) {
           self.echarts.resize({animation: false, silent: true});
