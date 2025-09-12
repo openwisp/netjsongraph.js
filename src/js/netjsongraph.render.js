@@ -188,8 +188,9 @@ class NetJSONGraphRender {
       self.config.showGraphLabelsAtZoom > 0
     ) {
       const threshold = self.config.showGraphLabelsAtZoom;
-      baseGraphLabel.formatter = (params) =>
-        getGraphZoom() >= threshold ? params?.data?.name || "" : "";
+      baseGraphLabel.formatter = (params) => {
+        return getGraphZoom() >= threshold ? (params?.data?.name || "") : "";
+      };
     }
     baseGraphSeries.label = baseGraphLabel;
     const series = [
