@@ -67,6 +67,8 @@
       // `graph` render defaultly.
       // We can add data gradually by array.
       const graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
+        //control label visibility by graph zoom (continuous scale)
+        showGraphLabelsAtZoom: 2,
         linkCategories: [
           {
             name: "down",
