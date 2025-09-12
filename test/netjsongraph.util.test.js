@@ -188,3 +188,162 @@ describe("Test utils deepCopy function", () => {
     expect(clone.linkCategories[1].name).toBe("up");
   });
 });
+
+describe("Test URL fragment utilities", () => {
+  let utils;
+
+  beforeEach(() => {
+    utils = new NetJSONGraphUtil();
+    window.location.hash = "";
+  });
+
+  afterEach(() => {
+    window.location.hash = "";
+  });
+
+  test("Test parseUrlFragments parses multiple fragments and decodes values", () => {
+    // use ids that match what we will assert on
+    window.location.hash =
+      "#id=geoMap&nodeId=abc%3A123&zoom=5;id=indoorMap&nodeId=indoor-node&zoom=5";
+    const fragments = utils.parseUrlFragments();
+
+    expect(Object.keys(fragments).sort()).toEqual(["geoMap", "indoorMap"].sort());
+    expect(fragments.geoMap.get("nodeId")).toBe("abc:123"); // percent-decoded
+    expect(fragments.geoMap.get("zoom")).toBe("5");
+    expect(fragments.indoorMap.get("nodeId")).toBe("indoor-node");
+  });
+
+  test("Test setUrlFragments adds a new fragment with nodeId and zoom", () => {
+    const self = {
+      config: {
+        urlFragments: {show: true, id: "geoMap"},
+      },
+      leaflet: {getZoom: () => 7},
+    };
+    const params = {
+      componentSubType: "effectScatter",
+      data: {node: {id: "node-1"}},
+    };
+
+    utils.setUrlFragments(self, params);
+
+    const fragments = utils.parseUrlFragments();
+    expect(fragments.geoMap).toBeDefined();
+    expect(fragments.geoMap.get("id")).toBe("geoMap");
+    expect(fragments.geoMap.get("nodeId")).toBe("node-1");
+    expect(fragments.geoMap.get("zoom")).toBe("7");
+  });
+
+  test("Test setUrlFragments updates an existing fragment and preserves others", () => {
+    window.location.hash = "id=graph&nodeId=node-1";
+
+    const self = {
+      config: {urlFragments: {show: true, id: "geo"}},
+      leaflet: {getZoom: () => 9},
+    };
+    const params = {
+      componentSubType: "graph",
+      data: {id: "node-2"},
+    };
+
+    utils.setUrlFragments(self, params);
+
+    const fragments = utils.parseUrlFragments();
+    expect(fragments.graph).toBeDefined();
+    expect(fragments.graph.get("nodeId")).toBe("node-1");
+
+    expect(fragments.geo.get("nodeId")).toBe("node-2");
+    expect(fragments.geo.get("zoom")).toBe("9");
+  });
+
+  test("removeUrlFragment deletes the fragment for the given id", () => {
+    window.location.hash = "id=keep&nodeId=a;id=removeMe&nodeId=b";
+    const self = {config: {urlFragments: {show: true, id: "removeMe"}}};
+    utils.removeUrlFragment(self);
+    const fragments = utils.parseUrlFragments();
+    expect(fragments.keep).toBeDefined();
+    expect(fragments.removeMe).toBeUndefined();
+    expect(window.location.hash).not.toContain("removeMe");
+  });
+
+  test("Test setSelectedNodeFromUrlFragments sets selectedNode and numeric zoom", () => {
+    window.location.hash = "#id=geo&nodeId=abc&zoom=4";
+    const self = {config: {urlFragments: {show: true, id: "geo"}}};
+    const fragments = utils.parseUrlFragments();
+
+    // node with matching id
+    const node = {id: "abc", properties: {}};
+    utils.setSelectedNodeFromUrlFragments(self, fragments, node);
+
+    expect(self.selectedNode).toBe(node);
+    expect(self.selectedNode.zoom).toBe(4);
+  });
+
+  test("Test applyUrlFragmentState calls map.setView and triggers onClickElement", () => {
+    const mockSetView = jest.fn();
+    const mockOnClick = jest.fn();
+
+    const node = {
+      id: "n1",
+      properties: {location: {lat: 12.1, lng: 77.5}},
+      zoom: 6,
+    };
+
+    const self = {
+      config: {
+        urlFragments: {show: true, id: "geo"},
+        graphConfig: {series: {type: null}},
+        mapOptions: {nodeConfig: {type: "scatter"}},
+        onClickElement: mockOnClick,
+      },
+      selectedNode: node,
+      leaflet: {setView: mockSetView},
+    };
+
+    utils.applyUrlFragmentState(self);
+
+    expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 6);
+    expect(mockOnClick).toHaveBeenCalledWith("node", node);
+  });
+
+  test("Test applyUrlFragmentState runs only after onReady completes", async () => {
+    const recorder = [];
+
+    const emitter = {
+      _handlers: {},
+      once(event, handler) {
+        this._handlers[event] = handler;
+      },
+      emit(event) {
+        const h = this._handlers[event];
+        if (h) h();
+      },
+    };
+
+    const asyncOnReady = async () => {
+      recorder.push("onReady-start");
+      await new Promise((r) => setTimeout(r, 20));
+      recorder.push("onReady-done");
+    };
+
+    const onReadyDone = new Promise((resolve) => {
+      emitter.once("onReady", async () => {
+        await asyncOnReady();
+        resolve();
+      });
+    });
+
+    emitter.once("applyUrlFragmentState", async () => {
+      await onReadyDone;
+      recorder.push("applyUrlFragmentState");
+    });
+    emitter.emit("onReady");
+    emitter.emit("applyUrlFragmentState");
+    await new Promise((r) => setTimeout(r, 40));
+    expect(recorder).toEqual([
+      "onReady-start",
+      "onReady-done",
+      "applyUrlFragmentState",
+    ]);
+  });
+});
