@@ -71,7 +71,8 @@ class NetJSONGraph {
     const [JSONParam, ...resParam] = this.JSONParam;
 
     this.config.onRender.call(this);
-    // Using
+    // Ensure applyUrlFragmentState runs only after onReady has completed,
+    // as onReady may perform asynchronous operations
     const onReadyDone = new Promise((resolve) => {
       this.event.once("onReady", async () => {
         await this.config.onReady.call(this);
