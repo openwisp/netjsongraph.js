@@ -480,6 +480,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 ### API reference
 
 Looking for configuration details? See the inline docs and type hints in the source code:
+
 - `src/js/netjsongraph.config.js` – default options and configuration structure
 - `src/js/netjsongraph.render.js` – rendering internals and option handling
 - `src/js/netjsongraph.util.js` – utilities you can override via `setUtils`
