@@ -1288,7 +1288,10 @@ class NetJSONGraphUtil {
     if (!node) return;
     const nodeType =
       self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
-    const {location, zoom} = node;
+    const {
+      properties: {location},
+      zoom,
+    } = node;
     if (["scatter", "effectScatter"].includes(nodeType) && zoom != null) {
       self.leaflet.setView([location.lat, location.lng], zoom);
     }
