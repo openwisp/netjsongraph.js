@@ -103,7 +103,6 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
-        self.utils.setUrlFragments(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -113,6 +112,7 @@ class NetJSONGraphRender {
         if (params.componentSubType === "graphGL") {
           return clickElement("node", params.data);
         }
+        self.utils.setUrlFragments(self, params);
         return params.componentSubType === "lines"
           ? clickElement("link", params.data.link)
           : !params.data.cluster && clickElement("node", params.data.node);
@@ -162,6 +162,7 @@ class NetJSONGraphRender {
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
       nodeResult._source = self.utils.fastDeepCopy(node);
+      // Store the clicked node in this.selectedNode for easy access later without need for traverse
       self.utils.setSelectedNodeFromUrlFragments(self, fragments, node);
       return nodeResult;
     });
@@ -302,6 +303,7 @@ class NetJSONGraphRender {
           });
         }
       }
+      // Store the clicked node in this.selectedNode for easy access later without need for traverse
       self.utils.setSelectedNodeFromUrlFragments(self, fragments, node);
     });
     links.forEach((link) => {

@@ -1229,6 +1229,12 @@ class NetJSONGraphUtil {
     return fragments;
   }
 
+  generateUrlFragments(fragments) {
+    return Object.values(fragments)
+      .map((urlParams) => urlParams.toString())
+      .join(";");
+  }
+
   setUrlFragments(self, params) {
     if (!self.config.urlFragments.show) return;
     const fragments = this.parseUrlFragments();
@@ -1249,11 +1255,7 @@ class NetJSONGraphUtil {
     if (zoom != undefined) {
       fragments[id].set("zoom", zoom);
     }
-    const newHash = Object.values(fragments)
-      .map((urlParams) => urlParams.toString())
-      .join(";");
-
-    window.location.hash = newHash;
+    window.location.hash = this.generateUrlFragments(fragments);
   }
 
   removeUrlFragment(self) {
@@ -1264,11 +1266,7 @@ class NetJSONGraphUtil {
     if (fragments[id]) {
       delete fragments[id];
     }
-    const newHash = Object.values(fragments)
-      .map((urlParams) => urlParams.toString())
-      .join(";");
-
-    window.location.hash = newHash;
+    window.location.hash = this.generateUrlFragments(fragments);
   }
 
   setSelectedNodeFromUrlFragments(self, fragments, node) {
