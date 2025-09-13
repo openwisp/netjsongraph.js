@@ -1179,6 +1179,86 @@ class NetJSONGraphUtil {
       },
     };
   }
+
+  parseUrlFragments() {
+    const raw = window.location.hash.replace(/^#/, "");
+    const fragments = {};
+    raw.split(";").forEach((fragmentStr) => {
+      const params = new URLSearchParams(fragmentStr);
+      const id = params.get("id");
+      if (id != null) {
+        fragments[id] = params;
+      }
+    });
+    return fragments;
+  }
+
+  generateUrlFragments(fragments) {
+    return Object.values(fragments)
+      .map((urlParams) => urlParams.toString())
+      .join(";");
+  }
+
+  setUrlFragments(self, params) {
+    if (!self.config.urlFragments.show) return;
+    const fragments = this.parseUrlFragments();
+    const id = self.config.urlFragments.id;
+    let nodeId, zoom;
+    if (params.componentSubType === "graph") {
+      nodeId = params.data.id;
+    }
+    if (["scatter", "effectScatter"].includes(params.componentSubType)) {
+      nodeId = params.data.node.id;
+    }
+    zoom = self?.leaflet?.getZoom();
+    if (!fragments[id]) {
+      fragments[id] = new URLSearchParams();
+      fragments[id].set("id", id);
+    }
+    fragments[id].set("nodeId", nodeId);
+    if (zoom != undefined) {
+      fragments[id].set("zoom", zoom);
+    }
+    window.location.hash = this.generateUrlFragments(fragments);
+  }
+
+  removeUrlFragment(self) {
+    if (!self.config.urlFragments.show) return;
+
+    const fragments = this.parseUrlFragments();
+    const id = self.config.urlFragments.id;
+    if (fragments[id]) {
+      delete fragments[id];
+    }
+    window.location.hash = this.generateUrlFragments(fragments);
+  }
+
+  setSelectedNodeFromUrlFragments(self, fragments, node) {
+    if (!self.config.urlFragments.show || !Object.keys(fragments).length) return;
+    const id = self.config.urlFragments.id;
+    const nodeId = fragments[id]?.get("nodeId");
+    const zoom = fragments[id]?.get("zoom");
+    if (nodeId === node.id) {
+      self.selectedNode = node;
+      if (zoom != undefined) self.selectedNode.zoom = Number(zoom);
+    }
+  }
+
+  applyUrlFragmentState(self) {
+    if (!self.config.urlFragments.show) return;
+    const node = self.selectedNode;
+    if (!node) return;
+    const nodeType =
+      self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
+    const {
+      properties: {location},
+      zoom,
+    } = node;
+    if (["scatter", "effectScatter"].includes(nodeType) && zoom != null) {
+      self.leaflet.setView([location.lat, location.lng], zoom);
+    }
+    self.config.onClickElement.call(self, "node", node);
+  }
 }
 
 export default NetJSONGraphUtil;

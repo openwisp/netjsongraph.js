@@ -102,6 +102,7 @@ class NetJSONGraphRender {
         if (params.componentSubType === "graphGL") {
           return clickElement("node", params.data);
         }
+        self.utils.setUrlFragments(self, params);
         return params.componentSubType === "lines"
           ? clickElement("link", params.data.link)
           : !params.data.cluster && clickElement("node", params.data.node);
@@ -127,6 +128,7 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
+    const fragments = self.utils.parseUrlFragments();
     const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
@@ -142,7 +144,8 @@ class NetJSONGraphRender {
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
       nodeResult._source = JSON.parse(JSON.stringify(node));
-
+      // Store the clicked node in this.selectedNode for easy access later without need for traverse
+      self.utils.setSelectedNodeFromUrlFragments(self, fragments, node);
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
@@ -201,7 +204,7 @@ class NetJSONGraphRender {
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
     let nodesData = [];
-
+    const fragments = self.utils.parseUrlFragments();
     nodes.forEach((node) => {
       if (node.properties) {
         // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
@@ -242,6 +245,8 @@ class NetJSONGraphRender {
           });
         }
       }
+      // Store the clicked node in this.selectedNode for easy access later without need for traverse
+      self.utils.setSelectedNodeFromUrlFragments(self, fragments, node);
     });
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
@@ -370,14 +375,13 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-
     window.onresize = () => {
       self.echarts.resize();
     };
-
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
@@ -415,6 +419,22 @@ class NetJSONGraphRender {
     self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
+
+    try {
+      if (self.utils && typeof self.utils.restoreBoundsFromUrl === "function") {
+        self.utils.restoreBoundsFromUrl(self);
+      }
+      if (self.utils && typeof self.utils.enableBoundsUrlSync === "function") {
+        const debounceMs = 300;
+        const precision = 6;
+        self._destroyUrlSync = self.utils.enableBoundsUrlSync(self, {
+          debounceMs,
+          precision,
+        });
+      }
+    } catch (e) {
+      console.warn("bbox URL restore/sync failed", e);
+    }
 
     self.config.geoOptions = self.utils.deepMergeObj(
       {
@@ -639,10 +659,10 @@ class NetJSONGraphRender {
         }
       });
     }
-
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
