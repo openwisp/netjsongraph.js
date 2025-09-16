@@ -202,7 +202,6 @@ describe("Test URL fragment utilities", () => {
   });
 
   test("Test parseUrlFragments parses multiple fragments and decodes values", () => {
-    // use ids that match what we will assert on
     window.location.hash =
       "#id=geoMap&nodeId=abc%3A123&zoom=5;id=indoorMap&nodeId=indoor-node&zoom=5";
     const fragments = utils.parseUrlFragments();
@@ -216,7 +215,7 @@ describe("Test URL fragment utilities", () => {
   test("Test setUrlFragments adds a new fragment with nodeId and zoom", () => {
     const self = {
       config: {
-        urlFragments: {show: true, id: "geoMap"},
+        bookmarkableActions: {enabled: true, id: "geoMap"},
       },
       leaflet: {getZoom: () => 7},
     };
@@ -238,7 +237,7 @@ describe("Test URL fragment utilities", () => {
     window.location.hash = "id=graph&nodeId=node-1";
 
     const self = {
-      config: {urlFragments: {show: true, id: "geo"}},
+      config: {bookmarkableActions: {enabled: true, id: "geo"}},
       leaflet: {getZoom: () => 9},
     };
     const params = {
@@ -258,8 +257,8 @@ describe("Test URL fragment utilities", () => {
 
   test("removeUrlFragment deletes the fragment for the given id", () => {
     window.location.hash = "id=keep&nodeId=a;id=removeMe&nodeId=b";
-    const self = {config: {urlFragments: {show: true, id: "removeMe"}}};
-    utils.removeUrlFragment(self);
+    const self = {config: {bookmarkableActions: {enabled: true, id: "removeMe"}}};
+    utils.removeUrlFragment(self, "removeMe");
     const fragments = utils.parseUrlFragments();
     expect(fragments.keep).toBeDefined();
     expect(fragments.removeMe).toBeUndefined();
@@ -268,10 +267,9 @@ describe("Test URL fragment utilities", () => {
 
   test("Test setSelectedNodeFromUrlFragments sets selectedNode and numeric zoom", () => {
     window.location.hash = "#id=geo&nodeId=abc&zoom=4";
-    const self = {config: {urlFragments: {show: true, id: "geo"}}};
+    const self = {config: {bookmarkableActions: {enabled: true, id: "geo"}}};
     const fragments = utils.parseUrlFragments();
 
-    // node with matching id
     const node = {id: "abc", properties: {}};
     utils.setSelectedNodeFromUrlFragments(self, fragments, node);
 
@@ -291,7 +289,7 @@ describe("Test URL fragment utilities", () => {
 
     const self = {
       config: {
-        urlFragments: {show: true, id: "geo"},
+        bookmarkableActions: {enabled: true, id: "geo"},
         graphConfig: {series: {type: null}},
         mapOptions: {nodeConfig: {type: "scatter"}},
         onClickElement: mockOnClick,

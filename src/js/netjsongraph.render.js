@@ -103,6 +103,7 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
+        self.utils.setUrlFragments(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -112,7 +113,6 @@ class NetJSONGraphRender {
         if (params.componentSubType === "graphGL") {
           return clickElement("node", params.data);
         }
-        self.utils.setUrlFragments(self, params);
         return params.componentSubType === "lines"
           ? clickElement("link", params.data.link)
           : !params.data.cluster && clickElement("node", params.data.node);

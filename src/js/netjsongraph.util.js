@@ -1236,9 +1236,9 @@ class NetJSONGraphUtil {
   }
 
   setUrlFragments(self, params) {
-    if (!self.config.urlFragments.show) return;
+    if (!self.config.bookmarkableActions.enabled) return;
     const fragments = this.parseUrlFragments();
-    const id = self.config.urlFragments.id;
+    const id = self.config.bookmarkableActions.id;
     let nodeId, zoom;
     if (params.componentSubType === "graph") {
       nodeId = params.data.id;
@@ -1247,22 +1247,21 @@ class NetJSONGraphUtil {
       nodeId = params.data.node.id;
     }
     zoom = self?.leaflet?.getZoom();
-    if (!fragments[id]) {
+    if (!fragments[id] || !(fragments[id] instanceof URLSearchParams)) {
       fragments[id] = new URLSearchParams();
       fragments[id].set("id", id);
     }
     fragments[id].set("nodeId", nodeId);
-    if (zoom != undefined) {
+    if (zoom != null) {
       fragments[id].set("zoom", zoom);
     }
     window.location.hash = this.generateUrlFragments(fragments);
   }
 
-  removeUrlFragment(self) {
-    if (!self.config.urlFragments.show) return;
+  removeUrlFragment(self, id) {
+    if (!self.config.bookmarkableActions.enabled) return;
 
     const fragments = this.parseUrlFragments();
-    const id = self.config.urlFragments.id;
     if (fragments[id]) {
       delete fragments[id];
     }
@@ -1270,26 +1269,23 @@ class NetJSONGraphUtil {
   }
 
   setSelectedNodeFromUrlFragments(self, fragments, node) {
-    if (!self.config.urlFragments.show || !Object.keys(fragments).length) return;
-    const id = self.config.urlFragments.id;
+    if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length) return;
+    const id = self.config.bookmarkableActions.id;
     const nodeId = fragments[id]?.get("nodeId");
     const zoom = fragments[id]?.get("zoom");
     if (nodeId === node.id) {
       self.selectedNode = node;
-      if (zoom != undefined) self.selectedNode.zoom = Number(zoom);
+      if (zoom != null) self.selectedNode.zoom = Number(zoom);
     }
   }
 
   applyUrlFragmentState(self) {
-    if (!self.config.urlFragments.show) return;
+    if (!self.config.bookmarkableActions.enabled) return;
     const node = self.selectedNode;
     if (!node) return;
     const nodeType =
       self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
-    const {
-      properties: {location},
-      zoom,
-    } = node;
+    const { location, zoom } = node;
     if (["scatter", "effectScatter"].includes(nodeType) && zoom != null) {
       self.leaflet.setView([location.lat, location.lng], zoom);
     }
