@@ -29,8 +29,7 @@ module.exports = (env, argv) => ({
   },
   devtool: argv.mode === "development" ? "eval-source-map" : "source-map",
   optimization: {
-    // Todo: Make it false
-    minimize: false,
+    minimize: true,
     minimizer: argv.mode === "production" ? minimizer : [],
   },
   module: {

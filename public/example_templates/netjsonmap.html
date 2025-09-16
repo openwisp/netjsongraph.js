@@ -71,9 +71,8 @@
     <script type="text/javascript">
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
-        // set map initial state.
-        urlFragments: {
-          show: true,
+        bookmarkableActions: {
+          enabled: true,
           id: "geographicMap"
         },
         mapOptions: {
@@ -100,7 +99,7 @@
             },
           },
         ],
-        // Convert to internal json format
+
         prepareData: (data) => {
           data.nodes.map((node) => {
             node.label = node.name;
