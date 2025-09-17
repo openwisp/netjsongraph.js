@@ -215,6 +215,9 @@
   z-index: 999;
   background-color: inherit;
 }
+.njg-container:has(.njg-tooltip ~ .leaflet-container) .njg-controls {
+  top: 80px;
+}
 .njg-container .njg-searchInput {
   width: 250px;
   height: 20px;
