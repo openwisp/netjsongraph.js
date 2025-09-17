@@ -465,24 +465,21 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   You can customize the style of GeoJSON features using `style` property. The list of all available properties can be found in the [Leaflet documentation](https://leafletjs.com/reference.html#geojson).
 
-<!-- Todo: Update this -->
+- `bookmarkableActions`
 
-- `hashParams`
-
-  Configuration for adding hash parameters to the URL when a node is clicked.
+  Configuration for adding url fragments when a node is clicked.
 
   ```JS
-      hashParams:{
-        show: boolean,
-        type: string
+      bookmarkableActions:{
+        enabled: boolean,
+        id: string
       }
   ```
 
-  You can enable or disable adding hash parameters by setting show to true or false. When enabled, the following parameters are added to the URL:
-  1. type – A prefix used to uniquely identify the map node.
-  2. nodeId – The ID of the selected node.
-  3. zoom – The current zoom level of the map.
-     **Note: Zoom is only applied when type is set to `geoMap`**
+  You can enable or disable adding url fragments by setting enabled to true or false. When enabled, the following parameters are added to the URL:
+  1. id – A prefix used to uniquely identify the map.
+  2. nodeId – The id of the selected node.
+     When a URL containing these fragments is opened, the click event associated with the given nodeId is triggered, and if the map is based on Leaflet, the view will automatically center on that node.
 
 - `onInit`
 

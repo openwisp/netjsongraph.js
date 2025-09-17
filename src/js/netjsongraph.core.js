@@ -17,6 +17,7 @@ class NetJSONGraph {
     // if explicitly set it to somthing like L.CRS.Simple.
     this.config.crs = NetJSONGraphDefaultConfig.crs;
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
+    this.utils.setupHashChangeHandler(this);
   }
 
   /**
