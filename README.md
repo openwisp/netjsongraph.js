@@ -4,17 +4,131 @@
 [![Coverage Status](https://coveralls.io/repos/github/openwisp/netjsongraph.js/badge.svg?branch=master)](https://coveralls.io/github/openwisp/netjsongraph.js?branch=master)
 ![Language](https://img.shields.io/badge/language-javascript-orange.svg)
 
-![img](/docs/graph.png)
-![img](/docs/graph-open.png)
-![img](/docs/map.png)
-![img](/docs/indoor-map.png)
-
 Leverage the power of [EchartsJS](https://github.com/apache/incubator-echarts) and [LeafletJS](https://github.com/Leaflet/Leaflet) to visualize network topology using the
 [NetJSON](http://netjson.org) `NetworkGraph` format.
 
 Build powerful and interoperable visualizations without losing flexibility!
 
-### Install and run demo examples
+## Live Examples
+
+Find below a rich set of live examples for the main use cases supported by NetJSONGraph.js.
+
+### Network graph
+
+[![Network graph](docs/gifs/netjsongraph.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
+
+Visualize a NetJSON NetworkGraph with pan/zoom, labels and tooltips.
+
+### Geographic map
+
+[![Geographic map](docs/gifs/netjsonmap.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap.html)
+
+Plot nodes by geographic coordinates on a Leaflet basemap; pan/zoom with markers.
+
+### Indoor map
+
+[![Indoor map](docs/gifs/netjsonmap-indoormap.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
+
+Use a 2D floorplan (Leaflet CRS.Simple) to place and connect indoor nodes.
+This example demonstrates the visualization of a mesh network topology graph on a 2D floorplan image.
+
+### Network Graph with custom attributes and legend
+
+[![Custom attributes](docs/gifs/netjsongraph-elementsLegend.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)
+
+Style nodes/links by categories and present them in a legend.
+
+### WiFi Clients Graph
+
+[![WiFi Clients Graph](docs/gifs/netjsongraph-wifi-clients.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-wifi-clients.html)
+
+Visualize per-node client counts as small colored dots around each node.
+
+### Clustering
+
+[![Clustering](docs/gifs/netjson-clustering.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
+
+Aggregate nearby nodes into clusters with automatic overlap prevention of clusters having different colors.
+
+### Switch graph mode (Network Graph / Geographic Map)
+
+[![Switch graph mode](docs/gifs/netjson-switchGraphMode.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchGraphMode.html)
+
+Switch between force-directed graph and geographic map views.
+
+### Switch render mode (Canvas/SVG)
+
+[![Switch render mode](docs/gifs/netjson-switchRenderMode.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchRenderMode.html)
+
+Toggle the renderer to balance quality/performance.
+
+### Nodes expand or fold
+
+[![Nodes expand or fold](docs/gifs/netjsongraph-nodeExpand.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-nodeExpand.html)
+
+Expand neighbors on click to focus on subgraphs; fold to declutter.
+
+### Geographic map with GeoJSON data
+
+[![Geographic map with GeoJSON data](docs/gifs/njg-geojson.gif)](https://openwisp.github.io/netjsongraph.js/examples/njg-geojson.html)
+
+Load GeoJSON FeatureCollections; they are converted to NetJSON nodes/links automatically.
+
+### Multiple tiles render
+
+[![Multiple tiles render](docs/gifs/netjsonmap-multipleTiles.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-multipleTiles.html)
+
+Switch between different tile providers and styles.
+
+### Leaflet plugins
+
+[![Leaflet plugins](docs/gifs/netjsonmap-plugins.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-plugins.html)
+
+Use draw/measure and other Leaflet plugins in map mode.
+
+### Search elements
+
+[![Search elements](docs/gifs/netjson-searchElements.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-searchElements.html)
+
+Fetch filtered data and update the view in-place.
+
+### JSONDataUpdate using override option
+
+[![JSONDataUpdate using override option](docs/gifs/netjsonmap-nodeTiles.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-nodeTiles.html)
+
+Update features/styles by zoom using JSONDataUpdate.
+
+### JSONDataUpdate using append option
+
+[![JSONDataUpdate using append option](docs/gifs/netjsonmap-appendData.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData.html)
+
+Append new nodes/links on the fly without a full reload.
+
+### Append data using arrays
+
+[![Append data using arrays](docs/gifs/netjsonmap-appendData2.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
+
+Append data from an array of sources at startup.
+
+### Multiple links render
+
+[![Multiple links render](docs/gifs/netjsongraph-multipleLinks.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-multipleLinks.html)
+
+Display up to two distinct physical/logical links between the same endpoints.
+
+### Multiple interfaces
+
+[![Multiple interfaces](docs/gifs/netjson-multipleInterfaces.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-multipleInterfaces.html)
+
+Deduplicate, merge interfaces and enrich link info before rendering.
+
+### Date parse
+
+[![Date parse](docs/gifs/netjson-dateParse.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateParse.html)
+
+Normalize ISO timestamps to the browser timezone in node/link details.
+
+### Install and run examples
 
 ```
 yarn install
@@ -363,48 +477,17 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The callback function executed when a node or link is clicked.
 
-### Configuration instructions
+### API reference
 
-netjsongraph.js mainly relies on the Echarts for rendering, so the related configuration is mainly inherited from [Echarts](https://echarts.apache.org/en/option.html).
+Looking for configuration details? See the inline docs and type hints in the source code:
 
-The library mainly supports two rendering modes -- `graph` and `map`. You can choose either of these and set it in `render` property in options.
-
-In extreme cases, you can also pass your own render function if you don't want Echarts to render. We will pass in the processed netjson data and netjsongraph object.
-
-For graph, you need to configure `graphConfig` property. We only support [graph](https://echarts.apache.org/en/option.html#series-graph) and [graphGL](https://echarts.apache.org/zh/option-gl.html#series-graphGL). The main difference between **graph** and **graphGL** is the [`forceAtlas2`](https://echarts.apache.org/zh/option-gl.html#series-graphGL.forceAtlas2) param series in Echarts. The latter is mainly used for big data rendering. You can use **graphGL** by setting `graphConfig.type` to `graphGL`. We use **graph** series and **force** layout by default. You can modify them freely according to the documentation.
-
-For map, you need to configure `mapOptions`. The [`mapOptions`](https://leafletjs.com/reference-1.5.0.html#map-option) and [`mapTileConfig`](https://leafletjs.com/reference-1.5.0.html#tilelayer) are required for the map render. You can customize the nodes and links with [`nodeConfig`](https://echarts.apache.org/en/option.html#series-scatter) and [`linkConfig`](https://echarts.apache.org/en/option.html#series-lines) optionally. For map nodes, you can also change the `type` to [`effectScatter`](https://echarts.apache.org/en/option.html#series-effectScatter) series to enable animation effects.
-
-You can also customize some global properties with [`echartsOption`](https://echarts.apache.org/en/option.html) in echarts.
+- `src/js/netjsongraph.config.js` – default options and configuration structure
+- `src/js/netjsongraph.render.js` – rendering internals and option handling
+- `src/js/netjsongraph.util.js` – utilities you can override via `setUtils`
 
 ## Circle Markers in Graph Mode
 
 It's possible to render small colored circles around each node to represent the amount of connected WiFi clients. The overlay counts WiFi clients as a single total. This helper draws on the same ZRender layer as the graph, so the markers follow pan/zoom/force layout without extra work and do not call `setOption` during the main render.
-
-### Configuration
-
-- **Example**: See `public/example_templates/netjsongraph-wifi-clients.html` with dataset `public/assets/data/netjsongraph-wifi-clients.json`
-
-#### Example Usage
-
-```javascript
-const graph = new NetJSONGraph("../assets/data/netjsongraph-wifi-clients.json", {
-  render: "graph",
-  onReady() {
-    // Attach the client overlay once the graph is ready
-    this.attachClientsOverlay({
-      // --- Optional configuration ---
-      radius: 5, // Radius of each client dot in pixels
-      gap: 3, // Distance from the node's edge to the first ring of dots
-      colors: {
-        wifi: "#d35454",
-      },
-      minZoomLevel: 1, // Only show dots when zoom level is at or above this value
-    });
-  },
-});
-graph.render();
-```
 
 For a live demo, see the [WiFi Clients Graph example](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-wifi-clients.html).
 
@@ -416,34 +499,7 @@ The number of dots rendered around a node is determined by the `clients` field i
   - If it's an Array, its length is used as the client count (and the sidebar lists Client [i] entries, e.g., MAC addresses).
   - If it's a Number, the value is used directly as the count.
 
-**Example Node Data**:
-
-```javascript
-{
-  "nodes": [
-    {
-      "id": "A",
-      "label": "Node A",
-      // Shows 1 primary client dot. Displays details in the sidebar.
-      "clients": [{"mac": "d8:5d:4c:f1:aa:62"}]
-    },
-    {
-      "id": "B",
-      "label": "Node B",
-      // Shows 2 primary client dots.
-      "clients": [{"mac": "..."}, {"mac": "..."}]
-    },
-    {
-      "id": "C",
-      "label": "Node C",
-      // Shows 1 primary client dot.
-      "clients": 1
-    }
-  ]
-}
-```
-
-### GeoJSON handling
+## GeoJSON handling
 
 netjsongraph.js will now **always** convert GeoJSON input into an internal
 NetJSON‐like structure (`nodes` / `links`). The original GeoJSON object is kept
@@ -476,7 +532,7 @@ flow clearer and easier to maintain.
 
 When multiple clusters of different categories share identical coordinates, NetJSONGraph now **automatically** offsets them in a circular pattern (pixel-space repulsion). No extra utilities or configuration flags are required—simply enable clustering with a `clusteringAttribute`, and the library handles overlap for you.
 
-See the [Cluster Overlap Example](./examples/netjson-clustering.html) to view the result.
+See the [Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html).
 
 ## Realtime Update
 
@@ -812,85 +868,6 @@ yarn start
 </html>
 ```
 
-### Example Demos
-
-The demo shows default `graph` render.
-[Basic graph demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph.html)
-
-The demo shows `map` render.
-[Map demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap.html)
-
-The demo shows how to use `graphGL` to render big data.
-[graphGL(bigData) demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-graphGL.html)
-
-The demo shows how to set custom attributes.
-[Custom attributes demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)
-
-The demo shows the multiple links render.
-Currently only supports up to two links.
-[Multiple links demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-multipleLinks.html)
-
-The demo is used to show how to deal with the `multiple interfaces` in the NetJSON data.
-We provide a work file to process the data before rendering.
-This file provides functions to remove dirty data, deduplicate, handle multiple interfaces, add node links, add flatNodes and so on.
-You can also define related files yourself.
-[Multiple interfaces demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-multipleInterfaces.html)
-
-The demo is used to show the use of the `dateParse` function.
-You can set the node or link property value `time`, we will call this function to parse the string in the element details defaultly.
-Of course you can also call directly.
-[dateParse demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-dateParse.html)
-
-The demo shows how to switch the netjsongraph render mode -- `svg` or `canvas`.
-[Switch render mode demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchRenderMode.html)
-
-The demo shows how to switch the netjsongraph render mode -- `graph` or `map`.
-[Switch graph mode demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-switchGraphMode.html)
-
-The demo is used to show the use of the `searchElements` function.
-For test, you can input `test` or `appendData` and click the `search` button.
-[Search elements demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-searchElements.html)
-
-The demo shows how to interact with elements.
-[Nodes expand or fold demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-nodeExpand.html)
-
-The demo is used to show how to use the `JSONDataUpdate` function to update data.
-See other examples：
-netjson-updateData.html: It chooses override data.
-netjsonmap-appendData.html: It chooses append data.
-[JSONDataUpdate using override option demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-nodeTiles.html)
-
-The demo shows hwo to set path animation.
-[Geographic map animated links demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-animation.html)
-
-The demo is used to show how to set indoor map.
-Mainly the operation of leaflet.
-[Indoor map demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
-
-The demo is used to show how to use the leaflet plugins.
-Mainly the operation of leaflet.
-[ Leaflet plugins demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-plugins.html)
-
-The demo shows the multiple tiles render.
-[ Map with multiple tiles demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-multipleTiles.html)
-
-The demo is used to show how to use the `JSONDataUpdate` function to update data.
-Here we choose to append data by modify the default parameter.
-See other examples：
-netjson-updateData.html: It chooses override data.
-netjsonmap-nodeTiles.html: override data by different zoom value.
-[JSONDataUpdate using append option demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData.html)
-
-Using array files to append data step by step at start.
-Similiar to the first method, but easier.
-[ Append data using arrays demo](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-appendData2.html)
-
-The demo shows the clustering of nodes.
-[ Clustering demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-clustering.html)
-
-The demo shows how to display connected WiFi clients around nodes.
-[WiFi Clients Graph demo](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-wifi-clients.html)
-
 ### Upgrading from 0.1.x versions to 0.2.x
 
 We advise all users of netjsongraph.js who are using the 0.1.x version to
@@ -945,12 +922,8 @@ Refer to the [Arguments section](#arguments) section for more details.
 
 ### Contributing
 
-1. Fork it!
-2. Create your feature branch: git checkout -b my-new-feature
-3. Commit your changes: git commit -am 'Add some feature'
-4. Push to the branch: git push origin my-new-feature
-5. Submit a pull request :D
+Refer to the OpenWISP Contributing Guidelines: https://openwisp.io/docs/developer/contributing.html
 
 ### License
 
-[BSD 3-Clause License](https://github.com/interop-dev/netjsongraph.js/blob/master/LICENSE).
+[BSD 3-Clause License](https://github.com/openwisp/netjsongraph.js/blob/master/LICENSE).
