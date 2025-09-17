@@ -1236,60 +1236,76 @@ class NetJSONGraphUtil {
   }
 
   setUrlFragments(self, params) {
-    if (!self.config.bookmarkableActions.enabled) return;
+    if (!self.config.bookmarkableActions.enabled || params.data.cluster) return;
     const fragments = this.parseUrlFragments();
     const id = self.config.bookmarkableActions.id;
-    let nodeId, zoom;
+    let nodeId;
+    self.indexedNode = self.indexedNode || {};
     if (params.componentSubType === "graph") {
       nodeId = params.data.id;
+      self.indexedNode[nodeId] = params.data;
     }
     if (["scatter", "effectScatter"].includes(params.componentSubType)) {
       nodeId = params.data.node.id;
+      self.indexedNode[nodeId] = params.data.node;
     }
-    zoom = self?.leaflet?.getZoom();
-    if (!fragments[id] || !(fragments[id] instanceof URLSearchParams)) {
+    if (!fragments[id]) {
       fragments[id] = new URLSearchParams();
       fragments[id].set("id", id);
     }
     fragments[id].set("nodeId", nodeId);
-    if (zoom != null) {
-      fragments[id].set("zoom", zoom);
-    }
-    window.location.hash = this.generateUrlFragments(fragments);
+    const newHash = this.generateUrlFragments(fragments);
+    const state = self.indexedNode[nodeId];
+    history.pushState(state, "", `#${newHash}`);
   }
 
-  removeUrlFragment(self, id) {
-    if (!self.config.bookmarkableActions.enabled) return;
-
+  removeUrlFragment(id) {
     const fragments = this.parseUrlFragments();
     if (fragments[id]) {
       delete fragments[id];
     }
-    window.location.hash = this.generateUrlFragments(fragments);
+    const newHash = this.generateUrlFragments(fragments);
+    const state = {id};
+    history.pushState(state, "", `#${newHash}`);
   }
 
-  setSelectedNodeFromUrlFragments(self, fragments, node) {
-    if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length) return;
+  setIndexedNodeFromUrlFragments(self, fragments, node) {
+    if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length)
+      return;
     const id = self.config.bookmarkableActions.id;
     const nodeId = fragments[id]?.get("nodeId");
-    const zoom = fragments[id]?.get("zoom");
     if (nodeId === node.id) {
-      self.selectedNode = node;
-      if (zoom != null) self.selectedNode.zoom = Number(zoom);
+      self.indexedNode = self.indexedNode || {};
+      self.indexedNode[nodeId] = node;
     }
   }
 
   applyUrlFragmentState(self) {
     if (!self.config.bookmarkableActions.enabled) return;
-    const node = self.selectedNode;
-    if (!node) return;
+    const id = self.config.bookmarkableActions.id;
+    const fragments = self.utils.parseUrlFragments();
+    const nodeId = fragments[id]?.get("nodeId");
+    if (!self.indexedNode || !self.indexedNode[nodeId]) return;
+    const node = self.indexedNode[nodeId];
     const nodeType =
       self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
-    const { location, zoom } = node;
-    if (["scatter", "effectScatter"].includes(nodeType) && zoom != null) {
+    const {location, cluster} = node;
+    if (["scatter", "effectScatter"].includes(nodeType)) {
+      const zoom =
+        cluster != null ? self.config.disableClusteringAtLevel : self.leaflet.getZoom();
       self.leaflet.setView([location.lat, location.lng], zoom);
     }
     self.config.onClickElement.call(self, "node", node);
+  }
+
+  setupHashChangeHandler(self) {
+    window.addEventListener("popstate", () => {
+      const currentNode = history.state;
+      if (currentNode != null && !self.indexedNode[currentNode.id]) {
+        self.indexedNode[currentNode.id] = currentNode;
+      }
+      this.applyUrlFragmentState(self);
+    });
   }
 }
 

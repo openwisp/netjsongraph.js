@@ -203,12 +203,11 @@ describe("Test URL fragment utilities", () => {
 
   test("Test parseUrlFragments parses multiple fragments and decodes values", () => {
     window.location.hash =
-      "#id=geoMap&nodeId=abc%3A123&zoom=5;id=indoorMap&nodeId=indoor-node&zoom=5";
+      "#id=geoMap&nodeId=abc%3A123;id=indoorMap&nodeId=indoor-node";
     const fragments = utils.parseUrlFragments();
 
     expect(Object.keys(fragments).sort()).toEqual(["geoMap", "indoorMap"].sort());
-    expect(fragments.geoMap.get("nodeId")).toBe("abc:123"); // percent-decoded
-    expect(fragments.geoMap.get("zoom")).toBe("5");
+    expect(fragments.geoMap.get("nodeId")).toBe("abc:123");
     expect(fragments.indoorMap.get("nodeId")).toBe("indoor-node");
   });
 
@@ -217,7 +216,6 @@ describe("Test URL fragment utilities", () => {
       config: {
         bookmarkableActions: {enabled: true, id: "geoMap"},
       },
-      leaflet: {getZoom: () => 7},
     };
     const params = {
       componentSubType: "effectScatter",
@@ -230,7 +228,6 @@ describe("Test URL fragment utilities", () => {
     expect(fragments.geoMap).toBeDefined();
     expect(fragments.geoMap.get("id")).toBe("geoMap");
     expect(fragments.geoMap.get("nodeId")).toBe("node-1");
-    expect(fragments.geoMap.get("zoom")).toBe("7");
   });
 
   test("Test setUrlFragments updates an existing fragment and preserves others", () => {
@@ -238,7 +235,7 @@ describe("Test URL fragment utilities", () => {
 
     const self = {
       config: {bookmarkableActions: {enabled: true, id: "geo"}},
-      leaflet: {getZoom: () => 9},
+      indexedNode: undefined,
     };
     const params = {
       componentSubType: "graph",
@@ -246,45 +243,43 @@ describe("Test URL fragment utilities", () => {
     };
 
     utils.setUrlFragments(self, params);
-
     const fragments = utils.parseUrlFragments();
+
     expect(fragments.graph).toBeDefined();
     expect(fragments.graph.get("nodeId")).toBe("node-1");
-
     expect(fragments.geo.get("nodeId")).toBe("node-2");
-    expect(fragments.geo.get("zoom")).toBe("9");
   });
 
   test("removeUrlFragment deletes the fragment for the given id", () => {
     window.location.hash = "id=keep&nodeId=a;id=removeMe&nodeId=b";
-    const self = {config: {bookmarkableActions: {enabled: true, id: "removeMe"}}};
-    utils.removeUrlFragment(self, "removeMe");
+    utils.removeUrlFragment("removeMe");
     const fragments = utils.parseUrlFragments();
     expect(fragments.keep).toBeDefined();
     expect(fragments.removeMe).toBeUndefined();
     expect(window.location.hash).not.toContain("removeMe");
   });
 
-  test("Test setSelectedNodeFromUrlFragments sets selectedNode and numeric zoom", () => {
+  test("Test setIndexedNodeFromUrlFragments sets indexedNode and numeric zoom", () => {
     window.location.hash = "#id=geo&nodeId=abc&zoom=4";
     const self = {config: {bookmarkableActions: {enabled: true, id: "geo"}}};
     const fragments = utils.parseUrlFragments();
 
     const node = {id: "abc", properties: {}};
-    utils.setSelectedNodeFromUrlFragments(self, fragments, node);
+    utils.setIndexedNodeFromUrlFragments(self, fragments, node);
 
-    expect(self.selectedNode).toBe(node);
-    expect(self.selectedNode.zoom).toBe(4);
+    expect(self.indexedNode).toBeDefined();
+    expect(self.indexedNode.abc).toBe(node);
+    expect(self.indexedNode.abc.id).toBe("abc");
   });
 
-  test("Test applyUrlFragmentState calls map.setView and triggers onClickElement", () => {
+  test("applyUrlFragmentState calls map.setView and triggers onClickElement", () => {
     const mockSetView = jest.fn();
     const mockOnClick = jest.fn();
 
     const node = {
       id: "n1",
-      properties: {location: {lat: 12.1, lng: 77.5}},
-      zoom: 6,
+      location: {lat: 12.1, lng: 77.5},
+      cluster: null,
     };
 
     const self = {
@@ -294,10 +289,12 @@ describe("Test URL fragment utilities", () => {
         mapOptions: {nodeConfig: {type: "scatter"}},
         onClickElement: mockOnClick,
       },
-      selectedNode: node,
-      leaflet: {setView: mockSetView},
+      indexedNode: {n1: node},
+      leaflet: {setView: mockSetView, getZoom: () => 6},
+      utils,
     };
 
+    window.location.hash = "#id=geo&nodeId=n1";
     utils.applyUrlFragmentState(self);
 
     expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 6);
@@ -308,12 +305,12 @@ describe("Test URL fragment utilities", () => {
     const recorder = [];
 
     const emitter = {
-      _handlers: {},
+      handlers: {},
       once(event, handler) {
-        this._handlers[event] = handler;
+        this.handlers[event] = handler;
       },
       emit(event) {
-        const h = this._handlers[event];
+        const h = this.handlers[event];
         if (h) h();
       },
     };
