@@ -152,8 +152,8 @@ class NetJSONGraphRender {
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
       nodeResult._source = JSON.parse(JSON.stringify(node));
-      // Store the clicked node in this.selectedNode for easy access later without need for traverse
-      self.utils.setSelectedNodeFromUrlFragments(self, fragments, node);
+      // Store the clicked node in this.indexedNode for easy access later without need for traverse
+      self.utils.setIndexedNodeFromUrlFragments(self, fragments, node);
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
@@ -293,8 +293,8 @@ class NetJSONGraphRender {
           });
         }
       }
-      // Store the clicked node in this.selectedNode for easy access later without need for traverse
-      self.utils.setSelectedNodeFromUrlFragments(self, fragments, node);
+      // Store the clicked node in this.indexedNode for easy access later without need for traverse
+      self.utils.setIndexedNodeFromUrlFragments(self, fragments, node);
     });
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
