@@ -1179,6 +1179,98 @@ class NetJSONGraphUtil {
       },
     };
   }
+
+  parseUrlFragments() {
+    const raw = window.location.hash.replace(/^#/, "");
+    const fragments = {};
+    raw.split(";").forEach((fragmentStr) => {
+      const params = new URLSearchParams(fragmentStr);
+      const id = params.get("id");
+      if (id != null) {
+        fragments[id] = params;
+      }
+    });
+    return fragments;
+  }
+
+  generateUrlFragments(fragments) {
+    return Object.values(fragments)
+      .map((urlParams) => urlParams.toString())
+      .join(";");
+  }
+
+  setUrlFragments(self, params) {
+    if (!self.config.bookmarkableActions.enabled || params.data.cluster) return;
+    const fragments = this.parseUrlFragments();
+    const id = self.config.bookmarkableActions.id;
+    let nodeId;
+    self.indexedNode = self.indexedNode || {};
+    if (params.componentSubType === "graph") {
+      nodeId = params.data.id;
+      self.indexedNode[nodeId] = params.data;
+    }
+    if (["scatter", "effectScatter"].includes(params.componentSubType)) {
+      nodeId = params.data.node.id;
+      self.indexedNode[nodeId] = params.data.node;
+    }
+    if (!fragments[id]) {
+      fragments[id] = new URLSearchParams();
+      fragments[id].set("id", id);
+    }
+    fragments[id].set("nodeId", nodeId);
+    const newHash = this.generateUrlFragments(fragments);
+    const state = self.indexedNode[nodeId];
+    history.pushState(state, "", `#${newHash}`);
+  }
+
+  removeUrlFragment(id) {
+    const fragments = this.parseUrlFragments();
+    if (fragments[id]) {
+      delete fragments[id];
+    }
+    const newHash = this.generateUrlFragments(fragments);
+    const state = {id};
+    history.pushState(state, "", `#${newHash}`);
+  }
+
+  setIndexedNodeFromUrlFragments(self, fragments, node) {
+    if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length)
+      return;
+    const id = self.config.bookmarkableActions.id;
+    const nodeId = fragments[id]?.get("nodeId");
+    if (nodeId === node.id) {
+      self.indexedNode = self.indexedNode || {};
+      self.indexedNode[nodeId] = node;
+    }
+  }
+
+  applyUrlFragmentState(self) {
+    if (!self.config.bookmarkableActions.enabled) return;
+    const id = self.config.bookmarkableActions.id;
+    const fragments = self.utils.parseUrlFragments();
+    const nodeId = fragments[id]?.get("nodeId");
+    if (!self.indexedNode || !self.indexedNode[nodeId]) return;
+    const node = self.indexedNode[nodeId];
+    const nodeType =
+      self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
+    const {location, cluster} = node;
+    if (["scatter", "effectScatter"].includes(nodeType)) {
+      const zoom =
+        cluster != null ? self.config.disableClusteringAtLevel : self.leaflet.getZoom();
+      self.leaflet.setView([location.lat, location.lng], zoom);
+    }
+    self.config.onClickElement.call(self, "node", node);
+  }
+
+  setupHashChangeHandler(self) {
+    window.addEventListener("popstate", () => {
+      const currentNode = history.state;
+      if (currentNode != null && !self.indexedNode[currentNode.id]) {
+        self.indexedNode[currentNode.id] = currentNode;
+      }
+      this.applyUrlFragmentState(self);
+    });
+  }
 }
 
 export default NetJSONGraphUtil;

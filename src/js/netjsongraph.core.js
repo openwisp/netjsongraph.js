@@ -17,6 +17,7 @@ class NetJSONGraph {
     // if explicitly set it to somthing like L.CRS.Simple.
     this.config.crs = NetJSONGraphDefaultConfig.crs;
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
+    this.utils.setupHashChangeHandler(this);
   }
 
   /**
@@ -71,8 +72,19 @@ class NetJSONGraph {
     const [JSONParam, ...resParam] = this.JSONParam;
 
     this.config.onRender.call(this);
-    this.event.once("onReady", this.config.onReady.bind(this));
+    // Ensure applyUrlFragmentState runs only after onReady has completed,
+    // as onReady may perform asynchronous operations
+    const onReadyDone = new Promise((resolve) => {
+      this.event.once("onReady", async () => {
+        await this.config.onReady.call(this);
+        resolve();
+      });
+    });
     this.event.once("onLoad", this.config.onLoad.bind(this));
+    this.event.once("applyUrlFragmentState", async () => {
+      await onReadyDone;
+      this.utils.applyUrlFragmentState.call(this, this);
+    });
     this.utils.paginatedDataParse
       .call(this, JSONParam)
       .then((JSONData) => {

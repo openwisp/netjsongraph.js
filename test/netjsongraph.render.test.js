@@ -509,6 +509,8 @@ describe("generateMapOption - node processing and dynamic styling", () => {
           linkStyleConfig: {},
           linkEmphasisConfig: {linkStyle: {}},
         })),
+        parseUrlFragments: jest.fn(),
+        setIndexedNodeFromUrlFragments: jest.fn(),
       },
     };
   });
@@ -980,6 +982,8 @@ describe("Test disableClusteringAtLevel: 0", () => {
           nonClusterNodes: [],
           nonClusterLinks: [],
         })),
+        parseUrlFragments: jest.fn(),
+        setIndexedNodeFromUrlFragments: jest.fn(),
       },
       event: {
         emit: jest.fn(),
@@ -1076,6 +1080,8 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
+        parseUrlFragments: jest.fn(),
+        setIndexedNodeFromUrlFragments: jest.fn(),
       },
       event: {
         emit: jest.fn(),
@@ -1217,6 +1223,8 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         echartsSetOption: jest.fn(),
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
+        parseUrlFragments: jest.fn(),
+        setIndexedNodeFromUrlFragments: jest.fn(),
       },
       event: {emit: jest.fn()},
     };
