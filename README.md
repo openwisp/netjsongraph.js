@@ -248,6 +248,22 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   The zoom level at which the labels are shown. This only works when `render` is set to `map`.
   In graph mode, the overlapping labels are hidden automatically when zooming.
 
+- `showGraphLabelsAtZoom`
+
+  Provide an explicit label-visibility threshold for graph mode (ECharts `graph`).
+  This is a continuous scale factor, not a Leaflet zoom level. When set to a number (> 0), node
+  labels are shown only when the current series zoom is greater than or equal to the value.
+  Default: disabled. To enable it, set a positive number like `2`.
+
+  Example:
+
+  ```js
+  new NetJSONGraph(url, {
+    render: "graph",
+    showGraphLabelsAtZoom: 2, // hide labels until user zooms in sufficiently
+  });
+  ```
+
 - `maxPointsFetched`
 
   **Default**: `10000`
