@@ -392,7 +392,9 @@ class NetJSONGraphUtil {
 
     const locationGroups = new Map();
     nodes.forEach((node) => {
-      if (node.visited) return;
+      if (node.visited) {
+        return;
+      }
 
       // 3. Find all neighbors within clusterRadius in pixel space
       // For a node at (x, y), find all nodes (xi, yi) such that:
@@ -412,7 +414,9 @@ class NetJSONGraphUtil {
 
         // 4. Further group by attribute if configured (e.g., status)
         neighbors.forEach((n) => {
-          if (n.visited) return;
+          if (n.visited) {
+            return;
+          }
           const attr = self.config.clusteringAttribute
             ? n.properties[self.config.clusteringAttribute]
             : "default";
@@ -617,7 +621,9 @@ class NetJSONGraphUtil {
             }
           }
         }
-        if (!adjusted) break;
+        if (!adjusted) {
+          break;
+        }
       }
 
       // Commit adjusted positions back to objects (convert to lat/lng)
@@ -817,8 +823,12 @@ class NetJSONGraphUtil {
     if (Array.isArray(source.local_addresses)) {
       const normalized = source.local_addresses
         .map((entry) => {
-          if (typeof entry === "string") return entry;
-          if (entry && typeof entry.address === "string") return entry.address;
+          if (typeof entry === "string") {
+            return entry;
+          }
+          if (entry && typeof entry.address === "string") {
+            return entry.address;
+          }
           return null;
         })
         .filter((v) => v);
@@ -922,7 +932,9 @@ class NetJSONGraphUtil {
     if (link.properties) {
       Object.keys(link.properties).forEach((key) => {
         const val = link.properties[key];
-        if (val === undefined || val === null) return;
+        if (val === undefined || val === null) {
+          return;
+        }
 
         if (key === "time") {
           const time = this.dateParse({dateString: val});
@@ -969,7 +981,9 @@ class NetJSONGraphUtil {
     if (link.properties) {
       Object.keys(link.properties).forEach((key) => {
         const val = link.properties[key];
-        if (val === undefined || val === null) return;
+        if (val === undefined || val === null) {
+          return;
+        }
 
         if (key === "time") {
           const time = this.dateParse({dateString: val});

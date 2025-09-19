@@ -71,7 +71,9 @@ export function geojsonToNetjson(geojson) {
   };
 
   const handleGeometry = (geometry, props) => {
-    if (!geometry) return;
+    if (!geometry) {
+      return;
+    }
     const {type, coordinates, geometries} = geometry;
     switch (type) {
       case "Point":
@@ -140,7 +142,9 @@ export function addPolygonOverlays(self) {
       (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"),
   );
 
-  if (!polygonFeatures.length) return;
+  if (!polygonFeatures.length) {
+    return;
+  }
 
   let polygonPane = map.getPane("njg-polygons");
   if (!polygonPane) {
@@ -166,12 +170,18 @@ export function addPolygonOverlays(self) {
           ...defaultStyle,
           ...(self.config.geoOptions && self.config.geoOptions.style),
         };
-        if (echartsStyle.areaColor) leafletStyle.fillColor = echartsStyle.areaColor;
-        if (echartsStyle.color) leafletStyle.color = echartsStyle.color;
-        if (typeof echartsStyle.opacity !== "undefined")
+        if (echartsStyle.areaColor) {
+          leafletStyle.fillColor = echartsStyle.areaColor;
+        }
+        if (echartsStyle.color) {
+          leafletStyle.color = echartsStyle.color;
+        }
+        if (typeof echartsStyle.opacity !== "undefined") {
           leafletStyle.fillOpacity = echartsStyle.opacity;
-        if (typeof echartsStyle.borderWidth !== "undefined")
+        }
+        if (typeof echartsStyle.borderWidth !== "undefined") {
           leafletStyle.weight = echartsStyle.borderWidth;
+        }
         return leafletStyle;
       },
       onEachFeature: (feature, layer) => {

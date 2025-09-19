@@ -25,9 +25,15 @@ function attachClientsOverlay(graph, options = {}) {
    * Supports both numeric count and array of client objects.
    */
   const getClientCount = (node) => {
-    if (!node) return 0;
-    if (typeof node.clients === "number") return node.clients;
-    if (Array.isArray(node.clients)) return node.clients.length;
+    if (!node) {
+      return 0;
+    }
+    if (typeof node.clients === "number") {
+      return node.clients;
+    }
+    if (Array.isArray(node.clients)) {
+      return node.clients.length;
+    }
     return 0;
   };
 
@@ -37,7 +43,9 @@ function attachClientsOverlay(graph, options = {}) {
    */
   function getSeriesViewGroup() {
     const seriesModel = chart.getModel().getSeriesByIndex(0);
-    if (!seriesModel) return null;
+    if (!seriesModel) {
+      return null;
+    }
     const chartsViews = chart._chartsViews || [];
     const seriesView = chartsViews.find(
       (v) => v && v.__model && v.__model.uid === seriesModel.uid,
@@ -47,7 +55,9 @@ function attachClientsOverlay(graph, options = {}) {
 
   // Create the overlay group and attach it to the series view
   const parent = getSeriesViewGroup();
-  if (!parent) return {destroy() {}};
+  if (!parent) {
+    return {destroy() {}};
+  }
   const overlay = new g.Group({silent: true, z: 100, zlevel: 1});
   parent.add(overlay);
 
@@ -80,9 +90,13 @@ function attachClientsOverlay(graph, options = {}) {
 
   function draw() {
     const seriesModel = chart.getModel().getSeriesByIndex(0);
-    if (!seriesModel) return;
+    if (!seriesModel) {
+      return;
+    }
     const data = seriesModel.getData();
-    if (!data) return;
+    if (!data) {
+      return;
+    }
 
     updateZoom();
     overlay.removeAll();
@@ -104,7 +118,9 @@ function attachClientsOverlay(graph, options = {}) {
     const placeOrbit = (centerX, centerY, total, startDistance, color) => {
       const a = 1.2;
       let i = 0;
-      if (total === 0) return;
+      if (total === 0) {
+        return;
+      }
 
       for (let orbit = 0; i < total; orbit += 1) {
         const distance = Math.max(0.1, startDistance + orbit * 2 * radius * a);
@@ -174,7 +190,9 @@ function attachClientsOverlay(graph, options = {}) {
           chart.off(ev, fn);
         }
       });
-      if (overlay && overlay.parent) overlay.parent.remove(overlay);
+      if (overlay && overlay.parent) {
+        overlay.parent.remove(overlay);
+      }
     },
     setMinZoomLevel(newLevel) {
       minZoomLevel = newLevel;

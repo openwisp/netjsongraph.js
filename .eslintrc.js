@@ -4,6 +4,7 @@ module.exports = {
     "no-param-reassign": "off",
     "class-methods-use-this": "off",
     "no-console": "off",
+    curly: ["error", "all"],
   },
   env: {
     jest: true,
