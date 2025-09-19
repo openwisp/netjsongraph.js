@@ -1193,6 +1193,19 @@ class NetJSONGraphUtil {
       },
     };
   }
+
+  moveNodeInRealTime(self, id, location) {
+    const dataIndex = series.data.findIndex(d => d.node.id === id);
+    const node = self.data.nodes[dataIndex]
+    const options = self.echarts.getOption()
+    const series = options.series.find(s => s.type === 'effectScatter');
+    node.location = location
+    node.properties.location = location
+    series.data[dataIndex].value = [location.lng, location.lat];
+    self.echarts.setOption({
+      series: options.series
+    });
+  }
 }
 
 export default NetJSONGraphUtil;
