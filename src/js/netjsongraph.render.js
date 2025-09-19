@@ -427,7 +427,9 @@ class NetJSONGraphRender {
     // Toggle labels on zoom threshold crossing
     if (self.config.showGraphLabelsAtZoom > 0) {
       self.echarts.on("graphRoam", (params) => {
-        if (!params || !params.zoom) return;
+        if (!params || !params.zoom) {
+          return;
+        }
         const option = self.echarts.getOption();
         const labelsVisible =
           option &&

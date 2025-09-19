@@ -122,9 +122,15 @@ class NetJSONGraphGUI {
 
     // Key label normalization to improve readability
     const formatKeyLabel = (k) => {
-      if (k === "clients") return "Clients";
-      if (/^clients\s*\[\d+\]$/i.test(k)) return k.replace(/^clients/i, "Client");
-      if (k === "localAddresses") return "Local Addresses";
+      if (k === "clients") {
+        return "Clients";
+      }
+      if (/^clients\s*\[\d+\]$/i.test(k)) {
+        return k.replace(/^clients/i, "Client");
+      }
+      if (k === "localAddresses") {
+        return "Local Addresses";
+      }
       return k.replace(/_/g, " ");
     };
 
