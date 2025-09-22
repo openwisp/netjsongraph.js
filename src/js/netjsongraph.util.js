@@ -1216,6 +1216,26 @@ class NetJSONGraphUtil {
     };
   }
 
+  /**
+   * Parse the URL hash into a mapping of map IDs to their parameters.
+   *
+   * The URL hash may contain multiple fragments separated by `;`, where each
+   * fragment corresponds to a single Netjsongraph.js instance on the page.
+   * Each fragment must include an `id` parameter identifying the map, along
+   * with additional parameters such as `nodeId` or `zoom`.
+   *
+   * Example:
+   *   #id=map1&nodeId=2;id=map2&nodeId=4
+   *
+   * Result:
+   *   {
+   *     map1: URLSearchParams("id=map1&nodeId=2"),
+   *     map2: URLSearchParams("id=map2&nodeId=4")
+   *   }
+   *
+   * @returns {Object.<string, URLSearchParams>}
+   *   An object mapping map IDs to their corresponding URLSearchParams.
+   */
   parseUrlFragments() {
     const raw = window.location.hash.replace(/^#/, "");
     const fragments = {};
@@ -1229,23 +1249,39 @@ class NetJSONGraphUtil {
     return fragments;
   }
 
-  generateUrlFragments(fragments) {
-    return Object.values(fragments)
+  /**
+   * Reverse of parseUrlFragments.
+   *
+   * Converts a fragments object (map IDs → URLSearchParams) back into
+   * a semicolon-delimited string suitable for the URL hash.
+   *
+   * @param {Object.<string, URLSearchParams>} fragments
+   * @returns {string}
+   */
+  updateUrlFragments(fragments, state) {
+    const newHash = Object.values(fragments)
       .map((urlParams) => urlParams.toString())
       .join(";");
+
+    // We store the selected node's data to the browser's history state.
+    // This allows the node's information to be retrieved instantly on a back/forward
+    // button click without needing to re-parse the entire nodes list.
+    history.pushState(state, "", `#${newHash}`);
   }
 
-  setUrlFragments(self, params) {
-    if (!self.config.bookmarkableActions.enabled || params.data.cluster) return;
+  addActionToUrl(self, params) {
+    if (!self.config.bookmarkableActions.enabled || params.data.cluster) {
+      return;
+    }
     const fragments = this.parseUrlFragments();
     const id = self.config.bookmarkableActions.id;
     let nodeId;
     self.indexedNode = self.indexedNode || {};
-    if (params.componentSubType === "graph") {
+    if (self.config.render === self.utils.graphRender) {
       nodeId = params.data.id;
       self.indexedNode[nodeId] = params.data;
     }
-    if (["scatter", "effectScatter"].includes(params.componentSubType)) {
+    if (self.config.render === self.utils.mapRender) {
       nodeId = params.data.node.id;
       self.indexedNode[nodeId] = params.data.node;
     }
@@ -1254,9 +1290,8 @@ class NetJSONGraphUtil {
       fragments[id].set("id", id);
     }
     fragments[id].set("nodeId", nodeId);
-    const newHash = this.generateUrlFragments(fragments);
     const state = self.indexedNode[nodeId];
-    history.pushState(state, "", `#${newHash}`);
+    this.updateUrlFragments(fragments, state);
   }
 
   removeUrlFragment(id) {
@@ -1264,14 +1299,14 @@ class NetJSONGraphUtil {
     if (fragments[id]) {
       delete fragments[id];
     }
-    const newHash = this.generateUrlFragments(fragments);
     const state = {id};
-    history.pushState(state, "", `#${newHash}`);
+    this.updateUrlFragments(fragments, state);
   }
 
   setIndexedNodeFromUrlFragments(self, fragments, node) {
-    if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length)
+    if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length) {
       return;
+    }
     const id = self.config.bookmarkableActions.id;
     const nodeId = fragments[id]?.get("nodeId");
     if (nodeId === node.id) {
@@ -1281,11 +1316,15 @@ class NetJSONGraphUtil {
   }
 
   applyUrlFragmentState(self) {
-    if (!self.config.bookmarkableActions.enabled) return;
+    if (!self.config.bookmarkableActions.enabled) {
+      return;
+    }
     const id = self.config.bookmarkableActions.id;
     const fragments = self.utils.parseUrlFragments();
     const nodeId = fragments[id]?.get("nodeId");
-    if (!self.indexedNode || !self.indexedNode[nodeId]) return;
+    if (!self.indexedNode || !self.indexedNode[nodeId]) {
+      return;
+    }
     const node = self.indexedNode[nodeId];
     const nodeType =
       self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;

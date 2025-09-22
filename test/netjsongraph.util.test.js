@@ -211,18 +211,19 @@ describe("Test URL fragment utilities", () => {
     expect(fragments.indoorMap.get("nodeId")).toBe("indoor-node");
   });
 
-  test("Test setUrlFragments adds a new fragment with nodeId and zoom", () => {
+  test("Test addActionToUrl adds a new fragment with nodeId", () => {
     const self = {
       config: {
         bookmarkableActions: {enabled: true, id: "geoMap"},
       },
+      utils: utils,
     };
     const params = {
       componentSubType: "effectScatter",
       data: {node: {id: "node-1"}},
     };
 
-    utils.setUrlFragments(self, params);
+    utils.addActionToUrl(self, params);
 
     const fragments = utils.parseUrlFragments();
     expect(fragments.geoMap).toBeDefined();
@@ -230,19 +231,21 @@ describe("Test URL fragment utilities", () => {
     expect(fragments.geoMap.get("nodeId")).toBe("node-1");
   });
 
-  test("Test setUrlFragments updates an existing fragment and preserves others", () => {
+  test("Test addActionToUrl updates an existing fragment and preserves others", () => {
     window.location.hash = "id=graph&nodeId=node-1";
 
     const self = {
-      config: {bookmarkableActions: {enabled: true, id: "geo"}},
+      config: {
+        bookmarkableActions: {enabled: true, id: "geo"},
+      },
       indexedNode: undefined,
+      utils: utils,
     };
     const params = {
-      componentSubType: "graph",
-      data: {id: "node-2"},
+      data:{node: {id: "node-2"}},
     };
 
-    utils.setUrlFragments(self, params);
+    utils.addActionToUrl(self, params);
     const fragments = utils.parseUrlFragments();
 
     expect(fragments.graph).toBeDefined();
