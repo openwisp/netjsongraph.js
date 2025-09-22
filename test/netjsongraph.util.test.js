@@ -216,7 +216,7 @@ describe("Test URL fragment utilities", () => {
       config: {
         bookmarkableActions: {enabled: true, id: "geoMap"},
       },
-      utils: utils,
+      utils,
     };
     const params = {
       componentSubType: "effectScatter",
@@ -239,10 +239,10 @@ describe("Test URL fragment utilities", () => {
         bookmarkableActions: {enabled: true, id: "geo"},
       },
       indexedNode: undefined,
-      utils: utils,
+      utils,
     };
     const params = {
-      data:{node: {id: "node-2"}},
+      data: {node: {id: "node-2"}},
     };
 
     utils.addActionToUrl(self, params);
@@ -314,13 +314,19 @@ describe("Test URL fragment utilities", () => {
       },
       emit(event) {
         const h = this.handlers[event];
-        if (h) h();
+        if (h) {
+          h();
+        }
       },
     };
+    const delay = (ms) =>
+      new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
 
     const asyncOnReady = async () => {
       recorder.push("onReady-start");
-      await new Promise((r) => setTimeout(r, 20));
+      await delay(20);
       recorder.push("onReady-done");
     };
 
@@ -337,7 +343,7 @@ describe("Test URL fragment utilities", () => {
     });
     emitter.emit("onReady");
     emitter.emit("applyUrlFragmentState");
-    await new Promise((r) => setTimeout(r, 40));
+    await delay(40);
     expect(recorder).toEqual([
       "onReady-start",
       "onReady-done",

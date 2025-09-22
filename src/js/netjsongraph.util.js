@@ -1266,7 +1266,7 @@ class NetJSONGraphUtil {
     // We store the selected node's data to the browser's history state.
     // This allows the node's information to be retrieved instantly on a back/forward
     // button click without needing to re-parse the entire nodes list.
-    history.pushState(state, "", `#${newHash}`);
+    window.history.pushState(state, "", `#${newHash}`);
   }
 
   addActionToUrl(self, params) {
@@ -1274,7 +1274,7 @@ class NetJSONGraphUtil {
       return;
     }
     const fragments = this.parseUrlFragments();
-    const id = self.config.bookmarkableActions.id;
+    const {id} = self.config.bookmarkableActions;
     let nodeId;
     self.indexedNode = self.indexedNode || {};
     if (self.config.render === self.utils.graphRender) {
@@ -1307,8 +1307,10 @@ class NetJSONGraphUtil {
     if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length) {
       return;
     }
-    const id = self.config.bookmarkableActions.id;
-    const nodeId = fragments[id]?.get("nodeId");
+    const {id} = self.config.bookmarkableActions;
+    const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
+    const nodeId =
+      fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
     if (nodeId === node.id) {
       self.indexedNode = self.indexedNode || {};
       self.indexedNode[nodeId] = node;
@@ -1319,9 +1321,11 @@ class NetJSONGraphUtil {
     if (!self.config.bookmarkableActions.enabled) {
       return;
     }
-    const id = self.config.bookmarkableActions.id;
+    const {id} = self.config.bookmarkableActions;
     const fragments = self.utils.parseUrlFragments();
-    const nodeId = fragments[id]?.get("nodeId");
+    const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
+    const nodeId =
+      fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
     if (!self.indexedNode || !self.indexedNode[nodeId]) {
       return;
     }
