@@ -93,7 +93,7 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
-        self.utils.setUrlFragments(self, params);
+        self.utils.addActionToUrl(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -128,6 +128,11 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
+    // The parseUrlFragments function extracts node IDs from the URL.
+    // We then use these IDs to proactively cache the corresponding nodes
+    // in `this.indexedNode`. This avoids a second data traversal
+    // for subsequent lookups and is done here while we are already
+    // iterating over the nodes to set their ECharts properties.
     const fragments = self.utils.parseUrlFragments();
     const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
@@ -245,6 +250,7 @@ class NetJSONGraphRender {
     const linesData = [];
     let nodesData = [];
     const fragments = self.utils.parseUrlFragments();
+
     nodes.forEach((node) => {
       if (node.properties) {
         // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
@@ -448,6 +454,8 @@ class NetJSONGraphRender {
       });
     }
 
+    self.utils.setupHashChangeHandler(self);
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
@@ -489,22 +497,6 @@ class NetJSONGraphRender {
     self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
-
-    try {
-      if (self.utils && typeof self.utils.restoreBoundsFromUrl === "function") {
-        self.utils.restoreBoundsFromUrl(self);
-      }
-      if (self.utils && typeof self.utils.enableBoundsUrlSync === "function") {
-        const debounceMs = 300;
-        const precision = 6;
-        self._destroyUrlSync = self.utils.enableBoundsUrlSync(self, {
-          debounceMs,
-          precision,
-        });
-      }
-    } catch (e) {
-      console.warn("bbox URL restore/sync failed", e);
-    }
 
     self.config.geoOptions = self.utils.deepMergeObj(
       {
@@ -731,6 +723,8 @@ class NetJSONGraphRender {
         }
       });
     }
+    self.utils.setupHashChangeHandler(self);
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
