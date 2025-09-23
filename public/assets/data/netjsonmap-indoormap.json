@@ -1,164 +1,164 @@
 {
-    "type": "NetworkGraph",
-    "label": "Smart Home Network",
-    "protocol": "OLSR",
-    "version": "0.6.6.2",
-    "metric": "ETX",
-    "date": "2019-04-03T05:06:54.000Z",
-    "nodes": [
-      {
-        "id": "node_1",
-        "location": {
-          "lat": -140,
-          "lng": 590
-        },
-        "name": "Node 1"
+  "type": "NetworkGraph",
+  "label": "Smart Home Network",
+  "protocol": "OLSR",
+  "version": "0.6.6.2",
+  "metric": "ETX",
+  "date": "2019-04-03T05:06:54.000Z",
+  "nodes": [
+    {
+      "id": "node_1",
+      "location": {
+        "lat": -140,
+        "lng": 590
       },
-      {
-        "id": "node_2",
-        "location": {
-          "lat": -140,
-          "lng": 790
-        },
-        "name": "Node 2"
+      "name": "Node 1"
+    },
+    {
+      "id": "node_2",
+      "location": {
+        "lat": -140,
+        "lng": 790
       },
-      {
-        "id": "node_3",
-        "location": {
-          "lat": -140,
-          "lng": 955
-        },
-        "name": "Node 3"
+      "name": "Node 2"
+    },
+    {
+      "id": "node_3",
+      "location": {
+        "lat": -140,
+        "lng": 955
       },
-      {
-        "id": "node_4",
-        "location": {
-          "lat": -170,
-          "lng": 140
-        },
-        "name": "Node 4"
+      "name": "Node 3"
+    },
+    {
+      "id": "node_4",
+      "location": {
+        "lat": -170,
+        "lng": 140
       },
-      {
-        "id": "node_5",
-        "location": {
-          "lat": -170,
-          "lng": 370
-        },
-        "name": "Node 5"
+      "name": "Node 4"
+    },
+    {
+      "id": "node_5",
+      "location": {
+        "lat": -170,
+        "lng": 370
       },
-      {
-        "id": "node_6",
-        "location": {
-          "lat": -220,
-          "lng": 590
-        },
-        "name": "Node 6"
+      "name": "Node 5"
+    },
+    {
+      "id": "node_6",
+      "location": {
+        "lat": -220,
+        "lng": 590
       },
-      {
-        "id": "node_7",
-        "location": {
-          "lat": -270,
-          "lng": 790
-        },
-        "name": "Node 7"
+      "name": "Node 6"
+    },
+    {
+      "id": "node_7",
+      "location": {
+        "lat": -270,
+        "lng": 790
       },
-      {
-        "id": "node_8",
-        "location": {
-          "lat": -260,
-          "lng": 955
-        },
-        "name": "Node 8"
+      "name": "Node 7"
+    },
+    {
+      "id": "node_8",
+      "location": {
+        "lat": -260,
+        "lng": 955
       },
-      {
-        "id": "node_9",
-        "location": {
-          "lat": -310,
-          "lng": 140
-        },
-        "name": "Node 9"
+      "name": "Node 8"
+    },
+    {
+      "id": "node_9",
+      "location": {
+        "lat": -310,
+        "lng": 140
       },
-      {
-        "id": "node_10",
-        "location": {
-          "lat": -395,
-          "lng": 955
-        },
-        "name": "Node 10"
+      "name": "Node 9"
+    },
+    {
+      "id": "node_10",
+      "location": {
+        "lat": -395,
+        "lng": 955
       },
-      {
-        "id": "node_11",
-        "location": {
-          "lat": -470,
-          "lng": 140
-        },
-        "name": "Node 11"
+      "name": "Node 10"
+    },
+    {
+      "id": "node_11",
+      "location": {
+        "lat": -470,
+        "lng": 140
       },
-      {
-        "id": "node_12",
-        "location": {
-          "lat": -440,
-          "lng": 370
-        },
-        "name": "Node 12"
+      "name": "Node 11"
+    },
+    {
+      "id": "node_12",
+      "location": {
+        "lat": -440,
+        "lng": 370
       },
-      {
-        "id": "node_13",
-        "location": {
-          "lat": -395,
-          "lng": 590
-        },
-        "name": "Node 13"
-      }
-    ],
-    "links": [
-      {
-        "source": "node_11",
-        "target": "node_9"
+      "name": "Node 12"
+    },
+    {
+      "id": "node_13",
+      "location": {
+        "lat": -395,
+        "lng": 590
       },
-      {
-        "source": "node_9",
-        "target": "node_4"
-      },
-      {
-        "source": "node_4",
-        "target": "node_5"
-      },
-      {
-        "source": "node_5",
-        "target": "node_12"
-      },
-      {
-        "source": "node_12",
-        "target": "node_1"
-      },
-      {
-        "source": "node_1",
-        "target": "node_6"
-      },
-      {
-        "source": "node_6",
-        "target": "node_2"
-      },
-      {
-        "source": "node_2",
-        "target": "node_7"
-      },
-      {
-        "source": "node_7",
-        "target": "node_3"
-      },
-      {
-        "source": "node_3",
-        "target": "node_8"
-      },
-      {
-        "source": "node_8",
-        "target": "node_10"
-      },
-      {
-        "source": "node_10",
-        "target": "node_13"
-      }
-    ]
-  }
+      "name": "Node 13"
+    }
+  ],
+  "links": [
+    {
+      "source": "node_11",
+      "target": "node_9"
+    },
+    {
+      "source": "node_9",
+      "target": "node_4"
+    },
+    {
+      "source": "node_4",
+      "target": "node_5"
+    },
+    {
+      "source": "node_5",
+      "target": "node_12"
+    },
+    {
+      "source": "node_12",
+      "target": "node_1"
+    },
+    {
+      "source": "node_1",
+      "target": "node_6"
+    },
+    {
+      "source": "node_6",
+      "target": "node_2"
+    },
+    {
+      "source": "node_2",
+      "target": "node_7"
+    },
+    {
+      "source": "node_7",
+      "target": "node_3"
+    },
+    {
+      "source": "node_3",
+      "target": "node_8"
+    },
+    {
+      "source": "node_8",
+      "target": "node_10"
+    },
+    {
+      "source": "node_10",
+      "target": "node_13"
+    }
+  ]
+}
