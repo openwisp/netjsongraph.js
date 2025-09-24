@@ -1193,6 +1193,141 @@ class NetJSONGraphUtil {
       },
     };
   }
+
+  /**
+   * Parse the URL hash into a mapping of map IDs to their parameters.
+   *
+   * The URL hash may contain multiple fragments separated by `;`, where each
+   * fragment corresponds to a single Netjsongraph.js instance on the page.
+   * Each fragment must include an `id` parameter identifying the map, along
+   * with additional parameters such as `nodeId` or `zoom`.
+   *
+   * Example:
+   *   #id=map1&nodeId=2;id=map2&nodeId=4
+   *
+   * Result:
+   *   {
+   *     map1: URLSearchParams("id=map1&nodeId=2"),
+   *     map2: URLSearchParams("id=map2&nodeId=4")
+   *   }
+   *
+   * @returns {Object.<string, URLSearchParams>}
+   *   An object mapping map IDs to their corresponding URLSearchParams.
+   */
+  parseUrlFragments() {
+    const raw = window.location.hash.replace(/^#/, "");
+    const fragments = {};
+    raw.split(";").forEach((fragmentStr) => {
+      const params = new URLSearchParams(fragmentStr);
+      const id = params.get("id");
+      if (id != null) {
+        fragments[id] = params;
+      }
+    });
+    return fragments;
+  }
+
+  /**
+   * Reverse of parseUrlFragments.
+   *
+   * Converts a fragments object (map IDs → URLSearchParams) back into
+   * a semicolon-delimited string suitable for the URL hash.
+   *
+   * @param {Object.<string, URLSearchParams>} fragments
+   * @returns {string}
+   */
+  updateUrlFragments(fragments, state) {
+    const newHash = Object.values(fragments)
+      .map((urlParams) => urlParams.toString())
+      .join(";");
+
+    // We store the selected node's data to the browser's history state.
+    // This allows the node's information to be retrieved instantly on a back/forward
+    // button click without needing to re-parse the entire nodes list.
+    window.history.pushState(state, "", `#${newHash}`);
+  }
+
+  addActionToUrl(self, params) {
+    if (!self.config.bookmarkableActions.enabled || params.data.cluster) {
+      return;
+    }
+    const fragments = this.parseUrlFragments();
+    const {id} = self.config.bookmarkableActions;
+    let nodeId;
+    self.indexedNode = self.indexedNode || {};
+    if (self.config.render === self.utils.graphRender) {
+      nodeId = params.data.id;
+      self.indexedNode[nodeId] = params.data;
+    }
+    if (self.config.render === self.utils.mapRender) {
+      nodeId = params.data.node.id;
+      self.indexedNode[nodeId] = params.data.node;
+    }
+    if (!fragments[id]) {
+      fragments[id] = new URLSearchParams();
+      fragments[id].set("id", id);
+    }
+    fragments[id].set("nodeId", nodeId);
+    const state = self.indexedNode[nodeId];
+    this.updateUrlFragments(fragments, state);
+  }
+
+  removeUrlFragment(id) {
+    const fragments = this.parseUrlFragments();
+    if (fragments[id]) {
+      delete fragments[id];
+    }
+    const state = {id};
+    this.updateUrlFragments(fragments, state);
+  }
+
+  setIndexedNodeFromUrlFragments(self, fragments, node) {
+    if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length) {
+      return;
+    }
+    const {id} = self.config.bookmarkableActions;
+    const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
+    const nodeId =
+      fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
+    if (nodeId === node.id) {
+      self.indexedNode = self.indexedNode || {};
+      self.indexedNode[nodeId] = node;
+    }
+  }
+
+  applyUrlFragmentState(self) {
+    if (!self.config.bookmarkableActions.enabled) {
+      return;
+    }
+    const {id} = self.config.bookmarkableActions;
+    const fragments = self.utils.parseUrlFragments();
+    const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
+    const nodeId =
+      fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
+    if (!self.indexedNode || !self.indexedNode[nodeId]) {
+      return;
+    }
+    const node = self.indexedNode[nodeId];
+    const nodeType =
+      self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
+    const {location, cluster} = node;
+    if (["scatter", "effectScatter"].includes(nodeType)) {
+      const zoom =
+        cluster != null ? self.config.disableClusteringAtLevel : self.leaflet.getZoom();
+      self.leaflet.setView([location.lat, location.lng], zoom);
+    }
+    self.config.onClickElement.call(self, "node", node);
+  }
+
+  setupHashChangeHandler(self) {
+    window.addEventListener("popstate", () => {
+      const currentNode = history.state;
+      if (currentNode != null && !self.indexedNode[currentNode.id]) {
+        self.indexedNode[currentNode.id] = currentNode;
+      }
+      this.applyUrlFragmentState(self);
+    });
+  }
 }
 
 export default NetJSONGraphUtil;

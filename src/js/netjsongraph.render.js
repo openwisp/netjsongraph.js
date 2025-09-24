@@ -93,6 +93,7 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
+        self.utils.addActionToUrl(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -127,6 +128,12 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
+    // The parseUrlFragments function extracts node IDs from the URL.
+    // We then use these IDs to proactively cache the corresponding nodes
+    // in `this.indexedNode`. This avoids a second data traversal
+    // for subsequent lookups and is done here while we are already
+    // iterating over the nodes to set their ECharts properties.
+    const fragments = self.utils.parseUrlFragments();
     const nodes = JSONData.nodes.map((node) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
@@ -150,6 +157,8 @@ class NetJSONGraphRender {
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
       nodeResult._source = JSON.parse(JSON.stringify(node));
+      // Store the clicked node in this.indexedNode for easy access later without need for traverse
+      self.utils.setIndexedNodeFromUrlFragments(self, fragments, node);
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
@@ -240,6 +249,7 @@ class NetJSONGraphRender {
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
     let nodesData = [];
+    const fragments = self.utils.parseUrlFragments();
 
     nodes.forEach((node) => {
       if (node.properties) {
@@ -289,6 +299,8 @@ class NetJSONGraphRender {
           });
         }
       }
+      // Store the clicked node in this.indexedNode for easy access later without need for traverse
+      self.utils.setIndexedNodeFromUrlFragments(self, fragments, node);
     });
     links.forEach((link) => {
       if (!flatNodes[link.source]) {
@@ -419,7 +431,6 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-
     window.onresize = () => {
       self.echarts.resize();
     };
@@ -443,9 +454,12 @@ class NetJSONGraphRender {
       });
     }
 
+    self.utils.setupHashChangeHandler(self);
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
@@ -709,10 +723,12 @@ class NetJSONGraphRender {
         }
       });
     }
+    self.utils.setupHashChangeHandler(self);
 
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**

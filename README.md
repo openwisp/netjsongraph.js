@@ -465,6 +465,22 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   You can customize the style of GeoJSON features using `style` property. The list of all available properties can be found in the [Leaflet documentation](https://leafletjs.com/reference.html#geojson).
 
+- `bookmarkableActions`
+
+  Configuration for adding url fragments when a node is clicked.
+
+  ```JS
+      bookmarkableActions:{
+        enabled: boolean,
+        id: string
+      }
+  ```
+
+  You can enable or disable adding url fragments by setting enabled to true or false. When enabled, the following parameters are added to the URL:
+  1. id – A prefix used to uniquely identify the map.
+  2. nodeId – The id of the selected node.
+     When a URL containing these fragments is opened, the click event associated with the given nodeId is triggered, and if the map is based on Leaflet, the view will automatically center on that node.
+
 - `onInit`
 
   The callback function executed on initialization of `NetJSONGraph` instance.

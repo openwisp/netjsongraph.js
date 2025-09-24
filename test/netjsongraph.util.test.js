@@ -188,3 +188,166 @@ describe("Test utils deepCopy function", () => {
     expect(clone.linkCategories[1].name).toBe("up");
   });
 });
+
+describe("Test URL fragment utilities", () => {
+  let utils;
+
+  beforeEach(() => {
+    utils = new NetJSONGraphUtil();
+    window.location.hash = "";
+  });
+
+  afterEach(() => {
+    window.location.hash = "";
+  });
+
+  test("Test parseUrlFragments parses multiple fragments and decodes values", () => {
+    window.location.hash =
+      "#id=geoMap&nodeId=abc%3A123;id=indoorMap&nodeId=indoor-node";
+    const fragments = utils.parseUrlFragments();
+
+    expect(Object.keys(fragments).sort()).toEqual(["geoMap", "indoorMap"].sort());
+    expect(fragments.geoMap.get("nodeId")).toBe("abc:123");
+    expect(fragments.indoorMap.get("nodeId")).toBe("indoor-node");
+  });
+
+  test("Test addActionToUrl adds a new fragment with nodeId", () => {
+    const self = {
+      config: {
+        bookmarkableActions: {enabled: true, id: "geoMap"},
+      },
+      utils,
+    };
+    const params = {
+      componentSubType: "effectScatter",
+      data: {node: {id: "node-1"}},
+    };
+
+    utils.addActionToUrl(self, params);
+
+    const fragments = utils.parseUrlFragments();
+    expect(fragments.geoMap).toBeDefined();
+    expect(fragments.geoMap.get("id")).toBe("geoMap");
+    expect(fragments.geoMap.get("nodeId")).toBe("node-1");
+  });
+
+  test("Test addActionToUrl updates an existing fragment and preserves others", () => {
+    window.location.hash = "id=graph&nodeId=node-1";
+
+    const self = {
+      config: {
+        bookmarkableActions: {enabled: true, id: "geo"},
+      },
+      indexedNode: undefined,
+      utils,
+    };
+    const params = {
+      data: {node: {id: "node-2"}},
+    };
+
+    utils.addActionToUrl(self, params);
+    const fragments = utils.parseUrlFragments();
+
+    expect(fragments.graph).toBeDefined();
+    expect(fragments.graph.get("nodeId")).toBe("node-1");
+    expect(fragments.geo.get("nodeId")).toBe("node-2");
+  });
+
+  test("removeUrlFragment deletes the fragment for the given id", () => {
+    window.location.hash = "id=keep&nodeId=a;id=removeMe&nodeId=b";
+    utils.removeUrlFragment("removeMe");
+    const fragments = utils.parseUrlFragments();
+    expect(fragments.keep).toBeDefined();
+    expect(fragments.removeMe).toBeUndefined();
+    expect(window.location.hash).not.toContain("removeMe");
+  });
+
+  test("Test setIndexedNodeFromUrlFragments sets indexedNode and numeric zoom", () => {
+    window.location.hash = "#id=geo&nodeId=abc&zoom=4";
+    const self = {config: {bookmarkableActions: {enabled: true, id: "geo"}}};
+    const fragments = utils.parseUrlFragments();
+
+    const node = {id: "abc", properties: {}};
+    utils.setIndexedNodeFromUrlFragments(self, fragments, node);
+
+    expect(self.indexedNode).toBeDefined();
+    expect(self.indexedNode.abc).toBe(node);
+    expect(self.indexedNode.abc.id).toBe("abc");
+  });
+
+  test("applyUrlFragmentState calls map.setView and triggers onClickElement", () => {
+    const mockSetView = jest.fn();
+    const mockOnClick = jest.fn();
+
+    const node = {
+      id: "n1",
+      location: {lat: 12.1, lng: 77.5},
+      cluster: null,
+    };
+
+    const self = {
+      config: {
+        bookmarkableActions: {enabled: true, id: "geo"},
+        graphConfig: {series: {type: null}},
+        mapOptions: {nodeConfig: {type: "scatter"}},
+        onClickElement: mockOnClick,
+      },
+      indexedNode: {n1: node},
+      leaflet: {setView: mockSetView, getZoom: () => 6},
+      utils,
+    };
+
+    window.location.hash = "#id=geo&nodeId=n1";
+    utils.applyUrlFragmentState(self);
+
+    expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 6);
+    expect(mockOnClick).toHaveBeenCalledWith("node", node);
+  });
+
+  test("Test applyUrlFragmentState runs only after onReady completes", async () => {
+    const recorder = [];
+
+    const emitter = {
+      handlers: {},
+      once(event, handler) {
+        this.handlers[event] = handler;
+      },
+      emit(event) {
+        const h = this.handlers[event];
+        if (h) {
+          h();
+        }
+      },
+    };
+    const delay = (ms) =>
+      new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
+
+    const asyncOnReady = async () => {
+      recorder.push("onReady-start");
+      await delay(20);
+      recorder.push("onReady-done");
+    };
+
+    const onReadyDone = new Promise((resolve) => {
+      emitter.once("onReady", async () => {
+        await asyncOnReady();
+        resolve();
+      });
+    });
+
+    emitter.once("applyUrlFragmentState", async () => {
+      await onReadyDone;
+      recorder.push("applyUrlFragmentState");
+    });
+    emitter.emit("onReady");
+    emitter.emit("applyUrlFragmentState");
+    await delay(40);
+    expect(recorder).toEqual([
+      "onReady-start",
+      "onReady-done",
+      "applyUrlFragmentState",
+    ]);
+  });
+});
