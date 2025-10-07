@@ -1270,6 +1270,7 @@ class NetJSONGraphUtil {
   }
 
   addActionToUrl(self, params) {
+    console.log(params);
     if (!self.config.bookmarkableActions.enabled || params.data.cluster) {
       return;
     }
@@ -1289,9 +1290,12 @@ class NetJSONGraphUtil {
       fragments[id] = new URLSearchParams();
       fragments[id].set("id", id);
     }
-    fragments[id].set("nodeId", nodeId);
-    const state = self.indexedNode[nodeId];
-    this.updateUrlFragments(fragments, state);
+    // Sync nodeId to URL only if defined, prevents pushing empty states in case of links
+    if (nodeId) {
+      fragments[id].set("nodeId", nodeId);
+      const state = self.indexedNode[nodeId];
+      this.updateUrlFragments(fragments, state);
+    }
   }
 
   removeUrlFragment(id) {
@@ -1335,8 +1339,10 @@ class NetJSONGraphUtil {
     const {location, cluster} = node;
     if (["scatter", "effectScatter"].includes(nodeType)) {
       const zoom =
-        cluster != null ? self.config.disableClusteringAtLevel : self.leaflet.getZoom();
-      self.leaflet.setView([location.lat, location.lng], zoom);
+        cluster != null
+          ? self.config.disableClusteringAtLevel
+          : self.leaflet?.getZoom();
+      self.leaflet?.setView([location.lat, location.lng], zoom);
     }
     self.config.onClickElement.call(self, "node", node);
   }
