@@ -1,5 +1,6 @@
 import {
   getElementByCss,
+  getElementByXpath,
   tearDown,
   captureConsoleErrors,
   getDriver,
@@ -138,5 +139,91 @@ describe("Chart Rendering Test", () => {
       "return !!document.querySelector('canvas') && !!graph.echarts",
     );
     expect(hasDots).toBe(true);
+  });
+
+  test("render Basic usage example with url fragments for a node", async () => {
+    driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=10.149.3.3`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar");
+    const node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='10.149.3.3']",
+    );
+    const nodeId = await node.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(nodeId).toBe("10.149.3.3");
+  });
+
+  test("render Basic usage example with url fragments for a link", async () => {
+    driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=172.16.155.5-172.16.155.4`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar");
+    const source = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.155.5']",
+    );
+    const target = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.155.4']",
+    );
+    const sourceId = await source.getText();
+    const targetId = await target.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(sourceId).toBe("172.16.155.5");
+    expect(targetId).toBe("172.16.155.4");
+  });
+
+  test("render Geographic map example with url fragments for a node", async () => {
+    driver.get(`${urls.geographicMap}#id=geographicMap&nodeId=172.16.169.1`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar");
+    const node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.169.1']",
+    );
+    const nodeId = await node.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(nodeId).toBe("172.16.169.1");
+  });
+
+  test("render Geographic map example with url fragments for a link", async () => {
+    driver.get(
+      `${urls.geographicMap}#id=geographicMap&nodeId=172.16.185.12-172.16.185.13`,
+    );
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar");
+    const source = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.185.12']",
+    );
+    const target = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.185.13']",
+    );
+    const sourceId = await source.getText();
+    const targetId = await target.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(sourceId).toBe("172.16.185.12");
+    expect(targetId).toBe("172.16.185.13");
   });
 });

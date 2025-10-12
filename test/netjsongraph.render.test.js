@@ -511,7 +511,6 @@ describe("generateMapOption - node processing and dynamic styling", () => {
         })),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
       },
     };
   });
@@ -986,7 +985,6 @@ describe("Test disableClusteringAtLevel: 0", () => {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         setupHashChangeHandler: jest.fn(),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
       },
       event: {
         emit: jest.fn(),
@@ -1085,7 +1083,6 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         echartsSetOption: jest.fn(),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       event: {
@@ -1230,7 +1227,6 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},
@@ -1292,7 +1288,6 @@ describe("graph label visibility and fallbacks", () => {
         })),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       echarts: {
@@ -1331,7 +1326,6 @@ describe("graph label visibility and fallbacks", () => {
         })),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       echarts: {
@@ -1363,7 +1357,6 @@ describe("graph label visibility and fallbacks", () => {
         generateGraphOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       echarts: {
@@ -1410,7 +1403,6 @@ describe("map series ids and name fallbacks", () => {
         })),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
     };
@@ -1476,7 +1468,6 @@ describe("map series ids and name fallbacks", () => {
         echartsSetOption: jest.fn(),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},

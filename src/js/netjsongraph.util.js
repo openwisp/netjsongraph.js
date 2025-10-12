@@ -1270,32 +1270,41 @@ class NetJSONGraphUtil {
   }
 
   addActionToUrl(self, params) {
-    console.log(params);
     if (!self.config.bookmarkableActions.enabled || params.data.cluster) {
       return;
     }
     const fragments = this.parseUrlFragments();
     const {id} = self.config.bookmarkableActions;
-    let nodeId;
-    self.indexedNode = self.indexedNode || {};
+    let nodeId, index, nodeData;
     if (self.config.render === self.utils.graphRender) {
-      nodeId = params.data.id;
-      self.indexedNode[nodeId] = params.data;
-    }
-    if (self.config.render === self.utils.mapRender) {
-      nodeId = params.data.node.id;
-      self.indexedNode[nodeId] = params.data.node;
+      if (params.dataType === "node") {
+        nodeId = params.data.id;
+        index = self.nodeIndex[nodeId];
+        nodeData = self.data.nodes[index];
+      } else if (params.dataType === "edge") {
+        const {source, target} = params.data;
+        nodeId = `${source}-${target}`;
+        index = self.nodeIndex[source];
+        nodeData = self.data.links[index];
+      }
+    } else if (self.config.render === self.utils.mapRender) {
+      if (params.seriesType === "scatter") {
+        nodeId = params.data.node.id;
+        index = self.nodeIndex[nodeId];
+        nodeData = self.data.nodes[index];
+      } else if (params.seriesType === "lines") {
+        const {source, target} = params.data.link;
+        nodeId = `${source}-${target}`;
+        index = self.nodeIndex[source];
+        nodeData = self.data.links[index];
+      }
     }
     if (!fragments[id]) {
       fragments[id] = new URLSearchParams();
       fragments[id].set("id", id);
     }
-    // Sync nodeId to URL only if defined, prevents pushing empty states in case of links
-    if (nodeId) {
-      fragments[id].set("nodeId", nodeId);
-      const state = self.indexedNode[nodeId];
-      this.updateUrlFragments(fragments, state);
-    }
+    fragments[id].set("nodeId", nodeId);
+    this.updateUrlFragments(fragments, nodeData);
   }
 
   removeUrlFragment(id) {
@@ -1307,20 +1316,6 @@ class NetJSONGraphUtil {
     this.updateUrlFragments(fragments, state);
   }
 
-  setIndexedNodeFromUrlFragments(self, fragments, node) {
-    if (!self.config.bookmarkableActions.enabled || !Object.keys(fragments).length) {
-      return;
-    }
-    const {id} = self.config.bookmarkableActions;
-    const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
-    const nodeId =
-      fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
-    if (nodeId === node.id) {
-      self.indexedNode = self.indexedNode || {};
-      self.indexedNode[nodeId] = node;
-    }
-  }
-
   applyUrlFragmentState(self) {
     if (!self.config.bookmarkableActions.enabled) {
       return;
@@ -1330,29 +1325,33 @@ class NetJSONGraphUtil {
     const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
     const nodeId =
       fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
-    if (!self.indexedNode || !self.indexedNode[nodeId]) {
+    if (!nodeId || !self.nodeIndex || !self.nodeIndex[nodeId] == null) {
       return;
     }
-    const node = self.indexedNode[nodeId];
+    const [source, target] = nodeId.split("-");
+    const index = self.nodeIndex[nodeId];
+    // If source && target both exists then the node is a link
+    const node = source && target ? self.data.links[index] : self.data.nodes[index];
     const nodeType =
       self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
-    const {location, cluster} = node;
+    const {location, cluster} = node || {};
+    // Only adjust the map view if this is a scatter-type node (leaflet map)
     if (["scatter", "effectScatter"].includes(nodeType)) {
+      // For links, fall back to the default map center from config
+      const center = location
+        ? [location.lat, location.lng]
+        : self.config.mapOptions.center;
       const zoom =
         cluster != null
           ? self.config.disableClusteringAtLevel
           : self.leaflet?.getZoom();
-      self.leaflet?.setView([location.lat, location.lng], zoom);
+      self.leaflet?.setView(center, zoom);
     }
-    self.config.onClickElement.call(self, "node", node);
+    self.config.onClickElement.call(self, source && target ? "link" : "node", node);
   }
 
   setupHashChangeHandler(self) {
     window.addEventListener("popstate", () => {
-      const currentNode = history.state;
-      if (currentNode != null && !self.indexedNode[currentNode.id]) {
-        self.indexedNode[currentNode.id] = currentNode;
-      }
       this.applyUrlFragmentState(self);
     });
   }

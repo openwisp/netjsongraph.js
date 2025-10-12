@@ -138,13 +138,7 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
-    // The parseUrlFragments function extracts node IDs from the URL.
-    // We then use these IDs to proactively cache the corresponding nodes
-    // in `this.indexedNode`. This avoids a second data traversal
-    // for subsequent lookups and is done here while we are already
-    // iterating over the nodes to set their ECharts properties.
-    const fragments = self.utils.parseUrlFragments();
-    const nodes = JSONData.nodes.map((node) => {
+    const nodes = JSONData.nodes.map((node, index) => {
       const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
@@ -167,12 +161,20 @@ class NetJSONGraphRender {
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
       nodeResult._source = self.utils.fastDeepCopy(node);
-      // Store the clicked node in this.indexedNode for easy access later without need for traverse
-      self.utils.setIndexedNodeFromUrlFragments(self, fragments, node);
+      // Store each node's index in `this.indexedNode` for quick lookup,
+      // allowing direct access to the node via `this.data.nodes[index]` without traversing the array.
+      self.nodeIndex = self.nodeIndex || {};
+      self.nodeIndex[node.id] = index;
       return nodeResult;
     });
-    const links = JSONData.links.map((link) => {
+    const links = JSONData.links.map((link, index) => {
       const linkResult = self.utils.fastDeepCopy(link);
+      // Similarly, create a lookup for links using "source-target" as the key,
+      // storing only the index for direct access via `this.data.links[index]`.
+      self.nodeIndex = self.nodeIndex || {};
+      const {source, target} = linkResult;
+      self.nodeIndex[`${source}-${target}`] = index;
+
       const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
         link,
         configs,
@@ -259,9 +261,8 @@ class NetJSONGraphRender {
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
     let nodesData = [];
-    const fragments = self.utils.parseUrlFragments();
 
-    nodes.forEach((node) => {
+    nodes.forEach((node, index) => {
       if (node.properties) {
         // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
         if (!JSONData.flatNodes) {
@@ -309,10 +310,12 @@ class NetJSONGraphRender {
           });
         }
       }
-      // Store the clicked node in this.indexedNode for easy access later without need for traverse
-      self.utils.setIndexedNodeFromUrlFragments(self, fragments, node);
+      // Store each node's index in `this.indexedNode` for quick lookup,
+      // allowing direct access to the node via `this.data.nodes[index]` without traversing the array.
+      self.nodeIndex = self.nodeIndex || {};
+      self.nodeIndex[node.id] = index;
     });
-    links.forEach((link) => {
+    links.forEach((link, index) => {
       if (!flatNodes[link.source]) {
         console.warn(`Node ${link.source} does not exist!`);
       } else if (!flatNodes[link.target]) {
@@ -339,6 +342,11 @@ class NetJSONGraphRender {
           link,
         });
       }
+      // Similarly, create a lookup for links using "source-target" as the key,
+      // storing only the index for direct access via `this.data.links[index]`.
+      self.nodeIndex = self.nodeIndex || {};
+      const {source, target} = link;
+      self.nodeIndex[`${source}-${target}`] = index;
     });
 
     nodesData = nodesData.concat(clusters);
