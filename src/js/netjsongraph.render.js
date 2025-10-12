@@ -173,7 +173,7 @@ class NetJSONGraphRender {
       // storing only the index for direct access via `this.data.links[index]`.
       self.nodeIndex = self.nodeIndex || {};
       const {source, target} = linkResult;
-      self.nodeIndex[`${source}-${target}`] = index;
+      self.nodeIndex[`${source}~${target}`] = index;
 
       const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
         link,
@@ -346,7 +346,7 @@ class NetJSONGraphRender {
       // storing only the index for direct access via `this.data.links[index]`.
       self.nodeIndex = self.nodeIndex || {};
       const {source, target} = link;
-      self.nodeIndex[`${source}-${target}`] = index;
+      self.nodeIndex[`${source}~${target}`] = index;
     });
 
     nodesData = nodesData.concat(clusters);
