@@ -211,46 +211,80 @@ describe("Test URL fragment utilities", () => {
     expect(fragments.indoorMap.get("nodeId")).toBe("indoor-node");
   });
 
-  test("Test addActionToUrl adds a new fragment with nodeId", () => {
+  test("Test addActionToUrl adds a new fragment with nodeId for a node", () => {
+    const node = {id: "node1"};
     const self = {
       config: {
-        bookmarkableActions: {enabled: true, id: "geoMap"},
+        render: "graph",
+        bookmarkableActions: {enabled: true, id: "basicUsage"},
       },
-      utils,
+      data: {nodes: [node]},
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeIndex: {node1: 0},
     };
     const params = {
-      componentSubType: "effectScatter",
-      data: {node: {id: "node-1"}},
+      dataType: "node",
+      data: {id: "node1"},
     };
 
     utils.addActionToUrl(self, params);
 
     const fragments = utils.parseUrlFragments();
-    expect(fragments.geoMap).toBeDefined();
-    expect(fragments.geoMap.get("id")).toBe("geoMap");
-    expect(fragments.geoMap.get("nodeId")).toBe("node-1");
+    expect(fragments.basicUsage).toBeDefined();
+    expect(fragments.basicUsage.get("id")).toBe("basicUsage");
+    expect(fragments.basicUsage.get("nodeId")).toBe("node1");
+  });
+
+  test("Test addActionToUrl adds a new fragment with nodeId for a link", () => {
+    const link = {source: "node1", target: "node2"};
+    const self = {
+      config: {
+        render: "graph",
+        bookmarkableActions: {enabled: true, id: "basicUsage"},
+      },
+      data: {links: [link]},
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeIndex: {"node1-node2": 0},
+    };
+
+    const params = {
+      dataType: "edge",
+      data: link,
+    };
+
+    utils.addActionToUrl(self, params);
+
+    const fragments = utils.parseUrlFragments();
+    expect(fragments.basicUsage).toBeDefined();
+    expect(fragments.basicUsage.get("id")).toBe("basicUsage");
+    expect(fragments.basicUsage.get("nodeId")).toBe("node1-node2");
   });
 
   test("Test addActionToUrl updates an existing fragment and preserves others", () => {
-    window.location.hash = "id=graph&nodeId=node-1";
-
+    window.location.hash = "id=graph&nodeId=node1";
+    const node1 = {id: "node1"};
+    const node2 = {id: "node2"};
     const self = {
       config: {
+        render: "graph",
         bookmarkableActions: {enabled: true, id: "geo"},
       },
-      indexedNode: undefined,
-      utils,
+      data: {nodes: [node1, node2]},
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeIndex: {node1: 0, node2: 1},
     };
     const params = {
-      data: {node: {id: "node-2"}},
+      dataType: "node",
+      data: {id: "node1"},
     };
 
     utils.addActionToUrl(self, params);
     const fragments = utils.parseUrlFragments();
 
     expect(fragments.graph).toBeDefined();
-    expect(fragments.graph.get("nodeId")).toBe("node-1");
-    expect(fragments.geo.get("nodeId")).toBe("node-2");
+    expect(fragments.graph.get("nodeId")).toBe("node1");
+    expect(fragments.geo).toBeDefined();
+    expect(fragments.geo.get("nodeId")).toBe("node1");
   });
 
   test("removeUrlFragment deletes the fragment for the given id", () => {
@@ -260,19 +294,6 @@ describe("Test URL fragment utilities", () => {
     expect(fragments.keep).toBeDefined();
     expect(fragments.removeMe).toBeUndefined();
     expect(window.location.hash).not.toContain("removeMe");
-  });
-
-  test("Test setIndexedNodeFromUrlFragments sets indexedNode and numeric zoom", () => {
-    window.location.hash = "#id=geo&nodeId=abc&zoom=4";
-    const self = {config: {bookmarkableActions: {enabled: true, id: "geo"}}};
-    const fragments = utils.parseUrlFragments();
-
-    const node = {id: "abc", properties: {}};
-    utils.setIndexedNodeFromUrlFragments(self, fragments, node);
-
-    expect(self.indexedNode).toBeDefined();
-    expect(self.indexedNode.abc).toBe(node);
-    expect(self.indexedNode.abc.id).toBe("abc");
   });
 
   test("applyUrlFragmentState calls map.setView and triggers onClickElement", () => {
@@ -287,12 +308,14 @@ describe("Test URL fragment utilities", () => {
 
     const self = {
       config: {
+        render: "map",
         bookmarkableActions: {enabled: true, id: "geo"},
         graphConfig: {series: {type: null}},
-        mapOptions: {nodeConfig: {type: "scatter"}},
+        mapOptions: {nodeConfig: {type: "scatter"}, center: [0, 0]},
         onClickElement: mockOnClick,
       },
-      indexedNode: {n1: node},
+      data: {nodes: [node]},
+      nodeIndex: {n1: 0},
       leaflet: {setView: mockSetView, getZoom: () => 6},
       utils,
     };
@@ -302,6 +325,37 @@ describe("Test URL fragment utilities", () => {
 
     expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 6);
     expect(mockOnClick).toHaveBeenCalledWith("node", node);
+  });
+
+  test("applyUrlFragmentState handles link case and calls map.setView with default center", () => {
+    const mockSetView = jest.fn();
+    const mockOnClick = jest.fn();
+
+    const link = {
+      source: "n1",
+      target: "n2",
+    };
+
+    const self = {
+      config: {
+        render: "map",
+        bookmarkableActions: {enabled: true, id: "geo"},
+        graphConfig: {series: {type: null}},
+        mapOptions: {nodeConfig: {type: "scatter"}, center: [10, 20]},
+        onClickElement: mockOnClick,
+      },
+      data: {links: [link]},
+      nodeIndex: {"n1-n2": 0},
+      leaflet: {setView: mockSetView, getZoom: () => 6},
+      utils,
+    };
+
+    window.location.hash = "#id=geo&nodeId=n1-n2";
+
+    utils.applyUrlFragmentState(self);
+
+    expect(mockSetView).toHaveBeenCalledWith([10, 20], 6);
+    expect(mockOnClick).toHaveBeenCalledWith("link", link);
   });
 
   test("Test applyUrlFragmentState runs only after onReady completes", async () => {

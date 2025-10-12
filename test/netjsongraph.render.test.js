@@ -511,7 +511,6 @@ describe("generateMapOption - node processing and dynamic styling", () => {
         })),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
       },
     };
   });
@@ -985,7 +984,6 @@ describe("Test disableClusteringAtLevel: 0", () => {
         })),
         setupHashChangeHandler: jest.fn(),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
       },
       event: {
         emit: jest.fn(),
@@ -1083,7 +1081,6 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       event: {
@@ -1227,7 +1224,6 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},
@@ -1288,7 +1284,6 @@ describe("graph label visibility and fallbacks", () => {
           nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
         })),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       echarts: {
@@ -1326,7 +1321,6 @@ describe("graph label visibility and fallbacks", () => {
           nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
         })),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       echarts: {
@@ -1358,7 +1352,6 @@ describe("graph label visibility and fallbacks", () => {
         generateGraphOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       echarts: {
@@ -1404,7 +1397,6 @@ describe("map series ids and name fallbacks", () => {
           linkEmphasisConfig: {linkStyle: {}},
         })),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
     };
@@ -1469,7 +1461,6 @@ describe("map series ids and name fallbacks", () => {
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
         parseUrlFragments: jest.fn(),
-        setIndexedNodeFromUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},
