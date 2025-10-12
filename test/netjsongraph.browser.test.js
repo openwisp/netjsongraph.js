@@ -149,6 +149,7 @@ describe("Chart Rendering Test", () => {
     const node = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='10.149.3.3']",
+      2000,
     );
     const nodeId = await node.getText();
 
@@ -160,17 +161,19 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render Basic usage example with url fragments for a link", async () => {
-    driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=172.16.155.5-172.16.155.4`);
+    driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=172.16.155.5~172.16.155.4`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     const sideBar = await getElementByCss(driver, ".njg-sideBar");
     const source = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='172.16.155.5']",
+      2000,
     );
     const target = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='172.16.155.4']",
+      2000,
     );
     const sourceId = await source.getText();
     const targetId = await target.getText();
@@ -191,6 +194,7 @@ describe("Chart Rendering Test", () => {
     const node = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='172.16.169.1']",
+      2000,
     );
     const nodeId = await node.getText();
 
@@ -203,7 +207,7 @@ describe("Chart Rendering Test", () => {
 
   test("render Geographic map example with url fragments for a link", async () => {
     driver.get(
-      `${urls.geographicMap}#id=geographicMap&nodeId=172.16.185.12-172.16.185.13`,
+      `${urls.geographicMap}#id=geographicMap&nodeId=172.16.185.12~172.16.185.13`,
     );
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
@@ -211,10 +215,12 @@ describe("Chart Rendering Test", () => {
     const source = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='172.16.185.12']",
+      2000,
     );
     const target = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='172.16.185.13']",
+      2000,
     );
     const sourceId = await source.getText();
     const targetId = await target.getText();

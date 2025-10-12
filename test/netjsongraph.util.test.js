@@ -202,13 +202,12 @@ describe("Test URL fragment utilities", () => {
   });
 
   test("Test parseUrlFragments parses multiple fragments and decodes values", () => {
-    window.location.hash =
-      "#id=geoMap&nodeId=abc%3A123;id=indoorMap&nodeId=indoor-node";
+    window.location.hash = "#id=geoMap&nodeId=abc%3A123;id=indoorMap&nodeId=indoorNode";
     const fragments = utils.parseUrlFragments();
 
     expect(Object.keys(fragments).sort()).toEqual(["geoMap", "indoorMap"].sort());
     expect(fragments.geoMap.get("nodeId")).toBe("abc:123");
-    expect(fragments.indoorMap.get("nodeId")).toBe("indoor-node");
+    expect(fragments.indoorMap.get("nodeId")).toBe("indoorNode");
   });
 
   test("Test addActionToUrl adds a new fragment with nodeId for a node", () => {
@@ -244,7 +243,7 @@ describe("Test URL fragment utilities", () => {
       },
       data: {links: [link]},
       utils: {...utils, graphRender: "graph", mapRender: "map"},
-      nodeIndex: {"node1-node2": 0},
+      nodeIndex: {"node1:node2": 0},
     };
 
     const params = {
@@ -257,7 +256,7 @@ describe("Test URL fragment utilities", () => {
     const fragments = utils.parseUrlFragments();
     expect(fragments.basicUsage).toBeDefined();
     expect(fragments.basicUsage.get("id")).toBe("basicUsage");
-    expect(fragments.basicUsage.get("nodeId")).toBe("node1-node2");
+    expect(fragments.basicUsage.get("nodeId")).toBe("node1~node2");
   });
 
   test("Test addActionToUrl updates an existing fragment and preserves others", () => {
@@ -345,12 +344,12 @@ describe("Test URL fragment utilities", () => {
         onClickElement: mockOnClick,
       },
       data: {links: [link]},
-      nodeIndex: {"n1-n2": 0},
+      nodeIndex: {"n1~n2": 0},
       leaflet: {setView: mockSetView, getZoom: () => 6},
       utils,
     };
 
-    window.location.hash = "#id=geo&nodeId=n1-n2";
+    window.location.hash = "#id=geo&nodeId=n1~n2";
 
     utils.applyUrlFragmentState(self);
 
