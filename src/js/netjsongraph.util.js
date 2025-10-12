@@ -1261,7 +1261,7 @@ class NetJSONGraphUtil {
         nodeData = self.data.nodes[index];
       } else if (params.dataType === "edge") {
         const {source, target} = params.data;
-        nodeId = `${source}-${target}`;
+        nodeId = `${source}~${target}`;
         index = self.nodeIndex[source];
         nodeData = self.data.links[index];
       }
@@ -1272,7 +1272,7 @@ class NetJSONGraphUtil {
         nodeData = self.data.nodes[index];
       } else if (params.seriesType === "lines") {
         const {source, target} = params.data.link;
-        nodeId = `${source}-${target}`;
+        nodeId = `${source}~${target}`;
         index = self.nodeIndex[source];
         nodeData = self.data.links[index];
       }
@@ -1306,7 +1306,7 @@ class NetJSONGraphUtil {
     if (!nodeId || !self.nodeIndex || !self.nodeIndex[nodeId] == null) {
       return;
     }
-    const [source, target] = nodeId.split("-");
+    const [source, target] = nodeId.split("~");
     const index = self.nodeIndex[nodeId];
     // If source && target both exists then the node is a link
     const node = source && target ? self.data.links[index] : self.data.nodes[index];
