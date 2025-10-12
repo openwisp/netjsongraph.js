@@ -47,6 +47,15 @@ export const getElementByCss = async (driver, css, waitTime = 1000) => {
   }
 };
 
+export const getElementByXpath = async (driver, xpath, waitTime = 1000) => {
+  try {
+    return await driver.wait(until.elementLocated(By.xpath(xpath)), waitTime);
+  } catch (err) {
+    console.error("Error finding element by XPath:", xpath, err);
+    return null;
+  }
+};
+
 export const getElementsByCss = async (driver, css, waitTime = 1000) => {
   try {
     return await driver.wait(until.elementsLocated(By.css(css)), waitTime);
