@@ -1275,28 +1275,20 @@ class NetJSONGraphUtil {
     }
     const fragments = this.parseUrlFragments();
     const {id} = self.config.bookmarkableActions;
-    let nodeId, index, nodeData;
+    let nodeId;
     if (self.config.render === self.utils.graphRender) {
       if (params.dataType === "node") {
         nodeId = params.data.id;
-        index = self.nodeIndex[nodeId];
-        nodeData = self.data.nodes[index];
       } else if (params.dataType === "edge") {
         const {source, target} = params.data;
         nodeId = `${source}~${target}`;
-        index = self.nodeIndex[source];
-        nodeData = self.data.links[index];
       }
     } else if (self.config.render === self.utils.mapRender) {
       if (params.seriesType === "scatter") {
         nodeId = params.data.node.id;
-        index = self.nodeIndex[nodeId];
-        nodeData = self.data.nodes[index];
       } else if (params.seriesType === "lines") {
         const {source, target} = params.data.link;
         nodeId = `${source}~${target}`;
-        index = self.nodeIndex[source];
-        nodeData = self.data.links[index];
       }
     }
     if (!fragments[id]) {
@@ -1304,6 +1296,7 @@ class NetJSONGraphUtil {
       fragments[id].set("id", id);
     }
     fragments[id].set("nodeId", nodeId);
+    const nodeData = self.nodeLinkIndex[nodeId];
     this.updateUrlFragments(fragments, nodeData);
   }
 
@@ -1325,13 +1318,11 @@ class NetJSONGraphUtil {
     const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
     const nodeId =
       fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
-    if (!nodeId || !self.nodeIndex || !self.nodeIndex[nodeId] == null) {
+    if (!nodeId || !self.nodeLinkIndex || !self.nodeLinkIndex[nodeId] == null) {
       return;
     }
     const [source, target] = nodeId.split("~");
-    const index = self.nodeIndex[nodeId];
-    // If source && target both exists then the node is a link
-    const node = source && target ? self.data.links[index] : self.data.nodes[index];
+    const node = self.nodeLinkIndex[nodeId];
     const nodeType =
       self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
     const {location, cluster} = node || {};

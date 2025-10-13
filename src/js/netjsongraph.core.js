@@ -121,9 +121,19 @@ class NetJSONGraphCore {
             this.config.maxPointsFetched - 1,
             JSONData.nodes.length - this.config.maxPointsFetched,
           );
-          const nodeSet = new Set(JSONData.nodes.map((node) => node.id));
+          const nodeSet = new Set();
+          // Build a lookup map (this.nodeLinkIndex) for quick access to node or link data.
+          // Uses node IDs as keys for nodes and "source~target" as keys for links.
+          // This avoids repeated traversal when restoring state from URL fragments.
+          this.nodeLinkIndex = {};
+          JSONData.nodes.forEach((node) => {
+            nodeSet.add(node.id);
+            this.nodeLinkIndex[node.id] = node;
+          });
           JSONData.links = JSONData.links.filter((link) => {
             if (nodeSet.has(link.source) && nodeSet.has(link.target)) {
+              const key = `${link.source}~${link.target}`;
+              this.nodeLinkIndex[key] = link;
               return true;
             }
             if (!nodeSet.has(link.source)) {

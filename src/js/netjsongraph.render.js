@@ -161,19 +161,10 @@ class NetJSONGraphRender {
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
       nodeResult._source = self.utils.fastDeepCopy(node);
-      // Store each node's index in `this.indexedNode` for quick lookup,
-      // allowing direct access to the node via `this.data.nodes[index]` without traversing the array.
-      self.nodeIndex = self.nodeIndex || {};
-      self.nodeIndex[node.id] = index;
       return nodeResult;
     });
     const links = JSONData.links.map((link, index) => {
       const linkResult = self.utils.fastDeepCopy(link);
-      // Similarly, create a lookup for links using "source-target" as the key,
-      // storing only the index for direct access via `this.data.links[index]`.
-      self.nodeIndex = self.nodeIndex || {};
-      const {source, target} = linkResult;
-      self.nodeIndex[`${source}~${target}`] = index;
 
       const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
         link,
@@ -310,10 +301,6 @@ class NetJSONGraphRender {
           });
         }
       }
-      // Store each node's index in `this.indexedNode` for quick lookup,
-      // allowing direct access to the node via `this.data.nodes[index]` without traversing the array.
-      self.nodeIndex = self.nodeIndex || {};
-      self.nodeIndex[node.id] = index;
     });
     links.forEach((link, index) => {
       if (!flatNodes[link.source]) {
@@ -342,11 +329,6 @@ class NetJSONGraphRender {
           link,
         });
       }
-      // Similarly, create a lookup for links using "source-target" as the key,
-      // storing only the index for direct access via `this.data.links[index]`.
-      self.nodeIndex = self.nodeIndex || {};
-      const {source, target} = link;
-      self.nodeIndex[`${source}~${target}`] = index;
     });
 
     nodesData = nodesData.concat(clusters);
