@@ -217,9 +217,8 @@ describe("Test URL fragment utilities", () => {
         render: "graph",
         bookmarkableActions: {enabled: true, id: "basicUsage"},
       },
-      data: {nodes: [node]},
       utils: {...utils, graphRender: "graph", mapRender: "map"},
-      nodeIndex: {node1: 0},
+      nodeLinkIndex: {node1: node},
     };
     const params = {
       dataType: "node",
@@ -241,9 +240,8 @@ describe("Test URL fragment utilities", () => {
         render: "graph",
         bookmarkableActions: {enabled: true, id: "basicUsage"},
       },
-      data: {links: [link]},
       utils: {...utils, graphRender: "graph", mapRender: "map"},
-      nodeIndex: {"node1:node2": 0},
+      nodeLinkIndex: {"node1:node2": link},
     };
 
     const params = {
@@ -268,9 +266,8 @@ describe("Test URL fragment utilities", () => {
         render: "graph",
         bookmarkableActions: {enabled: true, id: "geo"},
       },
-      data: {nodes: [node1, node2]},
       utils: {...utils, graphRender: "graph", mapRender: "map"},
-      nodeIndex: {node1: 0, node2: 1},
+      nodeLinkIndex: {node1: node1, node2: node2},
     };
     const params = {
       dataType: "node",
@@ -313,8 +310,7 @@ describe("Test URL fragment utilities", () => {
         mapOptions: {nodeConfig: {type: "scatter"}, center: [0, 0]},
         onClickElement: mockOnClick,
       },
-      data: {nodes: [node]},
-      nodeIndex: {n1: 0},
+      nodeLinkIndex: {n1: node},
       leaflet: {setView: mockSetView, getZoom: () => 6},
       utils,
     };
@@ -343,8 +339,7 @@ describe("Test URL fragment utilities", () => {
         mapOptions: {nodeConfig: {type: "scatter"}, center: [10, 20]},
         onClickElement: mockOnClick,
       },
-      data: {links: [link]},
-      nodeIndex: {"n1~n2": 0},
+      nodeLinkIndex: {"n1~n2": link},
       leaflet: {setView: mockSetView, getZoom: () => 6},
       utils,
     };
