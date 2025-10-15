@@ -268,19 +268,19 @@ const NetJSONGraphDefaultConfig = {
     {
       name: "ok",
       nodeStyle: {
-        color: "#28a745",
+        color: "#1ba619",
       },
     },
     {
       name: "problem",
       nodeStyle: {
-        color: "#ffc107",
+        color: "#ffa500",
       },
     },
     {
       name: "critical",
       nodeStyle: {
-        color: "#dc3545",
+        color: "#c92517",
       },
     },
   ],
