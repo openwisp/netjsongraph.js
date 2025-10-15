@@ -70,7 +70,6 @@
   </head>
   <body>
     <script type="text/javascript">
-      // Load dataset from external JSON file and initialize the map
       const map = new NetJSONGraph(
         "../assets/data/netjson-clustering.json",
         {
@@ -92,29 +91,8 @@
             {name: "ok", nodeStyle: {color: "#1ba619"}},
             {name: "problem", nodeStyle: {color: "#ffa500"}},
             {name: "critical", nodeStyle: {color: "#c92517"}},
-          ],
-          nodeLabel: function(node) {
-            // Return just the node name without the ID
-            return node.name || '';
-          },
-          prepareData: (data) => {
-            data.nodes.forEach((node) => {
-              // Keep location inside properties for later usage
-              node.properties = {
-                ...node.properties,
-                location: node.location,
-              };
-
-              const status = (node.properties?.status || "").toLowerCase();
-              if (["ok", "problem", "critical"].includes(status)) {
-                node.category = status;
-              } else {
-                node.category = "unknown";
-              }
-              // No `node.label` assignment to suppress labels
-            });
-          },
-        },
+          ]
+        }
       );
 
       // Build legend UI
