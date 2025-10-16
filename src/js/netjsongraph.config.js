@@ -285,6 +285,10 @@ const NetJSONGraphDefaultConfig = {
     },
   ],
   linkCategories: [],
+  bookmarkableActions: {
+    enabled: false,
+    id: null,
+  },
 
   /**
    * @function
