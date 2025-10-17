@@ -1,15 +1,23 @@
+import {util, graphic, matrix} from "echarts/core";
+import {
+  Layer,
+  DomUtil,
+  Projection,
+  LatLng,
+  map as lMap,
+  control,
+  tileLayer as lTileLayer,
+} from "leaflet";
+
 /* eslint-disable no-underscore-dangle */
 // Underscore dangling allowed to identify internal methods and variable
 /**
  * generate leaflet coord system
- * @param {object}   echarts api object
- * @param {object}   L       leaflet
  *
  * @return {function} LeafletCoordSys
  */
-function createLeafletCoordSystem(echarts, L) {
-  const {util, graphic, matrix} = echarts;
-  const CustomOverlay = L.Layer.extend({
+function createLeafletCoordSystem() {
+  const CustomOverlay = Layer.extend({
     initialize(container) {
       this._container = container;
     },
@@ -31,7 +39,7 @@ function createLeafletCoordSystem(echarts, L) {
     },
 
     onRemove() {
-      L.DomUtil.remove(this._container);
+      DomUtil.remove(this._container);
       // map.off('zoomend viewreset', this._update, this);
     },
 
@@ -52,7 +60,7 @@ function createLeafletCoordSystem(echarts, L) {
     this.dimensions = ["lng", "lat"];
     this._mapOffset = [0, 0];
     this._api = api;
-    this._projection = L.Projection.Mercator;
+    this._projection = Projection.Mercator;
   }
 
   function doConvert(methodName, ecModel, finder, value) {
@@ -62,10 +70,9 @@ function createLeafletCoordSystem(echarts, L) {
     const coordSys = leafletModel
       ? leafletModel.coordinateSystem
       : seriesModel
-      ? seriesModel.coordinateSystem || // For map.
-        (seriesModel.getReferringComponents("leaflet")[0] || {})
-          .coordinateSystem
-      : null;
+        ? seriesModel.coordinateSystem || // For map.
+          (seriesModel.getReferringComponents("leaflet")[0] || {}).coordinateSystem
+        : null;
     return coordSys === this ? coordSys[methodName](value) : null;
     /* eslint-enable */
   }
@@ -75,38 +82,46 @@ function createLeafletCoordSystem(echarts, L) {
   LeafletCoordSys.dimensions = ["lng", "lat"];
   LeafletCoordSys.prototype.dimensions = ["lng", "lat"];
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.prototype.setZoom = function (zoom) {
     this._zoom = zoom;
   };
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.prototype.setCenter = function (center) {
-    this._center = this._projection.project(new L.LatLng(center[1], center[0]));
+    this._center = this._projection.project(new LatLng(center[1], center[0]));
   };
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.prototype.setMapOffset = function (mapOffset) {
     this._mapOffset = mapOffset;
   };
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.prototype.getLeaflet = function () {
     return this._map;
   };
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.prototype.getViewRect = function () {
     const api = this._api;
     return new graphic.BoundingRect(0, 0, api.getWidth(), api.getHeight());
   };
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.prototype.getRoamTransform = function () {
     return matrix.create();
   };
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.prototype.dataToPoint = function (data) {
-    const point = new L.LatLng(data[1], data[0]);
+    const point = new LatLng(data[1], data[0]);
     const px = this._map.latLngToLayerPoint(point);
     const mapOffset = this._mapOffset;
     return [px.x - mapOffset[0], px.y - mapOffset[1]];
   };
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.prototype.pointToData = function (pt) {
     const mapOffset = this._mapOffset;
     const coord = this._map.layerPointToLatLng({
@@ -116,16 +131,11 @@ function createLeafletCoordSystem(echarts, L) {
     return [coord.lng, coord.lat];
   };
 
-  LeafletCoordSys.prototype.convertToPixel = util.curry(
-    doConvert,
-    "dataToPoint",
-  );
+  LeafletCoordSys.prototype.convertToPixel = util.curry(doConvert, "dataToPoint");
 
-  LeafletCoordSys.prototype.convertFromPixel = util.curry(
-    doConvert,
-    "pointToData",
-  );
+  LeafletCoordSys.prototype.convertFromPixel = util.curry(doConvert, "pointToData");
 
+  // eslint-disable-next-line func-names
   LeafletCoordSys.create = function (ecModel, api) {
     let leafletCoordSys;
     const leafletList = [];
@@ -156,13 +166,13 @@ function createLeafletCoordSystem(echarts, L) {
         mapRoot.classList.add("ec-extension-leaflet");
         root.appendChild(mapRoot);
 
-        leafletModel.__map = L.map(mapRoot, leafletModel.get("mapOptions"));
+        leafletModel.__map = lMap(mapRoot, leafletModel.get("mapOptions"));
         const map = leafletModel.__map;
         const tiles = leafletModel.get("tiles");
         const baseLayers = {};
         let baseLayerAdded = false;
         tiles.forEach((tile) => {
-          const tileLayer = L.tileLayer(tile.urlTemplate, tile.options);
+          const tileLayer = lTileLayer(tile.urlTemplate, tile.options);
           if (tile.label) {
             // only add one baseLayer
             if (!baseLayerAdded) {
@@ -178,7 +188,7 @@ function createLeafletCoordSystem(echarts, L) {
         // add layer control when there are more than two layers
         if (tiles.length > 1) {
           const layerControlOpts = leafletModel.get("layerControl");
-          L.control.layers(baseLayers, {}, layerControlOpts).addTo(map);
+          control.layers(baseLayers, {}, layerControlOpts).addTo(map);
         }
 
         /*
