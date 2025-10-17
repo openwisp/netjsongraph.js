@@ -1,27 +1,18 @@
+import {registerCoordinateSystem, registerAction} from "echarts/core";
 import createLeafletCoordSystem from "./LeafletCoordSys";
 import extendLeafletModel from "./LeafletModel";
 import extendLeafletView from "./LeafletView";
 
 /**
  * echarts register leaflet coord system
- * @param {object} echarts
- * @param {object} L
- * @param {object} API {
- *   colorTool: "zrender/lib/tool/color",
- *   { each }: "zrender/lib/core/util",
- *   env: "zrender/lib/core/env",
- * }
  */
-function registerLeafletSystem(echarts, L, API) {
-  extendLeafletModel(echarts);
-  extendLeafletView(echarts, L);
+export function registerLeafletSystem() {
+  extendLeafletModel();
+  extendLeafletView();
 
-  echarts.registerCoordinateSystem(
-    "leaflet",
-    createLeafletCoordSystem(echarts, L),
-  );
+  registerCoordinateSystem("leaflet", createLeafletCoordSystem());
 
-  echarts.registerAction(
+  registerAction(
     {
       type: "leafletRoam",
       event: "leafletRoam",
@@ -31,10 +22,7 @@ function registerLeafletSystem(echarts, L, API) {
       ecModel.eachComponent("leaflet", (leafletModel) => {
         const leaflet = leafletModel.getLeaflet();
         const center = leaflet.getCenter();
-        leafletModel.setCenterAndZoom(
-          [center.lng, center.lat],
-          leaflet.getZoom(),
-        );
+        leafletModel.setCenterAndZoom([center.lng, center.lat], leaflet.getZoom());
       });
     },
   );
