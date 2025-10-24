@@ -41,7 +41,7 @@ const NetJSONGraphDefaultConfig = {
   clusterRadius: 80,
   clusterSeparation: 20,
   showMetaOnNarrowScreens: false,
-  showLabelsAtZoomLevel: 100,
+  showLabelsAtZoomLevel: 13,
   showGraphLabelsAtZoom: null,
   crs: L.CRS.EPSG3857,
   echartsOption: {
