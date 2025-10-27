@@ -305,13 +305,13 @@ describe("Test URL fragment utilities", () => {
     const self = {
       config: {
         render: "map",
-        bookmarkableActions: {enabled: true, id: "geo"},
+        bookmarkableActions: {enabled: true, id: "geo", zoomLevel: 6},
         graphConfig: {series: {type: null}},
         mapOptions: {nodeConfig: {type: "scatter"}, center: [0, 0]},
         onClickElement: mockOnClick,
       },
       nodeLinkIndex: {n1: node},
-      leaflet: {setView: mockSetView, getZoom: () => 6},
+      leaflet: {setView: mockSetView},
       utils,
     };
 
@@ -320,36 +320,6 @@ describe("Test URL fragment utilities", () => {
 
     expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 6);
     expect(mockOnClick).toHaveBeenCalledWith("node", node);
-  });
-
-  test("applyUrlFragmentState handles link case and calls map.setView with default center", () => {
-    const mockSetView = jest.fn();
-    const mockOnClick = jest.fn();
-
-    const link = {
-      source: "n1",
-      target: "n2",
-    };
-
-    const self = {
-      config: {
-        render: "map",
-        bookmarkableActions: {enabled: true, id: "geo"},
-        graphConfig: {series: {type: null}},
-        mapOptions: {nodeConfig: {type: "scatter"}, center: [10, 20]},
-        onClickElement: mockOnClick,
-      },
-      nodeLinkIndex: {"n1~n2": link},
-      leaflet: {setView: mockSetView, getZoom: () => 6},
-      utils,
-    };
-
-    window.location.hash = "#id=geo&nodeId=n1~n2";
-
-    utils.applyUrlFragmentState(self);
-
-    expect(mockSetView).toHaveBeenCalledWith([10, 20], 6);
-    expect(mockOnClick).toHaveBeenCalledWith("link", link);
   });
 
   test("Test applyUrlFragmentState runs only after onReady completes", async () => {

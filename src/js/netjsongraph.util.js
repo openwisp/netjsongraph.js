@@ -1313,6 +1313,7 @@ class NetJSONGraphUtil {
     if (!self.config.bookmarkableActions.enabled) {
       return;
     }
+    debugger;
     const {id} = self.config.bookmarkableActions;
     const fragments = self.utils.parseUrlFragments();
     const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
@@ -1327,15 +1328,14 @@ class NetJSONGraphUtil {
       self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
     const {location, cluster} = node || {};
     // Only adjust the map view if this is a scatter-type node (leaflet map)
-    if (["scatter", "effectScatter"].includes(nodeType)) {
-      // For links, fall back to the default map center from config
-      const center = location
-        ? [location.lat, location.lng]
-        : self.config.mapOptions.center;
+    // and it is a node not link (target only exists in case of a link)
+    if (["scatter", "effectScatter"].includes(nodeType) && target == null) {
+      const center = [location.lat, location.lng];
       const zoom =
         cluster != null
           ? self.config.disableClusteringAtLevel
-          : self.leaflet?.getZoom();
+          : self.config.bookmarkableActions.zoomLevel ||
+            self.config.showLabelsAtZoomLevel;
       self.leaflet?.setView(center, zoom);
     }
     self.config.onClickElement.call(self, source && target ? "link" : "node", node);

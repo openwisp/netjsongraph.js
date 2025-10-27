@@ -469,17 +469,32 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   Configuration for adding url fragments when a node is clicked.
 
-  ```JS
-      bookmarkableActions:{
+  ```javascript
+      bookmarkableActions: {
         enabled: boolean,
-        id: string
+        id: string,
+        zoomLevel: number
       }
   ```
+
+  **Note: This feature is disabled by default.**
 
   You can enable or disable adding url fragments by setting enabled to true or false. When enabled, the following parameters are added to the URL:
   1. id – A prefix used to uniquely identify the map.
   2. nodeId – The id of the selected node.
-     When a URL containing these fragments is opened, the click event associated with the given nodeId is triggered, and if the map is based on Leaflet, the view will automatically center on that node.
+  3. zoomLevel – The zoom level applied when restoring the state from the URL fragments.
+
+  This feature allows you to create shareable and restorable map or graph states using URL fragments. When this feature is enabled, the URL updates automatically whenever you click a node or a link in your NetJSONGraph visualization. This makes it easy to share a specific view, restore it later, or navigate between different states using the browser’s back and forward buttons.
+
+  When you click on a node or link, information is added to the URL as a fragment (for example for node: `#map1-node=device-123` and for link: `#map1-link=deviceA~deviceB`). If you open such a URL directly in your browser, the visualization will automatically restore that exact state triggering the click event on the corresponding node or link and centering the map or graph accordingly.
+
+  This feature works across all ECharts graphs, as well as Leaflet-based maps including geographic and indoor floorplan maps and it supports multiple maps or graphs on the same page. The id parameter is used to uniquely identify which visualization the URL fragment belongs to (for eample: `#map1-node=device-1;#map2-node=device-2` ).
+
+  For nodes, the behavior depends on the type of visualization in Leaflet maps, clicking a node updates the URL and on apllying the state from url it automatically centers the map on that node, in addition to triggering its click event. In ECharts graphs, only triggers the click event for the node.
+
+  For links, the URL fragment uses the format `source~target` as the `nodeId`. Opening such a URL restores the initial map or graph view and triggers the corresponding link click event.
+
+  If you need to manually remove the URL fragment, you can call the built-in utility method: `netjsongraphInstance.utils.removeUrlFragment('id');` where id is `bookmarkableActions.id`.
 
 - `onInit`
 
