@@ -288,6 +288,7 @@ const NetJSONGraphDefaultConfig = {
   bookmarkableActions: {
     enabled: false,
     id: null,
+    zoomLevel: null,
   },
 
   /**

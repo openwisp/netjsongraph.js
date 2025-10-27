@@ -63,6 +63,10 @@
         height: 100%;
         flex: 1;
       }
+      #netjson-indoormap .njg-sideBar {
+          background: #f4f4f4;
+          border-right: 1px solid rgba(0, 0, 0, 0.2);
+      }
       #indoormap-container .njg-container .sideBarHandle {
         top: 35px;
         left: 390px
@@ -95,6 +99,7 @@
         bookmarkableActions: {
           enabled: true,
           id: "geoMap",
+          zoomLevel: 10,
         },
         prepareData: (data) => {
           data.nodes.forEach((n) => {
@@ -149,12 +154,13 @@
           {
             el: "#netjson-indoormap",
             render: "map",
-            crs: L.CRS.Simple,
             mapOptions: {
-              center: [50, 50],
-              zoom: 1,
-              minZoom: -2,
-              maxZoom: 2,
+              center: [0, 0],
+              zoom: 0,
+              minZoom: 6,
+              maxZoom: 10,
+              zoomSnap: 0.5,
+              zoomDelta: 0.5,
               nodeConfig: {
                 label: {
                   show: false,
@@ -163,7 +169,7 @@
               },
               baseOptions: {media: [{option: {tooltip: {show: true}}}]},
             },
-            bookmarkableActions:{
+            bookmarkableActions: {
               enabled: true,
               id: "indoorMap",
             },
@@ -176,21 +182,63 @@
             },
             onReady: async function () {
               const map = this.leaflet;
+              // Remove default tile layers
               map.eachLayer((layer) => layer._url && map.removeLayer(layer));
+
               const img = new Image();
               imageUrl = "../assets/images/floorplan.png";
               img.src = imageUrl;
-              await img.decode()
+              await img.decode();
+
               const aspectRatio = img.width / img.height;
               const h = 700;
-              const w = aspectRatio * h;
+              const w = h * aspectRatio;
+
               const zoom = map.getMaxZoom() - 1;
-              const sw = map.unproject([0, h * 2], zoom);
-              const ne = map.unproject([w * 2, 0], zoom);
-              const bnds = new L.LatLngBounds(sw, ne);
+
+              const anchorLatLng = L.latLng(0, 0);
+              const anchorPoint = map.project(anchorLatLng, zoom);
+              const topLeft = L.point(anchorPoint.x - w / 2, anchorPoint.y - h / 2);
+              const bottomRight = L.point(anchorPoint.x + w / 2, anchorPoint.y + h / 2);
+
+              const mapOptions = this.echarts.getOption();
+              // Refer netjsonmap-indoormap.html for full explanation of this workaround
+              mapOptions.series[0].data.forEach((data) => {
+                const node = data.node;
+                const px = Number(node.location.lng);
+                const py = -Number(node.location.lat);
+                const nodeProjected = L.point(topLeft.x + px, topLeft.y + py);
+                const nodeLatLng = map.unproject(nodeProjected, zoom);
+
+                node.location = nodeLatLng
+                node.properties.location = nodeLatLng;
+                data.value = [nodeLatLng.lng, nodeLatLng.lat];
+              });
+              mapOptions.series[1].data.forEach((data) => {
+                const soruce = data.coords[0];
+                const sourcePx = Number(soruce[0]);
+                const sourcePy = -Number(soruce[1]);
+                const sourceNodeProjected = L.point(topLeft.x + sourcePx, topLeft.y + sourcePy);
+                const sourceNodeLatLng = map.unproject(sourceNodeProjected, zoom);
+
+                const target = data.coords[1];
+                const targetPx = Number(target[0]);
+                const targetPy = -Number(target[1]);
+                const targetNodeProjected = L.point(topLeft.x + targetPx, topLeft.y + targetPy);
+                const targetNodeLatLng = map.unproject(targetNodeProjected, zoom);
+                
+                data.coords[0] = [sourceNodeLatLng.lng, sourceNodeLatLng.lat];
+                data.coords[1] = [targetNodeLatLng.lng, targetNodeLatLng.lat];
+              });
+              this.echarts.setOption(mapOptions);
+              const nw = map.unproject(topLeft, zoom);
+              const se = map.unproject(bottomRight, zoom);
+              const bnds = L.latLngBounds(nw, se);
+
               L.imageOverlay(imageUrl, bnds).addTo(map);
               map.fitBounds(bnds);
               map.setMaxBounds(bnds);
+              map.invalidateSize();
             },
           },
         );
