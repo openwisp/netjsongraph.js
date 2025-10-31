@@ -93,6 +93,7 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
+        self.utils.addActionToUrl(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -127,7 +128,7 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
-    const nodes = JSONData.nodes.map((node) => {
+    const nodes = JSONData.nodes.map((node, index) => {
       const nodeResult = JSON.parse(JSON.stringify(node));
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
@@ -152,8 +153,9 @@ class NetJSONGraphRender {
       nodeResult._source = JSON.parse(JSON.stringify(node));
       return nodeResult;
     });
-    const links = JSONData.links.map((link) => {
+    const links = JSONData.links.map((link, index) => {
       const linkResult = JSON.parse(JSON.stringify(link));
+
       const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
         link,
         configs,
@@ -241,7 +243,7 @@ class NetJSONGraphRender {
     const linesData = [];
     let nodesData = [];
 
-    nodes.forEach((node) => {
+    nodes.forEach((node, index) => {
       if (node.properties) {
         // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
         if (!JSONData.flatNodes) {
@@ -290,7 +292,7 @@ class NetJSONGraphRender {
         }
       }
     });
-    links.forEach((link) => {
+    links.forEach((link, index) => {
       if (!flatNodes[link.source]) {
         console.warn(`Node ${link.source} does not exist!`);
       } else if (!flatNodes[link.target]) {
@@ -419,7 +421,6 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-
     window.onresize = () => {
       self.echarts.resize();
     };
@@ -443,9 +444,12 @@ class NetJSONGraphRender {
       });
     }
 
+    self.utils.setupHashChangeHandler(self);
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
@@ -580,6 +584,7 @@ class NetJSONGraphRender {
       const zoomOut = document.querySelector(".leaflet-control-zoom-out");
 
       if (zoomIn && zoomOut) {
+        debugger;
         if (Math.round(currentZoom) >= maxZoom) {
           zoomIn.classList.add("leaflet-disabled");
         } else {
@@ -709,10 +714,12 @@ class NetJSONGraphRender {
         }
       });
     }
+    self.utils.setupHashChangeHandler(self);
 
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
