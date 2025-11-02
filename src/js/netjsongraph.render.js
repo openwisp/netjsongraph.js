@@ -1,26 +1,26 @@
-import * as echarts from "echarts/core";
-import {GraphChart, EffectScatterChart, LinesChart, ScatterChart} from "echarts/charts";
-import {
-  TooltipComponent,
-  TitleComponent,
-  ToolboxComponent,
-  LegendComponent,
-  GraphicComponent,
-} from "echarts/components";
-import {SVGRenderer} from "echarts/renderers";
-import L from "leaflet/dist/leaflet";
-import "echarts-gl";
+import {use} from "echarts/core";
+import {circleMarker, latLngBounds} from "leaflet";
+import {install as LinesChart} from "echarts/lib/chart/lines/install";
+import {install as GraphChart} from "echarts/lib/chart/graph/install";
+import {install as ScatterChart} from "echarts/lib/chart/scatter/install";
+import {install as TooltipComponent} from "echarts/lib/component/tooltip/install";
+import {install as TitleComponent} from "echarts/lib/component/title/install";
+import {install as ToolboxComponent} from "echarts/lib/component/toolbox/install";
+import {install as LegendComponent} from "echarts/lib/component/legend/install";
+import {install as GraphicComponent} from "echarts/lib/component/graphic/install";
+import {install as SVGRenderer} from "echarts/lib/renderer/installSVGRenderer";
+import {install as CanvasRenderer} from "echarts/lib/renderer/installCanvasRenderer";
 import {addPolygonOverlays} from "./netjsongraph.geojson";
 
-echarts.use([
+use([
   GraphChart,
-  EffectScatterChart,
   LinesChart,
   TooltipComponent,
   TitleComponent,
   ToolboxComponent,
   LegendComponent,
   SVGRenderer,
+  CanvasRenderer,
   ScatterChart,
   GraphicComponent,
 ]);
@@ -210,11 +210,8 @@ class NetJSONGraphRender {
       {
         ...baseGraphSeries,
         id: "network-graph",
-        type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
-        layout:
-          configs.graphConfig.series.type === "graphGL"
-            ? "forceAtlas2"
-            : configs.graphConfig.series.layout,
+        type: "graph",
+        layout: configs.graphConfig.series.layout || "force",
         nodes,
         links,
       },
@@ -334,14 +331,10 @@ class NetJSONGraphRender {
     const series = [
       {
         id: "geo-map",
-        type:
-          configs.mapOptions.nodeConfig.type === "effectScatter"
-            ? "effectScatter"
-            : "scatter",
+        type: "scatter",
         name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
-        animationDuration: 1000,
         label: configs.mapOptions.nodeConfig.label,
         itemStyle: {
           color: (params) => {
@@ -497,7 +490,7 @@ class NetJSONGraphRender {
     self.config.geoOptions = self.utils.deepMergeObj(
       {
         pointToLayer: (feature, latlng) =>
-          L.circleMarker(latlng, self.config.geoOptions.style),
+          circleMarker(latlng, self.config.geoOptions.style),
         onEachFeature: (feature, layer) => {
           layer.on("click", () => {
             const properties = {
@@ -536,7 +529,7 @@ class NetJSONGraphRender {
         if (bounds) {
           latlngs.forEach((ll) => bounds.extend(ll));
         } else {
-          bounds = L.latLngBounds(latlngs);
+          bounds = latLngBounds(latlngs);
         }
       }
 
@@ -680,11 +673,7 @@ class NetJSONGraphRender {
       );
 
       self.echarts.on("click", (params) => {
-        if (
-          (params.componentSubType === "scatter" ||
-            params.componentSubType === "effectScatter") &&
-          params.data.cluster
-        ) {
+        if (params.componentSubType === "scatter" && params.data.cluster) {
           // Zoom into the clicked cluster instead of expanding it
           const currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
@@ -820,4 +809,4 @@ class NetJSONGraphRender {
   }
 }
 
-export {NetJSONGraphRender, echarts, L};
+export default NetJSONGraphRender;

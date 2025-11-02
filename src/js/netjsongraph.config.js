@@ -1,4 +1,5 @@
-import L from "leaflet/dist/leaflet";
+import {CRS} from "leaflet";
+
 /**
  * Default options
  *
@@ -15,7 +16,7 @@ import L from "leaflet/dist/leaflet";
  * @param  {string|bool}       mapOptions          {}          Map init config. @see {@link https://leafletjs.com/reference-1.5.0.html#map-option}
  * @param  {array}             mapTileConfig       []          Map tiles config array, whose format is [{label, urlTemplate, options}]. @see {@link https://leafletjs.com/reference-1.5.0.html#tilelayer-option}
  * @param  {array}             mapLinkConfig       []          Support multiple lines superimposed style. @see {@link https://echarts.apache.org/en/option.html#series-lines}
- * @param  {object}            mapNodeConfig       {}          Map node style. @see {@link https://echarts.apache.org/en/option.html#series-effectScatter}
+ * @param  {object}            mapNodeConfig       {}          Map node style. @see {@link https://echarts.apache.org/en/option.html#series-scatter}
  *
  * @param {int|Array|function} nodeSize            node => 10  The size of nodes in pixel. @see {@link https://echarts.apache.org/en/option.html#series-graph.symbolSize}
  * @param  {object|function}   nodeStyleProperty   node => {}  Used to custom node style. @see {@link https://echarts.apache.org/en/option.html#series-graph.data.itemStyle}
@@ -43,7 +44,7 @@ const NetJSONGraphDefaultConfig = {
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 13,
   showGraphLabelsAtZoom: null,
-  crs: L.CRS.EPSG3857,
+  crs: CRS.EPSG3857,
   echartsOption: {
     aria: {
       show: true,

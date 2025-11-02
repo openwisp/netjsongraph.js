@@ -1,5 +1,5 @@
 const {dealJSONData, operations} = require("../src/js/netjsonWorker");
-const {NetJSONGraphRender} = require("../src/js/netjsongraph.render");
+const NetJSONGraphRender = require("../src/js/netjsongraph.render").default;
 
 // Test data for duplicate node handling
 const duplicateNodeTestData = new Map([

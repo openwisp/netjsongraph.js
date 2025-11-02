@@ -135,6 +135,28 @@ yarn install
 yarn start
 ```
 
+## Building the library
+
+To build the production-ready library:
+
+```bash
+yarn build
+```
+
+**Output**: Single optimized bundle with all dependencies included.
+
+- `netjsongraph.[hash].min.js` - Complete library with ECharts and Leaflet
+- `netjsongraph.[hash].min.js.map` - Source map for debugging
+- Compressed versions (`.gz` and `.br`) for optimized delivery
+
+The build includes:
+
+- **ECharts** for network graph rendering
+- **Leaflet** for geographic map rendering
+- **Core NetJSONGraph.js** functionality
+
+This unified bundle approach ensures compatibility and simplifies deployment while maintaining optimal performance through advanced webpack optimizations.
+
 ### Run Tests
 
 The test suite includes browser tests, so **ensure that ChromeDriver is installed** before running them.
