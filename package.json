@@ -3,6 +3,7 @@
   "version": "0.3.0",
   "description": "NetJSON NetworkGraph visualizer",
   "main": "index.js",
+  "sideEffects": false,
   "scripts": {
     "test": "jest --silent",
     "dev": "webpack serve --open --mode development",
@@ -52,6 +53,7 @@
     "@testing-library/jest-dom": "^6.4.2",
     "@types/jest": "^30.0.0",
     "acorn": "^8.11.3",
+    "compression-webpack-plugin": "^11.1.0",
     "copy-webpack-plugin": "^13.0.0",
     "coveralls": "^3.1.1",
     "css-loader": "^7.1.2",
@@ -73,12 +75,12 @@
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "webpack": "^5.90.3",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.0.2"
   },
   "dependencies": {
     "echarts": "^5.6.0",
-    "echarts-gl": "^2.0.9",
     "kdbush": "^4.0.2",
     "leaflet": "^1.8.0",
     "zrender": "^6.0.0"
