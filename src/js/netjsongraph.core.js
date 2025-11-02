@@ -77,7 +77,7 @@ class NetJSONGraphCore {
    *
    * @this {object}      The instantiated object of NetJSONGraph
    */
-  render() {
+  async render() {
     const [JSONParam, ...resParam] = this.JSONParam;
 
     this.config.onRender.call(this);

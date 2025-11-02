@@ -1,5 +1,6 @@
+import L from "leaflet";
 import NetJSONGraphCore from "../src/js/netjsongraph.core";
-import {NetJSONGraphRender, L} from "../src/js/netjsongraph.render";
+import NetJSONGraphRender from "../src/js/netjsongraph.render";
 
 const JSONFILE = "test";
 const JSONData = {
@@ -473,8 +474,8 @@ describe("Test when invalid data is passed", () => {
     console.error.mockClear();
   });
 
-  test("Handle the error", () => {
-    expect(map.render).toThrow();
+  test("Handle the error", async () => {
+    await map.render();
     expect(console.error).toHaveBeenCalled();
     expect(console.error).toHaveBeenCalledWith(new Error("Invalid data format!"));
   });
@@ -703,6 +704,16 @@ describe("Test when more data is present than maxPointsFetched", () => {
 
 describe("Test clustering", () => {
   let container;
+  let originalPrototype;
+
+  beforeEach(() => {
+    originalPrototype = Object.getPrototypeOf(NetJSONGraphRender.prototype);
+  });
+
+  afterEach(() => {
+    Object.setPrototypeOf(NetJSONGraphRender.prototype, originalPrototype);
+  });
+
   const setUp = (map) => {
     Object.setPrototypeOf(NetJSONGraphRender.prototype, map.utils);
     map.utils = new NetJSONGraphRender();
