@@ -136,16 +136,17 @@
         return container;
       }
 
-      function closeButtonHandler(container) {
+      function closeButtonHandler(container, indoorMap) {
         const closeBtn = container.querySelector("#indoormap-close");
         closeBtn.addEventListener("click", () => {
+          const id = indoorMap.config.bookmarkableActions.id;
+          indoorMap.utils.removeUrlFragment(id);
           container.remove();
         });
       }
 
       function openIndoorMap() {
         const indoorMapContainer = createIndoorMapContainer();
-        closeButtonHandler(indoorMapContainer);
         const mapContainer = document.getElementById("map-container");
         mapContainer.appendChild(indoorMapContainer);
 
@@ -243,6 +244,7 @@
           },
         );
         indoor.render();
+        closeButtonHandler(indoorMapContainer, indoor);
       }
     </script>
   </body>
