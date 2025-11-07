@@ -138,7 +138,7 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
-    const nodes = JSONData.nodes.map((node, index) => {
+    const nodes = JSONData.nodes.map((node) => {
       const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
@@ -594,7 +594,6 @@ class NetJSONGraphRender {
       const zoomOut = document.querySelector(".leaflet-control-zoom-out");
 
       if (zoomIn && zoomOut) {
-        debugger;
         if (Math.round(currentZoom) >= maxZoom) {
           zoomIn.classList.add("leaflet-disabled");
         } else {
