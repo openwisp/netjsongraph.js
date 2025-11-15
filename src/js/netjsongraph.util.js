@@ -1318,7 +1318,7 @@ class NetJSONGraphUtil {
     const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
     const nodeId =
       fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
-    if (!nodeId || !self.nodeLinkIndex || !self.nodeLinkIndex[nodeId] == null) {
+    if (!nodeId || !self.nodeLinkIndex || self.nodeLinkIndex[nodeId] == null) {
       return;
     }
     const [source, target] = nodeId.split("~");
@@ -1333,11 +1333,13 @@ class NetJSONGraphUtil {
       const zoom =
         cluster != null
           ? self.config.disableClusteringAtLevel
-          : self.config.bookmarkableActions.zoomLevel ||
+          : self.config.bookmarkableActions.zoom.zoomLevel ||
             self.config.showLabelsAtZoomLevel;
       // Currently, there’s no way to center the view on a link element within the graph or map.
       // The view is only centered when using a Leaflet map and the selected element is a node.
-      self.leaflet?.setView(center, zoom);
+      if (self.config.bookmarkableActions.zoom.enabled) {
+        self.leaflet?.setView(center, zoom);
+      }
     }
     self.config.onClickElement.call(self, source && target ? "link" : "node", node);
   }

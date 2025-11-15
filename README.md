@@ -473,7 +473,10 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
       bookmarkableActions: {
         enabled: boolean,
         id: string,
-        zoomLevel: number
+        zoom: {
+          enabled: boolean,
+          zoomLevel: integer
+        }
       }
   ```
 
@@ -482,7 +485,6 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   You can enable or disable adding url fragments by setting enabled to true or false. When enabled, the following parameters are added to the URL:
   1. id – A prefix used to uniquely identify the map.
   2. nodeId – The id of the selected node.
-  3. zoomLevel – The zoom level applied when restoring the state from the URL fragments.
 
   This feature allows you to create shareable and restorable map or graph states using URL fragments. When this feature is enabled, the URL updates automatically whenever you click a node or a link in your NetJSONGraph visualization. This makes it easy to share a specific view, restore it later, or navigate between different states using the browser’s back and forward buttons.
 
