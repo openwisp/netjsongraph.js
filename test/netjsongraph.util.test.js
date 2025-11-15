@@ -264,7 +264,7 @@ describe("Test URL fragment utilities", () => {
     const self = {
       config: {
         render: "graph",
-        bookmarkableActions: {enabled: true, id: "geo"},
+        bookmarkableActions: {enabled: true, id: "geo", zoom: {enabled: true}},
       },
       utils: {...utils, graphRender: "graph", mapRender: "map"},
       nodeLinkIndex: {node1: node1, node2: node2},
@@ -305,7 +305,11 @@ describe("Test URL fragment utilities", () => {
     const self = {
       config: {
         render: "map",
-        bookmarkableActions: {enabled: true, id: "geo", zoomLevel: 6},
+        bookmarkableActions: {
+          enabled: true,
+          id: "geo",
+          zoom: {enabled: true, zoomLevel: 6},
+        },
         graphConfig: {series: {type: null}},
         mapOptions: {nodeConfig: {type: "scatter"}, center: [0, 0]},
         onClickElement: mockOnClick,

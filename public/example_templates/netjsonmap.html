@@ -98,7 +98,10 @@
         bookmarkableActions: {
           enabled: true,
           id: "geographicMap",
-          zoomLevel: 10,
+          zoom: {
+            enabled: true,
+            zoomLevel: 10,
+          },
         },
 
         prepareData: (data) => {

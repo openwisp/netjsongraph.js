@@ -99,7 +99,10 @@
         bookmarkableActions: {
           enabled: true,
           id: "geoMap",
-          zoomLevel: 10,
+          zoom: {
+            enabled: true,
+            zoomLevel: 10
+          }
         },
         prepareData: (data) => {
           data.nodes.forEach((n) => {
@@ -173,6 +176,9 @@
             bookmarkableActions: {
               enabled: true,
               id: "indoorMap",
+              zoom: {
+                enabled: false,
+              }
             },
             prepareData: (data) => {
               data.nodes.forEach((n) => {
