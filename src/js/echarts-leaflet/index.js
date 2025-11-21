@@ -2,11 +2,19 @@ import {registerCoordinateSystem, registerAction} from "echarts/core";
 import createLeafletCoordSystem from "./LeafletCoordSys";
 import extendLeafletModel from "./LeafletModel";
 import extendLeafletView from "./LeafletView";
+import getLeaflet from "../leaflet-loader";
 
 /**
  * echarts register leaflet coord system
  */
 export function registerLeafletSystem() {
+  const L = getLeaflet(true);
+  if (!L) {
+    // Leaflet is not available, so we can't register the Leaflet coordinate system.
+    // This is fine for graph-only rendering.
+    return;
+  }
+
   extendLeafletModel();
   extendLeafletView();
 

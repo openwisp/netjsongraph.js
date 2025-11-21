@@ -1,4 +1,4 @@
-import {CRS} from "leaflet";
+import getLeaflet from "./leaflet-loader";
 
 /**
  * Default options
@@ -44,7 +44,6 @@ const NetJSONGraphDefaultConfig = {
   showMetaOnNarrowScreens: false,
   showLabelsAtZoomLevel: 13,
   showGraphLabelsAtZoom: null,
-  crs: CRS.EPSG3857,
   echartsOption: {
     aria: {
       show: true,
@@ -355,9 +354,19 @@ const NetJSONGraphDefaultConfig = {
    * @this  {object}        The instantiated object of NetJSONGraph
    *
    */
-  /* istanbul ignore next */
   onReady() {},
 };
 
+const config = {...NetJSONGraphDefaultConfig};
+
+Object.defineProperty(config, "crs", {
+  get() {
+    const L = getLeaflet();
+    return L ? L.CRS.EPSG3857 : null;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 export const {prepareData} = NetJSONGraphDefaultConfig;
-export default {...NetJSONGraphDefaultConfig};
+export default config;

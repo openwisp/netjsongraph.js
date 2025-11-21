@@ -67,18 +67,31 @@ const getMinimizers = (isProduction) => {
 module.exports = (env, argv) => {
   const isProduction = argv.mode === "production";
   const isDevelopment = !isProduction;
+  const buildType = env && env.BUILD_TYPE ? env.BUILD_TYPE : "full";
+  const isEchartsOnly = buildType === "echarts-only";
 
-  return {
+  // Common configuration shared by both builds
+  const commonConfig = {
     entry: "./src/js/netjsongraph.js",
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: isProduction
-        ? "netjsongraph.[contenthash:8].min.js"
-        : "netjsongraph.js",
+        ? isEchartsOnly
+          ? "netjsongraph.echarts.[contenthash:8].min.js"
+          : "netjsongraph.[contenthash:8].min.js"
+        : isEchartsOnly
+          ? "netjsongraph.echarts.js"
+          : "netjsongraph.js",
       clean: true,
       publicPath: "/",
     },
-    devtool: isDevelopment ? "eval-source-map" : "source-map",
+    devtool: isDevelopment ? "eval-source-map" : false,
+    // Externalize Leaflet for echarts-only build
+    externals: isEchartsOnly
+      ? {
+          leaflet: "L",
+        }
+      : {},
     optimization: {
       minimize: isProduction,
       minimizer: getMinimizers(isProduction),
@@ -158,6 +171,9 @@ module.exports = (env, argv) => {
         ],
       }),
       new Dotenv({systemvars: true}),
+      new webpack.DefinePlugin({
+        BUNDLE_LEAFLET: JSON.stringify(!isEchartsOnly),
+      }),
       ...(isProduction
         ? [
             new CompressionPlugin({
@@ -207,4 +223,6 @@ module.exports = (env, argv) => {
       preferRelative: true,
     },
   };
+
+  return commonConfig;
 };

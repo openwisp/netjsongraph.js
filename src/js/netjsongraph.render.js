@@ -1,5 +1,4 @@
 import {use} from "echarts/core";
-import {circleMarker, latLngBounds} from "leaflet";
 import {install as LinesChart} from "echarts/lib/chart/lines/install";
 import {install as GraphChart} from "echarts/lib/chart/graph/install";
 import {install as ScatterChart} from "echarts/lib/chart/scatter/install";
@@ -10,6 +9,7 @@ import {install as LegendComponent} from "echarts/lib/component/legend/install";
 import {install as GraphicComponent} from "echarts/lib/component/graphic/install";
 import {install as SVGRenderer} from "echarts/lib/renderer/installSVGRenderer";
 import {install as CanvasRenderer} from "echarts/lib/renderer/installCanvasRenderer";
+import getLeaflet from "./leaflet-loader";
 import {addPolygonOverlays} from "./netjsongraph.geojson";
 
 use([
@@ -461,6 +461,12 @@ class NetJSONGraphRender {
    *
    */
   mapRender(JSONData, self) {
+    const L = getLeaflet();
+    if (!L) {
+      throw new Error("Leaflet api is not loaded");
+    }
+    const {circleMarker, latLngBounds} = L;
+
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
