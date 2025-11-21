@@ -7,6 +7,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CompressionPlugin = require("compression-webpack-plugin");
+const InjectLeafletLoaderPlugin = require("./webpack-plugins/inject-leaflet-loader");
 
 const examples = fs.readdirSync(path.resolve(__dirname, "public/example_templates"));
 const templates = examples.map(
@@ -146,6 +147,7 @@ module.exports = (env, argv) => {
     },
     plugins: [
       ...templates,
+      new InjectLeafletLoaderPlugin({isEchartsOnly}),
       new CopyPlugin({
         patterns: [
           {
