@@ -1,4 +1,4 @@
-import {geoJSON} from "leaflet";
+import getLeaflet from "./leaflet-loader";
 /*
  * Dedicated GeoJSON utilities for netjsongraph.js.
  */
@@ -132,6 +132,12 @@ export function addPolygonOverlays(self) {
   if (!self.originalGeoJSON || !Array.isArray(self.originalGeoJSON.features)) {
     return; // nothing to do
   }
+
+  const L = getLeaflet();
+  if (!L) {
+    return;
+  }
+  const {geoJSON} = L;
 
   const map = self.leaflet; // Leaflet map instance
   const polygonFeatures = self.originalGeoJSON.features.filter(

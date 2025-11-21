@@ -137,25 +137,39 @@ yarn start
 
 ## Building the library
 
-To build the production-ready library:
+NetJSONGraph.js provides **two build variants** to optimize bundle size for different use cases:
+
+### 1. Full Bundle (Recommended for standalone usage)
+
+Build the complete library with all dependencies included:
 
 ```bash
-yarn build
+yarn build:full
 ```
 
-**Output**: Single optimized bundle with all dependencies included.
+**Output**:
 
 - `netjsongraph.[hash].min.js` - Complete library with ECharts and Leaflet
-- `netjsongraph.[hash].min.js.map` - Source map for debugging
 - Compressed versions (`.gz` and `.br`) for optimized delivery
 
-The build includes:
+**Use when**: You want a standalone library with all dependencies bundled.
 
-- **ECharts** for network graph rendering
-- **Leaflet** for geographic map rendering
-- **Core NetJSONGraph.js** functionality
+### 2. ECharts-Only Bundle (Optimized for projects with existing Leaflet)
 
-This unified bundle approach ensures compatibility and simplifies deployment while maintaining optimal performance through advanced webpack optimizations.
+Build the library without Leaflet, expecting it to be provided externally:
+
+```bash
+yarn build:echarts-only
+```
+
+**Output**:
+
+- `netjsongraph.echarts.[hash].min.js` - Library with ECharts only
+- Compressed versions (`.gz` and `.br`)
+
+**Use when**: Your project already includes Leaflet (e.g., via django-leaflet in OpenWISP projects). This reduces bundle size by ~144 KiB.
+
+**Requirements**: Leaflet must be loaded before NetJSONGraph (available as global `L` object).
 
 ### Run Tests
 

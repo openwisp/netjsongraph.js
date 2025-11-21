@@ -1,13 +1,5 @@
 import {util, graphic, matrix} from "echarts/core";
-import {
-  Layer,
-  DomUtil,
-  Projection,
-  LatLng,
-  map as lMap,
-  control,
-  tileLayer as lTileLayer,
-} from "leaflet";
+import getLeaflet from "../leaflet-loader";
 
 /* eslint-disable no-underscore-dangle */
 // Underscore dangling allowed to identify internal methods and variable
@@ -17,6 +9,20 @@ import {
  * @return {function} LeafletCoordSys
  */
 function createLeafletCoordSystem() {
+  const L = getLeaflet();
+  if (!L) {
+    throw new Error("Leaflet api is not loaded");
+  }
+  const {
+    Layer,
+    DomUtil,
+    Projection,
+    LatLng,
+    map: lMap,
+    control,
+    tileLayer: lTileLayer,
+  } = L;
+
   const CustomOverlay = Layer.extend({
     initialize(container) {
       this._container = container;
