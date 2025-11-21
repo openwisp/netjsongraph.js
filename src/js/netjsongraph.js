@@ -6,6 +6,8 @@ import NetJSONGraphGUI from "./netjsongraph.gui";
 import attachClientsOverlay from "./netjsongraph.clients";
 import {registerLeafletSystem} from "./echarts-leaflet";
 
+let isLeafletRegistered = false;
+
 /**
  * @class
  * NetJSONGraph - Main entry point and factory class for the NetJSONGraph library.
@@ -68,6 +70,10 @@ class NetJSONGraph {
    * Initializes the ECharts rendering engine. Used in constructor
    */
   initializeECharts() {
+    if (!isLeafletRegistered) {
+      registerLeafletSystem();
+      isLeafletRegistered = true;
+    }
     this.graph.echarts = init(this.graph.el, null, {
       renderer: this.graph.config.svgRender ? "svg" : "canvas",
     });
@@ -162,7 +168,5 @@ class NetJSONGraph {
     return this.config;
   }
 }
-
-registerLeafletSystem();
 
 window.NetJSONGraph = NetJSONGraph;

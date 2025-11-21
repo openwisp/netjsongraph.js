@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>NetJSON Cluster - ECharts Only Build Example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Leaflet loaded externally -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+      integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+      crossorigin=""
+    ></script>
+    <!-- theme can be easily customized via css -->
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <style type="text/css">
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      #legend h4 {
+        margin: 10px 0;
+        text-align: center;
+      }
+      #legend {
+        position: absolute;
+        right: 25px;
+        bottom: 25px;
+        width: auto;
+        height: auto;
+        max-width: 250px;
+        padding: 8px 15px;
+        background: #fbfbfb;
+        border-radius: 8px;
+        color: #000;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        z-index: 1000;
+        user-select: text;
+      }
+      #legend p {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+      }
+      #legend span {
+        width: 16px;
+        margin-right: 5px;
+      }
+      .status-ok,
+      .status-problem,
+      .status-critical {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+        border-radius: 50%;
+      }
+      .status-ok {
+        background-color: #1ba619;
+      }
+      .status-problem {
+        background-color: #ffa500;
+      }
+      .status-critical {
+        background-color: #c92517;
+      }
+      #build-info {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(251, 251, 251, 0.95);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: monospace;
+        color: #333;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      #build-info strong {
+        color: #1ba619;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="build-info">
+      Build: <strong>echarts-only</strong> | Leaflet: <strong>External</strong>
+    </div>
+    <script type="text/javascript">
+      const map = new NetJSONGraph("../assets/data/netjson-clustering.json", {
+        render: "map",
+        clustering: true,
+        clusteringThreshold: 2,
+        clusterRadius: 80,
+        disableClusteringAtLevel: 18,
+        clusteringAttribute: "status",
+        clusterSeparation: 20,
+        mapOptions: {
+          center: [55.98, 11.54],
+          zoom: 4,
+          minZoom: 3,
+          maxZoom: 18,
+          // No label configuration to keep the view clean
+        },
+        // defaults categories and colors
+        // shown here to make customization easier
+        // nodeCategories: [
+        //   {name: "ok", nodeStyle: {color: "#1ba619"}},
+        //   {name: "problem", nodeStyle: {color: "#ffa500"}},
+        //   {name: "critical", nodeStyle: {color: "#c92517"}},
+        // ]
+      });
+
+      // Build legend UI
+      const createLegend = (key, className) => {
+        const legendItem = document.createElement("p");
+        const legendIcon = document.createElement("span");
+        legendIcon.setAttribute("class", className);
+        legends.appendChild(legendItem);
+        legendItem.appendChild(legendIcon);
+        legendItem.innerHTML += key;
+        return legendItem;
+      };
+
+      const legends = document.createElement("div");
+      legends.setAttribute("id", "legend");
+      const legendsHeader = document.createElement("h4");
+      legendsHeader.textContent = "Node Status";
+      legends.appendChild(legendsHeader);
+      legends.appendChild(createLegend("OK", "status-ok"));
+      legends.appendChild(createLegend("Problem", "status-problem"));
+      legends.appendChild(createLegend("Critical", "status-critical"));
+      document.body.appendChild(legends);
+
+      // Render map
+      try {
+        map.render();
+      } catch (e) {
+        console.error("Error initializing NetJSONGraph:", e);
+      }
+    </script>
+  </body>
+</html>
