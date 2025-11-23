@@ -71,6 +71,7 @@
     <script type="text/javascript">
       const map = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
+        // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,
@@ -103,7 +104,7 @@
             zoomLevel: 10,
           },
         },
-
+        // Convert to internal json format
         prepareData: (data) => {
           data.nodes.map((node) => {
             node.label = node.name;
