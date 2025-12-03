@@ -1326,20 +1326,24 @@ class NetJSONGraphUtil {
     const nodeType =
       self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
     const {location, cluster} = node || {};
-    // Only adjust the map view if this is a scatter-type node (leaflet map)
-    // and it is a node not link (target only exists in case of a link)
-    if (["scatter", "effectScatter"].includes(nodeType) && target == null) {
+    // Center the map view when returning from a bookmark.
+    // We only do this when:
+    // - zoomOnRestore is enabled,
+    // - the selected element is a node (target == null; Leaflet cannot center links),
+    // - and the node type corresponds to a Leaflet-mapped element (scatter/effectScatter).
+    // Currently, there’s no way to center the view on a link element in the graph or map.
+    if (
+      self.config.bookmarkableActions.zoomOnRestore &&
+      ["scatter", "effectScatter"].includes(nodeType) &&
+      target == null
+    ) {
       const center = [location.lat, location.lng];
       const zoom =
         cluster != null
           ? self.config.disableClusteringAtLevel
-          : self.config.bookmarkableActions.zoom.zoomLevel ||
+          : self.config.bookmarkableActions.zoomLevel ||
             self.config.showLabelsAtZoomLevel;
-      // Currently, there’s no way to center the view on a link element within the graph or map.
-      // The view is only centered when using a Leaflet map and the selected element is a node.
-      if (self.config.bookmarkableActions.zoom.enabled) {
-        self.leaflet?.setView(center, zoom);
-      }
+      self.leaflet?.setView(center, zoom);
     }
     self.config.onClickElement.call(self, source && target ? "link" : "node", node);
   }

@@ -473,10 +473,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
       bookmarkableActions: {
         enabled: boolean,
         id: string,
-        zoom: {
-          enabled: boolean,
-          zoomLevel: integer
-        }
+        zoomOnRestore: boolean,
+        zoomLevel: number,
       }
   ```
 
