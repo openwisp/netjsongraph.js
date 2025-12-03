@@ -1321,7 +1321,7 @@ class NetJSONGraphUtil {
           ? self.config.disableClusteringAtLevel
           : self.config.bookmarkableActions.zoomLevel ||
             self.config.showLabelsAtZoomLevel;
-      self.leaflet?.setView(center, zoom);
+      self.leaflet && self.leaflet.setView(center, zoom);
     }
     self.config.onClickElement.call(self, source && target ? "link" : "node", node);
   }
