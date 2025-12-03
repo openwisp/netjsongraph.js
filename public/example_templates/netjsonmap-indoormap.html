@@ -67,9 +67,7 @@
           bookmarkableActions: {
             enabled: true,
             id: "indoorMap",
-            zoom: {
-              enabled: false,
-            }
+            zoomOnRestore: false,
           },
           // Convert to internal json format
           prepareData: function (data) {
@@ -141,9 +139,6 @@
                 const targetPy = -Number(target[1]);
                 const targetNodeProjected = L.point(topLeft.x + targetPx, topLeft.y + targetPy);
                 const targetNodeLatLng = map.unproject(targetNodeProjected, zoom);
-
-                console.log(soruce, sourceNodeLatLng)
-                console.log(target, targetNodeLatLng)
 
                 data.coords[0] = [sourceNodeLatLng.lng, sourceNodeLatLng.lat];
                 data.coords[1] = [targetNodeLatLng.lng, targetNodeLatLng.lat];

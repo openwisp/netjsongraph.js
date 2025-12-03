@@ -264,10 +264,10 @@ describe("Test URL fragment utilities", () => {
     const self = {
       config: {
         render: "graph",
-        bookmarkableActions: {enabled: true, id: "geo", zoom: {enabled: true}},
+        bookmarkableActions: {enabled: true, id: "geo"},
       },
       utils: {...utils, graphRender: "graph", mapRender: "map"},
-      nodeLinkIndex: {node1: node1, node2: node2},
+      nodeLinkIndex: {node1, node2},
     };
     const params = {
       dataType: "node",
@@ -308,7 +308,8 @@ describe("Test URL fragment utilities", () => {
         bookmarkableActions: {
           enabled: true,
           id: "geo",
-          zoom: {enabled: true, zoomLevel: 6},
+          zoomLevel: 6,
+          zoomOnRestore: true,
         },
         graphConfig: {series: {type: null}},
         mapOptions: {nodeConfig: {type: "scatter"}, center: [0, 0]},

@@ -99,10 +99,7 @@
         bookmarkableActions: {
           enabled: true,
           id: "geoMap",
-          zoom: {
-            enabled: true,
-            zoomLevel: 10
-          }
+          zoomLevel: 10,
         },
         prepareData: (data) => {
           data.nodes.forEach((n) => {
@@ -176,9 +173,7 @@
             bookmarkableActions: {
               enabled: true,
               id: "indoorMap",
-              zoom: {
-                enabled: false,
-              }
+              zoomOnRestore: false,
             },
             prepareData: (data) => {
               data.nodes.forEach((n) => {
@@ -233,7 +228,7 @@
                 const targetPy = -Number(target[1]);
                 const targetNodeProjected = L.point(topLeft.x + targetPx, topLeft.y + targetPy);
                 const targetNodeLatLng = map.unproject(targetNodeProjected, zoom);
-                
+
                 data.coords[0] = [sourceNodeLatLng.lng, sourceNodeLatLng.lat];
                 data.coords[1] = [targetNodeLatLng.lng, targetNodeLatLng.lat];
               });
