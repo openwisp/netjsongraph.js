@@ -1,0 +1,22 @@
+{
+  "type": "NetworkGraph",
+  "label": "Moving Node Demo",
+  "protocol": "OLSR",
+  "version": "0.6.6.2",
+  "metric": "ETX",
+  "date": "2024-12-04T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "10.0.0.1",
+      "name": "India-1",
+      "location": {
+        "lng": 72.8777,
+        "lat": 19.076
+      },
+      "properties": {
+        "time": "2025-12-04T00:00:00.000Z"
+      }
+    }
+  ],
+  "links": []
+}
