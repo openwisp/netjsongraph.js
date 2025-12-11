@@ -432,6 +432,31 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
+    // Enable wheel zoom outside graph area
+    const dom = self.echarts.getDom && self.echarts.getDom();
+    if (dom) {
+      dom.addEventListener("wheel", (e) => {
+        const rect = dom.getBoundingClientRect();
+        if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+          return;
+        }
+        e.preventDefault();
+        const canvas = dom.querySelector('canvas');
+        if (canvas) {
+          const r = canvas.getBoundingClientRect();
+          canvas.dispatchEvent(new WheelEvent('wheel', {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            clientX: r.left + r.width / 2,
+            clientY: r.top + r.height / 2,
+            deltaY: -e.deltaY,
+            deltaMode: e.deltaMode,
+          }));
+        }
+      }, {passive: false});
+    }
+
     // Toggle labels on zoom threshold crossing
     if (self.config.showGraphLabelsAtZoom > 0) {
       self.echarts.on("graphRoam", (params) => {
