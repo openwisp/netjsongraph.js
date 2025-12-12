@@ -376,3 +376,64 @@ describe("Test URL fragment utilities", () => {
     ]);
   });
 });
+
+describe("Test move Node in Real Time", () => {
+  test("updates node location, properties, value and calls setOption", () => {
+    const util = new NetJSONGraphUtil();
+    const nodeId = "node-1";
+    const initialLocation = {lat: 10, lng: 20};
+    const newLocation = {lat: 11, lng: 21};
+
+    const series = [
+      {type: "line", data: []},
+      {
+        type: "scatter",
+        data: [
+          {
+            node: {
+              id: nodeId,
+              location: initialLocation,
+              properties: {location: initialLocation},
+            },
+            value: [initialLocation.lng, initialLocation.lat],
+          },
+          {
+            node: {
+              id: "node-2",
+              location: {lat: 1, lng: 2},
+              properties: {location: {lat: 1, lng: 2}},
+            },
+            value: [2, 1],
+          },
+        ],
+      },
+    ];
+
+    const echarts = {
+      getOption: jest.fn(() => ({
+        series: JSON.parse(JSON.stringify(series)),
+      })),
+      setOption: jest.fn(),
+    };
+
+    const self = {echarts};
+
+    util.moveNodeInRealTime(self, nodeId, newLocation);
+
+    expect(echarts.getOption).toHaveBeenCalled();
+    expect(echarts.setOption).toHaveBeenCalled();
+
+    const calledArg = echarts.setOption.mock.calls[0][0];
+    expect(calledArg).toBeDefined();
+    expect(calledArg.series).toBeDefined();
+
+    const scatterSeries = calledArg.series.find((s) => s.type === "scatter");
+    expect(scatterSeries).toBeDefined();
+
+    const updated = scatterSeries.data.find((d) => d.node.id === nodeId);
+    expect(updated).toBeDefined();
+    expect(updated.node.location).toEqual(newLocation);
+    expect(updated.node.properties.location).toEqual(newLocation);
+    expect(updated.value).toEqual([newLocation.lng, newLocation.lat]);
+  });
+});

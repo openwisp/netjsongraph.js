@@ -923,6 +923,19 @@ yarn start
 </html>
 ```
 
+### Moving nodes in realtime
+
+You can move a node programmatically on the map at runtime using the `moveNodeInRealTime` helper in utils. This is useful to animate devices, show mobile nodes, or reflect position updates coming from a realtime source (sockets, polling, etc.).
+
+```JS
+// .util.moveNodeInRealTime(self, nodeId, location)
+moveNodeInRealTime(self, id, location)
+```
+
+- `self` - the NetJSONGraph instance
+- `id` - the node id (string) to move.
+- `location` - `{ lat: number, lng: number }`
+
 ### Upgrading from 0.1.x versions to 0.2.x
 
 We advise all users of netjsongraph.js who are using the 0.1.x version to
