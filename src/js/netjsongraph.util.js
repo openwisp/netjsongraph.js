@@ -1198,7 +1198,7 @@ class NetJSONGraphUtil {
     const options = self.echarts.getOption();
     const series = options.series.find((s) => s.type === "scatter");
     const dataIndex = series.data.findIndex((d) => d.node.id === id);
-    const node = self.data.nodes[dataIndex];
+    const node = series.data[dataIndex].node;
     node.location = location;
     node.properties.location = location;
     series.data[dataIndex].value = [location.lng, location.lat];
