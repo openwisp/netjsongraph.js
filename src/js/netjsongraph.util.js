@@ -1196,12 +1196,15 @@ class NetJSONGraphUtil {
 
   moveNodeInRealTime(self, id, location) {
     const options = self.echarts.getOption();
-    const series = options.series.find((s) => s.type === "scatter");
+    const series = options.series.find(
+      (s) => s.type === "scatter" || s.type === "effectScatter",
+    );
     const dataIndex = series.data.findIndex((d) => d.node.id === id);
-    const node = series.data[dataIndex].node;
+    const entry = series.data[dataIndex];
+    const {node} = entry;
     node.location = location;
     node.properties.location = location;
-    series.data[dataIndex].value = [location.lng, location.lat];
+    entry.value = [location.lng, location.lat];
     self.echarts.setOption({
       series: options.series,
     });
