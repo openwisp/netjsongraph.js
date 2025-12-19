@@ -25,6 +25,9 @@
           crs: L.CRS.Simple,
           // set map initial state.
           mapOptions: {
+            // disable leaflet worldCopyJump on the indoor map
+            // because it's incompatible (raises a JS error) and not needed
+            worldCopyJump: false,
             center: [48.577, 18.539],
             zoom: 0,
             zoomSnap: 0.3,
