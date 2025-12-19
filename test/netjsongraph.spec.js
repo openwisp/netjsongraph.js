@@ -120,6 +120,7 @@ describe("NetJSONGraph Specification", () => {
   const NetJSONGraphMapOptions = {
     roam: true,
     zoomAnimation: false,
+    worldCopyJump: true,
     minZoom: 3,
     maxZoom: 18,
     nodeConfig: {
