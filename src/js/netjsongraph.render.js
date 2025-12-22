@@ -1,5 +1,10 @@
 import * as echarts from "echarts/core";
-import {GraphChart, EffectScatterChart, LinesChart, ScatterChart} from "echarts/charts";
+import {
+  GraphChart,
+  EffectScatterChart,
+  LinesChart,
+  ScatterChart,
+} from "echarts/charts";
 import {
   TooltipComponent,
   TitleComponent,
@@ -200,7 +205,8 @@ class NetJSONGraphRender {
       {
         ...baseGraphSeries,
         id: "network-graph",
-        type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
+        type:
+          configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
           configs.graphConfig.series.type === "graphGL"
             ? "forceAtlas2"
@@ -267,7 +273,11 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeEmphasisConfig} = self.utils.getNodeStyle(node, configs, "map");
+          const {nodeEmphasisConfig} = self.utils.getNodeStyle(
+            node,
+            configs,
+            "map",
+          );
 
           let nodeName = "";
           if (typeof node.label === "string") {
@@ -384,7 +394,8 @@ class NetJSONGraphRender {
               : nodeSizeConfig;
           }
           return (
-            (configs.mapOptions.nodeConfig && configs.mapOptions.nodeConfig.nodeSize) ||
+            (configs.mapOptions.nodeConfig &&
+              configs.mapOptions.nodeConfig.nodeSize) ||
             17
           );
         },
@@ -418,7 +429,10 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, self) {
-    self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
+    self.utils.echartsSetOption(
+      self.utils.generateGraphOption(JSONData, self),
+      self,
+    );
 
     window.onresize = () => {
       self.echarts.resize();
@@ -535,7 +549,22 @@ class NetJSONGraphRender {
       }
     }
 
-    if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
+    // 4. Resolve label visibility threshold
+    let {showMapLabelsAtZoom} = self.config;
+    if (showMapLabelsAtZoom === undefined) {
+      if (self.config.showLabelsAtZoomLevel !== undefined) {
+        showMapLabelsAtZoom = self.config.showLabelsAtZoomLevel;
+      } else {
+        showMapLabelsAtZoom = 13;
+      }
+    }
+
+    const currentZoom = self.leaflet.getZoom();
+    const showLabel =
+      typeof showMapLabelsAtZoom === "number" &&
+      currentZoom >= showMapLabelsAtZoom;
+
+    if (!showLabel) {
       self.echarts.setOption({
         series: [
           {
@@ -554,18 +583,18 @@ class NetJSONGraphRender {
     }
 
     self.leaflet.on("zoomend", () => {
-      const currentZoom = self.leaflet.getZoom();
-      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
+      const cZoom = self.leaflet.getZoom();
+      const sLabel = cZoom >= self.config.showLabelsAtZoomLevel;
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
-              show: showLabel,
+              show: sLabel,
             },
             emphasis: {
               label: {
-                show: showLabel,
+                show: false,
               },
             },
           },
@@ -580,13 +609,13 @@ class NetJSONGraphRender {
       const zoomOut = document.querySelector(".leaflet-control-zoom-out");
 
       if (zoomIn && zoomOut) {
-        if (Math.round(currentZoom) >= maxZoom) {
+        if (Math.round(cZoom) >= maxZoom) {
           zoomIn.classList.add("leaflet-disabled");
         } else {
           zoomIn.classList.remove("leaflet-disabled");
         }
 
-        if (Math.round(currentZoom) <= minZoom) {
+        if (Math.round(cZoom) <= minZoom) {
           zoomOut.classList.add("leaflet-disabled");
         } else {
           zoomOut.classList.remove("leaflet-disabled");
@@ -615,14 +644,19 @@ class NetJSONGraphRender {
         self.leaflet.getZoom() >= self.config.loadMoreAtZoomLevel &&
         self.hasMoreData
       ) {
-        const data = await self.utils.getBBoxData.call(self, self.JSONParam, bounds);
+        const data = await self.utils.getBBoxData.call(
+          self,
+          self.JSONParam,
+          bounds,
+        );
         self.config.prepareData.call(self, data);
         const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
         const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
         const targetLinkSet = new Set(self.data.links.map((l) => l.target));
         const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
         const links = data.links.filter(
-          (link) => !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
+          (link) =>
+            !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
         );
         const boundsDataSet = new Set(data.nodes.map((n) => n.id));
         const nonCommonNodes = self.bboxData.nodes.filter(
@@ -630,7 +664,9 @@ class NetJSONGraphRender {
         );
         const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
 
-        JSONData.nodes = JSONData.nodes.filter((node) => !removableNodes.has(node.id));
+        JSONData.nodes = JSONData.nodes.filter(
+          (node) => !removableNodes.has(node.id),
+        );
         self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
         self.bboxData.links = self.bboxData.links.concat(links);
         JSONData = {
@@ -648,7 +684,8 @@ class NetJSONGraphRender {
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
-      let {clusters, nonClusterNodes, nonClusterLinks} = self.utils.makeCluster(self);
+      let {clusters, nonClusterNodes, nonClusterLinks} =
+        self.utils.makeCluster(self);
 
       // Only show clusters if we're below the disableClusteringAtLevel
       if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
@@ -676,8 +713,8 @@ class NetJSONGraphRender {
           params.data.cluster
         ) {
           // Zoom into the clicked cluster instead of expanding it
-          const currentZoom = self.leaflet.getZoom();
-          const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
+          const NewZoom = self.leaflet.getZoom();
+          const targetZoom = Math.min(NewZoom + 2, self.leaflet.getMaxZoom());
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],
             targetZoom,
@@ -792,7 +829,9 @@ class NetJSONGraphRender {
         return true;
       }
       if (existingNodeIds.has(node.id)) {
-        console.warn(`Duplicate node ID ${node.id} detected during merge and skipped.`);
+        console.warn(
+          `Duplicate node ID ${node.id} detected during merge and skipped.`,
+        );
         return false;
       }
       return true;
