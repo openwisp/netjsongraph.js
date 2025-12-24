@@ -59,6 +59,8 @@
                   See the following comments for details.
               */
       // `graph` render defaultly.
+      const LABEL_ZOOM_THRESHOLD = 1.2;
+      const SMALL_GRAPH_NODE_COUNT = 40;
       let graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
         onReady: function () {
           let searchContainer = document.createElement("div"),
@@ -103,10 +105,40 @@
 
             searchInput.value = "";
           };
+          applyAutoInitialZoom(this);
         },
       });
 
       graph.render();
+      function applyAutoInitialZoom(instance) {
+          const nodes = instance.data.nodes || [];
+          if (!nodes.length) return;
+
+          const container = instance.el.getBoundingClientRect();
+
+          let minX = Infinity, minY = Infinity;
+          let maxX = -Infinity, maxY = -Infinity;
+
+          nodes.forEach(n => {
+            if (typeof n.x !== "number" || typeof n.y !== "number") return;
+            minX = Math.min(minX, n.x);
+            minY = Math.min(minY, n.y);
+            maxX = Math.max(maxX, n.x);
+            maxY = Math.max(maxY, n.y);
+          });
+
+          const graphArea = (maxX - minX) * (maxY - minY);
+          const viewportArea = container.width * container.height;
+          const densityRatio = graphArea / viewportArea;
+
+          const isSmallGraph =
+            nodes.length <= SMALL_GRAPH_NODE_COUNT ||
+            densityRatio < 0.25;
+
+          if (isSmallGraph) {
+            instance.zoom(LABEL_ZOOM_THRESHOLD + 0.2);
+          }
+        }
     </script>
   </body>
 </html>
