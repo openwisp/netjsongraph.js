@@ -177,6 +177,11 @@
         >
       </div>
       <div class="cards">
+        <a href="./examples/netjsonmap-moving-node.html" target="_blank"
+          >Moving Nodes</a
+        >
+      </div>
+      <div class="cards">
         <a href="./examples/netjsonmap-indoormap.html" target="_blank"
           >Indoor map</a
         >
@@ -257,7 +262,7 @@
 
       themeToggle.addEventListener('click', () => {
         htmlElement.classList.toggle('dark-mode');
-        
+
         // Save theme preference
         const currentTheme = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
         localStorage.setItem('theme', currentTheme);
