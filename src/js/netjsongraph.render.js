@@ -1,10 +1,5 @@
 import * as echarts from "echarts/core";
-import {
-  GraphChart,
-  EffectScatterChart,
-  LinesChart,
-  ScatterChart,
-} from "echarts/charts";
+import {GraphChart, EffectScatterChart, LinesChart, ScatterChart} from "echarts/charts";
 import {
   TooltipComponent,
   TitleComponent,
@@ -205,8 +200,7 @@ class NetJSONGraphRender {
       {
         ...baseGraphSeries,
         id: "network-graph",
-        type:
-          configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
+        type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
         layout:
           configs.graphConfig.series.type === "graphGL"
             ? "forceAtlas2"
@@ -273,11 +267,7 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeEmphasisConfig} = self.utils.getNodeStyle(
-            node,
-            configs,
-            "map",
-          );
+          const {nodeEmphasisConfig} = self.utils.getNodeStyle(node, configs, "map");
 
           let nodeName = "";
           if (typeof node.label === "string") {
@@ -394,8 +384,7 @@ class NetJSONGraphRender {
               : nodeSizeConfig;
           }
           return (
-            (configs.mapOptions.nodeConfig &&
-              configs.mapOptions.nodeConfig.nodeSize) ||
+            (configs.mapOptions.nodeConfig && configs.mapOptions.nodeConfig.nodeSize) ||
             17
           );
         },
@@ -429,10 +418,7 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, self) {
-    self.utils.echartsSetOption(
-      self.utils.generateGraphOption(JSONData, self),
-      self,
-    );
+    self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
 
     window.onresize = () => {
       self.echarts.resize();
@@ -644,19 +630,14 @@ class NetJSONGraphRender {
         self.leaflet.getZoom() >= self.config.loadMoreAtZoomLevel &&
         self.hasMoreData
       ) {
-        const data = await self.utils.getBBoxData.call(
-          self,
-          self.JSONParam,
-          bounds,
-        );
+        const data = await self.utils.getBBoxData.call(self, self.JSONParam, bounds);
         self.config.prepareData.call(self, data);
         const dataNodeSet = new Set(self.data.nodes.map((n) => n.id));
         const sourceLinkSet = new Set(self.data.links.map((l) => l.source));
         const targetLinkSet = new Set(self.data.links.map((l) => l.target));
         const nodes = data.nodes.filter((node) => !dataNodeSet.has(node.id));
         const links = data.links.filter(
-          (link) =>
-            !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
+          (link) => !sourceLinkSet.has(link.source) && !targetLinkSet.has(link.target),
         );
         const boundsDataSet = new Set(data.nodes.map((n) => n.id));
         const nonCommonNodes = self.bboxData.nodes.filter(
@@ -664,9 +645,7 @@ class NetJSONGraphRender {
         );
         const removableNodes = new Set(nonCommonNodes.map((n) => n.id));
 
-        JSONData.nodes = JSONData.nodes.filter(
-          (node) => !removableNodes.has(node.id),
-        );
+        JSONData.nodes = JSONData.nodes.filter((node) => !removableNodes.has(node.id));
         self.bboxData.nodes = self.bboxData.nodes.concat(nodes);
         self.bboxData.links = self.bboxData.links.concat(links);
         JSONData = {
@@ -684,8 +663,7 @@ class NetJSONGraphRender {
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
-      let {clusters, nonClusterNodes, nonClusterLinks} =
-        self.utils.makeCluster(self);
+      let {clusters, nonClusterNodes, nonClusterLinks} = self.utils.makeCluster(self);
 
       // Only show clusters if we're below the disableClusteringAtLevel
       if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
@@ -829,9 +807,7 @@ class NetJSONGraphRender {
         return true;
       }
       if (existingNodeIds.has(node.id)) {
-        console.warn(
-          `Duplicate node ID ${node.id} detected during merge and skipped.`,
-        );
+        console.warn(`Duplicate node ID ${node.id} detected during merge and skipped.`);
         return false;
       }
       return true;
