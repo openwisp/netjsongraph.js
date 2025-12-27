@@ -535,7 +535,22 @@ class NetJSONGraphRender {
       }
     }
 
-    if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
+    // 4. Resolve label visibility threshold
+    let {showMapLabelsAtZoom} = self.config;
+    if (showMapLabelsAtZoom === undefined) {
+      if (self.config.showLabelsAtZoomLevel !== undefined) {
+        showMapLabelsAtZoom = self.config.showLabelsAtZoomLevel;
+      } else {
+        showMapLabelsAtZoom = 13;
+      }
+    }
+
+    const currentZoom = self.leaflet.getZoom();
+    const showLabel =
+      typeof showMapLabelsAtZoom === "number" &&
+      currentZoom >= showMapLabelsAtZoom;
+
+    if (!showLabel) {
       self.echarts.setOption({
         series: [
           {
@@ -554,18 +569,18 @@ class NetJSONGraphRender {
     }
 
     self.leaflet.on("zoomend", () => {
-      const currentZoom = self.leaflet.getZoom();
-      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
+      const cZoom = self.leaflet.getZoom();
+      const sLabel = cZoom >= self.config.showLabelsAtZoomLevel;
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
-              show: showLabel,
+              show: sLabel,
             },
             emphasis: {
               label: {
-                show: showLabel,
+                show: false,
               },
             },
           },
@@ -580,13 +595,13 @@ class NetJSONGraphRender {
       const zoomOut = document.querySelector(".leaflet-control-zoom-out");
 
       if (zoomIn && zoomOut) {
-        if (Math.round(currentZoom) >= maxZoom) {
+        if (Math.round(cZoom) >= maxZoom) {
           zoomIn.classList.add("leaflet-disabled");
         } else {
           zoomIn.classList.remove("leaflet-disabled");
         }
 
-        if (Math.round(currentZoom) <= minZoom) {
+        if (Math.round(cZoom) <= minZoom) {
           zoomOut.classList.add("leaflet-disabled");
         } else {
           zoomOut.classList.remove("leaflet-disabled");
@@ -676,8 +691,8 @@ class NetJSONGraphRender {
           params.data.cluster
         ) {
           // Zoom into the clicked cluster instead of expanding it
-          const currentZoom = self.leaflet.getZoom();
-          const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
+          const NewZoom = self.leaflet.getZoom();
+          const targetZoom = Math.min(NewZoom + 2, self.leaflet.getMaxZoom());
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],
             targetZoom,
