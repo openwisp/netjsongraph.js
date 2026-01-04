@@ -1270,7 +1270,15 @@ class NetJSONGraphUtil {
   }
 
   addActionToUrl(self, params) {
-    if (!self.config.bookmarkableActions.enabled || params.data.cluster) {
+    if (
+      !self.config.bookmarkableActions.enabled ||
+      !params.data ||
+      params.data.cluster
+    ) {
+      return;
+    }
+    if (!self.nodeLinkIndex) {
+      console.error("Lookup object for node or link not found.");
       return;
     }
     const fragments = this.parseUrlFragments();
@@ -1290,6 +1298,10 @@ class NetJSONGraphUtil {
         const {source, target} = params.data.link;
         nodeId = `${source}~${target}`;
       }
+    }
+    if (!nodeId || !self.nodeLinkIndex[nodeId]) {
+      console.error("nodeId not found in nodeLinkIndex lookup.");
+      return;
     }
     if (!fragments[id]) {
       fragments[id] = new URLSearchParams();
@@ -1345,7 +1357,9 @@ class NetJSONGraphUtil {
             self.config.showLabelsAtZoomLevel;
       self.leaflet && self.leaflet.setView(center, zoom);
     }
-    self.config.onClickElement.call(self, source && target ? "link" : "node", node);
+    if (typeof self.config.onClickElement === "function") {
+      self.config.onClickElement.call(self, source && target ? "link" : "node", node);
+    }
   }
 
   setupHashChangeHandler(self) {

@@ -241,7 +241,7 @@ describe("Test URL fragment utilities", () => {
         bookmarkableActions: {enabled: true, id: "basicUsage"},
       },
       utils: {...utils, graphRender: "graph", mapRender: "map"},
-      nodeLinkIndex: {"node1:node2": link},
+      nodeLinkIndex: {"node1~node2": link},
     };
 
     const params = {

@@ -488,7 +488,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   This feature works across all ECharts graphs, as well as Leaflet-based maps including geographic and indoor floorplan maps and it supports multiple maps or graphs on the same page. The id parameter is used to uniquely identify which visualization the URL fragment belongs to (for example: `#map1-node=device-1;#map2-node=device-2` ).
 
-  For nodes, the behavior depends on the type of visualization in Leaflet maps, clicking a node updates the URL and on apllying the state from url it automatically centers the map on that node, in addition to triggering its click event. In ECharts graphs, only triggers the click event for the node.
+  For nodes, the behavior depends on the type of visualization in Leaflet maps, clicking a node updates the URL and on applying the state from url it automatically centers the map on that node, in addition to triggering its click event. In ECharts graphs, only triggers the click event for the node.
 
   For links, the URL fragment uses the format `source~target` as the `nodeId`. Opening such a URL restores the initial map or graph view and triggers the corresponding link click event.
 

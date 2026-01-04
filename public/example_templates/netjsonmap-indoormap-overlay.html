@@ -38,7 +38,6 @@
         width: 80%;
         height: 90%;
         padding: 20px;
-        border-radius: 8px;
         align-items: center;
         justify-content: center;
         z-index: 9999;
@@ -190,7 +189,7 @@
               map.eachLayer((layer) => layer._url && map.removeLayer(layer));
 
               const img = new Image();
-              imageUrl = "../assets/images/floorplan.png";
+              const imageUrl = "../assets/images/floorplan.png";
               img.src = imageUrl;
               await img.decode();
 
@@ -219,9 +218,9 @@
                 data.value = [nodeLatLng.lng, nodeLatLng.lat];
               });
               mapOptions.series[1].data.forEach((data) => {
-                const soruce = data.coords[0];
-                const sourcePx = Number(soruce[0]);
-                const sourcePy = -Number(soruce[1]);
+                const source = data.coords[0];
+                const sourcePx = Number(source[0]);
+                const sourcePy = -Number(source[1]);
                 const sourceNodeProjected = L.point(topLeft.x + sourcePx, topLeft.y + sourcePy);
                 const sourceNodeLatLng = map.unproject(sourceNodeProjected, zoom);
 
