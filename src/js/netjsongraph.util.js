@@ -1336,7 +1336,7 @@ class NetJSONGraphUtil {
     const [source, target] = nodeId.split("~");
     const node = self.nodeLinkIndex[nodeId];
     const nodeType =
-      self.config.graphConfig.series.type || self.config.mapOptions.nodeConfig.type;
+      self.config.graphConfig?.series?.type || self.config.mapOptions?.nodeConfig?.type;
     const {location, cluster} = node || {};
     // Center the map view when returning from a bookmark.
     // We only do this when:
