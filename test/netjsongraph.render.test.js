@@ -497,7 +497,9 @@ describe("generateMapOption - node processing and dynamic styling", () => {
           baseOptions: {},
           clusterConfig: {},
         },
-        mapTileConfig: [{}],
+        mapTileConfig: [
+          {urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", options: {}},
+        ],
         nodeCategories: [],
       },
       utils: {
@@ -940,6 +942,9 @@ describe("Test disableClusteringAtLevel: 0", () => {
       latLngToContainerPoint: jest.fn(() => ({x: 0, y: 0})),
       getPane: jest.fn(() => undefined),
       createPane: jest.fn(() => ({style: {}})),
+      eachLayer: jest.fn(),
+      removeLayer: jest.fn(),
+      addLayer: jest.fn(),
     };
 
     jest.spyOn(L, "geoJSON").mockImplementation(() => mockGeoJSONLayer);
@@ -960,7 +965,9 @@ describe("Test disableClusteringAtLevel: 0", () => {
         prepareData: jest.fn((d) => d),
         onClickElement: jest.fn(),
         mapOptions: {},
-        mapTileConfig: [{}],
+        mapTileConfig: [
+          {urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", options: {}},
+        ],
       },
       leaflet: mockLeafletInstance,
       echarts: {
@@ -1060,7 +1067,9 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         prepareData: jest.fn((d) => d),
         onClickElement: jest.fn(),
         mapOptions: {},
-        mapTileConfig: [{}],
+        mapTileConfig: [
+          {urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", options: {}},
+        ],
         showLabelsAtZoomLevel: 3,
       },
       leaflet: leafletMap,
@@ -1165,6 +1174,9 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
       getPane: jest.fn(() => undefined),
       createPane: jest.fn(() => ({style: {}})),
       setView: jest.fn(),
+      eachLayer: jest.fn(),
+      removeLayer: jest.fn(),
+      addLayer: jest.fn(),
     };
 
     jest.spyOn(L, "geoJSON").mockImplementation(() => mockPolygonLayer);
@@ -1199,7 +1211,9 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         prepareData: jest.fn(),
         onClickElement: jest.fn(),
         mapOptions: {},
-        mapTileConfig: [{}],
+        mapTileConfig: [
+          {urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", options: {}},
+        ],
         showLabelsAtZoomLevel: 3,
         loadMoreAtZoomLevel: 4,
       },
@@ -1370,7 +1384,9 @@ describe("map series ids and name fallbacks", () => {
           linkConfig: {},
           baseOptions: {},
         },
-        mapTileConfig: [{}],
+        mapTileConfig: [
+          {urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", options: {}},
+        ],
         nodeCategories: [],
       },
       utils: {
@@ -1420,6 +1436,9 @@ describe("map series ids and name fallbacks", () => {
       getMaxZoom: jest.fn(() => 6),
       getZoom: jest.fn(() => 1),
       getBounds: jest.fn(() => ({})),
+      eachLayer: jest.fn(),
+      removeLayer: jest.fn(),
+      addLayer: jest.fn(),
     };
     const mockSelf = {
       type: "geojson",
@@ -1427,7 +1446,9 @@ describe("map series ids and name fallbacks", () => {
       config: {
         geoOptions: {},
         mapOptions: {},
-        mapTileConfig: [{}],
+        mapTileConfig: [
+          {urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", options: {}},
+        ],
         showLabelsAtZoomLevel: 3,
         onClickElement: jest.fn(),
         prepareData: jest.fn(),
