@@ -27,6 +27,181 @@ echarts.use([
 
 class NetJSONGraphRender {
   /**
+   * Determine whether dark mode is currently active.
+   *
+   * Priority:
+   * 1) config.darkMode boolean (force)
+   * 2) document theme markers (html.dark-mode or html[data-theme="dark"])
+   * 3) OS preference (prefers-color-scheme)
+   */
+  isDarkModeActive() {
+    if (typeof this.config.darkMode === "boolean") {
+      return this.config.darkMode;
+    }
+
+    const docEl = document && document.documentElement;
+    if (docEl) {
+      if (docEl.classList.contains("dark-mode")) {
+        return true;
+      }
+      const dataTheme = docEl.getAttribute("data-theme");
+      if (typeof dataTheme === "string" && dataTheme.toLowerCase() === "dark") {
+        return true;
+      }
+    }
+
+    try {
+      return !!(
+        window &&
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      );
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Swap Leaflet tile layers based on the active theme.
+   * This only touches base TileLayer instances; overlays (geojson, markers, etc) remain.
+   */
+  updateLeafletTilesForTheme(isDark) {
+    if (!this.leaflet) {
+      return;
+    }
+
+    const tiles = Array.isArray(this.config.mapTileConfig)
+      ? this.config.mapTileConfig
+      : [];
+    if (!tiles.length) {
+      return;
+    }
+
+    // Remove existing tile layers
+    Object.keys(this.leaflet._layers || {}).forEach((k) => {
+      const layer = this.leaflet._layers[k];
+      if (layer && layer instanceof L.TileLayer) {
+        this.leaflet.removeLayer(layer);
+      }
+    });
+
+    // Remove existing layer control created by us (if any)
+    if (this.leaflet._njgBaseLayerControl) {
+      try {
+        this.leaflet._njgBaseLayerControl.remove();
+      } catch (e) {
+        // ignore
+      }
+      this.leaflet._njgBaseLayerControl = null;
+    }
+
+    const baseLayers = {};
+    let baseLayerAdded = false;
+
+    tiles.forEach((tile) => {
+      const urlTemplate =
+        isDark && tile.darkUrlTemplate ? tile.darkUrlTemplate : tile.urlTemplate;
+      const options =
+        isDark && tile.darkOptions ? tile.darkOptions : tile.options;
+
+      const tileLayer = L.tileLayer(urlTemplate, options);
+      if (tile.label) {
+        if (!baseLayerAdded) {
+          tileLayer.addTo(this.leaflet);
+          baseLayerAdded = true;
+        }
+        baseLayers[tile.label] = tileLayer;
+      } else {
+        tileLayer.addTo(this.leaflet);
+      }
+    });
+
+    if (tiles.length > 1) {
+      const layerControlOpts = this.config.layerControl || {};
+      this.leaflet._njgBaseLayerControl = L.control
+        .layers(baseLayers, {}, layerControlOpts)
+        .addTo(this.leaflet);
+    }
+  }
+
+  /**
+   * Apply theme to DOM and map tiles.
+   */
+  applyTheme() {
+    const isDark = this.utils.isDarkModeActive.call(this);
+    if (this.el) {
+      this.el.classList.toggle("njg-dark-mode", !!isDark);
+    }
+    // Only maps need tile swapping
+    if (this.config && this.config.render === this.utils.mapRender) {
+      this.utils.updateLeafletTilesForTheme.call(this, !!isDark);
+    }
+  }
+
+  /**
+   * Resolve popup coordinates from a node-like object.
+   * Supports:
+   * - NetJSONGraph nodes: node.properties.location or node.location
+   * - GeoJSON point array: node.coordinates [lng, lat]
+   * - GeoJSON feature geometry: node.geometry.coordinates [lng, lat]
+   */
+  getPopupLatLng(node) {
+    const loc = node?.properties?.location || node?.location;
+    if (loc && typeof loc.lat === "number" && typeof loc.lng === "number") {
+      return [loc.lat, loc.lng];
+    }
+
+    if (Array.isArray(node?.coordinates) && node.coordinates.length >= 2) {
+      return [node.coordinates[1], node.coordinates[0]];
+    }
+
+    if (Array.isArray(node?.geometry?.coordinates) && node.geometry.coordinates.length >= 2) {
+      return [node.geometry.coordinates[1], node.geometry.coordinates[0]];
+    }
+
+    return null;
+  }
+
+  /**
+   * Show a Leaflet popup for a node (map & indoor map).
+   *
+   * @param {object} node Raw node object passed from click handler
+   * @param {object} nodeInfo Optional processed info object (from utils.nodeInfo)
+   */
+  showNodePopup(node, nodeInfo = null) {
+    if (!this.leaflet) {
+      return;
+    }
+
+    const latLng = this.utils.getPopupLatLng.call(this, node);
+    if (!latLng || Number.isNaN(latLng[0]) || Number.isNaN(latLng[1])) {
+      // No coordinates: nothing to anchor the popup to.
+      return;
+    }
+
+    // Determine popup content
+    let content = null;
+    if (typeof this.config.nodePopupContent === "function") {
+      content = this.config.nodePopupContent.call(this, node, nodeInfo, this);
+    }
+
+    if (content === undefined || content === null || content === "") {
+      const title =
+        node?.label ||
+        node?.name ||
+        node?.properties?.name ||
+        (node?.id !== undefined && node?.id !== null ? String(node.id) : "Node");
+      content = `<div class="njg-node-popup-content"><strong>${title}</strong></div>`;
+    }
+
+    const popupOpts = this.config.nodePopupOptions || {};
+    const popup = L.popup(popupOpts).setLatLng(latLng).setContent(content);
+    popup.openOn(this.leaflet);
+
+    this._njgCurrentNodePopup = popup;
+  }
+
+  /**
    * @function
    * @name echartsSetOption
    *
