@@ -51,7 +51,7 @@ class NetJSONGraphGUI {
       localStorage.setItem("map_theme", isDark ? "dark" : "light");
       
       // If map is active, re-render to update tiles
-      if (this.self.utils.mapRender) {
+      if (this.self.config.render === this.self.utils.mapRender) {
         this.self.utils.render();
       }
     };

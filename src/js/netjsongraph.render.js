@@ -38,7 +38,17 @@ class NetJSONGraphRender {
    * @return {object}  graph object
    *
    */
-  echartsSetOption(customOption, self) {
+  isDarkMode(self) {
+    return (
+      (self.el && self.el.classList.contains("dark-mode")) ||
+      document.body.classList.contains("dark-mode") ||
+      document.documentElement.classList.contains("dark-mode")
+    );
+  }
+
+  /**
+   * @function
+   * @name echartsSetOption
     const configs = self.config;
     const echartsLayer = self.echarts;
     const commonOption = self.utils.deepMergeObj(
@@ -398,9 +408,7 @@ class NetJSONGraphRender {
       }),
     ];
 
-    const isDarkMode =
-      document.body.classList.contains("dark-mode") ||
-      document.documentElement.classList.contains("dark-mode");
+    const isDarkMode = self.utils.isDarkMode(self);
     const tiles =
       isDarkMode && configs.mapTileConfigDark
         ? configs.mapTileConfigDark
@@ -495,10 +503,7 @@ class NetJSONGraphRender {
     }
 
     // Manually update tile layers because echarts-leaflet doesn't handle tile updates on setOption
-    const isDarkMode =
-      (self.el && self.el.classList.contains("dark-mode")) ||
-      document.body.classList.contains("dark-mode") ||
-      document.documentElement.classList.contains("dark-mode");
+    const isDarkMode = self.utils.isDarkMode(self);
     
     const targetTiles =
       isDarkMode && self.config.mapTileConfigDark
