@@ -437,7 +437,7 @@ class NetJSONGraphRender {
           (event) => {
             if (
               typeof self.echarts._api !== "undefined" &&
-              self.echarts._api.dispatchAction
+              typeof self.echarts.dispatchAction === "function"
             ) {
               const zoom = event.deltaY < 0 ? 1.2 : 0.8;
               self.echarts._api.dispatchAction({
@@ -459,18 +459,20 @@ class NetJSONGraphRender {
 
     // Store zoom in series option for test observability
     self.echarts.on("graphRoam", (params) => {
-      if (params && typeof params.zoom === "number") {
+      if (typeof params.zoom === "number") {
         try {
+          const option = self.echarts.getOption();
+          let currentZoom = 1;
+          if (option && Array.isArray(option.series) && option.series.length > 0) {
+            const series = option.series.find((s) => s.id === "network-graph");
+            currentZoom = series && typeof series.zoom === "number" ? series.zoom : 1;
+          }
+          const newZoom = currentZoom * params.zoom;
           self.echarts.setOption({
-            series: [
-              {
-                id: "network-graph",
-                zoom: params.zoom,
-              },
-            ],
+            series: [{id: "network-graph", zoom: newZoom}],
           });
         } catch (e) {
-          // Ignore setOption failures
+          // handle (or log) error as before
         }
       }
     });

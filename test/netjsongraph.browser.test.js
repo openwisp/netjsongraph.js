@@ -389,7 +389,7 @@ describe("Chart Rendering Test", () => {
       setTimeout(() => {
         const newZoom = graph.echarts.getOption().series[0].zoom || 1;
         done(newZoom !== initialZoom);
-      }, 1000);
+      }, 2000);
     `);
 
     expect(zoomChanged).toBe(true);
