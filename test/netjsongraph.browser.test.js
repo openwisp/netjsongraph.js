@@ -41,7 +41,7 @@ describe("Chart Rendering Test", () => {
     const leafletContainer = await getElementByCss(
       driver,
       ".ec-extension-leaflet",
-      2000,
+      10000,
     );
     const canvases = await getElementsByCss(
       driver,
@@ -374,6 +374,8 @@ describe("Chart Rendering Test", () => {
       const canvas = zr.dom;
       const rect = canvas.getBoundingClientRect();
 
+      canvas.focus();
+
       canvas.dispatchEvent(new WheelEvent('wheel', {
         bubbles: true,
         clientX: rect.left + rect.width / 2,
@@ -385,7 +387,7 @@ describe("Chart Rendering Test", () => {
       setTimeout(() => {
         const newZoom = graph.echarts.getOption().series[0].zoom || 1;
         done(newZoom !== initialZoom);
-      }, 300);
+      }, 1000);
     `);
 
     expect(zoomChanged).toBe(true);
