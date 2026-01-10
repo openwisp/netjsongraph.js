@@ -429,26 +429,28 @@ class NetJSONGraphRender {
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
 
-    const zrDom = self.echarts.getZr().dom;
-    if (!zrDom._njgWheelListenerAdded) {
-      zrDom.addEventListener(
-        "wheel",
-        (event) => {
-          if (
-            typeof self.echarts._api !== "undefined" &&
-            self.echarts._api.dispatchAction
-          ) {
-            const zoom = event.deltaY < 0 ? 1.2 : 0.8;
-            self.echarts._api.dispatchAction({
-              type: "graphRoam",
-              zoom,
-            });
-          }
-          event.preventDefault();
-        },
-        {passive: false},
-      );
-      zrDom._njgWheelListenerAdded = true;
+    if (typeof self.echarts.getZr === "function") {
+      const zrDom = self.echarts.getZr().dom;
+      if (!zrDom._njgWheelListenerAdded) {
+        zrDom.addEventListener(
+          "wheel",
+          (event) => {
+            if (
+              typeof self.echarts._api !== "undefined" &&
+              self.echarts._api.dispatchAction
+            ) {
+              const zoom = event.deltaY < 0 ? 1.2 : 0.8;
+              self.echarts._api.dispatchAction({
+                type: "graphRoam",
+                zoom,
+              });
+            }
+            event.preventDefault();
+          },
+          {passive: false},
+        );
+        zrDom._njgWheelListenerAdded = true;
+      }
     }
 
     window.onresize = () => {

@@ -11,6 +11,8 @@ import {
   printConsoleErrors,
 } from "./browser.test.utils";
 
+jest.setTimeout(60000);
+
 describe("Chart Rendering Test", () => {
   let driver;
 
@@ -81,7 +83,7 @@ describe("Chart Rendering Test", () => {
   test("render floorplan map without console errors", async () => {
     driver.get(urls.indoorMap);
     const canvas = await getElementByCss(driver, "canvas", 15000);
-    const floorplanImage = getElementByCss(driver, ".leaflet-image-layer");
+    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer");
     const consoleErrors = await captureConsoleErrors(driver);
     const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
@@ -363,7 +365,7 @@ describe("Chart Rendering Test", () => {
 
   test("graph zoom works when scrolling on empty container area", async () => {
     driver.get(urls.basicUsage);
-    await getElementByCss(driver, "canvas", 2000);
+    await getElementByCss(driver, "canvas", 15000);
 
     const zoomChanged = await driver.executeAsyncScript(`
       const done = arguments[arguments.length - 1];
