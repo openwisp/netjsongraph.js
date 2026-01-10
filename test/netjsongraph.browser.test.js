@@ -360,5 +360,32 @@ describe("Chart Rendering Test", () => {
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
+
+  test("graph zoom works when scrolling on empty container area", async () => {
+    driver.get(urls.basicUsage);
+    await getElementByCss(driver, "canvas", 2000);
+
+    const zoomChanged = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      const option = graph.echarts.getOption();
+      const initialZoom = option.series[0].zoom || 1;
+      const dom = graph.echarts.getDom();
+      const rect = dom.getBoundingClientRect();
+      // Dispatch wheel event near container edge (empty area, not on graph nodes)
+      dom.dispatchEvent(new WheelEvent('wheel', {
+        bubbles: true,
+        clientX: rect.left + 10,
+        clientY: rect.top + 10,
+        deltaY: -120,
+        deltaMode: 0
+      }));
+      setTimeout(() => {
+        const newZoom = graph.echarts.getOption().series[0].zoom || 1;
+        done(newZoom !== initialZoom);
+      }, 300);
+    `);
+
+    expect(zoomChanged).toBe(true);
+
   });
 });
