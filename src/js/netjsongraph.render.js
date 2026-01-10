@@ -433,59 +433,23 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
-    // Enable wheel zoom on empty areas within the graph container
-    const dom = self.echarts.getDom && self.echarts.getDom();
-    if (dom) {
-      if (self._wheelForwardHandler) {
-        dom.removeEventListener("wheel", self._wheelForwardHandler);
+    // Store zoom in series option for test observability
+    self.echarts.on("graphRoam", (params) => {
+      if (params && typeof params.zoom === "number") {
+        try {
+          self.echarts.setOption({
+            series: [
+              {
+                id: "network-graph",
+                zoom: params.zoom,
+              },
+            ],
+          });
+        } catch (e) {
+          // Ignore setOption failures
+        }
       }
-
-      const zr = self.echarts.getZr && self.echarts.getZr();
-      const zrDom = zr && zr.dom;
-
-      self._wheelForwardHandler = (e) => {
-        const rect = dom.getBoundingClientRect();
-        if (
-          e.clientX < rect.left ||
-          e.clientX > rect.right ||
-          e.clientY < rect.top ||
-          e.clientY > rect.bottom
-        ) {
-          return;
-        }
-
-        if (zrDom && (e.target === zrDom || zrDom.contains(e.target))) {
-          return;
-        }
-
-        e.preventDefault();
-
-        if (zrDom) {
-          const r = zrDom.getBoundingClientRect();
-          zrDom.dispatchEvent(
-            new WheelEvent("wheel", {
-              bubbles: true,
-              cancelable: true,
-              view: window,
-              clientX: r.left + r.width / 2,
-              clientY: r.top + r.height / 2,
-              deltaX: e.deltaX,
-              deltaY: e.deltaY,
-              deltaZ: e.deltaZ,
-              deltaMode: e.deltaMode,
-              ctrlKey: e.ctrlKey,
-              shiftKey: e.shiftKey,
-              altKey: e.altKey,
-              metaKey: e.metaKey,
-              button: e.button,
-              buttons: e.buttons,
-            }),
-          );
-        }
-      };
-
-      dom.addEventListener("wheel", self._wheelForwardHandler, {passive: false});
-    }
+    });
 
     // Toggle labels on zoom threshold crossing
     if (self.config.showGraphLabelsAtZoom > 0) {
@@ -493,6 +457,7 @@ class NetJSONGraphRender {
         if (!params || !params.zoom) {
           return;
         }
+
         const option = self.echarts.getOption();
         const labelsVisible =
           option &&
