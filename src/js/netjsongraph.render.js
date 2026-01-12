@@ -47,6 +47,7 @@ class NetJSONGraphRender {
 
         tooltip: {
           confine: true,
+          hideDelay: 0,
           position: (pos, params, dom, rect, size) => {
             let position = "right";
             if (size.viewSize[0] - pos[0] < size.contentSize[0]) {
@@ -169,6 +170,9 @@ class NetJSONGraphRender {
     // Clone label config to avoid mutating defaults
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
+
+    // Added this for label hover issue
+    baseGraphLabel.silent = true;
 
     // Shared helper to get current graph zoom level
     const getGraphZoom = () => {
@@ -332,7 +336,10 @@ class NetJSONGraphRender {
         coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
-        label: configs.mapOptions.nodeConfig.label,
+        label: {
+          ...(configs.mapOptions.nodeConfig.label || {}),
+          silent: true,
+        },
         itemStyle: {
           color: (params) => {
             if (
@@ -535,13 +542,28 @@ class NetJSONGraphRender {
       }
     }
 
-    if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
+    // 4. Resolve label visibility threshold
+    let {showMapLabelsAtZoom} = self.config;
+    if (showMapLabelsAtZoom === undefined) {
+      if (self.config.showMapLabelsAtZoom !== undefined) {
+        showMapLabelsAtZoom = self.config.showMapLabelsAtZoom;
+      } else {
+        showMapLabelsAtZoom = 13;
+      }
+    }
+
+    let currentZoom = self.leaflet.getZoom();
+    let showLabel =
+      typeof showMapLabelsAtZoom === "number" && currentZoom >= showMapLabelsAtZoom;
+
+    if (!showLabel) {
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
               show: false,
+              silent: true,
             },
             emphasis: {
               label: {
@@ -553,19 +575,53 @@ class NetJSONGraphRender {
       });
     }
 
+    // When a user hovers over a node, we hide the static label so the Tooltip
+    self.echarts.on("mouseover", () => {
+      if (showLabel) {
+        self.echarts.setOption({
+          series: [
+            {
+              id: "geo-map",
+              label: {
+                show: false,
+                silent: true,
+              },
+            },
+          ],
+        });
+      }
+    });
+
+    self.echarts.on("mouseout", () => {
+      if (showLabel) {
+        self.echarts.setOption({
+          series: [
+            {
+              id: "geo-map",
+              label: {
+                show: true,
+                silent: true,
+              },
+            },
+          ],
+        });
+      }
+    });
+
     self.leaflet.on("zoomend", () => {
-      const currentZoom = self.leaflet.getZoom();
-      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
+      currentZoom = self.leaflet.getZoom();
+      showLabel = currentZoom >= self.config.showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
               show: showLabel,
+              silent: true,
             },
             emphasis: {
               label: {
-                show: showLabel,
+                show: false,
               },
             },
           },
@@ -676,7 +732,7 @@ class NetJSONGraphRender {
           params.data.cluster
         ) {
           // Zoom into the clicked cluster instead of expanding it
-          const currentZoom = self.leaflet.getZoom();
+          currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],
