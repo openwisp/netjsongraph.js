@@ -1,3 +1,4 @@
+import {node} from "webpack";
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
 
 // Mock Leaflet projection (minimal for pixel<->latlng)
@@ -380,30 +381,20 @@ describe("Test URL fragment utilities", () => {
 describe("Test move Node in Real Time", () => {
   test("updates node location, properties, value and calls setOption", () => {
     const util = new NetJSONGraphUtil();
-    const nodeId = "node-1";
-    const initialLocation = {lat: 10, lng: 20};
     const newLocation = {lat: 11, lng: 21};
-
+    const node = {
+      id: "node-1",
+      location: {lat: 10, lng: 20},
+      properties: {location: {lat: 10, lng: 20}},
+    };
     const series = [
       {type: "line", data: []},
       {
         type: "scatter",
         data: [
           {
-            node: {
-              id: nodeId,
-              location: initialLocation,
-              properties: {location: initialLocation},
-            },
-            value: [initialLocation.lng, initialLocation.lat],
-          },
-          {
-            node: {
-              id: "node-2",
-              location: {lat: 1, lng: 2},
-              properties: {location: {lat: 1, lng: 2}},
-            },
-            value: [2, 1],
+            node: node,
+            value: [node.location.lng, node.location.lat],
           },
         ],
       },
@@ -416,9 +407,14 @@ describe("Test move Node in Real Time", () => {
       setOption: jest.fn(),
     };
 
-    const self = {echarts};
+    const self = {
+      nodeLinkIndex: {
+        "node-1": node,
+      },
+      echarts,
+    };
 
-    util.moveNodeInRealTime(self, nodeId, newLocation);
+    util.moveNodeInRealTime(self, node.id, newLocation);
 
     expect(echarts.getOption).toHaveBeenCalled();
     expect(echarts.setOption).toHaveBeenCalled();
@@ -430,7 +426,7 @@ describe("Test move Node in Real Time", () => {
     const scatterSeries = calledArg.series.find((s) => s.type === "scatter");
     expect(scatterSeries).toBeDefined();
 
-    const updated = scatterSeries.data.find((d) => d.node.id === nodeId);
+    const updated = scatterSeries.data.find((d) => d.node.id === node.id);
     expect(updated).toBeDefined();
     expect(updated.node.location).toEqual(newLocation);
     expect(updated.node.properties.location).toEqual(newLocation);

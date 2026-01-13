@@ -1406,12 +1406,22 @@ class NetJSONGraphUtil {
     const series = options.series.find(
       (s) => s.type === "scatter" || s.type === "effectScatter",
     );
+    if (!series) {
+      console.warn(`moveNodeInRealTime: No scatter series found`);
+      return;
+    }
     const dataIndex = series.data.findIndex((d) => d.node.id === id);
+    if (dataIndex === -1) {
+      console.warn(`moveNodeInRealTime: Node with id "${id}" not found`);
+      return;
+    }
     const entry = series.data[dataIndex];
     const {node} = entry;
     node.location = location;
     node.properties.location = location;
     entry.value = [location.lng, location.lat];
+    self.nodeLinkIndex[id].location = location;
+    self.nodeLinkIndex[id].properties.location = location;
     self.echarts.setOption({
       series: options.series,
     });
