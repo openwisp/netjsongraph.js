@@ -1347,7 +1347,8 @@ class NetJSONGraphUtil {
     if (
       self.config.bookmarkableActions.zoomOnRestore &&
       ["scatter", "effectScatter"].includes(nodeType) &&
-      target == null
+      target == null &&
+      location != null
     ) {
       const center = [location.lat, location.lng];
       const zoom =
