@@ -1,13 +1,11 @@
-###########
- Changelog
-###########
+Changelog
+=========
 
-****************************
- Version 0.3.0 [2025-10-27]
-****************************
+Version 0.3.0 [2025-10-27]
+--------------------------
 
 Features
-========
+~~~~~~~~
 
 - Added option to display node labels only after reaching a specific zoom
   level `#148 <https://github.com/openwisp/netjsongraph.js/issues/148>`_.
@@ -22,23 +20,23 @@ Features
   <https://github.com/openwisp/netjsongraph.js/issues/188>`_.
 
 Changes
-=======
+~~~~~~~
 
 Other changes
--------------
++++++++++++++
 
 - Improved consistency in geographic map rendering `#395
   <https://github.com/openwisp/netjsongraph.js/issues/395>`_.
 
 Dependencies
-------------
+++++++++++++
 
 - Bumped ``echarts==5.6.0``.
 - Bumped ``echarts-gl==2.0.9``.
 - Bumped ``zrender==6.0.0``.
 
 Bugfixes
-========
+~~~~~~~~
 
 - Fixed incorrect default ``nodeCategories`` values.
 - Resolved configuration conflicts when using multiple instances
@@ -54,9 +52,8 @@ Bugfixes
 - Corrected handling of duplicate node IDs `#164
   <https://github.com/openwisp/netjsongraph.js/issues/164>`_.
 
-****************************
- Version 0.2.0 [2024-12-04]
-****************************
+Version 0.2.0 [2024-12-04]
+--------------------------
 
 The library has been rewritten completely. The new version is not backward
 compatible with the previous versions. Refer the `migration guide
@@ -64,7 +61,7 @@ compatible with the previous versions. Refer the `migration guide
 for more details.
 
 Features
-========
+~~~~~~~~
 
 - Implemented `loading more data by specifying geographic extent
   <https://github.com/openwisp/netjsongraph.js/issues/118>`_
@@ -76,7 +73,7 @@ Features
   <https://github.com/openwisp/netjsongraph.js/issues/116>`_
 
 Changes
-=======
+~~~~~~~
 
 - Show node labels only after a suitable zoom level
 - Improved the `UI of logical and geo map
@@ -86,13 +83,12 @@ Changes
 - Include credentials in fetch requests
 
 Bugfixes
-========
+~~~~~~~~
 
 - Remove existing points from map in appendData before calling render
 - Fix data update when switched from map to graph
 
-**************************
- Version 0.1 [2015-08-14]
-**************************
+Version 0.1 [2015-08-14]
+------------------------
 
 - first release
