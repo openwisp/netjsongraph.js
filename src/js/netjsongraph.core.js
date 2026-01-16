@@ -85,13 +85,21 @@ class NetJSONGraphCore {
     // as onReady may perform asynchronous operations
     const onReadyDone = new Promise((resolve) => {
       this.event.once("onReady", async () => {
-        await this.config.onReady.call(this);
+        try {
+          await this.config.onReady.call(this);
+        } catch (error) {
+          console.error("onReady callback failed:", error);
+        }
         resolve();
       });
     });
     this.event.once("onLoad", this.config.onLoad.bind(this));
     this.event.once("applyUrlFragmentState", async () => {
-      await onReadyDone;
+      try {
+        await onReadyDone;
+      } catch (e) {
+        console.error("onReady failed:", e);
+      }
       this.utils.applyUrlFragmentState.call(this, this);
     });
     this.utils.paginatedDataParse

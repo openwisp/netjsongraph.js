@@ -163,18 +163,15 @@ class NetJSONGraphRender {
       nodeResult._source = self.utils.fastDeepCopy(node);
       return nodeResult;
     });
-    const links = JSONData.links.map((link, index) => {
+    const links = JSONData.links.map((link) => {
       const linkResult = self.utils.fastDeepCopy(link);
-
       const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
         link,
         configs,
         "graph",
       );
-
       linkResult.lineStyle = linkStyleConfig;
       linkResult.emphasis = {lineStyle: linkEmphasisConfig.linkStyle};
-
       return linkResult;
     });
 

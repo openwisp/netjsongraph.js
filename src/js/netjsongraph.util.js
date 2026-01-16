@@ -1237,7 +1237,7 @@ class NetJSONGraphUtil {
    *   An object mapping map IDs to their corresponding URLSearchParams.
    */
   parseUrlFragments() {
-    const raw = window.location.hash.replace(/^#/, "");
+    const raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
     const fragments = {};
     raw.split(";").forEach((fragmentStr) => {
       const params = new URLSearchParams(fragmentStr);
@@ -1266,7 +1266,8 @@ class NetJSONGraphUtil {
     // We store the selected node's data to the browser's history state.
     // This allows the node's information to be retrieved instantly on a back/forward
     // button click without needing to re-parse the entire nodes list.
-    window.history.pushState(state, "", `#${newHash}`);
+    const safeHash = encodeURIComponent(newHash);
+    window.history.pushState(state, "", `#${safeHash}`);
   }
 
   addActionToUrl(self, params) {
@@ -1364,9 +1365,14 @@ class NetJSONGraphUtil {
   }
 
   setupHashChangeHandler(self) {
-    window.addEventListener("popstate", () => {
+    // Avoid duplicate listeners per instance
+    if (self._popstateHandler) {
+      window.removeEventListener("popstate", self._popstateHandler);
+    }
+    self._popstateHandler = () => {
       this.applyUrlFragmentState(self);
-    });
+    };
+    window.addEventListener("popstate", self._popstateHandler);
   }
 }
 

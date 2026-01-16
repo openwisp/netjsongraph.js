@@ -114,7 +114,9 @@
           return data;
         },
         onClickElement(type, data) {
-          openIndoorMap();
+          if(type === "node"){
+            openIndoorMap();
+          }
         },
       });
       netjsonmap.render();
