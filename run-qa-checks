@@ -2,7 +2,7 @@
 
 set -e
 
-yarn lint || echo "Try running yarn lint:fix"
+yarn lint || (echo "Try running yarn lint:fix"; exit 1)
 
 openwisp-qa-check --skip-checkmigrations \
                   --skip-checkmakemigrations \
