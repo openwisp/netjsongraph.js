@@ -14,7 +14,7 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style>
-      body{
+      body {
         margin: 0;
         padding: 0;
       }
@@ -63,12 +63,12 @@
         flex: 1;
       }
       #netjson-indoormap .njg-sideBar {
-          background: #f4f4f4;
-          border-right: 1px solid rgba(0, 0, 0, 0.2);
+        background: #f4f4f4;
+        border-right: 1px solid rgba(0, 0, 0, 0.2);
       }
       #indoormap-container .njg-container .sideBarHandle {
         top: 35px;
-        left: 390px
+        left: 390px;
       }
       #indoormap-container .njg-container .hidden .sideBarHandle {
         left: 35px;
@@ -114,7 +114,7 @@
           return data;
         },
         onClickElement(type, data) {
-          if(type === "node"){
+          if (type === "node") {
             openIndoorMap();
           }
         },
@@ -206,8 +206,14 @@
 
               const anchorLatLng = L.latLng(0, 0);
               const anchorPoint = map.project(anchorLatLng, zoom);
-              const topLeft = L.point(anchorPoint.x - w / 2, anchorPoint.y - h / 2);
-              const bottomRight = L.point(anchorPoint.x + w / 2, anchorPoint.y + h / 2);
+              const topLeft = L.point(
+                anchorPoint.x - w / 2,
+                anchorPoint.y - h / 2,
+              );
+              const bottomRight = L.point(
+                anchorPoint.x + w / 2,
+                anchorPoint.y + h / 2,
+              );
 
               const mapOptions = this.echarts.getOption();
               // Refer netjsonmap-indoormap.html for full explanation of this workaround
@@ -218,7 +224,7 @@
                 const nodeProjected = L.point(topLeft.x + px, topLeft.y + py);
                 const nodeLatLng = map.unproject(nodeProjected, zoom);
 
-                node.location = nodeLatLng
+                node.location = nodeLatLng;
                 node.properties.location = nodeLatLng;
                 data.value = [nodeLatLng.lng, nodeLatLng.lat];
               });
@@ -226,14 +232,26 @@
                 const source = data.coords[0];
                 const sourcePx = Number(source[0]);
                 const sourcePy = -Number(source[1]);
-                const sourceNodeProjected = L.point(topLeft.x + sourcePx, topLeft.y + sourcePy);
-                const sourceNodeLatLng = map.unproject(sourceNodeProjected, zoom);
+                const sourceNodeProjected = L.point(
+                  topLeft.x + sourcePx,
+                  topLeft.y + sourcePy,
+                );
+                const sourceNodeLatLng = map.unproject(
+                  sourceNodeProjected,
+                  zoom,
+                );
 
                 const target = data.coords[1];
                 const targetPx = Number(target[0]);
                 const targetPy = -Number(target[1]);
-                const targetNodeProjected = L.point(topLeft.x + targetPx, topLeft.y + targetPy);
-                const targetNodeLatLng = map.unproject(targetNodeProjected, zoom);
+                const targetNodeProjected = L.point(
+                  topLeft.x + targetPx,
+                  topLeft.y + targetPy,
+                );
+                const targetNodeLatLng = map.unproject(
+                  targetNodeProjected,
+                  zoom,
+                );
 
                 data.coords[0] = [sourceNodeLatLng.lng, sourceNodeLatLng.lat];
                 data.coords[1] = [targetNodeLatLng.lng, targetNodeLatLng.lat];

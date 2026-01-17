@@ -1384,6 +1384,10 @@ class NetJSONGraphUtil {
       this.applyUrlFragmentState(self);
     };
     window.addEventListener("popstate", self._popstateHandler);
+    return () => {
+      window.removeEventListener("popstate", self._popstateHandler);
+      self._popstateHandler = null;
+    };
   }
 }
 
