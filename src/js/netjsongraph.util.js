@@ -1266,7 +1266,9 @@ class NetJSONGraphUtil {
     // We store the selected node's data to the browser's history state.
     // This allows the node's information to be retrieved instantly on a back/forward
     // button click without needing to re-parse the entire nodes list.
-    // Encode only the values to keep separators readable
+    // Apply additional encoding to values after URLSearchParams.toString().
+    // This double-encoding ensures special characters (like ~) are preserved
+    // through the round-trip with parseUrlFragments' decodeURIComponent.
     const safeHash = newHash.replace(
       /([^&=]+)=([^&;]*)/g,
       (match, key, value) => `${key}=${encodeURIComponent(value)}`,
