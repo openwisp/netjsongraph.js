@@ -276,6 +276,18 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * Fast deep copy using structuredClone if available, fallback to JSON.parse(JSON.stringify())
+   * @param {any} obj - The object to deep copy
+   * @return {any} - Deep copied object
+   */
+  fastDeepCopy(obj) {
+    if (typeof structuredClone === "function") {
+      return structuredClone(obj);
+    }
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  /**
    * merge two object deeply
    *
    * @param  {object}
