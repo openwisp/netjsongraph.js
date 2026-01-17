@@ -86,7 +86,7 @@ class NetJSONGraph {
           // can still be rendered as filled shapes via a separate Leaflet layer later
           // in the rendering pipeline, while the converted NetJSON shape is used for
           // clustering and ECharts overlays.
-          this.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
+          this.originalGeoJSON = this.utils.fastDeepCopy(JSONData);
           JSONData = this.utils.geojsonToNetjson(JSONData);
         } else {
           throw new Error("Invalid data format!");

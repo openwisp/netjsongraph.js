@@ -980,6 +980,7 @@ describe("Test disableClusteringAtLevel: 0", () => {
           nonClusterNodes: [],
           nonClusterLinks: [],
         })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
       },
       event: {
         emit: jest.fn(),
@@ -1076,6 +1077,7 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
       },
       event: {
         emit: jest.fn(),
@@ -1217,6 +1219,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         echartsSetOption: jest.fn(),
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
       },
       event: {emit: jest.fn()},
     };
@@ -1275,6 +1278,7 @@ describe("graph label visibility and fallbacks", () => {
           nodeSizeConfig: 10,
           nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
         })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
       },
       echarts: {
         getOption: jest.fn(() => ({series: [{id: "network-graph", zoom: 1}]})),
@@ -1310,6 +1314,7 @@ describe("graph label visibility and fallbacks", () => {
           nodeSizeConfig: 10,
           nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
         })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
       },
       echarts: {
         getOption: jest
@@ -1382,6 +1387,7 @@ describe("map series ids and name fallbacks", () => {
           linkStyleConfig: {},
           linkEmphasisConfig: {linkStyle: {}},
         })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
       },
     };
 
@@ -1444,6 +1450,7 @@ describe("map series ids and name fallbacks", () => {
         geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
       },
       event: {emit: jest.fn()},
     };
