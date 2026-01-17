@@ -1266,7 +1266,11 @@ class NetJSONGraphUtil {
     // We store the selected node's data to the browser's history state.
     // This allows the node's information to be retrieved instantly on a back/forward
     // button click without needing to re-parse the entire nodes list.
-    const safeHash = encodeURIComponent(newHash);
+    // Encode only the values to keep separators readable
+    const safeHash = newHash.replace(
+      /([^&=]+)=([^&;]*)/g,
+      (match, key, value) => `${key}=${encodeURIComponent(value)}`,
+    );
     window.history.pushState(state, "", `#${safeHash}`);
   }
 
@@ -1337,7 +1341,12 @@ class NetJSONGraphUtil {
     const [source, target] = nodeId.split("~");
     const node = self.nodeLinkIndex[nodeId];
     const nodeType =
-      self.config.graphConfig?.series?.type || self.config.mapOptions?.nodeConfig?.type;
+      (self.config.graphConfig &&
+        self.config.graphConfig.series &&
+        self.config.graphConfig.series.type) ||
+      (self.config.mapOptions &&
+        self.config.mapOptions.nodeConfig &&
+        self.config.mapOptions.nodeConfig.type);
     const {location, cluster} = node || {};
     // Center the map view when returning from a bookmark.
     // We only do this when:
@@ -1357,7 +1366,9 @@ class NetJSONGraphUtil {
           ? self.config.disableClusteringAtLevel
           : self.config.bookmarkableActions.zoomLevel ||
             self.config.showLabelsAtZoomLevel;
-      self.leaflet && self.leaflet.setView(center, zoom);
+      if (self.leaflet) {
+        self.leaflet.setView(center, zoom);
+      }
     }
     if (typeof self.config.onClickElement === "function") {
       self.config.onClickElement.call(self, source && target ? "link" : "node", node);
