@@ -250,7 +250,7 @@ class NetJSONGraphRender {
     const linesData = [];
     let nodesData = [];
 
-    nodes.forEach((node, index) => {
+    nodes.forEach((node) => {
       if (node.properties) {
         // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
         if (!JSONData.flatNodes) {
@@ -299,7 +299,7 @@ class NetJSONGraphRender {
         }
       }
     });
-    links.forEach((link, index) => {
+    links.forEach((link) => {
       if (!flatNodes[link.source]) {
         console.warn(`Node ${link.source} does not exist!`);
       } else if (!flatNodes[link.target]) {
