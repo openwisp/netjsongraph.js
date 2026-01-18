@@ -148,7 +148,10 @@
       }
 
       function openIndoorMap() {
-        const indoorMapContainer = createIndoorMapContainer();
+        let indoorMapContainer = document.getElementById("indoormap-container");
+        if (!indoorMapContainer) {
+          indoorMapContainer = createIndoorMapContainer();
+        }
         const mapContainer = document.getElementById("map-container");
         mapContainer.appendChild(indoorMapContainer);
 
@@ -249,6 +252,13 @@
         );
         indoor.render();
         closeButtonHandler(indoorMapContainer, indoor);
+        window.addEventListener("popstate", () => {
+          const fragments = indoor.utils.parseUrlFragments();
+          const id = indoor.config.bookmarkableActions.id;
+          if(!fragments[id]){
+            indoorMapContainer.remove();
+          }
+        });
       }
     </script>
   </body>
