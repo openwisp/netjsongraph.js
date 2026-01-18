@@ -270,13 +270,15 @@
         );
         indoor.render();
         closeButtonHandler(indoorMapContainer, indoor);
-        window.addEventListener("popstate", () => {
+        const popstateHandler = () => {
           const fragments = indoor.utils.parseUrlFragments();
           const id = indoor.config.bookmarkableActions.id;
           if(!fragments[id]){
             indoorMapContainer.remove();
+            window.removeEventListener("popstate", popstateHandler);
           }
-        });
+        };
+        window.addEventListener("popstate", popstateHandler);
       }
     </script>
   </body>
