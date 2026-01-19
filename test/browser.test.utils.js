@@ -34,6 +34,7 @@ export const urls = {
   basicUsage: `${url}/examples/netjsongraph.html`,
   geographicMap: `${url}/examples/netjsonmap.html`,
   indoorMap: `${url}/examples/netjsonmap-indoormap.html`,
+  indoorMapOverlay: `${url}/examples/netjsonmap-indoormap-overlay.html`,
   customAttributes: `${url}/examples/netjsongraph-elementsLegend.html`,
   wifiClients: `${url}/examples/netjsongraph-wifi-clients.html`,
 };
