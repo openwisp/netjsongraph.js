@@ -25,6 +25,16 @@ echarts.use([
   GraphicComponent,
 ]);
 
+/**
+ * @class
+ * NetJSONGraphRender - Rendering utilities and visualization engine integration.
+ *
+ * Main Responsibilities:
+ * - Provides mapRender() and graphRender() methods for different view modes
+ * - Integrates ECharts and Leaflet for network topology visualization
+ * - Handles interactive features like tooltips and legends
+ * - Manages node clustering and styling
+ */
 class NetJSONGraphRender {
   /**
    * @function

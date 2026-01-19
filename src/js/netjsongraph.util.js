@@ -2,6 +2,16 @@
 import KDBush from "kdbush";
 import {geojsonToNetjson as convertGeojson} from "./netjsongraph.geojson";
 
+/**
+ * @class
+ * NetJSONGraphUtil - Core utility functions for data manipulation and processing.
+ *
+ * Main Responsibilities:
+ * - Data validation and type checking (isNetJSON, isGeoJSON, etc.)
+ * - Data transformation and conversion operations
+ * - Spatial indexing and clustering algorithms
+ * - Node/link information generation and tooltips
+ */
 class NetJSONGraphUtil {
   /**
    * @function

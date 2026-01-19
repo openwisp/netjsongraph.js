@@ -1,5 +1,15 @@
 import NetJSONGraphUtil from "./netjsongraph.util";
 
+/**
+ * @class
+ * NetJSONGraphUpdate - Data update and dynamic modification utilities.
+ *
+ * Main Responsibilities:
+ * - Handles incremental data loading and real-time updates
+ * - Implements search and filtering capabilities
+ * - Manages data synchronization and state consistency
+ * - Provides efficient updates without full re-rendering
+ */
 class NetJSONGraphUpdate extends NetJSONGraphUtil {
   /**
    * @function

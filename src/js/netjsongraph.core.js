@@ -1,7 +1,17 @@
 import NetJSONGraphDefaultConfig from "./netjsongraph.config";
 import NetJSONGraphUpdate from "./netjsongraph.update";
 
-class NetJSONGraph {
+/**
+ * @class
+ * NetJSONGraphCore - Core implementation class handling data processing and lifecycle management.
+ *
+ * Main Responsibilities:
+ * - Loads and validates NetJSON/GeoJSON data
+ * - Manages configuration and DOM element attachment
+ * - Orchestrates the main rendering pipeline
+ * - Maintains processed data and visualization state
+ */
+class NetJSONGraphCore {
   /**
    * @constructor
    *
@@ -176,4 +186,4 @@ class NetJSONGraph {
   }
 }
 
-export default NetJSONGraph;
+export default NetJSONGraphCore;
