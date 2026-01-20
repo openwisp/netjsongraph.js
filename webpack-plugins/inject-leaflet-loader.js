@@ -138,11 +138,15 @@ ${
         }
 
         const leafletJSRegex = /<script[^>]*leaflet[^>]*>[\s\S]*?<\/script>/gi;
-        html = html.replace(leafletJSRegex, "");
+        let prev;
+        do {
+          prev = html;
+          html = html.replace(leafletJSRegex, "");
+        } while (html !== prev);
 
         // Find the script tag and its content (handles <script>, <script type="text/javascript">, and <script type="module">)
         const scriptRegex =
-          /<script(?:\s+type="(?:text\/javascript|module)")?>\s*([\s\S]*?)\s*<\/script>/;
+          /<script(?:\s+type="(?:text\/javascript|module)")?>\s*([\s\S]*?)\s*<\/script>/i;
         const match = html.match(scriptRegex);
 
         if (match) {
@@ -151,7 +155,7 @@ ${
 
           // Determine the script type from the original tag
           const scriptTypeMatch = html.match(
-            /<script(\s+type="(text\/javascript|module)")?>/,
+            /<script(\s+type="(text\/javascript|module)")?>/i,
           );
           const scriptType =
             scriptTypeMatch && scriptTypeMatch[2]
