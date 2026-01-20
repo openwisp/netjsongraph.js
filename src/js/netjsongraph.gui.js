@@ -41,7 +41,6 @@ class NetJSONGraphGUI {
     themeControl.appendChild(text);
     
     // Check initial state
-    // Check initial state
     try {
       const savedTheme = localStorage.getItem("map_theme");
       if (savedTheme === "dark") {
