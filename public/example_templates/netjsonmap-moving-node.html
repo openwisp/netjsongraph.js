@@ -69,27 +69,23 @@
   </head>
   <body>
     <script type="text/javascript">
-      const cities = [
-        { lng: 72.8777, lat: 19.076 },
-        { lng: 77.1025, lat: 28.7041 },
-        { lng: 77.5946, lat: 12.9716 },
-        { lng: 78.4867, lat: 17.385 },
-        { lng: 72.5714, lat: 23.0225 },
-        { lng: 80.2707, lat: 13.0827 },
-        { lng: 88.3639, lat: 22.5726 },
-        { lng: 73.8567, lat: 18.5204 },
-        { lng: 75.7873, lat: 26.9124 },
-        { lng: 72.8311, lat: 21.1702 },
+      const route = [
+        {"lat": 41.90197, "lng": 12.49071 },
+        {"lat": 41.90533, "lng": 12.49571 },
+        {"lat": 41.90445, "lng": 12.49710 },
+        {"lat": 41.90539, "lng": 12.49859 },
+        {"lat": 41.90346, "lng": 12.50092 },
+        {"lat": 41.89969, "lng": 12.49477 },
       ];
 
-      let currentCityIndex = 0;
+      let currentIndex = 0;
 
       const map = new NetJSONGraph("../assets/data/netjsonmap-moving-node.json", {
         render: "map",
         mapOptions: {
           worldCopyJump: true,
-          center: [20.5937, 78.9629],
-          zoom: 5,
+          center: [41.9028, 12.4964],
+          zoom: 17,
           nodeConfig: {
             label: {
               offset: [0, -10],
@@ -108,12 +104,11 @@
 
       map.render();
 
-      const moveNodeToNextCity = () => {
-        currentCityIndex = (currentCityIndex + 1) % cities.length;
-        const nextCity = cities[currentCityIndex];
-        map.utils.moveNodeInRealTime(map, "10.0.0.1", nextCity);
+      const moveNode = () => {
+        currentIndex = (currentIndex + 1) % route.length;
+        map.utils.moveNodeInRealTime(map, "bus-141", route[currentIndex]);
       };
-      setInterval(moveNodeToNextCity, 2000);
+      setInterval(moveNode, 2000);
     </script>
   </body>
 </html>

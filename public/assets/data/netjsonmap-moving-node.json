@@ -1,17 +1,17 @@
 {
   "type": "NetworkGraph",
-  "label": "Moving Node Demo",
+  "label": "Moving Bus Rome",
   "protocol": "OLSR",
   "version": "0.6.6.2",
   "metric": "ETX",
-  "date": "2024-12-04T00:00:00.000Z",
+  "date": "2025-12-04T00:00:00.000Z",
   "nodes": [
     {
-      "id": "10.0.0.1",
-      "name": "India-1",
+      "id": "bus-141",
+      "name": "Bus 141 Rome",
       "location": {
-        "lng": 72.8777,
-        "lat": 19.076
+        "lat": 41.90197,
+        "lng": 12.49071
       },
       "properties": {
         "time": "2025-12-04T00:00:00.000Z"
