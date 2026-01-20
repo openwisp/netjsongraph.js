@@ -76,6 +76,58 @@
   color: #000;
 }
 
+/* Dark mode (applied by JS via .njg-dark-mode) */
+.njg-container.njg-dark-mode {
+  color: #e0e0e0;
+}
+
+.njg-container.njg-dark-mode .njg-sideBar {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.njg-container.njg-dark-mode .njg-metaData,
+.njg-container.njg-dark-mode .njg-infoContainer {
+  color: #e0e0e0;
+}
+
+.njg-container.njg-dark-mode .njg-tooltip {
+  background: #1e1e1e !important;
+}
+
+.njg-container.njg-dark-mode .njg-tooltip-key,
+.njg-container.njg-dark-mode .njg-tooltip-value {
+  color: #e0e0e0;
+}
+
+.njg-container.njg-dark-mode .leaflet-popup-content-wrapper,
+.njg-container.njg-dark-mode .leaflet-popup-tip {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.njg-container.njg-dark-mode .leaflet-control-attribution {
+  background: rgba(30, 30, 30, 0.8);
+  color: #e0e0e0;
+}
+
+.njg-container.njg-dark-mode .leaflet-control-attribution a {
+  color: #e0e0e0;
+}
+
+/* Node click popup */
+.njg-container .leaflet-popup.njg-node-popup .leaflet-popup-content-wrapper,
+.njg-container .leaflet-popup.njg-node-popup .leaflet-popup-tip {
+  background: #fff;
+  color: #000;
+}
+
+.njg-container.njg-dark-mode .leaflet-popup.njg-node-popup .leaflet-popup-content-wrapper,
+.njg-container.njg-dark-mode .leaflet-popup.njg-node-popup .leaflet-popup-tip {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+
 .njg-container .marker-cluster div {
   color: #fff;
   background-color: rgba(21, 102, 169, 0.8) !important;

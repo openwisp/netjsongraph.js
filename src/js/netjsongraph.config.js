@@ -44,6 +44,11 @@ const NetJSONGraphDefaultConfig = {
   showLabelsAtZoomLevel: 13,
   showGraphLabelsAtZoom: null,
   crs: L.CRS.EPSG3857,
+  // Dark mode behavior:
+  // - true: always dark
+  // - false: always light
+  // - "auto": follow document theme (html[data-theme="dark"] or html.dark-mode) or OS preference
+  darkMode: "auto",
   echartsOption: {
     aria: {
       show: true,
@@ -255,6 +260,16 @@ const NetJSONGraphDefaultConfig = {
         attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,
          tiles offered by <a href="https://www.mapbox.com">Mapbox</a>`,
       },
+      // Optional dark tile layer (used when dark mode is active).
+      // Can be overridden by providing darkUrlTemplate/darkOptions in user config.
+      darkUrlTemplate:
+        process.env.MAPBOX_DARK_URL_TEMPLATE ||
+        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      darkOptions: {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, '
+          + 'tiles by <a href="https://carto.com/">CARTO</a>',
+      },
     },
   ],
   geoOptions: {
@@ -286,6 +301,19 @@ const NetJSONGraphDefaultConfig = {
     },
   ],
   linkCategories: [],
+
+  // Optional popup on node click (mainly for map / indoor map).
+  // Disabled by default to preserve existing behavior.
+  nodePopupOnClick: false,
+  // Function (node, nodeInfo, instance) => string|HTMLElement
+  nodePopupContent: null,
+  // Leaflet popup options passed to L.popup(options)
+  nodePopupOptions: {
+    closeButton: true,
+    autoClose: true,
+    closeOnClick: true,
+    className: "njg-node-popup",
+  },
 
   /**
    * @function
@@ -344,6 +372,17 @@ const NetJSONGraphDefaultConfig = {
 
     this.gui.getNodeLinkInfo(type, nodeLinkData);
     this.gui.sideBar.classList.remove("hidden");
+
+    // Optional Leaflet popup on node click (works for geo map and CRS.Simple indoor map).
+    if (
+      type === "node" &&
+      this.config.nodePopupOnClick &&
+      this.leaflet &&
+      this.utils &&
+      typeof this.utils.showNodePopup === "function"
+    ) {
+      this.utils.showNodePopup.call(this, data, nodeLinkData);
+    }
   },
 
   /**

@@ -158,6 +158,41 @@ class NetJSONGraph {
     }
     this.utils.hideLoading.call(this);
 
+    // Theme support (dark mode): keep map tiles + info UI consistent.
+    // Applies once on load, and (when darkMode is "auto") tracks document theme changes.
+    if (this.utils && typeof this.utils.applyTheme === "function") {
+      this.utils.applyTheme.call(this);
+
+      if (this.config && this.config.darkMode === "auto" && !this._njgThemeObserver) {
+        const apply = () => this.utils.applyTheme.call(this);
+
+        // Track html class / data-theme changes (common theme toggles)
+        try {
+          const docEl = document.documentElement;
+          const observer = new MutationObserver(() => apply());
+          observer.observe(docEl, {attributes: true, attributeFilter: ["class", "data-theme"]});
+          this._njgThemeObserver = observer;
+        } catch (e) {
+          // ignore
+        }
+
+        // Track OS theme changes
+        try {
+          const mql = window.matchMedia("(prefers-color-scheme: dark)");
+          const handler = () => apply();
+          if (mql && typeof mql.addEventListener === "function") {
+            mql.addEventListener("change", handler);
+            this._njgThemeMql = {mql, handler};
+          } else if (mql && typeof mql.addListener === "function") {
+            mql.addListener(handler);
+            this._njgThemeMql = {mql, handler};
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
     // Expose helper to attach clients overlay for examples or apps
     // Not enabled by default to avoid side effects.
     this.attachClientsOverlay = (opts) => attachClientsOverlay(this, opts);
