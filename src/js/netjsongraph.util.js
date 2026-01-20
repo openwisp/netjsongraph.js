@@ -11,6 +11,7 @@ import {geojsonToNetjson as convertGeojson} from "./netjsongraph.geojson";
  * - Data transformation and conversion operations
  * - Spatial indexing and clustering algorithms
  * - Node/link information generation and tooltips
+ * - Manage URL fragment state apply, update, remove
  */
 class NetJSONGraphUtil {
   /**
