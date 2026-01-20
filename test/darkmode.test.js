@@ -29,7 +29,17 @@ describe("Test Dark Mode Support", () => {
       mapTileConfig: [{urlTemplate: "light-tiles"}],
       mapTileConfigDark: [{urlTemplate: "dark-tiles"}],
     };
-    graph.utils = render;
+    // Set utils with isDarkMode method
+    graph.utils = {
+      ...render,
+      isDarkMode: (self) => {
+        return (
+          (self.el && self.el.classList.contains("dark-mode")) ||
+          document.body.classList.contains("dark-mode") ||
+          document.documentElement.classList.contains("dark-mode")
+        );
+      },
+    };
   });
 
   test("Should use light tiles by default", () => {
