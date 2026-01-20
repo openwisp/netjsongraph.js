@@ -32,13 +32,10 @@ describe("Test Dark Mode Support", () => {
     // Set utils with isDarkMode method
     graph.utils = {
       ...render,
-      isDarkMode: (self) => {
-        return (
-          (self.el && self.el.classList.contains("dark-mode")) ||
-          document.body.classList.contains("dark-mode") ||
-          document.documentElement.classList.contains("dark-mode")
-        );
-      },
+      isDarkMode: (self) =>
+        (self.el && self.el.classList.contains("dark-mode")) ||
+        document.body.classList.contains("dark-mode") ||
+        document.documentElement.classList.contains("dark-mode"),
     };
   });
 
