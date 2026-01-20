@@ -79,12 +79,12 @@
     "webpack": "^5.90.3",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.0.2"
+    "webpack-dev-server": "^5.0.2",
+    "leaflet": "^1.8.0"
   },
   "dependencies": {
     "echarts": "^5.6.0",
     "kdbush": "^4.0.2",
-    "leaflet": "^1.8.0",
     "zrender": "^6.0.0"
   },
   "peerDependencies": {

@@ -86,9 +86,6 @@ class NetJSONGraphRender {
                 ? self.utils.getLinkTooltipInfo(params.data)
                 : self.utils.getNodeTooltipInfo(params.data);
             }
-            if (params.componentSubType === "graphGL") {
-              return self.utils.getNodeTooltipInfo(params.data);
-            }
             return params.componentSubType === "lines"
               ? self.utils.getLinkTooltipInfo(params.data.link)
               : self.utils.getNodeTooltipInfo(params.data.node);
@@ -108,9 +105,6 @@ class NetJSONGraphRender {
             params.dataType === "edge" ? "link" : "node",
             params.data,
           );
-        }
-        if (params.componentSubType === "graphGL") {
-          return clickElement("node", params.data);
         }
         return params.componentSubType === "lines"
           ? clickElement("link", params.data.link)
