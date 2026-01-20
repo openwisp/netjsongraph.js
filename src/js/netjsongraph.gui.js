@@ -31,6 +31,7 @@ class NetJSONGraphGUI {
     
     const icon = document.createElement("span");
     icon.innerHTML = "🌓"; 
+    icon.setAttribute("aria-label", "Toggle Dark Mode");
     icon.style.marginRight = "5px";
     
     const text = document.createElement("span");
@@ -40,15 +41,24 @@ class NetJSONGraphGUI {
     themeControl.appendChild(text);
     
     // Check initial state
-    const savedTheme = localStorage.getItem("map_theme");
-    if (savedTheme === "dark") {
-      this.self.el.classList.add("dark-mode");
+    // Check initial state
+    try {
+      const savedTheme = localStorage.getItem("map_theme");
+      if (savedTheme === "dark") {
+        this.self.el.classList.add("dark-mode");
+      }
+    } catch (e) {
+      console.debug("LocalStorage access denied or not available");
     }
 
     themeControl.onclick = () => {
       this.self.el.classList.toggle("dark-mode");
       const isDark = this.self.el.classList.contains("dark-mode");
-      localStorage.setItem("map_theme", isDark ? "dark" : "light");
+      try {
+        localStorage.setItem("map_theme", isDark ? "dark" : "light");
+      } catch (e) {
+        console.debug("LocalStorage access denied or not available");
+      }
       
       // If map is active, re-render to update tiles
       if (this.self.config.render === this.self.utils.mapRender) {

@@ -38,17 +38,7 @@ class NetJSONGraphRender {
    * @return {object}  graph object
    *
    */
-  isDarkMode(self) {
-    return (
-      (self.el && self.el.classList.contains("dark-mode")) ||
-      document.body.classList.contains("dark-mode") ||
-      document.documentElement.classList.contains("dark-mode")
-    );
-  }
-
-  /**
-   * @function
-   * @name echartsSetOption
+  echartsSetOption(customOption, self) {
     const configs = self.config;
     const echartsLayer = self.echarts;
     const commonOption = self.utils.deepMergeObj(

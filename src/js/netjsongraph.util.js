@@ -253,6 +253,24 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * @function
+   * @name isDarkMode
+   *
+   * Check if dark mode is enabled.
+   *
+   * @param  {object}  self          NetJSONGraph object
+   *
+   * @return {boolean}
+   */
+  isDarkMode(self) {
+    return (
+      (self.el && self.el.classList.contains("dark-mode")) ||
+      document.body.classList.contains("dark-mode") ||
+      document.documentElement.classList.contains("dark-mode")
+    );
+  }
+
+  /**
    * Thin wrapper calling the dedicated converter in netjsongraph.geojson.js.
    * Keeping it here preserves public API while moving heavy logic out.
    */
