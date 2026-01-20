@@ -142,7 +142,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render Basic usage example with url fragments for a node", async () => {
-    driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=10.149.3.3`);
+    await driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=10.149.3.3`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     await driver.sleep(500);
@@ -162,7 +162,9 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render Basic usage example with url fragments for a link", async () => {
-    driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=172.16.155.5~172.16.155.4`);
+    await driver.get(
+      `${urls.basicUsage}#id=basicUsage&nodeId=172.16.155.5~172.16.155.4`,
+    );
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     await driver.sleep(500);
@@ -189,7 +191,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render Geographic map example with url fragments for a node", async () => {
-    driver.get(`${urls.geographicMap}#id=geographicMap&nodeId=172.16.169.1`);
+    await driver.get(`${urls.geographicMap}#id=geographicMap&nodeId=172.16.169.1`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     await driver.sleep(500);
@@ -209,7 +211,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render Geographic map example with url fragments for a link", async () => {
-    driver.get(
+    await driver.get(
       `${urls.geographicMap}#id=geographicMap&nodeId=172.16.185.12~172.16.185.13`,
     );
     const canvas = await getElementByCss(driver, "canvas", 2000);
@@ -238,7 +240,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render Indoor map as Overlay of Geographic map example without console errors", async () => {
-    driver.get(urls.indoorMapOverlay);
+    await driver.get(urls.indoorMapOverlay);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
@@ -257,9 +259,9 @@ describe("Chart Rendering Test", () => {
     const indoorCanvas = await getElementByCss(driver, "canvas", 2000);
     const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
     const indoorConsoleErrors = await captureConsoleErrors(driver);
-    const {indoorNodesRendered, indoorLinksRendered} =
+    const {nodesRendered: indoorNodesRendered, linksRendered: indoorLinksRendered} =
       await getRenderedNodesAndLinksCount(driver);
-    const {indoorNodesPresent, indoorLinksPresent} =
+    const {nodesPresent: indoorNodesPresent, linksPresent: indoorLinksPresent} =
       await getPresentNodesAndLinksCount("Indoor map");
     printConsoleErrors(indoorConsoleErrors);
     expect(indoorConsoleErrors.length).toBe(0);
@@ -279,7 +281,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render Indoor map as Overlay of Geographic map example with url fragments for nodes", async () => {
-    driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
+    await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     await driver.sleep(500);
     const indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
@@ -304,9 +306,11 @@ describe("Chart Rendering Test", () => {
     await driver.executeScript('window._indoorMap.utils.triggerOnClick("node_2");');
     currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).toContain("node_2");
-    await driver.get("http://openwisp.io/");
+    await driver.get("http://0.0.0.0:8080");
     await driver.navigate().back();
-    await driver.sleep(1000);
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
     expect(currentUrl).toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
     expect(indoorContainer).not.toBeNull();
@@ -314,11 +318,17 @@ describe("Chart Rendering Test", () => {
     let nodeId = await node.getText();
     expect(nodeId).toBe("Node_2");
     await driver.navigate().back();
-    await driver.sleep(1000);
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).not.toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
     expect(indoorContainer).toBeNull();
     await driver.navigate().forward();
-    await driver.sleep(1000);
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
     expect(indoorContainer).not.toBeNull();
     node = await getElementByCss(driver, "#indoormap-container .njg-valueLabel");
