@@ -1268,11 +1268,13 @@ class NetJSONGraphUtil {
     // This allows the node's information to be retrieved instantly on a back/forward
     // button click without needing to re-parse the entire nodes list.
     // Apply additional encoding to values after URLSearchParams.toString().
-    // This double-encoding ensures special characters (like ~) are preserved
+    // This double-encoding ensures special characters are preserved
     // through the round-trip with parseUrlFragments' decodeURIComponent.
+    // We avoid escaping ~ to keep URLs readable and compliant with the README.
     const safeHash = newHash.replace(
       /([^&=]+)=([^&;]*)/g,
-      (match, key, value) => `${key}=${encodeURIComponent(value)}`,
+      (match, key, value) =>
+        `${key}=${encodeURIComponent(value.replace(/%7E/gi, "~"))}`,
     );
     window.history.pushState(state, "", `#${safeHash}`);
   }

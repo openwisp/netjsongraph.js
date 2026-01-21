@@ -255,6 +255,8 @@ describe("Test URL fragment utilities", () => {
     expect(fragments.basicUsage).toBeDefined();
     expect(fragments.basicUsage.get("id")).toBe("basicUsage");
     expect(fragments.basicUsage.get("nodeId")).toBe("node1~node2");
+    // Verify that ~ is NOT double encoded in the hash
+    expect(window.location.hash).toContain("nodeId=node1~node2");
   });
 
   test("Test addActionToUrl updates an existing fragment and preserves others", () => {
