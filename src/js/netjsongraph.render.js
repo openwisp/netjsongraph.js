@@ -720,8 +720,8 @@ class NetJSONGraphRender {
         }
       });
     }
-    self.utils.setupHashChangeHandler(self);
 
+    self.utils.setupHashChangeHandler(self);
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");

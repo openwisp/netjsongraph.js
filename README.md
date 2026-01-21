@@ -496,7 +496,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   This feature allows you to create shareable and restorable map or graph states using URL fragments. When this feature is enabled, the URL updates automatically whenever you click a node or a link in your NetJSONGraph visualization. This makes it easy to share a specific view, restore it later, or navigate between different states using the browser’s back and forward buttons.
 
-  This feature works across all ECharts graphs, as well as Leaflet-based maps including geographic and indoor floorplan maps and it supports multiple maps or graphs on the same page. The id parameter is used to uniquely identify which visualization the URL fragment belongs to (for example: `#id=map1&nodeId=device-1;id=map2&nodeId=device-2` ).
+  This feature works across all ECharts graphs, as well as Leaflet-based maps including geographic and indoor floorplan maps and it supports multiple maps or graphs on the same page. The id parameter is used to uniquely identify which visualization the URL fragment belongs to (for example: `#id=map1&nodeId=device-1;id=map2&nodeId=device-2`).
 
   For nodes, the behavior depends on the type of visualization. In Leaflet maps, clicking a node updates the URL, and when applying the state from the URL, it automatically centers the map on that node in addition to triggering its click event. In ECharts graphs, it only triggers the click event for the node.
 
