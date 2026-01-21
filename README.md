@@ -485,7 +485,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   ```
 
   **Note: This feature is disabled by default.**
-  You can see this feature in action in the following example: [Indoor Map as Overlay of Geographic Map](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap-overlay.html)
+
+  You can see this feature in action in the following example: [Indoor Map as Overlay of Geographic Map](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap-overlay.html).
 
   You can enable or disable adding url fragments by setting enabled to true or false. When enabled, the following parameters are added to the URL:
   1. id – A prefix used to uniquely identify the map.

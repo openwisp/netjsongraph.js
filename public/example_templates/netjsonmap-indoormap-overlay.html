@@ -135,7 +135,6 @@
             (s) => s.type === "scatter" || s.type === "effectScatter",
           );
           const seriesIndex = option.series.indexOf(series);
-
           const params = {
             componentType: "series",
             componentSubType: series.type,
@@ -180,7 +179,6 @@
       }
 
       function openIndoorMap() {
-
         let indoorMapContainer = document.getElementById("indoormap-container");
         if (!indoorMapContainer) {
           indoorMapContainer = createIndoorMapContainer();
@@ -256,7 +254,6 @@
                 const py = -Number(node.location.lat);
                 const nodeProjected = L.point(topLeft.x + px, topLeft.y + py);
                 const nodeLatLng = map.unproject(nodeProjected, zoom);
-
                 node.location = nodeLatLng;
                 node.properties.location = nodeLatLng;
                 data.value = [nodeLatLng.lng, nodeLatLng.lat];
