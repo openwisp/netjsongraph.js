@@ -1,4 +1,3 @@
-import {node} from "webpack";
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
 
 // Mock Leaflet projection (minimal for pixel<->latlng)
@@ -393,7 +392,7 @@ describe("Test move Node in Real Time", () => {
         type: "scatter",
         data: [
           {
-            node: node,
+            node,
             value: [node.location.lng, node.location.lat],
           },
         ],

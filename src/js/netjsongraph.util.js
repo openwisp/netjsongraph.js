@@ -1238,12 +1238,11 @@ class NetJSONGraphUtil {
    *   An object mapping map IDs to their corresponding URLSearchParams.
    */
   parseUrlFragments() {
-    let raw;
+    let raw = window.location.hash.replace(/^#/, "");
     try {
-      raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
-      // avoid breaking if the hash contains invalid characters
+      raw = decodeURIComponent(raw);
     } catch (e) {
-      raw = window.location.hash.replace(/^#/, "");
+      console.warn("parseUrlFragments: invalid hash encoding", e);
     }
     const fragments = {};
     raw.split(";").forEach((fragmentStr) => {

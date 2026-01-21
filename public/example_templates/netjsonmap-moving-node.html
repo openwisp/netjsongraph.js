@@ -93,22 +93,23 @@
           },
         },
         prepareData: (data) => {
-          data.nodes.map((node) => {
-            node.label = node.name;
-            node.properties = Object.assign(node.properties || {}, {
-              location: node.location,
-            });
-          });
+          data.nodes.forEach((node) => {
+             node.label = node.name;
+             node.properties = Object.assign(node.properties || {}, {
+               location: node.location,
+             });
+           });
+          return data;
         },
+        onReady: () => {
+          const moveNode = () => {
+            currentIndex = (currentIndex + 1) % route.length;
+            map.utils.moveNodeInRealTime(map, "bus-141", route[currentIndex]);
+          };
+          setInterval(moveNode, 2000);
+        }
       });
-
       map.render();
-
-      const moveNode = () => {
-        currentIndex = (currentIndex + 1) % route.length;
-        map.utils.moveNodeInRealTime(map, "bus-141", route[currentIndex]);
-      };
-      setInterval(moveNode, 2000);
     </script>
   </body>
 </html>

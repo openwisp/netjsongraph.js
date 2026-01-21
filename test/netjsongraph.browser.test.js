@@ -361,4 +361,28 @@ describe("Chart Rendering Test", () => {
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
   });
+
+  test("Test utils.moveNodeInRealTime on Geographic map example", async () => {
+    await driver.get(urls.geographicMap);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    await driver.executeScript(() => {
+      const {map} = window;
+      map.utils.moveNodeInRealTime(map, "172.16.171.15", {
+        lat: 41.90197,
+        lng: 12.49071,
+      });
+    });
+    await driver.sleep(500);
+    const coordinate = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const location = series.data.find((l) => l.name === "Germany-2");
+      return location.value;
+    });
+    expect(canvas).not.toBeNull();
+    expect(coordinate).toEqual([12.49071, 41.90197]);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
 });
