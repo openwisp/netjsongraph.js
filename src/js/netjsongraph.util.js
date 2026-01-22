@@ -1238,7 +1238,13 @@ class NetJSONGraphUtil {
    *   An object mapping map IDs to their corresponding URLSearchParams.
    */
   parseUrlFragments() {
-    const raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+    let raw;
+    try {
+      raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+    // avoid breaking if the hash contains invalid characters
+    } catch (e) {
+      raw = window.location.hash.replace(/^#/, "");
+    }
     const fragments = {};
     raw.split(";").forEach((fragmentStr) => {
       const params = new URLSearchParams(fragmentStr);

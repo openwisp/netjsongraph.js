@@ -338,4 +338,14 @@ describe("Chart Rendering Test", () => {
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
   });
+
+  test("parseUrlFragments handles invalid UTF-8 in hash gracefully", async () => {
+    // Invalid UTF-8 sequence in hash
+    await driver.get(`${urls.indoorMapOverlay}#%E2%82`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+  });
 });
