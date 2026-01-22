@@ -1241,7 +1241,7 @@ class NetJSONGraphUtil {
     let raw;
     try {
       raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
-    // avoid breaking if the hash contains invalid characters
+      // avoid breaking if the hash contains invalid characters
     } catch (e) {
       raw = window.location.hash.replace(/^#/, "");
     }

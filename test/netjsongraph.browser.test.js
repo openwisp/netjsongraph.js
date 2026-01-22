@@ -141,12 +141,11 @@ describe("Chart Rendering Test", () => {
     expect(hasDots).toBe(true);
   });
 
-  test("render Basic usage example with url fragments for a node", async () => {
+  test("bookmarkableActions: render Basic usage example with url fragments for a node", async () => {
     await driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=10.149.3.3`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
-    await driver.sleep(500);
-    const sideBar = await getElementByCss(driver, ".njg-sideBar");
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
     const node = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='10.149.3.3']",
@@ -161,14 +160,13 @@ describe("Chart Rendering Test", () => {
     expect(nodeId).toBe("10.149.3.3");
   });
 
-  test("render Basic usage example with url fragments for a link", async () => {
+  test("bookmarkableActions: render Basic usage example with url fragments for a link", async () => {
     await driver.get(
       `${urls.basicUsage}#id=basicUsage&nodeId=172.16.155.5~172.16.155.4`,
     );
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
-    await driver.sleep(500);
-    const sideBar = await getElementByCss(driver, ".njg-sideBar");
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
     const source = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='172.16.155.5']",
@@ -190,12 +188,11 @@ describe("Chart Rendering Test", () => {
     expect(targetId).toBe("172.16.155.4");
   });
 
-  test("render Geographic map example with url fragments for a node", async () => {
+  test("bookmarkableActions: render Geographic map example with url fragments for a node", async () => {
     await driver.get(`${urls.geographicMap}#id=geographicMap&nodeId=172.16.169.1`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
-    await driver.sleep(500);
-    const sideBar = await getElementByCss(driver, ".njg-sideBar");
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
     const node = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='172.16.169.1']",
@@ -210,14 +207,13 @@ describe("Chart Rendering Test", () => {
     expect(nodeId).toBe("172.16.169.1");
   });
 
-  test("render Geographic map example with url fragments for a link", async () => {
+  test("bookmarkableActions: render Geographic map example with url fragments for a link", async () => {
     await driver.get(
       `${urls.geographicMap}#id=geographicMap&nodeId=172.16.185.12~172.16.185.13`,
     );
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
-    await driver.sleep(500);
-    const sideBar = await getElementByCss(driver, ".njg-sideBar");
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
     const source = await getElementByXpath(
       driver,
       "//span[@class='njg-valueLabel' and text()='172.16.185.12']",
@@ -239,7 +235,7 @@ describe("Chart Rendering Test", () => {
     expect(targetId).toBe("172.16.185.13");
   });
 
-  test("render Indoor map as Overlay of Geographic map example without console errors", async () => {
+  test("bookmarkableActions: render indoor overlay example without JS console errors", async () => {
     await driver.get(urls.indoorMapOverlay);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
@@ -276,14 +272,13 @@ describe("Chart Rendering Test", () => {
     const closeBtn = await getElementByCss(driver, "#indoormap-close");
     expect(closeBtn).not.toBeNull();
     await closeBtn.click();
-    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
     expect(indoorContainer).toBeNull();
   });
 
-  test("render Indoor map as Overlay of Geographic map example with url fragments for nodes", async () => {
+  test("bookmarkableActions: test url fragments for nodes", async () => {
     await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
-    await driver.sleep(500);
     const indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
     const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
     const consoleErrors = await captureConsoleErrors(driver);
@@ -294,7 +289,7 @@ describe("Chart Rendering Test", () => {
     expect(floorplanImage).not.toBeNull();
   });
 
-  test("render Indoor map as Overlay of Geographic map example with browser forward/backward actions", async () => {
+  test("bookmarkableActions: test forward/backward actions", async () => {
     driver.get(urls.indoorMapOverlay);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     expect(canvas).not.toBeNull();
@@ -339,7 +334,7 @@ describe("Chart Rendering Test", () => {
     expect(consoleErrors.length).toBe(0);
   });
 
-  test("parseUrlFragments handles invalid UTF-8 in hash gracefully", async () => {
+  test("bookmarkableActions: check if parseUrlFragments handles invalid UTF-8", async () => {
     // Invalid UTF-8 sequence in hash
     await driver.get(`${urls.indoorMapOverlay}#%E2%82`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
