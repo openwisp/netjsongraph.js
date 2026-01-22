@@ -125,8 +125,7 @@
           const index = netjsonmap?.data?.nodes?.findIndex((n) => n.id === id);
           const nodeData = netjsonmap?.data?.nodes?.[index];
           if (index === -1 || !nodeData) {
-            const id = netjsonmap.config.bookmarkableActions.id;
-            netjsonmap.utils.removeUrlFragment(id);
+            netjsonmap.utils.removeUrlFragment(netjsonmap.config.bookmarkableActions.id);
             console.error(`Node with ID "${id}" not found.`);
             return;
           }
@@ -308,8 +307,7 @@
             const index = indoor?.data?.nodes?.findIndex((n) => n.id === id);
             const nodeData = indoor?.data?.nodes?.[index];
             if (index === -1 || !nodeData) {
-              const id = indoor.config.bookmarkableActions.id;
-              indoor.utils.removeUrlFragment(id);
+              indoor.utils.removeUrlFragment(indoor.config.bookmarkableActions.id);
               console.error(`Node with ID "${id}" not found.`);
               return;
             }

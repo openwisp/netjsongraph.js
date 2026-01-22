@@ -253,7 +253,7 @@ describe("Chart Rendering Test", () => {
     expect(currentUrl).toContain("172.16.171.15");
     let indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
     const indoorCanvas = await getElementByCss(driver, "canvas", 2000);
-    const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
+    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
     const indoorConsoleErrors = await captureConsoleErrors(driver);
     const {nodesRendered: indoorNodesRendered, linksRendered: indoorLinksRendered} =
       await getRenderedNodesAndLinksCount(driver);
@@ -290,7 +290,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("bookmarkableActions: test forward/backward actions", async () => {
-    driver.get(urls.indoorMapOverlay);
+    await driver.get(urls.indoorMapOverlay);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     expect(canvas).not.toBeNull();
     await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
