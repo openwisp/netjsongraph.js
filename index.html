@@ -182,6 +182,11 @@
         >
       </div>
       <div class="cards">
+        <a href="./examples/netjsonmap-indoormap-overlay.html" target="_blank"
+          >Indoor map as Overlay of Geographic map</a
+        >
+      </div>
+      <div class="cards">
         <a href="./examples/netjsonmap-plugins.html" target="_blank"
           >Leaflet plugins</a
         >
@@ -257,7 +262,7 @@
 
       themeToggle.addEventListener('click', () => {
         htmlElement.classList.toggle('dark-mode');
-        
+
         // Save theme preference
         const currentTheme = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
         localStorage.setItem('theme', currentTheme);

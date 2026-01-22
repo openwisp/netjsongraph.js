@@ -103,6 +103,7 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
+        self.utils.addActionToUrl(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -169,10 +170,8 @@ class NetJSONGraphRender {
         configs,
         "graph",
       );
-
       linkResult.lineStyle = linkStyleConfig;
       linkResult.emphasis = {lineStyle: linkEmphasisConfig.linkStyle};
-
       return linkResult;
     });
 
@@ -429,7 +428,6 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-
     window.onresize = () => {
       self.echarts.resize();
     };
@@ -453,9 +451,12 @@ class NetJSONGraphRender {
       });
     }
 
+    self.utils.setupHashChangeHandler(self);
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
@@ -720,9 +721,11 @@ class NetJSONGraphRender {
       });
     }
 
+    self.utils.setupHashChangeHandler(self);
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
