@@ -169,11 +169,14 @@
         return container;
       }
 
-      function closeButtonHandler(container, indoorMap) {
+      function closeButtonHandler(container, indoorMap, onClose) {
         const closeBtn = container.querySelector("#indoormap-close");
         closeBtn.addEventListener("click", () => {
           const id = indoorMap.config.bookmarkableActions.id;
           indoorMap.utils.removeUrlFragment(id);
+          if (typeof onClose === "function") {
+            onClose();
+          }
           container.remove();
         });
       }
@@ -218,6 +221,7 @@
                 n.properties = n.properties || {};
                 n.properties.location = n.location;
               });
+              return data;
             },
             onReady: async function () {
               const map = this.leaflet;
@@ -301,9 +305,7 @@
         indoor.setUtils({
           // Added a utility function to open a specific popup for a node Id in selenium tests
           triggerOnClick: function (id) {
-            const index = indoor?.data?.nodes?.findIndex(
-              (n) => n.id === id,
-            );
+            const index = indoor?.data?.nodes?.findIndex((n) => n.id === id);
             const nodeData = indoor?.data?.nodes?.[index];
             if (index === -1 || !nodeData) {
               const id = indoor.config.bookmarkableActions.id;
@@ -332,15 +334,17 @@
         const popstateHandler = () => {
           const fragments = indoor.utils.parseUrlFragments();
           const id = indoor.config.bookmarkableActions.id;
-          if(!fragments[id]){
+          if (!fragments[id]) {
             indoorMapContainer.remove();
             window.removeEventListener("popstate", popstateHandler);
           }
         };
         window.addEventListener("popstate", popstateHandler);
         indoor.render();
-        window._indoorMap = indoor
-        closeButtonHandler(indoorMapContainer, indoor);
+        window._indoorMap = indoor;
+        closeButtonHandler(indoorMapContainer, indoor, () => {
+          window.removeEventListener("popstate", popstateHandler);
+        });
       }
     </script>
   </body>
