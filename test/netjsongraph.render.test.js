@@ -510,6 +510,8 @@ describe("generateMapOption - node processing and dynamic styling", () => {
           linkStyleConfig: {},
           linkEmphasisConfig: {linkStyle: {}},
         })),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
     };
   });
@@ -992,6 +994,8 @@ describe("Test disableClusteringAtLevel: 0", () => {
           nonClusterLinks: [],
         })),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        setupHashChangeHandler: jest.fn(),
+        parseUrlFragments: jest.fn(),
       },
       event: {
         emit: jest.fn(),
@@ -1089,6 +1093,8 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       event: {
         emit: jest.fn(),
@@ -1231,6 +1237,8 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},
     };
@@ -1290,6 +1298,8 @@ describe("graph label visibility and fallbacks", () => {
           nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
         })),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       echarts: {
         getOption: jest.fn(() => ({series: [{id: "network-graph", zoom: 1}]})),
@@ -1326,6 +1336,8 @@ describe("graph label visibility and fallbacks", () => {
           nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
         })),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       echarts: {
         getOption: jest
@@ -1355,6 +1367,8 @@ describe("graph label visibility and fallbacks", () => {
       utils: {
         generateGraphOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       echarts: {
         on: jest.fn((evt, cb) => {
@@ -1399,6 +1413,8 @@ describe("map series ids and name fallbacks", () => {
           linkEmphasisConfig: {linkStyle: {}},
         })),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
     };
 
@@ -1462,6 +1478,8 @@ describe("map series ids and name fallbacks", () => {
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},
     };

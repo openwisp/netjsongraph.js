@@ -32,6 +32,12 @@ Plot nodes by geographic coordinates on a Leaflet basemap; pan/zoom with markers
 Use a 2D floorplan (Leaflet CRS.Simple) to place and connect indoor nodes.
 This example demonstrates the visualization of a mesh network topology graph on a 2D floorplan image.
 
+### Indoor map as overlay of Geographic Map
+
+[![Indoor map as overlay of Geographic Map](docs/gifs/netjsonmap-indoormap-overlay.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap-overlay.html)
+
+Overlay an indoor map on top of a geographic map. Click on a node to open the indoor map as a modal overlay.
+
 ### Network Graph with custom attributes and legend
 
 [![Custom attributes](docs/gifs/netjsongraph-elementsLegend.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsongraph-elementsLegend.html)
@@ -500,6 +506,39 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   ```
 
   You can customize the style of GeoJSON features using `style` property. The list of all available properties can be found in the [Leaflet documentation](https://leafletjs.com/reference.html#geojson).
+
+- `bookmarkableActions`
+
+  Configuration for adding url fragments when a node/link is clicked.
+
+  ```javascript
+      bookmarkableActions: {
+        enabled: boolean,
+        id: string,
+        zoomOnRestore: boolean,
+        zoomLevel: number,
+      }
+  ```
+
+  **Note: This feature is disabled by default.**
+
+  You can see this feature in action in the following example: [Indoor Map as Overlay of Geographic Map](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap-overlay.html).
+
+  You can enable or disable adding url fragments by setting enabled to true or false. When enabled, the following parameters are added to the URL:
+  1. id – A prefix used to uniquely identify the map.
+  2. nodeId – The ID of the selected node, or sourceNodeId~targetNodeId in case of a link.
+
+  The `zoomOnRestore` option determines whether the map should automatically adjust its zoom level when the state is applied, and `zoomLevel` specifies the zoom level to use when this behavior is enabled. These options are relevant for Leaflet-based maps and allow finer control over how the map view is restored from a bookmarked URL.
+
+  This feature allows you to create shareable and restorable map or graph states using URL fragments. When this feature is enabled, the URL updates automatically whenever you click a node or a link in your NetJSONGraph visualization. This makes it easy to share a specific view, restore it later, or navigate between different states using the browser’s back and forward buttons.
+
+  This feature works across all ECharts graphs, as well as Leaflet-based maps including geographic and indoor floorplan maps and it supports multiple maps or graphs on the same page. The id parameter is used to uniquely identify which visualization the URL fragment belongs to (for example: `#id=map1&nodeId=device-1;id=map2&nodeId=device-2`).
+
+  For nodes, the behavior depends on the type of visualization. In Leaflet maps, clicking a node updates the URL, and when applying the state from the URL, it automatically centers the map on that node in addition to triggering its click event. In ECharts graphs, it only triggers the click event for the node.
+
+  For links, the URL fragment uses the format `source~target` as the `nodeId`. Opening such a URL restores the initial map or graph view and triggers the corresponding link click event.
+
+  If you need to manually remove the URL fragment, you can call the built-in utility method: `netjsongraphInstance.utils.removeUrlFragment(bookmarkableActions.id);` where you pass the value of your `bookmarkableActions.id` configuration.
 
 - `onInit`
 

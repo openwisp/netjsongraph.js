@@ -11,6 +11,7 @@ import {geojsonToNetjson as convertGeojson} from "./netjsongraph.geojson";
  * - Data transformation and conversion operations
  * - Spatial indexing and clustering algorithms
  * - Node/link information generation and tooltips
+ * - Manage URL fragment state apply, update, remove
  */
 class NetJSONGraphUtil {
   /**
@@ -1213,6 +1214,190 @@ class NetJSONGraphUtil {
         events.delete(key);
         eventsOnce.delete(key);
       },
+    };
+  }
+
+  /**
+   * Parse the URL hash into a mapping of map IDs to their parameters.
+   *
+   * The URL hash may contain multiple fragments separated by `;`, where each
+   * fragment corresponds to a single Netjsongraph.js instance on the page.
+   * Each fragment must include an `id` parameter identifying the map, along
+   * with additional parameters such as `nodeId` or `zoom`.
+   *
+   * Example:
+   *   #id=map1&nodeId=2;id=map2&nodeId=4
+   *
+   * Result:
+   *   {
+   *     map1: URLSearchParams("id=map1&nodeId=2"),
+   *     map2: URLSearchParams("id=map2&nodeId=4")
+   *   }
+   *
+   * @returns {Object.<string, URLSearchParams>}
+   *   An object mapping map IDs to their corresponding URLSearchParams.
+   */
+  parseUrlFragments() {
+    let raw;
+    try {
+      raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+      // avoid breaking if the hash contains invalid characters
+    } catch (e) {
+      raw = window.location.hash.replace(/^#/, "");
+    }
+    const fragments = {};
+    raw.split(";").forEach((fragmentStr) => {
+      const params = new URLSearchParams(fragmentStr);
+      const id = params.get("id");
+      if (id != null) {
+        fragments[id] = params;
+      }
+    });
+    return fragments;
+  }
+
+  /**
+   * Reverse of parseUrlFragments.
+   *
+   * Converts a fragments object (map IDs → URLSearchParams) back into
+   * a semicolon-delimited string suitable for the URL hash.
+   *
+   * @param {Object.<string, URLSearchParams>} fragments
+   * @returns {string}
+   */
+  updateUrlFragments(fragments, state) {
+    const newHash = Object.values(fragments)
+      .map((urlParams) => urlParams.toString())
+      .join(";");
+
+    // We store the selected node's data to the browser's history state.
+    // This allows the node's information to be retrieved instantly on a back/forward
+    // button click without needing to re-parse the entire nodes list.
+    // Apply additional encoding to values after URLSearchParams.toString().
+    // This double-encoding ensures special characters are preserved
+    // through the round-trip with parseUrlFragments' decodeURIComponent.
+    // We avoid escaping ~ to keep URLs readable and compliant with the README.
+    const safeHash = newHash.replace(
+      /([^&=]+)=([^&;]*)/g,
+      (match, key, value) =>
+        `${key}=${encodeURIComponent(value.replace(/%7E/gi, "~"))}`,
+    );
+    window.history.pushState(state, "", `#${safeHash}`);
+  }
+
+  addActionToUrl(self, params) {
+    if (
+      !self.config.bookmarkableActions.enabled ||
+      !params.data ||
+      params.data.cluster
+    ) {
+      return;
+    }
+    if (!self.nodeLinkIndex) {
+      console.error("Lookup object for node or link not found.");
+      return;
+    }
+    const fragments = this.parseUrlFragments();
+    const {id} = self.config.bookmarkableActions;
+    let nodeId;
+    if (self.config.render === self.utils.graphRender) {
+      if (params.dataType === "node") {
+        nodeId = params.data.id;
+      } else if (params.dataType === "edge") {
+        const {source, target} = params.data;
+        nodeId = `${source}~${target}`;
+      }
+    } else if (self.config.render === self.utils.mapRender) {
+      if (params.seriesType === "scatter") {
+        nodeId = params.data.node.id;
+      } else if (params.seriesType === "lines") {
+        const {source, target} = params.data.link;
+        nodeId = `${source}~${target}`;
+      }
+    }
+    if (!nodeId || !self.nodeLinkIndex[nodeId]) {
+      console.error("nodeId not found in nodeLinkIndex lookup.");
+      return;
+    }
+    if (!fragments[id]) {
+      fragments[id] = new URLSearchParams();
+      fragments[id].set("id", id);
+    }
+    fragments[id].set("nodeId", nodeId);
+    const nodeData = self.nodeLinkIndex[nodeId];
+    this.updateUrlFragments(fragments, nodeData);
+  }
+
+  removeUrlFragment(id) {
+    const fragments = this.parseUrlFragments();
+    if (fragments[id]) {
+      delete fragments[id];
+    }
+    const state = {id};
+    this.updateUrlFragments(fragments, state);
+  }
+
+  applyUrlFragmentState(self) {
+    if (!self.config.bookmarkableActions.enabled) {
+      return;
+    }
+    const {id} = self.config.bookmarkableActions;
+    const fragments = self.utils.parseUrlFragments();
+    const fragmentParams = fragments[id] && fragments[id].get ? fragments[id] : null;
+    const nodeId =
+      fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
+    if (!nodeId || !self.nodeLinkIndex || self.nodeLinkIndex[nodeId] == null) {
+      return;
+    }
+    const [source, target] = nodeId.split("~");
+    const node = self.nodeLinkIndex[nodeId];
+    const nodeType =
+      (self.config.graphConfig &&
+        self.config.graphConfig.series &&
+        self.config.graphConfig.series.type) ||
+      (self.config.mapOptions &&
+        self.config.mapOptions.nodeConfig &&
+        self.config.mapOptions.nodeConfig.type);
+    const {location, cluster} = node || {};
+    // Center the map view when returning from a bookmark.
+    // We only do this when:
+    // - zoomOnRestore is enabled,
+    // - the selected element is a node (target == null; Leaflet cannot center links),
+    // - and the node type corresponds to a Leaflet-mapped element (scatter/effectScatter).
+    // Currently, there’s no way to center the view on a link element in the graph or map.
+    if (
+      self.config.bookmarkableActions.zoomOnRestore &&
+      ["scatter", "effectScatter"].includes(nodeType) &&
+      target == null &&
+      location != null
+    ) {
+      const center = [location.lat, location.lng];
+      const zoom =
+        cluster != null
+          ? self.config.disableClusteringAtLevel
+          : self.config.bookmarkableActions.zoomLevel ||
+            self.config.showLabelsAtZoomLevel;
+      if (self.leaflet) {
+        self.leaflet.setView(center, zoom);
+      }
+    }
+    if (typeof self.config.onClickElement === "function") {
+      self.config.onClickElement.call(self, source && target ? "link" : "node", node);
+    }
+  }
+
+  setupHashChangeHandler(self) {
+    // Avoid duplicate listeners per instance
+    if (self._popstateHandler) {
+      window.removeEventListener("popstate", self._popstateHandler);
+    }
+    self._popstateHandler = () => {
+      this.applyUrlFragmentState(self);
+    };
+    window.addEventListener("popstate", self._popstateHandler);
+    return () => {
+      window.removeEventListener("popstate", self._popstateHandler);
+      self._popstateHandler = null;
     };
   }
 }

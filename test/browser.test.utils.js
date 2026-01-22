@@ -32,6 +32,7 @@ export const urls = {
   basicUsage: `${url}/examples/netjsongraph.html`,
   geographicMap: `${url}/examples/netjsonmap.html`,
   indoorMap: `${url}/examples/netjsonmap-indoormap.html`,
+  indoorMapOverlay: `${url}/examples/netjsonmap-indoormap-overlay.html`,
   customAttributes: `${url}/examples/netjsongraph-elementsLegend.html`,
   wifiClients: `${url}/examples/netjsongraph-wifi-clients.html`,
 };
@@ -41,6 +42,15 @@ export const getElementByCss = async (driver, css, waitTime = 1000) => {
     return await driver.wait(until.elementLocated(By.css(css)), waitTime);
   } catch (err) {
     console.error("Error finding element:", css, err);
+    return null;
+  }
+};
+
+export const getElementByXpath = async (driver, xpath, waitTime = 1000) => {
+  try {
+    return await driver.wait(until.elementLocated(By.xpath(xpath)), waitTime);
+  } catch (err) {
+    console.error("Error finding element by XPath:", xpath, err);
     return null;
   }
 };
