@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>netjsongraph.js: moving node example</title>
@@ -70,45 +70,48 @@
   <body>
     <script type="text/javascript">
       const route = [
-        {"lat": 41.90197, "lng": 12.49071 },
-        {"lat": 41.90533, "lng": 12.49571 },
-        {"lat": 41.90445, "lng": 12.49710 },
-        {"lat": 41.90539, "lng": 12.49859 },
-        {"lat": 41.90346, "lng": 12.50092 },
-        {"lat": 41.89969, "lng": 12.49477 },
+        {lat: 41.90197, lng: 12.49071},
+        {lat: 41.90533, lng: 12.49571},
+        {lat: 41.90445, lng: 12.4971},
+        {lat: 41.90539, lng: 12.49859},
+        {lat: 41.90346, lng: 12.50092},
+        {lat: 41.89969, lng: 12.49477},
       ];
 
       let currentIndex = 0;
 
-      const map = new NetJSONGraph("../assets/data/netjsonmap-moving-node.json", {
-        render: "map",
-        mapOptions: {
-          worldCopyJump: true,
-          center: [41.9028, 12.4964],
-          zoom: 17,
-          nodeConfig: {
-            label: {
-              offset: [0, -10],
+      const map = new NetJSONGraph(
+        "../assets/data/netjsonmap-moving-node.json",
+        {
+          render: "map",
+          mapOptions: {
+            worldCopyJump: true,
+            center: [41.9028, 12.4964],
+            zoom: 17,
+            nodeConfig: {
+              label: {
+                offset: [0, -10],
+              },
             },
           },
+          prepareData: (data) => {
+            data.nodes.forEach((node) => {
+              node.label = node.name;
+              node.properties = Object.assign(node.properties || {}, {
+                location: node.location,
+              });
+            });
+            return data;
+          },
+          onReady: () => {
+            const moveNode = () => {
+              currentIndex = (currentIndex + 1) % route.length;
+              map.utils.moveNodeInRealTime(map, "bus-141", route[currentIndex]);
+            };
+            setInterval(moveNode, 2000);
+          },
         },
-        prepareData: (data) => {
-          data.nodes.forEach((node) => {
-             node.label = node.name;
-             node.properties = Object.assign(node.properties || {}, {
-               location: node.location,
-             });
-           });
-          return data;
-        },
-        onReady: () => {
-          const moveNode = () => {
-            currentIndex = (currentIndex + 1) % route.length;
-            map.utils.moveNodeInRealTime(map, "bus-141", route[currentIndex]);
-          };
-          setInterval(moveNode, 2000);
-        }
-      });
+      );
       map.render();
     </script>
   </body>
