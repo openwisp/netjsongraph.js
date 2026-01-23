@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Indoor map</title>
@@ -45,7 +45,6 @@
         "../assets/data/netjsonmap-indoormap.json",
         {
           render: "map",
-          crs: L.CRS.Simple,
           // set map initial state.
           mapOptions: {
             // disable leaflet worldCopyJump on the indoor map
@@ -53,63 +52,23 @@
             worldCopyJump: false,
             center: [48.577, 18.539],
             zoom: 0,
-            zoomSnap: 0.3,
-            minZoom: -1,
-            maxZoom: 2,
+            minZoom: 6,
+            maxZoom: 10,
+            zoomSnap: 0.5,
+            zoomDelta: 0.5,
             nodeConfig: {
               label: {
                 show: false,
               },
               animation: false,
             },
-            linkConfig: {
-              linkStyle: {
-                width: 4,
-              },
-              animation: false,
-            },
-            baseOptions: {
-              media: [
-                {
-                  query: {
-                    minWidth: 320,
-                    maxWidth: 850,
-                  },
-                  option: {
-                    tooltip: {
-                      show: false,
-                    },
-                  },
-                },
-                {
-                  query: {
-                    minWidth: 851,
-                  },
-                  option: {
-                    tooltip: {
-                      show: true,
-                    },
-                  },
-                },
-                {
-                  query: {
-                    minWidth: 320,
-                    maxWidth: 400,
-                  },
-                  option: {
-                    series: [
-                      {
-                        label: {
-                          fontSize: "12px",
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
+            baseOptions: {media: [{option: {tooltip: {show: true}}}]},
           },
-
+          bookmarkableActions: {
+            enabled: true,
+            id: "indoorMap",
+            zoomOnRestore: false,
+          },
           // Convert to internal json format
           prepareData: function (data) {
             data.nodes.map((node) => {
@@ -120,36 +79,94 @@
             });
           },
 
-          onReady: function presentIndoormap() {
-            const netjsonmap = this.leaflet;
-            const image = new Image();
+          onReady: async function () {
+            const map = this.leaflet;
+            // Remove default tile layers
+            map.eachLayer((layer) => layer._url && map.removeLayer(layer));
+
+            const img = new Image();
             const imageUrl = "../assets/images/floorplan.png";
-            image.src = imageUrl;
+            img.src = imageUrl;
+            await img.decode();
 
-            image.onload = function () {
-              const aspectRatio = image.width / image.height;
-              const h = 700;
-              const w = aspectRatio * h;
-              const zoom = netjsonmap.getMaxZoom() - 1;
-              const bottomLeft = netjsonmap.unproject([0, h * 2], zoom);
-              const upperRight = netjsonmap.unproject([w * 2, 0], zoom);
-              const bounds = new L.LatLngBounds(bottomLeft, upperRight);
+            const aspectRatio = img.width / img.height;
+            const h = 700;
+            const w = h * aspectRatio;
 
-              L.imageOverlay(imageUrl, bounds).addTo(netjsonmap);
-              netjsonmap.fitBounds(bounds);
-              netjsonmap.setMaxBounds(bounds);
-            };
+            const zoom = map.getMaxZoom() - 1;
 
-            // Remove any default tile layers and show only the floorplan image.
-            netjsonmap.eachLayer((layer) => {
-              if (layer._url) {
-                netjsonmap.removeLayer(layer);
-              }
+            // Workaround for https://github.com/openwisp/netjsongraph.js/issues/397
+            // To make the image center in the map at (0,0) coordinates
+            const anchorLatLng = L.latLng(0, 0);
+            const anchorPoint = map.project(anchorLatLng, zoom);
+
+            // Calculate the bounds of the image, with respect to the anchor point (0, 0)
+            // Leaflet's pixel coordinates increase to the right and downwards
+            // Unlike cartesian system where y increases upwards
+            // So top-left will have negative y and bottom-right will have positive y
+            // Similarly left will have negative x and right will have positive x
+            const topLeft = L.point(
+              anchorPoint.x - w / 2,
+              anchorPoint.y - h / 2,
+            );
+            const bottomRight = L.point(
+              anchorPoint.x + w / 2,
+              anchorPoint.y + h / 2,
+            );
+
+            // Update node coordinates to fit the image overlay
+            // We get the node coordinates from the API in the format for L.CRS.Simple
+            // So the coordinates is in for cartesian system with origin at top left corner
+            // Rendering image in the third quadrant with topLeft as (0,0) and bottomRight as (w,-h)
+            // So we convert py to positive and then project the point to get the corresponding topLeft
+            // Then unproject the point to get the corresponding latlng on the map
+            const mapOptions = this.echarts.getOption();
+            mapOptions.series[0].data.forEach((data) => {
+              const node = data.node;
+              const px = Number(node.location.lng);
+              const py = -Number(node.location.lat);
+              const nodeProjected = L.point(topLeft.x + px, topLeft.y + py);
+              const nodeLatLng = map.unproject(nodeProjected, zoom);
+
+              node.location = nodeLatLng;
+              node.properties.location = nodeLatLng;
+              data.value = [nodeLatLng.lng, nodeLatLng.lat];
             });
+            // Similary, updating the coordinates for the links
+            mapOptions.series[1].data.forEach((data) => {
+              const source = data.coords[0];
+              const sourcePx = Number(source[0]);
+              const sourcePy = -Number(source[1]);
+              const sourceNodeProjected = L.point(
+                topLeft.x + sourcePx,
+                topLeft.y + sourcePy,
+              );
+              const sourceNodeLatLng = map.unproject(sourceNodeProjected, zoom);
+
+              const target = data.coords[1];
+              const targetPx = Number(target[0]);
+              const targetPy = -Number(target[1]);
+              const targetNodeProjected = L.point(
+                topLeft.x + targetPx,
+                topLeft.y + targetPy,
+              );
+              const targetNodeLatLng = map.unproject(targetNodeProjected, zoom);
+
+              data.coords[0] = [sourceNodeLatLng.lng, sourceNodeLatLng.lat];
+              data.coords[1] = [targetNodeLatLng.lng, targetNodeLatLng.lat];
+            });
+            this.echarts.setOption(mapOptions);
+            // Unproject the topLeft and bottomRight points to get northWest and southEast latlngs
+            const nw = map.unproject(topLeft, zoom);
+            const se = map.unproject(bottomRight, zoom);
+            const bnds = L.latLngBounds(nw, se);
+
+            L.imageOverlay(imageUrl, bnds).addTo(map);
+            map.fitBounds(bnds);
+            map.setMaxBounds(bnds);
           },
         },
       );
-
       graph.render();
     </script>
   </body>

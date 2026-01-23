@@ -9,6 +9,7 @@ import netJsonElementsLegend from "../public/assets/data/netjson-elementsLegend.
 import netJsonGraphMultipleLinks from "../public/assets/data/netjsongraph-multipleLinks.json";
 import airplaneRouteMap from "../public/assets/data/airplaneRouteMap.json";
 import geoJsonSample from "../public/assets/data/geojson-sample.json";
+import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 import netJsonNodeTiles1 from "../public/assets/data/netjsonNodeTiles/1.json";
 import netJsonAppendData1 from "../public/assets/data/netjsonAppendData/1.json";
 import netJsonAppendData2 from "../public/assets/data/netjsonAppendData/2.json";
@@ -34,8 +35,10 @@ export const urls = {
   basicUsage: `${url}/examples/netjsongraph.html`,
   geographicMap: `${url}/examples/netjsonmap.html`,
   indoorMap: `${url}/examples/netjsonmap-indoormap.html`,
+  indoorMapOverlay: `${url}/examples/netjsonmap-indoormap-overlay.html`,
   customAttributes: `${url}/examples/netjsongraph-elementsLegend.html`,
   wifiClients: `${url}/examples/netjsongraph-wifi-clients.html`,
+  geoJson: `${url}/examples/njg-geojson.html`,
 };
 
 export const getElementByCss = async (driver, css, waitTime = 1000) => {
@@ -43,6 +46,15 @@ export const getElementByCss = async (driver, css, waitTime = 1000) => {
     return await driver.wait(until.elementLocated(By.css(css)), waitTime);
   } catch (err) {
     console.error("Error finding element:", css, err);
+    return null;
+  }
+};
+
+export const getElementByXpath = async (driver, xpath, waitTime = 1000) => {
+  try {
+    return await driver.wait(until.elementLocated(By.xpath(xpath)), waitTime);
+  } catch (err) {
+    console.error("Error finding element by XPath:", xpath, err);
     return null;
   }
 };
@@ -106,7 +118,7 @@ export const getPresentNodesAndLinksCount = async (example) => {
         ...netJsonAppendData3.links,
       ],
     },
-    "Geographic map with GeoJSON data": geoJsonSample,
+    "Geographic map with GeoJSON data": geojsonToNetjson(geoJsonSample),
     Clustering: netJsonMap,
   };
   if (!(example in mapping)) {

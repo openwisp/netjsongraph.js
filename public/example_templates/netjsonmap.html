@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>netjsongraph.js: basic example</title>
@@ -30,7 +30,6 @@
         border-radius: 8px;
         color: #000;
         font-family: Arial, sans-serif;
-        font-family: sans-serif;
         font-size: 14px;
         z-index: 1000;
         user-select: text;
@@ -96,6 +95,11 @@
             },
           },
         ],
+        bookmarkableActions: {
+          enabled: true,
+          id: "geographicMap",
+          zoomLevel: 10,
+        },
         // Convert to internal json format
         prepareData: (data) => {
           data.nodes.map((node) => {
