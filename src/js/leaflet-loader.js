@@ -30,7 +30,7 @@ export default function getLeaflet(suppressError = false) {
           "Leaflet (L) is not defined! Make sure Leaflet is loaded before NetJSONGraph.",
         );
       }
-      return null;
+      return undefined;
     }
     L = window.L;
   }
