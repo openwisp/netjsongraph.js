@@ -49,36 +49,33 @@
       }
       .status-critical {
         background-color: #c92517;
-      }</style><script src="../netjsongraph.min.js"></script></head><body><script>const map = new NetJSONGraph(
-        "../assets/data/netjson-clustering.json",
-        {
-          render: "map",
-          clustering: true,
-          clusteringThreshold: 2,
-          clusterRadius: 80,
-          disableClusteringAtLevel: 18,
-          clusteringAttribute: "status",
-          clusterSeparation: 20,
-          bookmarkableActions: {
-            enabled: true,
-            id: "clustering",
-          },
-          mapOptions: {
-            center: [55.98, 11.54],
-            zoom: 4,
-            minZoom: 3,
-            maxZoom: 18,
-            // No label configuration to keep the view clean
-          },
-          // defaults categories and colors
-          // shown here to make customization easier
-          // nodeCategories: [
-          //   {name: "ok", nodeStyle: {color: "#1ba619"}},
-          //   {name: "problem", nodeStyle: {color: "#ffa500"}},
-          //   {name: "critical", nodeStyle: {color: "#c92517"}},
-          // ]
-        }
-      );
+      }</style><script src="../netjsongraph.min.js"></script></head><body><script>const map = new NetJSONGraph("../assets/data/netjson-clustering.json", {
+        render: "map",
+        clustering: true,
+        clusteringThreshold: 2,
+        clusterRadius: 80,
+        disableClusteringAtLevel: 18,
+        clusteringAttribute: "status",
+        clusterSeparation: 20,
+        bookmarkableActions: {
+          enabled: true,
+          id: "clustering",
+        },
+        mapOptions: {
+          center: [55.98, 11.54],
+          zoom: 4,
+          minZoom: 3,
+          maxZoom: 18,
+          // No label configuration to keep the view clean
+        },
+        // defaults categories and colors
+        // shown here to make customization easier
+        // nodeCategories: [
+        //   {name: "ok", nodeStyle: {color: "#1ba619"}},
+        //   {name: "problem", nodeStyle: {color: "#ffa500"}},
+        //   {name: "critical", nodeStyle: {color: "#c92517"}},
+        // ]
+      });
 
       // Build legend UI
       const createLegend = (key, className) => {
