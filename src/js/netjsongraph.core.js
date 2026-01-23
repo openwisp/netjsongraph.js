@@ -81,8 +81,27 @@ class NetJSONGraphCore {
     const [JSONParam, ...resParam] = this.JSONParam;
 
     this.config.onRender.call(this);
-    this.event.once("onReady", this.config.onReady.bind(this));
+    // Ensure applyUrlFragmentState runs only after onReady has completed,
+    // as onReady may perform asynchronous operations
+    const onReadyDone = new Promise((resolve) => {
+      this.event.once("onReady", async () => {
+        try {
+          await this.config.onReady.call(this);
+        } catch (error) {
+          console.error("onReady callback failed:", error);
+        }
+        resolve();
+      });
+    });
     this.event.once("onLoad", this.config.onLoad.bind(this));
+    this.event.once("applyUrlFragmentState", async () => {
+      try {
+        await onReadyDone;
+      } catch (e) {
+        console.error("onReady failed:", e);
+      }
+      this.utils.applyUrlFragmentState.call(this, this);
+    });
     this.utils.paginatedDataParse
       .call(this, JSONParam)
       .then((JSONData) => {
@@ -110,9 +129,19 @@ class NetJSONGraphCore {
             this.config.maxPointsFetched - 1,
             JSONData.nodes.length - this.config.maxPointsFetched,
           );
-          const nodeSet = new Set(JSONData.nodes.map((node) => node.id));
+          const nodeSet = new Set();
+          // Build a lookup map (this.nodeLinkIndex) for quick access to node or link data.
+          // Uses node IDs as keys for nodes and "source~target" as keys for links.
+          // This avoids repeated traversal when restoring state from URL fragments.
+          this.nodeLinkIndex = {};
+          JSONData.nodes.forEach((node) => {
+            nodeSet.add(node.id);
+            this.nodeLinkIndex[node.id] = node;
+          });
           JSONData.links = JSONData.links.filter((link) => {
             if (nodeSet.has(link.source) && nodeSet.has(link.target)) {
+              const key = `${link.source}~${link.target}`;
+              this.nodeLinkIndex[key] = link;
               return true;
             }
             if (!nodeSet.has(link.source)) {

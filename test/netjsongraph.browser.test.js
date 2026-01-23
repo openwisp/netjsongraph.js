@@ -1,5 +1,6 @@
 import {
   getElementByCss,
+  getElementByXpath,
   tearDown,
   captureConsoleErrors,
   getDriver,
@@ -115,12 +116,14 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render wifi clients example without errors", async () => {
-    driver.get(urls.wifiClients);
+    await driver.get(urls.wifiClients);
     const canvas = await getElementByCss(driver, "canvas", 2000);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
 
     const canvasHeight = await driver.executeScript(
       "return graph.echarts.getRenderedCanvas().height",
@@ -138,5 +141,224 @@ describe("Chart Rendering Test", () => {
       "return !!document.querySelector('canvas') && !!graph.echarts",
     );
     expect(hasDots).toBe(true);
+  });
+
+  test("render Geographic map with GeoJSON data without console errors", async () => {
+    await driver.get(urls.geoJson);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(leafletContainer).not.toBeNull();
+
+    // GeoJSON rendering may not show metadata counts the same way as NetJSON
+    // The important check is that it renders without errors
+  });
+
+  test("bookmarkableActions: render Basic usage example with url fragments for a node", async () => {
+    await driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=10.149.3.3`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
+    const node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='10.149.3.3']",
+      2000,
+    );
+    const nodeId = await node.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(nodeId).toBe("10.149.3.3");
+  });
+
+  test("bookmarkableActions: render Basic usage example with url fragments for a link", async () => {
+    await driver.get(
+      `${urls.basicUsage}#id=basicUsage&nodeId=172.16.155.5~172.16.155.4`,
+    );
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
+    const source = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.155.5']",
+      2000,
+    );
+    const target = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.155.4']",
+      2000,
+    );
+    const sourceId = await source.getText();
+    const targetId = await target.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(sourceId).toBe("172.16.155.5");
+    expect(targetId).toBe("172.16.155.4");
+  });
+
+  test("bookmarkableActions: render Geographic map example with url fragments for a node", async () => {
+    await driver.get(`${urls.geographicMap}#id=geographicMap&nodeId=172.16.169.1`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
+    const node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.169.1']",
+      2000,
+    );
+    const nodeId = await node.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(nodeId).toBe("172.16.169.1");
+  });
+
+  test("bookmarkableActions: render Geographic map example with url fragments for a link", async () => {
+    await driver.get(
+      `${urls.geographicMap}#id=geographicMap&nodeId=172.16.185.12~172.16.185.13`,
+    );
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
+    const source = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.185.12']",
+      2000,
+    );
+    const target = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.185.13']",
+      2000,
+    );
+    const sourceId = await source.getText();
+    const targetId = await target.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(sourceId).toBe("172.16.185.12");
+    expect(targetId).toBe("172.16.185.13");
+  });
+
+  test("bookmarkableActions: render indoor overlay example without JS console errors", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const {nodesPresent, linksPresent} =
+      await getPresentNodesAndLinksCount("Geographic map");
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(nodesRendered).toBe(nodesPresent);
+    expect(linksRendered).toBe(linksPresent);
+
+    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    let currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    let indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    const indoorCanvas = await getElementByCss(driver, "canvas", 2000);
+    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
+    const indoorConsoleErrors = await captureConsoleErrors(driver);
+    const {nodesRendered: indoorNodesRendered, linksRendered: indoorLinksRendered} =
+      await getRenderedNodesAndLinksCount(driver);
+    const {nodesPresent: indoorNodesPresent, linksPresent: indoorLinksPresent} =
+      await getPresentNodesAndLinksCount("Indoor map");
+    printConsoleErrors(indoorConsoleErrors);
+    expect(indoorConsoleErrors.length).toBe(0);
+    expect(indoorContainer).not.toBeNull();
+    expect(indoorCanvas).not.toBeNull();
+    expect(floorplanImage).not.toBeNull();
+    expect(indoorNodesRendered).toBe(indoorNodesPresent);
+    expect(indoorLinksRendered).toBe(indoorLinksPresent);
+    await driver.executeScript('window._indoorMap.utils.triggerOnClick("node_2");');
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("node_2");
+    const closeBtn = await getElementByCss(driver, "#indoormap-close");
+    expect(closeBtn).not.toBeNull();
+    await closeBtn.click();
+    indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    expect(indoorContainer).toBeNull();
+  });
+
+  test("bookmarkableActions: test url fragments for nodes", async () => {
+    await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(indoorContainer).not.toBeNull();
+    expect(floorplanImage).not.toBeNull();
+  });
+
+  test("bookmarkableActions: test forward/backward actions", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    let currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    let indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).not.toBeNull();
+    await driver.executeScript('window._indoorMap.utils.triggerOnClick("node_2");');
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("node_2");
+    await driver.get("http://0.0.0.0:8080");
+    await driver.navigate().back();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).not.toBeNull();
+    let node = await getElementByCss(driver, "#indoormap-container .njg-valueLabel");
+    let nodeId = await node.getText();
+    expect(nodeId).toBe("Node_2");
+    await driver.navigate().back();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).not.toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).toBeNull();
+    await driver.navigate().forward();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).not.toBeNull();
+    node = await getElementByCss(driver, "#indoormap-container .njg-valueLabel");
+    nodeId = await node.getText();
+    expect(nodeId).toBe("Node_2");
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test("bookmarkableActions: check if parseUrlFragments handles invalid UTF-8", async () => {
+    // Invalid UTF-8 sequence in hash
+    await driver.get(`${urls.indoorMapOverlay}#%E2%82`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
   });
 });
