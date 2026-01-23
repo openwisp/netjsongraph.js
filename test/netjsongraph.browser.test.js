@@ -143,6 +143,22 @@ describe("Chart Rendering Test", () => {
     expect(hasDots).toBe(true);
   });
 
+  test("render Geographic map with GeoJSON data without console errors", async () => {
+    await driver.get(urls.geoJson);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(leafletContainer).not.toBeNull();
+
+    // GeoJSON rendering may not show metadata counts the same way as NetJSON
+    // The important check is that it renders without errors
+  });
+
   test("bookmarkableActions: render Basic usage example with url fragments for a node", async () => {
     await driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=10.149.3.3`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
