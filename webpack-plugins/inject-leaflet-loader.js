@@ -42,6 +42,9 @@ class InjectLeafletLoaderPlugin {
         leafletJS.src = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.js';
         leafletJS.integrity = 'sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==';
         leafletJS.crossOrigin = '';
+        leafletJS.onerror = function() {
+          console.error('Failed to load Leaflet from CDN. Please check your internet connection.');
+        };
         leafletJS.onload = ${hasPlugins ? "loadLeafletPlugins" : "initMap"};
         document.head.appendChild(leafletJS);
       })();
@@ -49,43 +52,75 @@ ${
   hasPlugins
     ? `
       function loadLeafletPlugins() {
-        // Load plugin CSS files
-        const leafletDrawCSS = document.createElement('link');
-        leafletDrawCSS.rel = 'stylesheet';
-        leafletDrawCSS.href = '../lib/css/leaflet-draw.css';
-        document.head.appendChild(leafletDrawCSS);
+        // Poll for Leaflet availability
+        function waitForLeaflet(callback, maxAttempts = 50) {
+          let attempts = 0;
+          function check() {
+            attempts++;
+            if (typeof L !== 'undefined') {
+              callback();
+            } else if (attempts < maxAttempts) {
+              setTimeout(check, 100); // Check every 100ms
+            } else {
+              console.error('Leaflet (L) is still not available after waiting');
+              callback(); // Continue anyway
+            }
+          }
+          check();
+        }
 
-        const leafletMeasureCSS = document.createElement('link');
-        leafletMeasureCSS.rel = 'stylesheet';
-        leafletMeasureCSS.href = '../lib/css/leaflet-measure.css';
-        document.head.appendChild(leafletMeasureCSS);
+        waitForLeaflet(function() {
+          // Load plugin CSS files
+          const leafletDrawCSS = document.createElement('link');
+          leafletDrawCSS.rel = 'stylesheet';
+          leafletDrawCSS.href = '../lib/css/leaflet-draw.css';
+          document.head.appendChild(leafletDrawCSS);
 
-        // Load leaflet-draw.js
-        const leafletDraw = document.createElement('script');
-        leafletDraw.src = '../lib/js/leaflet-draw.js';
-        leafletDraw.type = 'text/javascript';
-        document.head.appendChild(leafletDraw);
+          const leafletMeasureCSS = document.createElement('link');
+          leafletMeasureCSS.rel = 'stylesheet';
+          leafletMeasureCSS.href = '../lib/css/leaflet-measure.css';
+          document.head.appendChild(leafletMeasureCSS);
 
-        // Load leaflet-measure.js after draw
-        const leafletMeasure = document.createElement('script');
-        leafletMeasure.src = '../lib/js/leaflet-measure.js';
-        leafletMeasure.type = 'text/javascript';
+          // Create script elements
+          const leafletDraw = document.createElement('script');
+          leafletDraw.src = '../lib/js/leaflet-draw.js';
+          leafletDraw.type = 'text/javascript';
 
-        // Wait for both plugins to load before initializing
-        let drawLoaded = false;
-        let measureLoaded = false;
+          const leafletMeasure = document.createElement('script');
+          leafletMeasure.src = '../lib/js/leaflet-measure.js';
+          leafletMeasure.type = 'text/javascript';
 
-        leafletDraw.onload = function() {
-          drawLoaded = true;
-          if (measureLoaded) initMap();
-        };
+          // Wait for both plugins to load before initializing
+          let drawLoaded = false;
+          let measureLoaded = false;
 
-        leafletMeasure.onload = function() {
-          measureLoaded = true;
-          if (drawLoaded) initMap();
-        };
+          leafletDraw.onload = function() {
+            drawLoaded = true;
+            if (measureLoaded) initMap();
+          };
 
-        document.head.appendChild(leafletMeasure);
+          leafletMeasure.onload = function() {
+            measureLoaded = true;
+            if (drawLoaded) initMap();
+          };
+
+          // Add error handling
+          leafletDraw.onerror = function() {
+            console.error('Failed to load leaflet-draw.js');
+            drawLoaded = true; // Don't block initialization
+            if (measureLoaded) initMap();
+          };
+
+          leafletMeasure.onerror = function() {
+            console.error('Failed to load leaflet-measure.js');
+            measureLoaded = true; // Don't block initialization
+            if (drawLoaded) initMap();
+          };
+
+          // Now append scripts to head - Leaflet should be available
+          document.head.appendChild(leafletDraw);
+          document.head.appendChild(leafletMeasure);
+        });
       }
 `
     : ""
@@ -137,12 +172,25 @@ ${
           html = html.replace(leafletCSSRegex, "");
         }
 
+        // Remove main leaflet.js script if present
         const leafletJSRegex = /<script[^>]*leaflet[^>]*>[\s\S]*?<\/script>/gi;
         let prev;
         do {
           prev = html;
           html = html.replace(leafletJSRegex, "");
         } while (html !== prev);
+
+        // For plugin file, remove hardcoded plugin scripts from body (we'll load them dynamically)
+        if (hasPlugins) {
+          const pluginScripts = [
+            /<script[^>]*src="[^"]*leaflet-draw\.js"[^>]*>[\s\S]*?<\/script>/gi,
+            /<script[^>]*src="[^"]*leaflet-measure\.js"[^>]*>[\s\S]*?<\/script>/gi,
+          ];
+
+          pluginScripts.forEach((regex) => {
+            html = html.replace(regex, "");
+          });
+        }
 
         // Find the script tag and its content (handles <script>, <script type="text/javascript">, and <script type="module">)
         const scriptRegex =
