@@ -13,6 +13,22 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
   </head>
   <body>
     <div
@@ -38,6 +54,7 @@
         >Try zooming in to levels 4 and 6 to see the data being replaced.</em
       >
     </div>
+    <div id="map-container"></div>
     <script type="text/javascript">
       /*
           The demo is used to show how to use the `JSONDataUpdate` function to update data.
@@ -52,6 +69,7 @@
           6: "3.json",
         },
         map = new NetJSONGraph("../assets/data/netjsonNodeTiles/1.json", {
+          el: "#map-container",
           render: "map",
           // set map initial state.
           mapOptions: {
