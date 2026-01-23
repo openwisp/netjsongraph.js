@@ -116,12 +116,14 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render wifi clients example without errors", async () => {
-    driver.get(urls.wifiClients);
+    await driver.get(urls.wifiClients);
     const canvas = await getElementByCss(driver, "canvas", 2000);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
 
     const canvasHeight = await driver.executeScript(
       "return graph.echarts.getRenderedCanvas().height",
@@ -139,6 +141,22 @@ describe("Chart Rendering Test", () => {
       "return !!document.querySelector('canvas') && !!graph.echarts",
     );
     expect(hasDots).toBe(true);
+  });
+
+  test("render Geographic map with GeoJSON data without console errors", async () => {
+    await driver.get(urls.geoJson);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(leafletContainer).not.toBeNull();
+
+    // GeoJSON rendering may not show metadata counts the same way as NetJSON
+    // The important check is that it renders without errors
   });
 
   test("bookmarkableActions: render Basic usage example with url fragments for a node", async () => {

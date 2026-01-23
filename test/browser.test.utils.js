@@ -9,6 +9,7 @@ import netJsonElementsLegend from "../public/assets/data/netjson-elementsLegend.
 import netJsonGraphMultipleLinks from "../public/assets/data/netjsongraph-multipleLinks.json";
 import airplaneRouteMap from "../public/assets/data/airplaneRouteMap.json";
 import geoJsonSample from "../public/assets/data/geojson-sample.json";
+import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 import netJsonNodeTiles1 from "../public/assets/data/netjsonNodeTiles/1.json";
 import netJsonAppendData1 from "../public/assets/data/netjsonAppendData/1.json";
 import netJsonAppendData2 from "../public/assets/data/netjsonAppendData/2.json";
@@ -37,6 +38,7 @@ export const urls = {
   indoorMapOverlay: `${url}/examples/netjsonmap-indoormap-overlay.html`,
   customAttributes: `${url}/examples/netjsongraph-elementsLegend.html`,
   wifiClients: `${url}/examples/netjsongraph-wifi-clients.html`,
+  geoJson: `${url}/examples/njg-geojson.html`,
 };
 
 export const getElementByCss = async (driver, css, waitTime = 1000) => {
@@ -116,7 +118,7 @@ export const getPresentNodesAndLinksCount = async (example) => {
         ...netJsonAppendData3.links,
       ],
     },
-    "Geographic map with GeoJSON data": geoJsonSample,
+    "Geographic map with GeoJSON data": geojsonToNetjson(geoJsonSample),
     Clustering: netJsonMap,
   };
   if (!(example in mapping)) {
