@@ -10,8 +10,13 @@ const env = require("zrender/lib/core/env");
 
 /**
  * @class
- * Class NetJSONGraph is entry point for NetJSONGraph library.
- * Used as a global object in the examples_templates.
+ * NetJSONGraph - Main entry point and factory class for the NetJSONGraph library.
+ *
+ * Main Responsibilities:
+ * - Creates and configures NetJSONGraphCore instances
+ * - Sets up ECharts, GUI components, and rendering systems
+ * - Provides the public API constructor that users instantiate
+ * - Returns the configured core instance to maintain API compatibility
  */
 class NetJSONGraph {
   /**

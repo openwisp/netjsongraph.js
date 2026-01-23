@@ -2,7 +2,10 @@
 
 set -e
 
-yarn lint || echo "Try running yarn lint:fix"
+yarn lint || (echo "Try running yarn lint:fix"; exit 1)
+
+prettier --check public/example_templates/**/*.html || \
+    (echo -e "Try running:\n    prettier -w public/example_templates/**/*.html"; exit 1)
 
 openwisp-qa-check --skip-checkmigrations \
                   --skip-checkmakemigrations \
