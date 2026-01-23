@@ -116,12 +116,14 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render wifi clients example without errors", async () => {
-    driver.get(urls.wifiClients);
+    await driver.get(urls.wifiClients);
     const canvas = await getElementByCss(driver, "canvas", 2000);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
 
     const canvasHeight = await driver.executeScript(
       "return graph.echarts.getRenderedCanvas().height",
