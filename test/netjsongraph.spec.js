@@ -1,7 +1,7 @@
-import NetJSONGraph from "../src/js/netjsongraph.core";
+import NetJSONGraphCore from "../src/js/netjsongraph.core";
 
-describe("NetJSONGraph Specification", () => {
-  const NetJSONGraphOption = {
+describe("NetJSONGraphCore Specification", () => {
+  const NetJSONGraphCoreOption = {
     aria: {
       show: true,
       description:
@@ -24,7 +24,7 @@ describe("NetJSONGraph Specification", () => {
       },
     },
   };
-  const NetJSONGraphConfig = {
+  const NetJSONGraphCoreConfig = {
     series: {
       layout: "force",
       label: {
@@ -117,7 +117,7 @@ describe("NetJSONGraph Specification", () => {
       ],
     },
   };
-  const NetJSONGraphMapOptions = {
+  const NetJSONGraphCoreMapOptions = {
     roam: true,
     zoomAnimation: false,
     worldCopyJump: true,
@@ -203,17 +203,17 @@ describe("NetJSONGraph Specification", () => {
   };
 
   test("APIs exist", () => {
-    expect(NetJSONGraph).toBeDefined();
+    expect(NetJSONGraphCore).toBeDefined();
 
-    expect(NetJSONGraph.prototype.setConfig).toBeInstanceOf(Function);
-    expect(NetJSONGraph.prototype.setUtils).toBeInstanceOf(Function);
+    expect(NetJSONGraphCore.prototype.setConfig).toBeInstanceOf(Function);
+    expect(NetJSONGraphCore.prototype.setUtils).toBeInstanceOf(Function);
   });
 
-  test("NetJSONGraph object attribute fields exist", () => {
+  test("NetJSONGraphCore object attribute fields exist", () => {
     const JSONFILE = "test";
 
-    const graph = new NetJSONGraph(JSONFILE);
-    // Package NetJSONGraph instance object.
+    const graph = new NetJSONGraphCore(JSONFILE);
+    // Package NetJSONGraphCore instance object.
     graph.event = graph.utils.createEvent();
     graph.setConfig({
       onInit() {
@@ -233,7 +233,7 @@ describe("NetJSONGraph Specification", () => {
       },
     });
 
-    expect(graph).toBeInstanceOf(NetJSONGraph);
+    expect(graph).toBeInstanceOf(NetJSONGraphCore);
 
     // NetJSON Props
     expect(graph.el).toBeInstanceOf(HTMLElement);
@@ -253,9 +253,9 @@ describe("NetJSONGraph Specification", () => {
     expect(graph.config).toHaveProperty("clusteringThreshold", 100);
     expect(graph.config).toHaveProperty("disableClusteringAtLevel", 8);
     expect(graph.config).toHaveProperty("clusterRadius", 80);
-    expect(graph.config.echartsOption).toEqual(NetJSONGraphOption);
-    expect(graph.config.graphConfig).toEqual(NetJSONGraphConfig);
-    expect(graph.config.mapOptions).toEqual(NetJSONGraphMapOptions);
+    expect(graph.config.echartsOption).toEqual(NetJSONGraphCoreOption);
+    expect(graph.config.graphConfig).toEqual(NetJSONGraphCoreConfig);
+    expect(graph.config.mapOptions).toEqual(NetJSONGraphCoreMapOptions);
     expect(graph.config.mapTileConfig).toEqual([
       {
         urlTemplate:

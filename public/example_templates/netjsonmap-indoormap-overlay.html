@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Network Map Visualization</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
+    <!-- theme can be easily customized via css -->
+    <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
+    <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #map-content {
+        width: 100%;
+        height: 100%;
+      }
+      #indoormap-container {
+        position: absolute; /* overlay */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 90%;
+        padding: 20px;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        border-radius: 7px;
+        background-color: white;
+      }
+      #indoormap-close {
+        position: absolute;
+        top: 2px;
+        right: 5px;
+        color: gray;
+        border: none;
+        padding: 2px 5px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 18px;
+        z-index: 9999;
+      }
+      #netjson-indoormap {
+        width: 100%;
+        height: 100%;
+        flex: 1;
+      }
+      #netjson-indoormap .njg-sideBar {
+        background: #f4f4f4;
+        border-right: 1px solid rgba(0, 0, 0, 0.2);
+      }
+      #indoormap-container .njg-container .sideBarHandle {
+        top: 35px;
+        left: 390px;
+      }
+      #indoormap-container .njg-container .hidden .sideBarHandle {
+        left: 35px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map-container">
+      <div id="map-content"></div>
+    </div>
+
+    <script>
+      const netjsonmap = new NetJSONGraph("../assets/data/netjsonmap.json", {
+        el: "#map-content",
+        render: "map",
+        mapOptions: {
+          worldCopyJump: true,
+          center: [46.86764405052012, 19.675998687744144],
+          zoom: 5,
+          nodeConfig: {
+            label: {
+              show: false,
+              offset: [0, -10],
+            },
+          },
+          baseOptions: {media: [{option: {tooltip: {show: true}}}]},
+        },
+        bookmarkableActions: {
+          enabled: true,
+          id: "geoMap",
+          zoomLevel: 10,
+        },
+        prepareData: (data) => {
+          data.nodes.forEach((n) => {
+            n.label = n.name;
+            n.properties = n.properties || {};
+            n.properties.location = n.location;
+          });
+          data.links.forEach((l) => {
+            l.properties = l.properties || {};
+            l.category = l.properties.status || "up";
+          });
+          return data;
+        },
+        onClickElement(type, data) {
+          if (type === "node") {
+            openIndoorMap();
+          }
+        },
+      });
+      netjsonmap.setUtils({
+        // Added to open popup for a specific location Id in selenium tests
+        triggerOnClick: function (id) {
+          const index = netjsonmap?.data?.nodes?.findIndex((n) => n.id === id);
+          const nodeData = netjsonmap?.data?.nodes?.[index];
+          if (index === -1 || !nodeData) {
+            netjsonmap.utils.removeUrlFragment(
+              netjsonmap.config.bookmarkableActions.id,
+            );
+            console.error(`Node with ID "${id}" not found.`);
+            return;
+          }
+          const option = netjsonmap.echarts.getOption();
+          const series = option.series.find(
+            (s) => s.type === "scatter" || s.type === "effectScatter",
+          );
+          const seriesIndex = option.series.indexOf(series);
+          const params = {
+            componentType: "series",
+            componentSubType: series.type,
+            dataIndex: index,
+            data: {
+              ...series.data[index],
+              node: nodeData,
+            },
+            seriesIndex: seriesIndex,
+            seriesType: series.type,
+          };
+          netjsonmap.echarts.trigger("click", params);
+        },
+      });
+      netjsonmap.render();
+      window._geoMap = netjsonmap;
+
+      function createIndoorMapContainer() {
+        const container = document.createElement("div");
+        container.id = "indoormap-container";
+
+        const closeBtn = document.createElement("span");
+        closeBtn.id = "indoormap-close";
+        closeBtn.innerHTML = "&times;";
+
+        const netjsonDiv = document.createElement("div");
+        netjsonDiv.id = "netjson-indoormap";
+
+        container.appendChild(closeBtn);
+        container.appendChild(netjsonDiv);
+
+        return container;
+      }
+
+      function closeButtonHandler(container, indoorMap, onClose) {
+        const closeBtn = container.querySelector("#indoormap-close");
+        closeBtn.addEventListener("click", () => {
+          const id = indoorMap.config.bookmarkableActions.id;
+          indoorMap.utils.removeUrlFragment(id);
+          if (typeof onClose === "function") {
+            onClose();
+          }
+          container.remove();
+        });
+      }
+
+      function openIndoorMap() {
+        let indoorMapContainer = document.getElementById("indoormap-container");
+        if (!indoorMapContainer) {
+          indoorMapContainer = createIndoorMapContainer();
+        }
+        const mapContainer = document.getElementById("map-container");
+        mapContainer.appendChild(indoorMapContainer);
+
+        const indoor = new NetJSONGraph(
+          "../assets/data/netjsonmap-indoormap.json",
+          {
+            el: "#netjson-indoormap",
+            render: "map",
+            mapOptions: {
+              worldCopyJump: false,
+              center: [0, 0],
+              zoom: 0,
+              minZoom: 6,
+              maxZoom: 10,
+              zoomSnap: 0.5,
+              zoomDelta: 0.5,
+              nodeConfig: {
+                label: {
+                  show: false,
+                },
+                animation: false,
+              },
+              baseOptions: {media: [{option: {tooltip: {show: true}}}]},
+            },
+            bookmarkableActions: {
+              enabled: true,
+              id: "indoorMap",
+              zoomOnRestore: false,
+            },
+            prepareData: (data) => {
+              data.nodes.forEach((n) => {
+                n.label = n.name;
+                n.properties = n.properties || {};
+                n.properties.location = n.location;
+              });
+              return data;
+            },
+            onReady: async function () {
+              const map = this.leaflet;
+              // Remove default tile layers
+              map.eachLayer((layer) => layer._url && map.removeLayer(layer));
+
+              const img = new Image();
+              const imageUrl = "../assets/images/floorplan.png";
+              img.src = imageUrl;
+              await img.decode();
+
+              const aspectRatio = img.width / img.height;
+              const h = 700;
+              const w = h * aspectRatio;
+
+              const zoom = map.getMaxZoom() - 1;
+
+              const anchorLatLng = L.latLng(0, 0);
+              const anchorPoint = map.project(anchorLatLng, zoom);
+              const topLeft = L.point(
+                anchorPoint.x - w / 2,
+                anchorPoint.y - h / 2,
+              );
+              const bottomRight = L.point(
+                anchorPoint.x + w / 2,
+                anchorPoint.y + h / 2,
+              );
+
+              const mapOptions = this.echarts.getOption();
+              // Refer netjsonmap-indoormap.html for full explanation of this workaround
+              mapOptions.series[0].data.forEach((data) => {
+                const node = data.node;
+                const px = Number(node.location.lng);
+                const py = -Number(node.location.lat);
+                const nodeProjected = L.point(topLeft.x + px, topLeft.y + py);
+                const nodeLatLng = map.unproject(nodeProjected, zoom);
+                node.location = nodeLatLng;
+                node.properties.location = nodeLatLng;
+                data.value = [nodeLatLng.lng, nodeLatLng.lat];
+              });
+              mapOptions.series[1].data.forEach((data) => {
+                const source = data.coords[0];
+                const sourcePx = Number(source[0]);
+                const sourcePy = -Number(source[1]);
+                const sourceNodeProjected = L.point(
+                  topLeft.x + sourcePx,
+                  topLeft.y + sourcePy,
+                );
+                const sourceNodeLatLng = map.unproject(
+                  sourceNodeProjected,
+                  zoom,
+                );
+
+                const target = data.coords[1];
+                const targetPx = Number(target[0]);
+                const targetPy = -Number(target[1]);
+                const targetNodeProjected = L.point(
+                  topLeft.x + targetPx,
+                  topLeft.y + targetPy,
+                );
+                const targetNodeLatLng = map.unproject(
+                  targetNodeProjected,
+                  zoom,
+                );
+
+                data.coords[0] = [sourceNodeLatLng.lng, sourceNodeLatLng.lat];
+                data.coords[1] = [targetNodeLatLng.lng, targetNodeLatLng.lat];
+              });
+              this.echarts.setOption(mapOptions);
+              const nw = map.unproject(topLeft, zoom);
+              const se = map.unproject(bottomRight, zoom);
+              const bnds = L.latLngBounds(nw, se);
+
+              L.imageOverlay(imageUrl, bnds).addTo(map);
+              map.fitBounds(bnds);
+              map.setMaxBounds(bnds);
+              map.invalidateSize();
+            },
+          },
+        );
+        indoor.setUtils({
+          // Added a utility function to open a specific popup for a node Id in selenium tests
+          triggerOnClick: function (id) {
+            const index = indoor?.data?.nodes?.findIndex((n) => n.id === id);
+            const nodeData = indoor?.data?.nodes?.[index];
+            if (index === -1 || !nodeData) {
+              indoor.utils.removeUrlFragment(
+                indoor.config.bookmarkableActions.id,
+              );
+              console.error(`Node with ID "${id}" not found.`);
+              return;
+            }
+            const option = indoor.echarts.getOption();
+            const series = option.series.find((s) => s.type === "scatter");
+            const seriesIndex = option.series.indexOf(series);
+
+            const params = {
+              componentType: "series",
+              componentSubType: series.type,
+              dataIndex: index,
+              data: {
+                ...series.data[index],
+                node: nodeData,
+              },
+              seriesIndex: seriesIndex,
+              seriesType: series.type,
+            };
+            indoor.echarts.trigger("click", params);
+          },
+        });
+        const popstateHandler = () => {
+          const fragments = indoor.utils.parseUrlFragments();
+          const id = indoor.config.bookmarkableActions.id;
+          if (!fragments[id]) {
+            indoorMapContainer.remove();
+            window.removeEventListener("popstate", popstateHandler);
+          }
+        };
+        window.addEventListener("popstate", popstateHandler);
+        indoor.render();
+        window._indoorMap = indoor;
+        closeButtonHandler(indoorMapContainer, indoor, () => {
+          window.removeEventListener("popstate", popstateHandler);
+        });
+      }
+    </script>
+  </body>
+</html>
