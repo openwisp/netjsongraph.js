@@ -3,11 +3,14 @@
   "version": "0.3.0",
   "description": "NetJSON NetworkGraph visualizer",
   "main": "index.js",
+  "sideEffects": false,
   "scripts": {
     "test": "jest --silent",
     "dev": "webpack serve --open --mode development",
     "start": "yarn dev",
-    "build": "webpack --progress --mode production",
+    "build": "yarn build:full",
+    "build:full": "webpack --progress --mode production --env BUILD_TYPE=full",
+    "build:echarts-only": "webpack --progress --mode production --env BUILD_TYPE=echarts-only",
     "coverage": "jest --silent --coverage",
     "coveralls": "jest --silent -f ./coverage/lcov.info && cat ./coverage/lcov.info | coveralls || echo 'no coverage file found'",
     "precommit": "lint-staged",
@@ -52,6 +55,7 @@
     "@testing-library/jest-dom": "^6.4.2",
     "@types/jest": "^30.0.0",
     "acorn": "^8.11.3",
+    "compression-webpack-plugin": "^11.1.0",
     "copy-webpack-plugin": "^13.0.0",
     "coveralls": "^3.1.1",
     "css-loader": "^7.1.2",
@@ -73,15 +77,23 @@
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "webpack": "^5.90.3",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.0.2"
+    "webpack-dev-server": "^5.0.2",
+    "leaflet": "^1.8.0"
   },
   "dependencies": {
     "echarts": "^5.6.0",
-    "echarts-gl": "^2.0.9",
     "kdbush": "^4.0.2",
-    "leaflet": "^1.8.0",
     "zrender": "^6.0.0"
+  },
+  "peerDependencies": {
+    "leaflet": "^1.8.0"
+  },
+  "peerDependenciesMeta": {
+    "leaflet": {
+      "optional": true
+    }
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

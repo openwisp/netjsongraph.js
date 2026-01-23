@@ -1,27 +1,26 @@
+import {registerCoordinateSystem, registerAction} from "echarts/core";
 import createLeafletCoordSystem from "./LeafletCoordSys";
 import extendLeafletModel from "./LeafletModel";
 import extendLeafletView from "./LeafletView";
+import getLeaflet from "../leaflet-loader";
 
 /**
  * echarts register leaflet coord system
- * @param {object} echarts
- * @param {object} L
- * @param {object} API {
- *   colorTool: "zrender/lib/tool/color",
- *   { each }: "zrender/lib/core/util",
- *   env: "zrender/lib/core/env",
- * }
  */
-function registerLeafletSystem(echarts, L, API) {
-  extendLeafletModel(echarts);
-  extendLeafletView(echarts, L);
+export function registerLeafletSystem() {
+  const L = getLeaflet(true);
+  if (!L) {
+    // Leaflet is not available, so we can't register the Leaflet coordinate system.
+    // This is fine for graph-only rendering.
+    return;
+  }
 
-  echarts.registerCoordinateSystem(
-    "leaflet",
-    createLeafletCoordSystem(echarts, L),
-  );
+  extendLeafletModel();
+  extendLeafletView();
 
-  echarts.registerAction(
+  registerCoordinateSystem("leaflet", createLeafletCoordSystem());
+
+  registerAction(
     {
       type: "leafletRoam",
       event: "leafletRoam",
@@ -31,10 +30,7 @@ function registerLeafletSystem(echarts, L, API) {
       ecModel.eachComponent("leaflet", (leafletModel) => {
         const leaflet = leafletModel.getLeaflet();
         const center = leaflet.getCenter();
-        leafletModel.setCenterAndZoom(
-          [center.lng, center.lat],
-          leaflet.getZoom(),
-        );
+        leafletModel.setCenterAndZoom([center.lng, center.lat], leaflet.getZoom());
       });
     },
   );

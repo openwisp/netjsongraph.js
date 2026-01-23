@@ -141,6 +141,47 @@ yarn install
 yarn start
 ```
 
+## Building the library
+
+The netjsongraph.js library provides **two build variants** to optimize bundle size for different use cases.
+
+By default, `yarn build` executes the full bundle.
+
+### 1. Full Bundle (Recommended for standalone usage)
+
+Build the complete library with all dependencies included:
+
+```bash
+yarn build:full
+```
+
+**Output**:
+
+- `netjsongraph.[hash].min.js` - Complete library with ECharts and Leaflet
+- Compressed versions (`.gz` and `.br`) for optimized delivery
+
+**Use when**: You want a standalone library with all dependencies bundled.
+
+### 2. ECharts-Only Bundle (Optimized for projects with existing Leaflet)
+
+Build the library without Leaflet, expecting it to be provided externally:
+
+```bash
+yarn build:echarts-only
+```
+
+**Output**:
+
+- `netjsongraph.echarts.[hash].min.js` - Library with ECharts only
+- Compressed versions (`.gz` and `.br`)
+
+**Use when**: Your project already includes Leaflet (e.g., via django-leaflet in OpenWISP projects). This reduces bundle size by ~144 KiB.
+
+**Requirements**: Leaflet must be loaded before NetJSONGraph (available as global `L` object).
+
+**Note**: The echarts-only build dynamically loads Leaflet from CDN for map examples.
+For production use, ensure Leaflet is available locally or from a trusted CDN.
+
 ### Run Tests
 
 The test suite includes browser tests, so **ensure that ChromeDriver is installed** before running them.
