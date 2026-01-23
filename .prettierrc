@@ -1,6 +1,5 @@
 {
   "trailingComma": "all",
   "bracketSpacing": false,
-  "tabWidth": 2,
-  "printWidth": 88
+  "tabWidth": 2
 }
