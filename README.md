@@ -143,7 +143,9 @@ yarn start
 
 ## Building the library
 
-NetJSONGraph.js provides **two build variants** to optimize bundle size for different use cases:
+The netjsongraph.js library provides **two build variants** to optimize bundle size for different use cases.
+
+By default, `yarn build` executes the full bundle.
 
 ### 1. Full Bundle (Recommended for standalone usage)
 
@@ -176,6 +178,9 @@ yarn build:echarts-only
 **Use when**: Your project already includes Leaflet (e.g., via django-leaflet in OpenWISP projects). This reduces bundle size by ~144 KiB.
 
 **Requirements**: Leaflet must be loaded before NetJSONGraph (available as global `L` object).
+
+**Note**: The echarts-only build dynamically loads Leaflet from CDN for map examples.
+For production use, ensure Leaflet is available locally or from a trusted CDN.
 
 ### Run Tests
 
