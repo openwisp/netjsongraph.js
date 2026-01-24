@@ -398,22 +398,20 @@ describe("Test move Node in Real Time", () => {
         ],
       },
     ];
-
     const echarts = {
       getOption: jest.fn(() => ({
         series: JSON.parse(JSON.stringify(series)),
       })),
       setOption: jest.fn(),
     };
-
-    const self = {
-      nodeLinkIndex: {
-        "node-1": node,
-      },
+    const mapContext = {
       echarts,
+      nodeLinkIndex: {
+        [node.id]: node,
+      },
     };
 
-    util.moveNodeInRealTime(self, node.id, newLocation);
+    util.moveNodeInRealTime.call(mapContext, node.id, newLocation);
 
     expect(echarts.getOption).toHaveBeenCalled();
     expect(echarts.setOption).toHaveBeenCalled();

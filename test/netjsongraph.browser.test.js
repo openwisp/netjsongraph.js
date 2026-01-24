@@ -367,7 +367,7 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     await driver.executeScript(() => {
       const {map} = window;
-      map.utils.moveNodeInRealTime(map, "172.16.171.15", {
+      map.utils.moveNodeInRealTime("172.16.171.15", {
         lat: 41.90197,
         lng: 12.49071,
       });

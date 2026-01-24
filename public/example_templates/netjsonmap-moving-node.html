@@ -108,7 +108,7 @@
           onReady: () => {
             const moveNode = () => {
               currentIndex = (currentIndex + 1) % route.length;
-              map.utils.moveNodeInRealTime(map, "bus-141", route[currentIndex]);
+              map.utils.moveNodeInRealTime("bus-141", route[currentIndex]);
             };
             setInterval(moveNode, 1500);
           },

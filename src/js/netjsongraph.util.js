@@ -1238,11 +1238,12 @@ class NetJSONGraphUtil {
    *   An object mapping map IDs to their corresponding URLSearchParams.
    */
   parseUrlFragments() {
-    let raw = window.location.hash.replace(/^#/, "");
+    let raw;
     try {
-      raw = decodeURIComponent(raw);
+      raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+      // avoid breaking if the hash contains invalid characters
     } catch (e) {
-      console.warn("parseUrlFragments: invalid hash encoding", e);
+      raw = window.location.hash.replace(/^#/, "");
     }
     const fragments = {};
     raw.split(";").forEach((fragmentStr) => {
@@ -1400,8 +1401,16 @@ class NetJSONGraphUtil {
     };
   }
 
-  moveNodeInRealTime(self, id, location) {
-    const options = self.echarts.getOption();
+  moveNodeInRealTime(id, location) {
+    if (!this.echarts || typeof this.echarts.getOption !== "function") {
+      console.warn("moveNodeInRealTime: ECharts instance not ready");
+      return;
+    }
+    const options = this.echarts.getOption();
+    if (!options || !Array.isArray(options.series)) {
+      console.warn("moveNodeInRealTime: No series data available");
+      return;
+    }
     const series = options.series.find(
       (s) => s.type === "scatter" || s.type === "effectScatter",
     );
@@ -1417,11 +1426,18 @@ class NetJSONGraphUtil {
     const entry = series.data[dataIndex];
     const {node} = entry;
     node.location = location;
+    if (!node.properties) {
+      console.warn(`moveNodeInRealTime: Node properties not found`);
+      return;
+    }
     node.properties.location = location;
     entry.value = [location.lng, location.lat];
-    self.nodeLinkIndex[id].location = location;
-    self.nodeLinkIndex[id].properties.location = location;
-    self.echarts.setOption({
+    this.nodeLinkIndex[id].location = location;
+    if (!this.nodeLinkIndex[id].properties) {
+      return;
+    }
+    this.nodeLinkIndex[id].properties.location = location;
+    this.echarts.setOption({
       series: options.series,
     });
   }
