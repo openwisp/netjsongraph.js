@@ -11,7 +11,7 @@ import {
   printConsoleErrors,
 } from "./browser.test.utils";
 
-jest.setTimeout(60000);
+
 
 describe("Chart Rendering Test", () => {
   let driver;
@@ -26,7 +26,7 @@ describe("Chart Rendering Test", () => {
 
   test("render the Basic usage example without console errors", async () => {
     driver.get(urls.basicUsage);
-    const canvas = await getElementByCss(driver, "canvas", 15000);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
@@ -43,7 +43,7 @@ describe("Chart Rendering Test", () => {
     const leafletContainer = await getElementByCss(
       driver,
       ".ec-extension-leaflet",
-      10000,
+      2000,
     );
     const canvases = await getElementsByCss(
       driver,
@@ -82,8 +82,8 @@ describe("Chart Rendering Test", () => {
 
   test("render floorplan map without console errors", async () => {
     driver.get(urls.indoorMap);
-    const canvas = await getElementByCss(driver, "canvas", 15000);
-    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer");
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
     const consoleErrors = await captureConsoleErrors(driver);
     const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
@@ -98,7 +98,7 @@ describe("Chart Rendering Test", () => {
 
   test("render custom attributes example without errors", async () => {
     driver.get(urls.customAttributes);
-    const canvas = await getElementByCss(driver, "canvas", 15000);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     /* eslint-disable no-unused-vars */
     const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
@@ -110,7 +110,7 @@ describe("Chart Rendering Test", () => {
     );
     const windowHeight = await driver.executeScript("return window.innerHeight");
     expect(canvasHeight).not.toBe(0);
-    expect(Math.abs(canvasHeight - windowHeight)).toBeLessThanOrEqual(100);
+    expect(canvasHeight).toBe(windowHeight);
     const nodesCount = await driver.executeScript("return graph.data.nodes.length");
     const linksCount = await driver.executeScript("return graph.data.links.length");
     expect(nodesCount).toBe(6);
@@ -132,7 +132,7 @@ describe("Chart Rendering Test", () => {
     );
     const windowHeight = await driver.executeScript("return window.innerHeight");
     expect(canvasHeight).not.toBe(0);
-    expect(Math.abs(canvasHeight - windowHeight)).toBeLessThanOrEqual(100);
+    expect(canvasHeight).toBe(windowHeight);
 
     const nodesCount = await driver.executeScript("return graph.data.nodes.length");
     const linksCount = await driver.executeScript("return graph.data.links.length");
@@ -300,7 +300,7 @@ describe("Chart Rendering Test", () => {
     await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
-    const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
+    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -362,34 +362,44 @@ describe("Chart Rendering Test", () => {
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
+  });
 
   test("graph zoom works when scrolling on empty container area", async () => {
-    driver.get(urls.basicUsage);
-    await getElementByCss(driver, "canvas", 15000);
+    await driver.get(urls.basicUsage);
+    await getElementByCss(driver, "canvas", 2000);
 
     const zoomChanged = await driver.executeAsyncScript(`
       const done = arguments[arguments.length - 1];
       const option = graph.echarts.getOption();
-      const initialZoom = option.series[0].zoom || 1;
-      
+      const initialZoom = option?.series?.[0]?.zoom ?? 1;
+
+      const dom = graph.echarts.getDom();
       const zr = graph.echarts.getZr();
-      const canvas = zr.dom;
-      const rect = canvas.getBoundingClientRect();
+      const canvas = zr && zr.dom;
+      if (!dom || !canvas) return done(false);
 
-      canvas.focus();
+      const containerRect = dom.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();    
 
-      canvas.dispatchEvent(new WheelEvent('wheel', {
+      const x = (canvasRect.right + containerRect.right) / 2;
+      const y = (canvasRect.bottom + containerRect.bottom) / 2;    
+    
+
+      dom.dispatchEvent(new WheelEvent('wheel', {
         bubbles: true,
-        clientX: rect.left + rect.width / 2,
-        clientY: rect.top + rect.height / 2,
+        clientX: x,
+        clientY: y,
         deltaY: -120,
         deltaMode: 0
       }));
-      
-      setTimeout(() => {
-        const newZoom = graph.echarts.getOption().series[0].zoom || 1;
-        done(newZoom !== initialZoom);
-      }, 2000);
+      const start = Date.now();
+      (function poll() {
+        const option = graph.echarts.getOption();
+        const newZoom = (option && option.series && option.series[0] && option.series[0].zoom) || 1;
+        if (newZoom !== initialZoom) return done(true);
+        if (Date.now() - start > 2000) return done(false);
+        setTimeout(poll, 50);
+      }());
     `);
 
     expect(zoomChanged).toBe(true);

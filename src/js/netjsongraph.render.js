@@ -429,53 +429,45 @@ class NetJSONGraphRender {
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
 
-    if (typeof self.echarts.getZr === "function") {
-      const zrDom = self.echarts.getZr().dom;
-      if (!zrDom._njgWheelListenerAdded) {
-        zrDom.addEventListener(
-          "wheel",
-          (event) => {
-            if (
-              typeof self.echarts._api !== "undefined" &&
-              typeof self.echarts.dispatchAction === "function"
-            ) {
-              const zoom = event.deltaY < 0 ? 1.2 : 0.8;
-              self.echarts._api.dispatchAction({
-                type: "graphRoam",
-                zoom,
-              });
-            }
-            event.preventDefault();
-          },
-          {passive: false},
-        );
-        zrDom._njgWheelListenerAdded = true;
-      }
-    }
-
     window.onresize = () => {
       self.echarts.resize();
     };
 
-    // Store zoom in series option for test observability
-    self.echarts.on("graphRoam", (params) => {
-      if (typeof params.zoom === "number") {
-        try {
-          const option = self.echarts.getOption();
-          let currentZoom = 1;
-          if (option && Array.isArray(option.series) && option.series.length > 0) {
-            const series = option.series.find((s) => s.id === "network-graph");
-            currentZoom = series && typeof series.zoom === "number" ? series.zoom : 1;
+    // Enable wheel zoom outside graph area
+    const dom = self.echarts.getDom && self.echarts.getDom();
+    if (dom) {
+      dom.addEventListener(
+        "wheel",
+        (e) => {
+          const rect = dom.getBoundingClientRect();
+          if (
+            e.clientX < rect.left ||
+            e.clientX > rect.right ||
+            e.clientY < rect.top ||
+            e.clientY > rect.bottom
+          ) {
+            return;
           }
-          const newZoom = currentZoom * params.zoom;
-          self.echarts.setOption({
-            series: [{id: "network-graph", zoom: newZoom}],
-          });
-        } catch (e) {
-          // handle (or log) error as before
-        }
-      }
-    });
+          e.preventDefault();
+          const canvas = dom.querySelector("canvas");
+          if (canvas) {
+            const r = canvas.getBoundingClientRect();
+            canvas.dispatchEvent(
+              new WheelEvent("wheel", {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: r.left + r.width / 2,
+                clientY: r.top + r.height / 2,
+                deltaY: -e.deltaY,
+                deltaMode: e.deltaMode,
+              }),
+            );
+          }
+        },
+        {passive: false},
+      );
+    }
 
     // Toggle labels on zoom threshold crossing
     if (self.config.showGraphLabelsAtZoom > 0) {
@@ -483,7 +475,7 @@ class NetJSONGraphRender {
         if (!params || !params.zoom) {
           return;
         }
-
+        
         const option = self.echarts.getOption();
         const labelsVisible =
           option &&
