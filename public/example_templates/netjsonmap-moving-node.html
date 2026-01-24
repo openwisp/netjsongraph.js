@@ -92,6 +92,9 @@
               label: {
                 offset: [0, -10],
               },
+              nodeStyle: {
+                color: "#0a6500",
+              }
             },
           },
           prepareData: (data) => {
@@ -108,7 +111,7 @@
               currentIndex = (currentIndex + 1) % route.length;
               map.utils.moveNodeInRealTime(map, "bus-141", route[currentIndex]);
             };
-            setInterval(moveNode, 2000);
+            setInterval(moveNode, 1500);
           },
         },
       );
