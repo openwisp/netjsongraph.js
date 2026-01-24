@@ -475,7 +475,7 @@ class NetJSONGraphRender {
         if (!params || !params.zoom) {
           return;
         }
-        
+
         const option = self.echarts.getOption();
         const labelsVisible =
           option &&

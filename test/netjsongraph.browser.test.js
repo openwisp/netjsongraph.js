@@ -11,8 +11,6 @@ import {
   printConsoleErrors,
 } from "./browser.test.utils";
 
-
-
 describe("Chart Rendering Test", () => {
   let driver;
 
@@ -403,6 +401,5 @@ describe("Chart Rendering Test", () => {
     `);
 
     expect(zoomChanged).toBe(true);
-
   });
 });
