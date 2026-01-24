@@ -923,9 +923,11 @@ yarn start
 </html>
 ```
 
-### Moving nodes in realtime
+### Geographic map nodes moving in realtime
 
-You can move a node programmatically on the map at runtime using the `moveNodeInRealTime` helper in utils. This is useful to animate devices, show mobile nodes, or reflect position updates coming from a realtime source (sockets, polling, etc.).
+You can move a node programmatically on the map at runtime using the `moveNodeInRealTime` helper in utils.
+
+This is useful to animate devices, show mobile nodes, or reflect position updates coming from a realtime source (sockets, polling, etc.).
 
 ```JS
 // .util.moveNodeInRealTime(self, nodeId, location)
