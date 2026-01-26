@@ -412,7 +412,6 @@ describe("Test move Node in Real Time", () => {
     };
 
     util.moveNodeInRealTime.call(mapContext, node.id, newLocation);
-
     expect(echarts.getOption).toHaveBeenCalled();
     expect(echarts.setOption).toHaveBeenCalled();
 

@@ -29,7 +29,7 @@ Plot nodes by geographic coordinates on a Leaflet basemap; pan/zoom with markers
 
 [![Geographic map with nodes moving in real-time](docs/gifs/movingnode.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-moving-node.html)
 
-Visualize devices that update their geographic position dynamically on the map.
+This example demonstrates how to update a node’s coordinates to simulate a moving vehicle.
 
 ### Indoor map
 

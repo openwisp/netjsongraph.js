@@ -58,7 +58,6 @@
         color: red;
         margin-right: 10px;
       }
-
       @media only screen and (max-width: 850px) {
         #legend {
           right: 15px;
@@ -76,9 +75,8 @@
         {lat: 41.90346, lng: 12.50092},
         {lat: 41.89969, lng: 12.49477},
       ];
-
       let currentIndex = 0;
-
+      // global map object accessible for selenium testing
       const map = new NetJSONGraph(
         "../assets/data/netjsonmap-moving-node.json",
         {

@@ -1,9 +1,6 @@
 {
   "type": "NetworkGraph",
-  "label": "Moving Bus Rome",
-  "protocol": "OLSR",
-  "version": "0.6.6.2",
-  "metric": "ETX",
+  "label": "Bus Rome Example",
   "date": "2025-12-04T00:00:00.000Z",
   "nodes": [
     {
