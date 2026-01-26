@@ -362,12 +362,12 @@ describe("Chart Rendering Test", () => {
     expect(canvas).not.toBeNull();
   });
 
-  test("Test utils.moveNodeInRealTime on Geographic map example", async () => {
+  test("moveNodeInRealTime: test in Geographic map example", async () => {
     await driver.get(urls.geographicMap);
     const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
     await driver.executeScript(() => {
-      const {map} = window;
-      map.utils.moveNodeInRealTime("172.16.171.15", {
+      window.map.utils.moveNodeInRealTime("172.16.171.15", {
         lat: 41.90197,
         lng: 12.49071,
       });
@@ -379,8 +379,52 @@ describe("Chart Rendering Test", () => {
       const location = series.data.find((l) => l.name === "Germany-2");
       return location.value;
     });
-    expect(canvas).not.toBeNull();
     expect(coordinate).toEqual([12.49071, 41.90197]);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test("moveNodeInRealTime: render example without console errors", async () => {
+    await driver.get(urls.movingNode);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    expect(leafletContainer).not.toBeNull();
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+
+    // Wait for map to initialize and get initial position
+    await driver.sleep(2000);
+    const initialPosition = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const node = series.data.find((l) => l.name === "Bus 141 Rome");
+      return node ? node.value : null;
+    });
+    expect(initialPosition).not.toBeNull();
+    expect(Array.isArray(initialPosition)).toBe(true);
+    expect(initialPosition).toHaveLength(2);
+
+    // Wait for at least one movement cycle (2 seconds per movement)
+    await driver.sleep(2500);
+
+    // Get new position after movement
+    const newPosition = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const node = series.data.find((l) => l.name === "Bus 141 Rome");
+      return node ? node.value : null;
+    });
+    expect(newPosition).not.toBeNull();
+    expect(Array.isArray(newPosition)).toBe(true);
+    expect(newPosition).toHaveLength(2);
+    // Verify the position has changed
+    expect(newPosition).not.toEqual(initialPosition);
+
+    // Check for console errors
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
