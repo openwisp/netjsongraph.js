@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>netjsongraph.js: basic example</title>
+    <title>netjsongraph.js: JSONDataUpdate append example</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
@@ -13,21 +13,48 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <link href="../assets/css/example-banner.css" rel="stylesheet" />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
   </head>
   <body>
+    <div id="info-banner" class="example-info-banner">
+      <button
+        class="close-btn"
+        onclick="this.parentElement.style.display = 'none'"
+      >
+        Close
+      </button>
+      <strong>JSONDataUpdate - Append Mode:</strong> This example demonstrates
+      appending new data to existing map data based on zoom level.
+      <br />
+      <em
+        >Try zooming in to level 4 to see additional nodes being added to the
+        map.</em
+      >
+    </div>
+    <div id="map-container"></div>
     <script type="text/javascript">
       /*
           The demo is used to show how to use the `JSONDataUpdate` function to update data.
           Here we choose to append data by modify the default parameter.
           See other examples：
           netjson-updateData.html: It chooses override data.
-          netjsonmap-nodeTiles.html: override data by different zoom value.
+          netjsonmap-overrideData.html: override data by different zoom value.
       */
       const folderName = "../assets/data/netjsonAppendData/",
         tilesMap = {
           4: "2.json",
         },
         map = new NetJSONGraph("../assets/data/netjsonAppendData/1.json", {
+          el: "#map-container",
           render: "map",
           // set map initial state.
           mapOptions: {
@@ -42,7 +69,7 @@
 
           // Convert to internal json format
           prepareData: (data) => {
-            data.nodes.map((node) => {
+            data.nodes.forEach((node) => {
               node.label = node.name;
               node.properties = Object.assign(node.properties || {}, {
                 location: node.location,
@@ -51,9 +78,9 @@
           },
 
           onReady: function () {
-            /* 
-                      The map has this property only after the map is rendered, 
-                      so we have to put the relevant function in `onLoad` life cycle  
+            /*
+                      The map has this property only after the map is rendered,
+                      so we have to put the relevant function in `onReady` callback
                   */
             let baseMap = this.leaflet,
               preZoom = this.config.mapZoom;
