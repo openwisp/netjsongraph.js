@@ -333,11 +333,6 @@ class NetJSONGraphRender {
     });
 
     nodesData = nodesData.concat(clusters);
-
-    // Check if labels should be disabled completely
-    const shouldDisableLabels =
-      configs.showMapLabelsAtZoom === false || configs.showMapLabelsAtZoom === null;
-
     const series = [
       {
         id: "geo-map",
@@ -351,7 +346,7 @@ class NetJSONGraphRender {
         animationDuration: 1000,
         label: {
           ...(configs.mapOptions.nodeConfig.label || {}),
-          ...(shouldDisableLabels ? {show: false} : {}),
+          ...(!configs.showMapLabelsAtZoom ? {show: false} : {}),
           silent: true,
         },
         itemStyle: {
@@ -558,28 +553,11 @@ class NetJSONGraphRender {
       }
     }
 
-    // 4. Resolve label visibility threshold
-    let {showMapLabelsAtZoom} = self.config;
-    // Backward Compatibility: Check old name if new one is missing
-    if (showMapLabelsAtZoom === undefined) {
-      if (self.config.showLabelsAtZoomLevel !== undefined) {
-        showMapLabelsAtZoom = self.config.showLabelsAtZoomLevel;
-      } else {
-        showMapLabelsAtZoom = 13;
-      }
-    }
-
-    // If showMapLabelsAtZoom is false, disable labels completely
-    const labelsDisabled =
-      showMapLabelsAtZoom === false || showMapLabelsAtZoom === null;
-
-    let currentZoom = self.leaflet.getZoom();
-    let showLabel =
-      !labelsDisabled &&
-      typeof showMapLabelsAtZoom === "number" &&
-      currentZoom >= showMapLabelsAtZoom;
-
-    if (labelsDisabled || !showLabel) {
+    const {showMapLabelsAtZoom} = self.config;
+    if (
+      !showMapLabelsAtZoom ||
+      (self.leaflet && self.leaflet.getZoom() < showMapLabelsAtZoom)
+    ) {
       self.echarts.setOption({
         series: [
           {
@@ -598,9 +576,13 @@ class NetJSONGraphRender {
       });
     }
 
-    // When a user hovers over a node, we hide the static label so the Tooltip
     self.echarts.on("mouseover", () => {
-      if (!labelsDisabled && showLabel) {
+      // FIX: Removed the variable declaration. We use the one from upper scope.
+      if (
+        showMapLabelsAtZoom &&
+        self.leaflet &&
+        self.leaflet.getZoom() >= showMapLabelsAtZoom
+      ) {
         self.echarts.setOption({
           series: [
             {
@@ -616,7 +598,11 @@ class NetJSONGraphRender {
     });
 
     self.echarts.on("mouseout", () => {
-      if (!labelsDisabled && showLabel) {
+      if (
+        showMapLabelsAtZoom &&
+        self.leaflet &&
+        self.leaflet.getZoom() >= showMapLabelsAtZoom
+      ) {
         self.echarts.setOption({
           series: [
             {
@@ -632,17 +618,14 @@ class NetJSONGraphRender {
     });
 
     self.leaflet.on("zoomend", () => {
-      currentZoom = self.leaflet.getZoom();
-      showLabel =
-        !labelsDisabled &&
-        typeof showMapLabelsAtZoom === "number" &&
-        currentZoom >= showMapLabelsAtZoom;
+      const currentZoom = self.leaflet.getZoom();
+      const show = showMapLabelsAtZoom && currentZoom >= showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
-              show: showLabel,
+              show,
               silent: true,
             },
             emphasis: {
@@ -653,7 +636,6 @@ class NetJSONGraphRender {
           },
         ],
       });
-
       // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
       // Manually handle zoom control state to ensure correct behavior with float zoom levels
       const minZoom = self.leaflet.getMinZoom();
@@ -757,9 +739,9 @@ class NetJSONGraphRender {
             params.componentSubType === "effectScatter") &&
           params.data.cluster
         ) {
-          // Zoom into the clicked cluster instead of expanding it
-          currentZoom = self.leaflet.getZoom();
+          const currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
+
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],
             targetZoom,
