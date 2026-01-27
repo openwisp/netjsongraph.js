@@ -469,7 +469,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render the Clustering example without console errors", async () => {
-    driver.get(urls.clustering);
+    await driver.get(urls.clustering);
     const leafletContainer = await getElementByCss(
       driver,
       ".ec-extension-leaflet",
@@ -489,7 +489,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("clustering works correctly on zoom", async () => {
-    driver.get(urls.clustering);
+    await driver.get(urls.clustering);
     const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
     let click = 0;
     while (click < 5) {
