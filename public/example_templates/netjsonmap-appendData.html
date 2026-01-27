@@ -13,50 +13,49 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
-    <link href="../assets/css/example-banner.css" rel="stylesheet" />
-    <style>
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
+    <!-- used for displaying the info overlay message on top of the page -->
+    <link href="../assets/css/info-overlay.css" rel="stylesheet" />
   </head>
   <body>
-    <div id="info-banner" class="example-info-banner">
+    <div id="info-banner" class="info-overlay">
       <button
         class="close-btn"
         onclick="this.parentElement.style.display = 'none'"
       >
-        Close
+        &#10006;
       </button>
-      <strong>JSONDataUpdate - Append Mode:</strong> This example demonstrates
-      appending new data to existing map data based on zoom level.
-      <br />
-      <em
-        >Try zooming in to level 4 to see additional nodes being added to the
-        map.</em
-      >
+      <h3>JSONDataUpdate: Append</h3>
+      <p>
+        This example demonstrates how to append new data to existing map data
+        based on zoom level.
+      </p>
+      <p>
+        <em
+          >Zoom in toward level 4 to see additional nodes being added to the
+          map.</em
+        >
+      </p>
+      <p><strong>Zoom level</strong>: <span id="zoom-indicator"></span></p>
     </div>
     <div id="map-container"></div>
     <script type="text/javascript">
       /*
-          The demo is used to show how to use the `JSONDataUpdate` function to update data.
-          Here we choose to append data by modify the default parameter.
-          See other examples：
-          netjson-updateData.html: It chooses override data.
-          netjsonmap-overrideData.html: override data by different zoom value.
+        The demo is used to show how to use the `JSONDataUpdate` function to update data.
+        Here we choose to append data by modify the default parameter.
+        See other examples：
+        netjson-updateData.html: It chooses override data.
+        netjsonmap-overrideData.html: override data by different zoom value.
       */
       const folderName = "../assets/data/netjsonAppendData/",
         tilesMap = {
           4: "2.json",
+          5: "2.json",
+          6: "2.json",
         },
         map = new NetJSONGraph("../assets/data/netjsonAppendData/1.json", {
           el: "#map-container",
           render: "map",
-          // set map initial state.
+          // Set map initial state.
           mapOptions: {
             center: [46.86764405052012, 19.675998687744144],
             zoom: 2,
@@ -66,7 +65,6 @@
               },
             },
           },
-
           // Convert to internal json format
           prepareData: (data) => {
             data.nodes.forEach((node) => {
@@ -76,38 +74,48 @@
               });
             });
           },
-
           onReady: function () {
             /*
-                      The map has this property only after the map is rendered,
-                      so we have to put the relevant function in `onReady` callback
-                  */
+              The map has this property only after the map is rendered,
+              so we have to put the relevant function in `onReady` callback
+            */
             let baseMap = this.leaflet,
               preZoom = this.config.mapZoom;
-
+            updateZoom = () => {
+              const zoomIndicator = document.getElementById("zoom-indicator");
+              if (zoomIndicator) {
+                zoomIndicator.innerText = baseMap.getZoom();
+              }
+            };
+            updateZoom();
             /*
-                      Monitor the zoom of the leaflet.
-                      New data is updated if the zoom value reaches the relevant threshold.
-                  */
+              Monitor the zoom of the leaflet.
+              New data is updated if the zoom value reaches the relevant threshold.
+            */
             baseMap.on("zoomstart", () => {
               preZoom = baseMap.getZoom();
             });
             baseMap.on("zoomend", () => {
-              let curZoom = baseMap.getZoom();
+              let curZoom = baseMap.getZoom(),
+                curCenter = baseMap.getCenter();
+              updateZoom();
               if (preZoom !== curZoom && tilesMap[curZoom]) {
+                // Reset map center and zoom
+                this.setConfig({
+                  mapCenter: [curCenter.lat, curCenter.lng],
+                  mapZoom: curZoom,
+                });
                 // append data function
                 this.utils.JSONDataUpdate.call(
                   this,
                   folderName + tilesMap[curZoom],
                   false,
                 );
-
                 Reflect.deleteProperty(tilesMap, curZoom);
               }
             });
           },
         });
-
       map.render();
     </script>
   </body>

@@ -13,35 +13,34 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
-    <link href="../assets/css/example-banner.css" rel="stylesheet" />
-    <style>
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
+    <!-- used for displaying the info overlay message on top of the page -->
+    <link href="../assets/css/info-overlay.css" rel="stylesheet" />
   </head>
   <body>
-    <div id="info-banner" class="example-info-banner">
+    <div id="info-banner" class="info-overlay">
       <button
         class="close-btn"
         onclick="this.parentElement.style.display = 'none'"
       >
-        Close
+        &#10006;
       </button>
-      <strong>Append Data Arrays:</strong> This example demonstrates loading
-      multiple JSON data files at once using an array of URLs.
-      <br />
-      <em>All data sources are loaded and merged automatically at startup.</em>
+      <h3>JSONDataUpdate: Append Arrays</h3>
+      <p>
+        This example demonstrates loading multiple JSON data files at once using
+        an array of URLs.
+      </p>
+      <p>
+        <em
+          >The data is loaded from 3 different data sources and merged
+          automatically at startup.</em
+        >
+      </p>
     </div>
     <div id="map-container"></div>
     <script type="text/javascript">
       /*
-          Using array files to append data step by step at start.
-          Similar to the first method, but easier.
+        Using array files to append data step by step at start.
+        Similar to the first method, but easier.
       */
       const map = new NetJSONGraph(
         [
@@ -52,7 +51,7 @@
         {
           el: "#map-container",
           render: "map",
-          // set map initial state.
+          // Set map initial state.
           mapOptions: {
             center: [46.86764405052012, 19.675998687744144],
             zoom: 2,
@@ -62,7 +61,6 @@
               },
             },
           },
-
           // Convert to internal json format
           prepareData: (data) => {
             data.nodes.forEach((node) => {
@@ -74,7 +72,6 @@
           },
         },
       );
-
       map.render();
     </script>
   </body>
