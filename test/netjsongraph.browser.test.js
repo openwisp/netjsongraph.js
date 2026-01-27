@@ -467,4 +467,48 @@ describe("Chart Rendering Test", () => {
     `);
     expect(zoomChanged).toBe(true);
   });
+
+  test("render the Clustering example without console errors", async () => {
+    driver.get(urls.clustering);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    const legend = await getElementByCss(driver, "#legend", 2000);
+    const canvases = await getElementsByCss(
+      driver,
+      ".ec-extension-leaflet .leaflet-overlay-pane canvas",
+    );
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(leafletContainer).not.toBeNull();
+    expect(legend).not.toBeNull();
+    expect(canvases.length).toBeGreaterThan(0);
+  });
+
+  test("clustering works correctly on zoom", async () => {
+    driver.get(urls.clustering);
+    const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
+    let click = 0;
+    while (click < 5) {
+      // eslint-disable-next-line no-await-in-loop
+      const className = await zoomIn.getAttribute("class");
+      if (className.includes("leaflet-disabled")) {
+        break;
+      }
+      zoomIn.click();
+      click += 1;
+    }
+    await driver.sleep(500);
+    const canvases = await getElementsByCss(
+      driver,
+      ".ec-extension-leaflet .leaflet-overlay-pane canvas",
+    );
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvases.length).toBeGreaterThan(0);
+  });
 });
