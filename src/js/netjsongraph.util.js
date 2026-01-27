@@ -1400,6 +1400,47 @@ class NetJSONGraphUtil {
       self._popstateHandler = null;
     };
   }
+
+  moveNodeInRealTime(id, location) {
+    if (!this.echarts || typeof this.echarts.getOption !== "function") {
+      console.warn("moveNodeInRealTime: ECharts instance not ready");
+      return;
+    }
+    const options = this.echarts.getOption();
+    if (!options || !Array.isArray(options.series)) {
+      console.warn("moveNodeInRealTime: No series data available");
+      return;
+    }
+    const series = options.series.find(
+      (s) => s.type === "scatter" || s.type === "effectScatter",
+    );
+    if (!series) {
+      console.warn(`moveNodeInRealTime: No scatter series found`);
+      return;
+    }
+    const dataIndex = series.data.findIndex((d) => d.node.id === id);
+    if (dataIndex === -1) {
+      console.warn(`moveNodeInRealTime: Node with id "${id}" not found`);
+      return;
+    }
+    const entry = series.data[dataIndex];
+    const {node} = entry;
+    node.location = location;
+    if (!node.properties) {
+      console.warn(`moveNodeInRealTime: Node properties not found`);
+      return;
+    }
+    node.properties.location = location;
+    entry.value = [location.lng, location.lat];
+    this.nodeLinkIndex[id].location = location;
+    if (!this.nodeLinkIndex[id].properties) {
+      return;
+    }
+    this.nodeLinkIndex[id].properties.location = location;
+    this.echarts.setOption({
+      series: options.series,
+    });
+  }
 }
 
 export default NetJSONGraphUtil;
