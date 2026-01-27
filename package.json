@@ -19,7 +19,7 @@
       "prettier --write",
       "git add"
     ],
-    "public/example_templates/**/*.html": [
+    "**/*.html": [
       "prettier --write",
       "git add"
     ]
