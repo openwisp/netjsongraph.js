@@ -419,6 +419,57 @@ class NetJSONGraphRender {
 
   /**
    * @function
+   * @name _propagateGraphZoom
+   *
+   * Enables wheel zoom outside graph canvas area.
+   * @param  {object}  self          NetJSONGraph object
+   *
+   */
+  _propagateGraphZoom(self) {
+    const dom = self.echarts.getDom && self.echarts.getDom();
+    if (!dom) {
+      return;
+    }
+    dom.addEventListener(
+      "wheel",
+      (e) => {
+        const rect = dom.getBoundingClientRect();
+        // if coordinates of mouse are inside the canvas,
+        // zoom will be handled normally
+        if (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        ) {
+          return;
+        }
+        // if we get here it's because the mouse is outside the canvas
+        e.preventDefault();
+        const canvas = dom.querySelector("canvas");
+        if (!canvas) {
+          return;
+        }
+        const r = canvas.getBoundingClientRect();
+        // trigger wheel event in the canvas to propagate zoom
+        canvas.dispatchEvent(
+          new WheelEvent("wheel", {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            clientX: r.left + r.width / 2,
+            clientY: r.top + r.height / 2,
+            deltaY: -e.deltaY,
+            deltaMode: e.deltaMode,
+          }),
+        );
+      },
+      {passive: false},
+    );
+  }
+
+  /**
+   * @function
    * @name graphRender
    *
    * Render the final graph result based on JSONData.
@@ -433,41 +484,7 @@ class NetJSONGraphRender {
       self.echarts.resize();
     };
 
-    // Enable wheel zoom outside graph area
-    const dom = self.echarts.getDom && self.echarts.getDom();
-    if (dom) {
-      dom.addEventListener(
-        "wheel",
-        (e) => {
-          const rect = dom.getBoundingClientRect();
-          if (
-            e.clientX < rect.left ||
-            e.clientX > rect.right ||
-            e.clientY < rect.top ||
-            e.clientY > rect.bottom
-          ) {
-            return;
-          }
-          e.preventDefault();
-          const canvas = dom.querySelector("canvas");
-          if (canvas) {
-            const r = canvas.getBoundingClientRect();
-            canvas.dispatchEvent(
-              new WheelEvent("wheel", {
-                bubbles: true,
-                cancelable: true,
-                view: window,
-                clientX: r.left + r.width / 2,
-                clientY: r.top + r.height / 2,
-                deltaY: -e.deltaY,
-                deltaMode: e.deltaMode,
-              }),
-            );
-          }
-        },
-        {passive: false},
-      );
-    }
+    self.utils._propagateGraphZoom(self);
 
     // Toggle labels on zoom threshold crossing
     if (self.config.showGraphLabelsAtZoom > 0) {

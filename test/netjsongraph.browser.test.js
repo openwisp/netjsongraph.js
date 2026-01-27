@@ -430,10 +430,9 @@ describe("Chart Rendering Test", () => {
     expect(consoleErrors.length).toBe(0);
   });
 
-  test("graph zoom works when scrolling on empty container area", async () => {
+  test("graph: zoom works when scrolling on empty container area", async () => {
     await driver.get(urls.basicUsage);
     await getElementByCss(driver, "canvas", 2000);
-
     const zoomChanged = await driver.executeAsyncScript(`
       const done = arguments[arguments.length - 1];
       const option = graph.echarts.getOption();
@@ -450,7 +449,6 @@ describe("Chart Rendering Test", () => {
       const x = (canvasRect.right + containerRect.right) / 2;
       const y = (canvasRect.bottom + containerRect.bottom) / 2;    
     
-
       dom.dispatchEvent(new WheelEvent('wheel', {
         bubbles: true,
         clientX: x,
@@ -467,7 +465,6 @@ describe("Chart Rendering Test", () => {
         setTimeout(poll, 50);
       }());
     `);
-
     expect(zoomChanged).toBe(true);
   });
 });
