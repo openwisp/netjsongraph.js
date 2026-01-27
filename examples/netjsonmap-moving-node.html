@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><title>netjsongraph.js: moving node example</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/><link href="../lib/css/netjsongraph-theme.css" rel="stylesheet"/><link href="../lib/css/netjsongraph.css" rel="stylesheet"/><style>#legend h4 {
+        margin: 10px 0;
+        text-align: center;
+      }
+      #legend {
+        position: absolute;
+        right: 25px;
+        bottom: 25px;
+        width: auto;
+        height: auto;
+        max-width: 250px;
+        padding: 8px 15px;
+        background: #fbfbfb;
+        border-radius: 8px;
+        color: #000;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        z-index: 1000;
+        user-select: text;
+      }
+      #legend p {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+      }
+      #legend span {
+        width: 16px;
+        margin-right: 5px;
+      }
+      #legend .link-up,
+      #legend .link-down {
+        display: inline-block;
+        height: 5px;
+        border-bottom-width: 6px;
+        border-bottom-style: solid;
+      }
+      #legend .link-up {
+        color: #3acc38;
+        margin-right: 10px;
+      }
+      #legend .link-down {
+        color: red;
+        margin-right: 10px;
+      }
+      @media only screen and (max-width: 850px) {
+        #legend {
+          right: 15px;
+        }
+      }</style><script src="../netjsongraph.min.js"></script></head><body><script>const route = [
+        {lat: 41.90197, lng: 12.49071},
+        {lat: 41.90533, lng: 12.49571},
+        {lat: 41.90445, lng: 12.4971},
+        {lat: 41.90539, lng: 12.49859},
+        {lat: 41.90346, lng: 12.50092},
+        {lat: 41.89969, lng: 12.49477},
+      ];
+      let currentIndex = 0;
+      // global map object accessible for selenium testing
+      const map = new NetJSONGraph(
+        "../assets/data/netjsonmap-moving-node.json",
+        {
+          render: "map",
+          mapOptions: {
+            worldCopyJump: true,
+            center: [41.9028, 12.4964],
+            zoom: 17,
+            nodeConfig: {
+              label: {
+                offset: [0, -10],
+              },
+              nodeStyle: {
+                color: "#0a6500",
+              },
+            },
+          },
+          prepareData: (data) => {
+            data.nodes.forEach((node) => {
+              node.label = node.name;
+              node.properties = Object.assign(node.properties || {}, {
+                location: node.location,
+              });
+            });
+            return data;
+          },
+          onReady: () => {
+            const moveNode = () => {
+              currentIndex = (currentIndex + 1) % route.length;
+              map.utils.moveNodeInRealTime("bus-141", route[currentIndex]);
+            };
+            setInterval(moveNode, 1500);
+          },
+        },
+      );
+      map.render();
+      // required for selenium browser tests
+      window.map = map;</script></body></html>
