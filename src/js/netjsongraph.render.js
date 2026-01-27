@@ -419,6 +419,61 @@ class NetJSONGraphRender {
 
   /**
    * @function
+   * @name _propagateGraphZoom
+   *
+   * Enables wheel zoom outside graph canvas area.
+   * @param  {object}  self          NetJSONGraph object
+   *
+   */
+  _propagateGraphZoom(self) {
+    const dom = self.echarts.getDom && self.echarts.getDom();
+    if (!dom) {
+      return;
+    }
+    const canvas = dom.querySelector("canvas");
+    dom.addEventListener(
+      "wheel",
+      (e) => {
+        if (!canvas) {
+          return;
+        }
+        const rect = dom.getBoundingClientRect();
+        // if coordinates of mouse are inside the canvas,
+        // zoom will be handled normally
+        if (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        ) {
+          // during manual testing I couldn't trigger this
+          // but let's leave it just in case the internals
+          // of the library some day may change
+          return;
+        }
+        // if we get here it's because the mouse is outside the canvas
+        e.preventDefault();
+        const r = canvas.getBoundingClientRect();
+        // trigger wheel event in the canvas to propagate zoom
+        canvas.dispatchEvent(
+          new WheelEvent("wheel", {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            clientX: r.left + r.width / 2,
+            clientY: r.top + r.height / 2,
+            // invert deltaY to match expected zoom direction
+            deltaY: -e.deltaY,
+            deltaMode: e.deltaMode,
+          }),
+        );
+      },
+      {passive: false},
+    );
+  }
+
+  /**
+   * @function
    * @name graphRender
    *
    * Render the final graph result based on JSONData.
@@ -431,7 +486,8 @@ class NetJSONGraphRender {
     window.onresize = () => {
       self.echarts.resize();
     };
-
+    // Handles zoom outside graph area
+    self.utils._propagateGraphZoom(self);
     // Toggle labels on zoom threshold crossing
     if (self.config.showGraphLabelsAtZoom > 0) {
       self.echarts.on("graphRoam", (params) => {

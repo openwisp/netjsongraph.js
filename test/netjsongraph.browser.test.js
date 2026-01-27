@@ -298,7 +298,7 @@ describe("Chart Rendering Test", () => {
     await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
-    const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
+    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -428,5 +428,43 @@ describe("Chart Rendering Test", () => {
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
+  });
+
+  test("graph: zoom works when scrolling on empty container area", async () => {
+    await driver.get(urls.basicUsage);
+    await getElementByCss(driver, "canvas", 2000);
+    const zoomChanged = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      const option = graph.echarts.getOption();
+      const initialZoom = option?.series?.[0]?.zoom ?? 1;
+
+      const dom = graph.echarts.getDom();
+      const zr = graph.echarts.getZr();
+      const canvas = zr && zr.dom;
+      if (!dom || !canvas) return done(false);
+
+      const containerRect = dom.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();    
+
+      const x = (canvasRect.right + containerRect.right) / 2;
+      const y = (canvasRect.bottom + containerRect.bottom) / 2;    
+    
+      dom.dispatchEvent(new WheelEvent('wheel', {
+        bubbles: true,
+        clientX: x,
+        clientY: y,
+        deltaY: -120,
+        deltaMode: 0
+      }));
+      const start = Date.now();
+      (function poll() {
+        const option = graph.echarts.getOption();
+        const newZoom = (option && option.series && option.series[0] && option.series[0].zoom) || 1;
+        if (newZoom !== initialZoom) return done(true);
+        if (Date.now() - start > 2000) return done(false);
+        setTimeout(poll, 50);
+      }());
+    `);
+    expect(zoomChanged).toBe(true);
   });
 });
