@@ -210,7 +210,9 @@ class NetJSONGraphCore {
         },
       },
     );
-
+    if (typeof self.utils.moveNodeInRealTime === "function") {
+      self.utils.moveNodeInRealTime = self.utils.moveNodeInRealTime.bind(self);
+    }
     return self.utils;
   }
 }

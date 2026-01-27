@@ -15,3 +15,5 @@ openwisp-qa-check --skip-checkmigrations \
                   --skip-checkendline \
                   --csslinter \
                   --jslinter
+
+node scripts/ci-knip.js
