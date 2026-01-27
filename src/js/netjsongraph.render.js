@@ -430,9 +430,13 @@ class NetJSONGraphRender {
     if (!dom) {
       return;
     }
+    const canvas = dom.querySelector("canvas");
     dom.addEventListener(
       "wheel",
       (e) => {
+        if (!canvas) {
+          return;
+        }
         const rect = dom.getBoundingClientRect();
         // if coordinates of mouse are inside the canvas,
         // zoom will be handled normally
@@ -442,14 +446,13 @@ class NetJSONGraphRender {
           e.clientY < rect.top ||
           e.clientY > rect.bottom
         ) {
+          // during manual testing I couldn't trigger this
+          // but let's leave it just in case the internals
+          // of the library some day may change
           return;
         }
         // if we get here it's because the mouse is outside the canvas
         e.preventDefault();
-        const canvas = dom.querySelector("canvas");
-        if (!canvas) {
-          return;
-        }
         const r = canvas.getBoundingClientRect();
         // trigger wheel event in the canvas to propagate zoom
         canvas.dispatchEvent(
@@ -459,6 +462,7 @@ class NetJSONGraphRender {
             view: window,
             clientX: r.left + r.width / 2,
             clientY: r.top + r.height / 2,
+            // invert deltaY to match expected zoom direction
             deltaY: -e.deltaY,
             deltaMode: e.deltaMode,
           }),
@@ -479,20 +483,17 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-
     window.onresize = () => {
       self.echarts.resize();
     };
-
+    // Handles zoom outside graph area
     self.utils._propagateGraphZoom(self);
-
     // Toggle labels on zoom threshold crossing
     if (self.config.showGraphLabelsAtZoom > 0) {
       self.echarts.on("graphRoam", (params) => {
         if (!params || !params.zoom) {
           return;
         }
-
         const option = self.echarts.getOption();
         const labelsVisible =
           option &&
