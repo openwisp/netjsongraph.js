@@ -1366,6 +1366,7 @@ describe("graph label visibility and fallbacks", () => {
         echartsSetOption: jest.fn(),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
+        _propagateGraphZoom: jest.fn(),
       },
       echarts: {
         on: jest.fn((evt, cb) => {

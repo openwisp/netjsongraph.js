@@ -25,6 +25,12 @@ Visualize a NetJSON NetworkGraph with pan/zoom, labels and tooltips.
 
 Plot nodes by geographic coordinates on a Leaflet basemap; pan/zoom with markers.
 
+### Geographic map with nodes moving in real-time
+
+[![Geographic map with nodes moving in real-time](docs/gifs/movingnode.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-moving-node.html)
+
+This example demonstrates how to update a node’s coordinates to simulate a moving vehicle.
+
 ### Indoor map
 
 [![Indoor map](docs/gifs/netjsonmap-indoormap.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
@@ -925,6 +931,22 @@ yarn start
 </body>
 </html>
 ```
+
+### Geographic map nodes moving in realtime
+
+You can move a node programmatically on the map at runtime using the `moveNodeInRealTime` helper in utils.
+
+This is useful to animate devices, show mobile nodes, or reflect position updates coming from a realtime source (sockets, polling, etc.).
+
+You can see this feature in action in the following example: [Geographic map nodes moving in realtime](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-moving-node.html).
+
+```JS
+// .util.moveNodeInRealTime(nodeId, location)
+moveNodeInRealTime(id, location)
+```
+
+- `id` - the node id (string) to move.
+- `location` - `{lat: number, lng: number}`
 
 ### Upgrading from 0.1.x versions to 0.2.x
 

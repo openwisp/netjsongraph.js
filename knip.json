@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "project": ["src/**/*.js", "test/**/*.js"],
+  "ignore": ["examples/**", "lib/js/**", "public/**", "scripts/**"],
+  "ignoreBinaries": ["wait-on"]
+}
