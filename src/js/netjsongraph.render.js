@@ -334,6 +334,10 @@ class NetJSONGraphRender {
 
     nodesData = nodesData.concat(clusters);
 
+    // Check if labels should be disabled completely
+    const shouldDisableLabels =
+      configs.showMapLabelsAtZoom === false || configs.showMapLabelsAtZoom === null;
+
     const series = [
       {
         id: "geo-map",
@@ -347,6 +351,7 @@ class NetJSONGraphRender {
         animationDuration: 1000,
         label: {
           ...(configs.mapOptions.nodeConfig.label || {}),
+          ...(shouldDisableLabels ? {show: false} : {}),
           silent: true,
         },
         itemStyle: {
@@ -555,19 +560,26 @@ class NetJSONGraphRender {
 
     // 4. Resolve label visibility threshold
     let {showMapLabelsAtZoom} = self.config;
+    // Backward Compatibility: Check old name if new one is missing
     if (showMapLabelsAtZoom === undefined) {
-      if (self.config.showMapLabelsAtZoom !== undefined) {
-        showMapLabelsAtZoom = self.config.showMapLabelsAtZoom;
+      if (self.config.showLabelsAtZoomLevel !== undefined) {
+        showMapLabelsAtZoom = self.config.showLabelsAtZoomLevel;
       } else {
         showMapLabelsAtZoom = 13;
       }
     }
 
+    // If showMapLabelsAtZoom is false, disable labels completely
+    const labelsDisabled =
+      showMapLabelsAtZoom === false || showMapLabelsAtZoom === null;
+
     let currentZoom = self.leaflet.getZoom();
     let showLabel =
-      typeof showMapLabelsAtZoom === "number" && currentZoom >= showMapLabelsAtZoom;
+      !labelsDisabled &&
+      typeof showMapLabelsAtZoom === "number" &&
+      currentZoom >= showMapLabelsAtZoom;
 
-    if (!showLabel) {
+    if (labelsDisabled || !showLabel) {
       self.echarts.setOption({
         series: [
           {
@@ -588,7 +600,7 @@ class NetJSONGraphRender {
 
     // When a user hovers over a node, we hide the static label so the Tooltip
     self.echarts.on("mouseover", () => {
-      if (showLabel) {
+      if (!labelsDisabled && showLabel) {
         self.echarts.setOption({
           series: [
             {
@@ -604,7 +616,7 @@ class NetJSONGraphRender {
     });
 
     self.echarts.on("mouseout", () => {
-      if (showLabel) {
+      if (!labelsDisabled && showLabel) {
         self.echarts.setOption({
           series: [
             {
@@ -621,7 +633,10 @@ class NetJSONGraphRender {
 
     self.leaflet.on("zoomend", () => {
       currentZoom = self.leaflet.getZoom();
-      showLabel = currentZoom >= self.config.showMapLabelsAtZoom;
+      showLabel =
+        !labelsDisabled &&
+        typeof showMapLabelsAtZoom === "number" &&
+        currentZoom >= showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {

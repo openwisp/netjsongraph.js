@@ -1539,11 +1539,13 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
         isGeoJSON: jest.fn(() => true),
         geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         // KEY FIX: Add silent: true to the mock return so the test passes
         generateMapOption: jest.fn(() => ({
           series: [{id: "geo-map", label: {show: true, silent: true}}],
         })),
         echartsSetOption: jest.fn((opt) => mockSelf.echarts.setOption(opt)), // Link to spy
+        setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},
     };
@@ -1610,5 +1612,92 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     const showCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
     const shownSeries = showCall.series.find((s) => s.id === "geo-map");
     expect(shownSeries.label.show).toBe(true);
+  });
+
+  test("labels are completely disabled when showMapLabelsAtZoom is false", () => {
+    // 1. Setup: Set showMapLabelsAtZoom to false to disable labels completely
+    mockSelf.config.showMapLabelsAtZoom = false;
+    mockLeaflet.getZoom.mockReturnValue(15); // High zoom level
+
+    // Reset mocks to track calls
+    mockSelf.echarts.setOption.mockClear();
+
+    // Mock generateMapOption to return a series with label config
+    mockSelf.utils.generateMapOption.mockReturnValue({
+      series: [{id: "geo-map", label: {show: true, silent: true}}],
+      leaflet: {tiles: [{}], mapOptions: {}},
+    });
+
+    // 2. Call mapRender
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    // 3. Verify labels are disabled via setOption call after mapRender
+    // mapRender should call setOption to disable labels when showMapLabelsAtZoom is false
+    const setOptionCalls = mockSelf.echarts.setOption.mock.calls;
+    expect(setOptionCalls.length).toBeGreaterThan(0);
+
+    // Find the call that disables labels (should have show: false)
+    const disableLabelsCall = setOptionCalls.find((call) => {
+      const option = call[0];
+      return (
+        option.series &&
+        option.series.some(
+          (s) => s.id === "geo-map" && s.label && s.label.show === false,
+        )
+      );
+    });
+    expect(disableLabelsCall).toBeDefined();
+    const disabledSeries = disableLabelsCall[0].series.find((s) => s.id === "geo-map");
+    expect(disabledSeries.label.show).toBe(false);
+    expect(disabledSeries.emphasis.label.show).toBe(false);
+
+    // 4. Verify labels remain disabled even at high zoom levels (zoomend handler)
+    const zoomHandler = capturedEvents.zoomend;
+    expect(zoomHandler).toBeDefined();
+    mockLeaflet.getZoom.mockReturnValue(18); // Very high zoom
+    const callsBeforeZoom = mockSelf.echarts.setOption.mock.calls.length;
+    zoomHandler();
+
+    // Verify setOption was called
+    expect(mockSelf.echarts.setOption.mock.calls.length).toBeGreaterThan(
+      callsBeforeZoom,
+    );
+    const zoomSetOptionCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
+    const zoomSeries = zoomSetOptionCall.series.find((s) => s.id === "geo-map");
+    expect(zoomSeries.label.show).toBe(false);
+
+    // 5. Verify labels remain disabled even at low zoom levels
+    mockLeaflet.getZoom.mockReturnValue(5); // Low zoom
+    zoomHandler();
+    const lowZoomSetOptionCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
+    const lowZoomSeries = lowZoomSetOptionCall.series.find((s) => s.id === "geo-map");
+    expect(lowZoomSeries.label.show).toBe(false);
+
+    // 6. Verify hover/unhover handlers don't show labels (they check !labelsDisabled)
+    const mouseOverCall = mockSelf.echarts.on.mock.calls.find(
+      (c) => c[0] === "mouseover",
+    );
+    const mouseOutCall = mockSelf.echarts.on.mock.calls.find(
+      (c) => c[0] === "mouseout",
+    );
+
+    expect(mouseOverCall).toBeDefined();
+    expect(mouseOutCall).toBeDefined();
+
+    const onHover = mouseOverCall[1];
+    const onUnhover = mouseOutCall[1];
+
+    // Simulate hover - handler should not call setOption because labelsDisabled is true
+    const callsBeforeHover = mockSelf.echarts.setOption.mock.calls.length;
+    onHover();
+    // Since labelsDisabled is true, the handler checks !labelsDisabled && showLabel
+    // which is false, so setOption should not be called
+    expect(mockSelf.echarts.setOption.mock.calls.length).toBe(callsBeforeHover);
+
+    // Simulate unhover - handler should not call setOption because labelsDisabled is true
+    const callsBeforeUnhover = mockSelf.echarts.setOption.mock.calls.length;
+    onUnhover();
+    // Since labelsDisabled is true, the handler should not call setOption
+    expect(mockSelf.echarts.setOption.mock.calls.length).toBe(callsBeforeUnhover);
   });
 });
