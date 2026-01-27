@@ -1,8 +1,8 @@
 import "@testing-library/jest-dom";
-import NetJSONGraph from "../src/js/netjsongraph.core";
+import NetJSONGraphCore from "../src/js/netjsongraph.core";
 import NetJSONGraphGUI from "../src/js/netjsongraph.gui";
 
-const graph = new NetJSONGraph({
+const graph = new NetJSONGraphCore({
   type: "NetworkGraph",
   label: "Ninux Roma",
   protocol: "OLSR",
@@ -12,7 +12,7 @@ const graph = new NetJSONGraph({
   links: [],
 });
 
-// Package NetJSONGraph instance object.
+// Package NetJSONGraphCore instance object.
 graph.event = graph.utils.createEvent();
 graph.gui = new NetJSONGraphGUI(graph);
 graph.setConfig({

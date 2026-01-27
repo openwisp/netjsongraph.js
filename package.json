@@ -18,6 +18,10 @@
     "src/**/*.js": [
       "prettier --write",
       "git add"
+    ],
+    "**/*.html": [
+      "prettier --write",
+      "git add"
     ]
   },
   "jest": {

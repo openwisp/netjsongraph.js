@@ -296,6 +296,12 @@ const NetJSONGraphDefaultConfig = {
     },
   ],
   linkCategories: [],
+  bookmarkableActions: {
+    enabled: false,
+    id: null,
+    zoomOnRestore: true,
+    zoomLevel: null,
+  },
 
   /**
    * @function

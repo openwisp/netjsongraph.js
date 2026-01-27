@@ -1,53 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     <title>Live update example</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <!-- theme can be easily customized via css -->
-    <link href="/netjsongraph.css" rel="stylesheet">
-    <link href="/netjsongraph-theme.css" rel="stylesheet">
-</head>
-<body>
-    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+    <link href="/netjsongraph.css" rel="stylesheet" />
+    <link href="/netjsongraph-theme.css" rel="stylesheet" />
+  </head>
+  <body>
+    <script
+      src="https://cdn.socket.io/4.5.0/socket.io.min.js"
+      integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
+      crossorigin="anonymous"
+    ></script>
     <script type="text/javascript" src="/netjsongraph.min.js"></script>
     <script type="text/javascript">
-        /*
+      /*
             The demo is used to show how to use the `JSONDataUpdate` function to update data.
             In this example we use socket.io to listen for server messages.
             Adopted the default parameters of function -- 
             overrride old data and deal with the new data with the processing function set in config.
             See other examples：
         */
-        // `graph` render by default.
-        const graph = new NetJSONGraph("/netjsonmap.json",{
-          echartsOption: {
-              legend: {
-                show: false,
-              },
-              title:{
-                text:'Live update example',
-                textStyle:{
-                  color:'#fff',
-                  fontSize:24,
-                },
-                left:'center',
-                top:20,
-              }
+      // `graph` render by default.
+      const graph = new NetJSONGraph("/netjsonmap.json", {
+        echartsOption: {
+          legend: {
+            show: false,
+          },
+          title: {
+            text: "Live update example",
+            textStyle: {
+              color: "#fff",
+              fontSize: 24,
             },
-        });
+            left: "center",
+            top: 20,
+          },
+        },
+      });
 
-        graph.render();
+      graph.render();
 
-        const socket = io("http://localhost:3000/",{ transports : ['websocket'] });
+      const socket = io("http://localhost:3000/", {transports: ["websocket"]});
 
-        socket.on("connect", function() {
-          console.log("client connected");
-        });
-        socket.on("disconnect", function() {
-          console.log("client disconnected");
-        });
+      socket.on("connect", function () {
+        console.log("client connected");
+      });
+      socket.on("disconnect", function () {
+        console.log("client disconnected");
+      });
 
-        // Update view when the data changes. override old data by default.
-        socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
+      // Update view when the data changes. override old data by default.
+      socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
     </script>
+  </body>
 </html>

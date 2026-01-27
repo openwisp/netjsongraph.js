@@ -25,6 +25,16 @@ echarts.use([
   GraphicComponent,
 ]);
 
+/**
+ * @class
+ * NetJSONGraphRender - Rendering utilities and visualization engine integration.
+ *
+ * Main Responsibilities:
+ * - Provides mapRender() and graphRender() methods for different view modes
+ * - Integrates ECharts and Leaflet for network topology visualization
+ * - Handles interactive features like tooltips and legends
+ * - Manages node clustering and styling
+ */
 class NetJSONGraphRender {
   /**
    * @function
@@ -93,6 +103,7 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
+        self.utils.addActionToUrl(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
@@ -128,7 +139,7 @@ class NetJSONGraphRender {
     const categories = [];
     const configs = self.config;
     const nodes = JSONData.nodes.map((node) => {
-      const nodeResult = JSON.parse(JSON.stringify(node));
+      const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
 
@@ -149,20 +160,18 @@ class NetJSONGraphRender {
       nodeResult.name = resolvedName;
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
-      nodeResult._source = JSON.parse(JSON.stringify(node));
+      nodeResult._source = self.utils.fastDeepCopy(node);
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
-      const linkResult = JSON.parse(JSON.stringify(link));
+      const linkResult = self.utils.fastDeepCopy(link);
       const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
         link,
         configs,
         "graph",
       );
-
       linkResult.lineStyle = linkStyleConfig;
       linkResult.emphasis = {lineStyle: linkEmphasisConfig.linkStyle};
-
       return linkResult;
     });
 
@@ -245,7 +254,7 @@ class NetJSONGraphRender {
       if (node.properties) {
         // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
         if (!JSONData.flatNodes) {
-          flatNodes[node.id] = JSON.parse(JSON.stringify(node));
+          flatNodes[node.id] = self.utils.fastDeepCopy(node);
         }
       }
 
@@ -285,7 +294,7 @@ class NetJSONGraphRender {
               symbolSize: nodeEmphasisConfig.nodeSize,
             },
             node,
-            _source: JSON.parse(JSON.stringify(node)),
+            _source: self.utils.fastDeepCopy(node),
           });
         }
       }
@@ -425,7 +434,6 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-
     window.onresize = () => {
       self.echarts.resize();
     };
@@ -449,9 +457,12 @@ class NetJSONGraphRender {
       });
     }
 
+    self.utils.setupHashChangeHandler(self);
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
@@ -472,7 +483,7 @@ class NetJSONGraphRender {
     // deep-copy it for polygon overlays and convert the working copy to
     // NetJSON so the rest of the pipeline can operate uniformly.
     if (self.utils.isGeoJSON(JSONData)) {
-      self.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
+      self.originalGeoJSON = self.utils.fastDeepCopy(JSONData);
       JSONData = self.utils.geojsonToNetjson(JSONData);
       // From this point forward we treat the data as NetJSON internally,
       // but keep the public-facing `type` value unchanged ("geojson").
@@ -748,9 +759,11 @@ class NetJSONGraphRender {
     }
     }
 
+    self.utils.setupHashChangeHandler(self);
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**

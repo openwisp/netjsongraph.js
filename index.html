@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <title>netjsongraph.js: Examples</title>
+    <title>Netjsongraph.js: Examples</title>
     <meta charset="utf-8" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,12 +33,13 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        transition: background-color var(--transition-speed) ease,
-                    color var(--transition-speed) ease;
+        transition:
+          background-color var(--transition-speed) ease,
+          color var(--transition-speed) ease;
       }
 
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: "Inter", sans-serif;
         background-color: var(--bg-primary);
         color: var(--text-primary);
         line-height: 1.6;
@@ -141,10 +142,67 @@
 
     <main>
       <div class="cards">
-        <a href="./examples/netjsongraph.html" target="_blank">Basic usage</a>
+        <a href="./examples/netjsongraph.html" target="_blank"
+          >Standard graph</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsongraph-elementsLegend.html" target="_blank"
+          >Graph with custom attributes &amp; legend</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsongraph-wifi-clients.html" target="_blank"
+          >WiFi clients graph</a
+        >
       </div>
       <div class="cards">
         <a href="./examples/netjsonmap.html" target="_blank">Geographic map</a>
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-clustering.html" target="_blank"
+          >Geo map with clusters</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/njg-geojson.html" target="_blank"
+          >Geo map GeoJSON</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-multipleTiles.html" target="_blank"
+          >Geo map with tile switch</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-switchRenderMode.html" target="_blank"
+          >Switch render mode (Canvas/SVG)</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjson-switchGraphMode.html" target="_blank"
+          >Switch graph mode (Geographic/Graph)</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-moving-node.html" target="_blank"
+          >Geo map with nodes moving in real-time</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-indoormap.html" target="_blank"
+          >Indoor map (simple)</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-indoormap-overlay.html" target="_blank"
+          >Geo map and drill down to indoor maps</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsonmap-plugins.html" target="_blank"
+          >Geo map &amp; leaflet plugins</a
+        >
       </div>
       <div class="cards">
         <a href="./examples/netjson-multipleInterfaces.html" target="_blank"
@@ -162,46 +220,6 @@
         >
       </div>
       <div class="cards">
-        <a href="./examples/netjson-switchRenderMode.html" target="_blank"
-          >Switch render mode</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjson-switchGraphMode.html" target="_blank"
-          >Switch graph mode</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjsongraph-nodeExpand.html" target="_blank"
-          >Nodes expand or fold</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjsonmap-indoormap.html" target="_blank"
-          >Indoor map</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjsonmap-plugins.html" target="_blank"
-          >Leaflet plugins</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjsongraph-graphGL.html" target="_blank"
-          >GraphGL render for big data</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjsongraph-elementsLegend.html" target="_blank"
-          >Custom attributes</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjsongraph-multipleLinks.html" target="_blank"
-          >Multiple links render</a
-        >
-      </div>
-      <div class="cards">
         <a href="./examples/netjsonmap-nodeTiles.html" target="_blank"
           >JSONDataUpdate using override option</a
         >
@@ -212,8 +230,18 @@
         >
       </div>
       <div class="cards">
-        <a href="./examples/netjsonmap-multipleTiles.html" target="_blank"
-          >Multiple tiles render</a
+        <a href="./examples/netjsonmap-appendData2.html" target="_blank"
+          >Append data using arrays</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsongraph-multipleLinks.html" target="_blank"
+          >Multiple links render</a
+        >
+      </div>
+      <div class="cards">
+        <a href="./examples/netjsongraph-graphGL.html" target="_blank"
+          >GraphGL render for big data</a
         >
       </div>
       <div class="cards">
@@ -222,45 +250,34 @@
         >
       </div>
       <div class="cards">
-        <a href="./examples/netjsonmap-appendData2.html" target="_blank"
-          >Append data using arrays</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/njg-geojson.html" target="_blank"
-          >Geographic map with GeoJSON data</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjson-clustering.html" target="_blank"
-          >Clustering</a
-        >
-      </div>
-      <div class="cards">
-        <a href="./examples/netjsongraph-wifi-clients.html" target="_blank"
-          >WiFi Clients Graph</a
+        <a href="./examples/netjsongraph-nodeExpand.html" target="_blank"
+          >Nodes expand or fold</a
         >
       </div>
     </main>
 
     <script>
-      const themeToggle = document.querySelector('.theme-toggle');
+      const themeToggle = document.querySelector(".theme-toggle");
       const htmlElement = document.documentElement;
 
       // Check for saved theme preference or system preference
-      const savedTheme = localStorage.getItem('theme');
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const savedTheme = localStorage.getItem("theme");
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
 
-      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-        htmlElement.classList.add('dark-mode');
+      if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
+        htmlElement.classList.add("dark-mode");
       }
 
-      themeToggle.addEventListener('click', () => {
-        htmlElement.classList.toggle('dark-mode');
-        
+      themeToggle.addEventListener("click", () => {
+        htmlElement.classList.toggle("dark-mode");
+
         // Save theme preference
-        const currentTheme = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', currentTheme);
+        const currentTheme = htmlElement.classList.contains("dark-mode")
+          ? "dark"
+          : "light";
+        localStorage.setItem("theme", currentTheme);
       });
     </script>
   </body>
