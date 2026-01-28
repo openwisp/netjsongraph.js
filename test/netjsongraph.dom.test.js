@@ -303,7 +303,8 @@ describe("Test netjsongraph gui", () => {
     expect(graph.gui.sideBar).toBe(null);
     graph.gui.init();
     expect(graph.gui.sideBar).not.toBe(null);
-    expect(graph.gui.controls).toBe(null);
+    expect(graph.gui.controls).not.toBe(null);
+    expect(graph.gui.controls.querySelector(".njg-themeControl")).not.toBe(null);
     expect(graph.gui.renderModeSelector).toBe(null);
     graph.setConfig({
       switchMode: true,
