@@ -471,7 +471,11 @@ describe("Chart Rendering Test", () => {
   test("clustering: renders without errors and works correctly on zoom", async () => {
     await driver.get(urls.clustering);
     // Wait for map to load
-    const leafletContainer = await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
     // check for presence of legend and canvas
     const legend = await getElementByCss(driver, "#legend", 2000);
     const canvases = await getElementsByCss(
