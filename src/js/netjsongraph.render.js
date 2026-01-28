@@ -57,6 +57,7 @@ class NetJSONGraphRender {
 
         tooltip: {
           confine: true,
+          hideDelay: 0,
           position: (pos, params, dom, rect, size) => {
             let position = "right";
             if (size.viewSize[0] - pos[0] < size.contentSize[0]) {
@@ -178,6 +179,9 @@ class NetJSONGraphRender {
     // Clone label config to avoid mutating defaults
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
+
+    // Added this for label hover issue
+    baseGraphLabel.silent = true;
 
     // Shared helper to get current graph zoom level
     const getGraphZoom = () => {
@@ -330,6 +334,10 @@ class NetJSONGraphRender {
 
     nodesData = nodesData.concat(clusters);
 
+    // Check if labels should be disabled completely
+    const shouldDisableLabels =
+      configs.showMapLabelsAtZoom === false || configs.showMapLabelsAtZoom === null;
+
     const series = [
       {
         id: "geo-map",
@@ -341,7 +349,11 @@ class NetJSONGraphRender {
         coordinateSystem: "leaflet",
         data: nodesData,
         animationDuration: 1000,
-        label: configs.mapOptions.nodeConfig.label,
+        label: {
+          ...(configs.mapOptions.nodeConfig.label || {}),
+          ...(shouldDisableLabels ? {show: false} : {}),
+          silent: true,
+        },
         itemStyle: {
           color: (params) => {
             if (
@@ -602,13 +614,35 @@ class NetJSONGraphRender {
       }
     }
 
-    if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
+    // 4. Resolve label visibility threshold
+    let {showMapLabelsAtZoom} = self.config;
+    // Backward Compatibility: Check old name if new one is missing
+    if (showMapLabelsAtZoom === undefined) {
+      if (self.config.showLabelsAtZoomLevel !== undefined) {
+        showMapLabelsAtZoom = self.config.showLabelsAtZoomLevel;
+      } else {
+        showMapLabelsAtZoom = 13;
+      }
+    }
+
+    // If showMapLabelsAtZoom is false, disable labels completely
+    const labelsDisabled =
+      showMapLabelsAtZoom === false || showMapLabelsAtZoom === null;
+
+    let currentZoom = self.leaflet.getZoom();
+    let showLabel =
+      !labelsDisabled &&
+      typeof showMapLabelsAtZoom === "number" &&
+      currentZoom >= showMapLabelsAtZoom;
+
+    if (labelsDisabled || !showLabel) {
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
               show: false,
+              silent: true,
             },
             emphasis: {
               label: {
@@ -620,19 +654,56 @@ class NetJSONGraphRender {
       });
     }
 
+    // When a user hovers over a node, we hide the static label so the Tooltip
+    self.echarts.on("mouseover", () => {
+      if (!labelsDisabled && showLabel) {
+        self.echarts.setOption({
+          series: [
+            {
+              id: "geo-map",
+              label: {
+                show: false,
+                silent: true,
+              },
+            },
+          ],
+        });
+      }
+    });
+
+    self.echarts.on("mouseout", () => {
+      if (!labelsDisabled && showLabel) {
+        self.echarts.setOption({
+          series: [
+            {
+              id: "geo-map",
+              label: {
+                show: true,
+                silent: true,
+              },
+            },
+          ],
+        });
+      }
+    });
+
     self.leaflet.on("zoomend", () => {
-      const currentZoom = self.leaflet.getZoom();
-      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
+      currentZoom = self.leaflet.getZoom();
+      showLabel =
+        !labelsDisabled &&
+        typeof showMapLabelsAtZoom === "number" &&
+        currentZoom >= showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
               show: showLabel,
+              silent: true,
             },
             emphasis: {
               label: {
-                show: showLabel,
+                show: false,
               },
             },
           },
@@ -743,7 +814,7 @@ class NetJSONGraphRender {
           params.data.cluster
         ) {
           // Zoom into the clicked cluster instead of expanding it
-          const currentZoom = self.leaflet.getZoom();
+          currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],

@@ -253,12 +253,15 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   Whether to allow switching between graph and map render or not. You can also set it `true` to enable it.
 
-- `showLabelsAtZoomLevel`
+- `showMapLabelsAtZoom`
 
-  **Default**: `7`
+  **Default**: `13`
 
-  The zoom level at which the labels are shown. This only works when `render` is set to `map`.
-  In graph mode, the overlapping labels are hidden automatically when zooming.
+  Controls when map labels are shown. This only works when `render` is set to `map`.
+  - If set to `false`, labels are completely disabled and will never be shown.
+  - If set to a number (e.g., `13`), labels will be shown when the map zoom level is greater than or equal to that value.
+
+  In graph mode, the overlapping labels are hidden automatically when zooming (use `showGraphLabelsAtZoom` for graph mode).
 
 - `showGraphLabelsAtZoom`
 
