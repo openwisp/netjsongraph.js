@@ -97,7 +97,6 @@
         //   {name: "critical", nodeStyle: {color: "#c92517"}},
         // ]
       });
-
       // Build legend UI
       const createLegend = (key, className) => {
         const legendItem = document.createElement("p");
@@ -108,7 +107,6 @@
         legendItem.innerHTML += key;
         return legendItem;
       };
-
       const legends = document.createElement("div");
       legends.setAttribute("id", "legend");
       const legendsHeader = document.createElement("h4");
@@ -118,13 +116,10 @@
       legends.appendChild(createLegend("Problem", "status-problem"));
       legends.appendChild(createLegend("Critical", "status-critical"));
       document.body.appendChild(legends);
-
-      // Render map
-      try {
-        map.render();
-      } catch (e) {
-        console.error("Error initializing NetJSONGraph:", e);
-      }
+      // Render
+      map.render();
+      // Required for selenium tests
+      window.map = map;
     </script>
   </body>
 </html>

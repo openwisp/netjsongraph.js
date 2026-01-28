@@ -468,31 +468,29 @@ describe("Chart Rendering Test", () => {
     expect(zoomChanged).toBe(true);
   });
 
-  test("render the Clustering example without console errors", async () => {
+  test("clustering: renders without errors and works correctly on zoom", async () => {
     await driver.get(urls.clustering);
-    const leafletContainer = await getElementByCss(
-      driver,
-      ".ec-extension-leaflet",
-      2000,
-    );
+    // Wait for map to load
+    const leafletContainer = await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+    // check for presence of legend and canvas
     const legend = await getElementByCss(driver, "#legend", 2000);
     const canvases = await getElementsByCss(
       driver,
       ".ec-extension-leaflet .leaflet-overlay-pane canvas",
     );
-    const consoleErrors = await captureConsoleErrors(driver);
-    printConsoleErrors(consoleErrors);
-    expect(consoleErrors.length).toBe(0);
     expect(leafletContainer).not.toBeNull();
     expect(legend).not.toBeNull();
     expect(canvases.length).toBeGreaterThan(0);
-  });
-
-  test("clustering works correctly on zoom", async () => {
-    await driver.get(urls.clustering);
+    // Get initial node count at low zoom (should have fewer nodes due to clustering)
+    const initialNodeCount = await driver.executeScript(`
+      const option = window.map.echarts.getOption();
+      const series = option.series.find(s => s.type === 'scatter');
+      return series ? series.data.length : 0;
+    `);
+    // Zoom in to disable clustering (at higher zoom levels)
     const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
     let click = 0;
-    while (click < 5) {
+    while (click < 10) {
       // eslint-disable-next-line no-await-in-loop
       const className = await zoomIn.getAttribute("class");
       if (className.includes("leaflet-disabled")) {
@@ -501,14 +499,23 @@ describe("Chart Rendering Test", () => {
       zoomIn.click();
       click += 1;
     }
-    await driver.sleep(500);
-    const canvases = await getElementsByCss(
-      driver,
-      ".ec-extension-leaflet .leaflet-overlay-pane canvas",
-    );
+    await driver.sleep(1000); // Wait for clustering to update
+    // Get node count at high zoom (should have more nodes when clustering is disabled)
+    const finalNodeCount = await driver.executeScript(`
+      const option = window.map.echarts.getOption();
+      const series = option.series.find(s => s.type === 'scatter');
+      return series ? series.data.length : 0;
+    `);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
-    expect(canvases.length).toBeGreaterThan(0);
+    // At high zoom, we should see more individual nodes (clustering disabled)
+    // At low zoom, we should see fewer nodes (clustering enabled)
+    expect(finalNodeCount).toBeGreaterThan(initialNodeCount);
+    // Verify that we have a reasonable number of nodes
+    // The clustering data has multiple nodes at same coordinates
+    // so finalNodeCount should be significantly higher when unclustered
+    expect(finalNodeCount).toBeGreaterThan(5);
+    expect(initialNodeCount).toBeGreaterThan(0);
   });
 });
