@@ -2,7 +2,7 @@
   "name": "netjsongraph.js",
   "version": "0.3.0",
   "description": "NetJSON NetworkGraph visualizer",
-  "main": "index.js",
+  "main": "src/js/netjsongraph.js",
   "scripts": {
     "test": "jest --silent",
     "dev": "webpack serve --open --mode development",
@@ -19,7 +19,7 @@
       "prettier --write",
       "git add"
     ],
-    "public/example_templates/**/*.html": [
+    "**/*.html": [
       "prettier --write",
       "git add"
     ]
@@ -55,7 +55,6 @@
     "@babel/preset-env": "^7.23.9",
     "@testing-library/jest-dom": "^6.4.2",
     "@types/jest": "^30.0.0",
-    "acorn": "^8.11.3",
     "copy-webpack-plugin": "^13.0.0",
     "coveralls": "^3.1.1",
     "css-loader": "^7.1.2",
@@ -67,15 +66,16 @@
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react": "^7.33.2",
     "html-webpack-plugin": "^5.6.0",
-    "husky": "^9.0.11",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.5",
+    "knip": "^5.81.0",
     "lint-staged": "^16.1.0",
     "prettier": "^3.6.2",
     "selenium-webdriver": "^4.29.0",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
+    "typescript": "^5.9.3",
     "webpack": "^5.90.3",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.0.2"

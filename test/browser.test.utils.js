@@ -39,6 +39,8 @@ export const urls = {
   customAttributes: `${url}/examples/netjsongraph-elementsLegend.html`,
   wifiClients: `${url}/examples/netjsongraph-wifi-clients.html`,
   geoJson: `${url}/examples/njg-geojson.html`,
+  movingNode: `${url}/examples/netjsonmap-moving-node.html`,
+  clustering: `${url}/examples/netjson-clustering.html`,
 };
 
 export const getElementByCss = async (driver, css, waitTime = 1000) => {

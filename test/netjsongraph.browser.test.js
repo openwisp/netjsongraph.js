@@ -298,7 +298,7 @@ describe("Chart Rendering Test", () => {
     await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
-    const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
+    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -360,5 +360,166 @@ describe("Chart Rendering Test", () => {
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
+  });
+
+  test("moveNodeInRealTime: test in Geographic map example", async () => {
+    await driver.get(urls.geographicMap);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+    await driver.executeScript(() => {
+      window.map.utils.moveNodeInRealTime("172.16.171.15", {
+        lat: 41.90197,
+        lng: 12.49071,
+      });
+    });
+    await driver.sleep(500);
+    const coordinate = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const location = series.data.find((l) => l.name === "Germany-2");
+      return location.value;
+    });
+    expect(coordinate).toEqual([12.49071, 41.90197]);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test("moveNodeInRealTime: render example without console errors", async () => {
+    await driver.get(urls.movingNode);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    expect(leafletContainer).not.toBeNull();
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+
+    // Wait for map to initialize and get initial position
+    await driver.sleep(2000);
+    const initialPosition = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const node = series.data.find((l) => l.name === "Bus 141 Rome");
+      return node ? node.value : null;
+    });
+    expect(initialPosition).not.toBeNull();
+    expect(Array.isArray(initialPosition)).toBe(true);
+    expect(initialPosition).toHaveLength(2);
+
+    // Wait for at least one movement cycle (2 seconds per movement)
+    await driver.sleep(2500);
+
+    // Get new position after movement
+    const newPosition = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const node = series.data.find((l) => l.name === "Bus 141 Rome");
+      return node ? node.value : null;
+    });
+    expect(newPosition).not.toBeNull();
+    expect(Array.isArray(newPosition)).toBe(true);
+    expect(newPosition).toHaveLength(2);
+    // Verify the position has changed
+    expect(newPosition).not.toEqual(initialPosition);
+
+    // Check for console errors
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test("graph: zoom works when scrolling on empty container area", async () => {
+    await driver.get(urls.basicUsage);
+    await getElementByCss(driver, "canvas", 2000);
+    const zoomChanged = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      const option = graph.echarts.getOption();
+      const initialZoom = option?.series?.[0]?.zoom ?? 1;
+
+      const dom = graph.echarts.getDom();
+      const zr = graph.echarts.getZr();
+      const canvas = zr && zr.dom;
+      if (!dom || !canvas) return done(false);
+
+      const containerRect = dom.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();    
+
+      const x = (canvasRect.right + containerRect.right) / 2;
+      const y = (canvasRect.bottom + containerRect.bottom) / 2;    
+    
+      dom.dispatchEvent(new WheelEvent('wheel', {
+        bubbles: true,
+        clientX: x,
+        clientY: y,
+        deltaY: -120,
+        deltaMode: 0
+      }));
+      const start = Date.now();
+      (function poll() {
+        const option = graph.echarts.getOption();
+        const newZoom = (option && option.series && option.series[0] && option.series[0].zoom) || 1;
+        if (newZoom !== initialZoom) return done(true);
+        if (Date.now() - start > 2000) return done(false);
+        setTimeout(poll, 50);
+      }());
+    `);
+    expect(zoomChanged).toBe(true);
+  });
+
+  test("clustering: renders without errors and works correctly on zoom", async () => {
+    await driver.get(urls.clustering);
+    // Wait for map to load
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    // check for presence of legend and canvas
+    const legend = await getElementByCss(driver, "#legend", 2000);
+    const canvases = await getElementsByCss(
+      driver,
+      ".ec-extension-leaflet .leaflet-overlay-pane canvas",
+    );
+    expect(leafletContainer).not.toBeNull();
+    expect(legend).not.toBeNull();
+    expect(canvases.length).toBeGreaterThan(0);
+    // Get initial node count at low zoom (should have fewer nodes due to clustering)
+    const initialNodeCount = await driver.executeScript(`
+      const option = window.map.echarts.getOption();
+      const series = option.series.find(s => s.type === 'scatter');
+      return series ? series.data.length : 0;
+    `);
+    // Zoom in to disable clustering (at higher zoom levels)
+    const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
+    let click = 0;
+    while (click < 10) {
+      // eslint-disable-next-line no-await-in-loop
+      const className = await zoomIn.getAttribute("class");
+      if (className.includes("leaflet-disabled")) {
+        break;
+      }
+      zoomIn.click();
+      click += 1;
+    }
+    await driver.sleep(1000); // Wait for clustering to update
+    // Get node count at high zoom (should have more nodes when clustering is disabled)
+    const finalNodeCount = await driver.executeScript(`
+      const option = window.map.echarts.getOption();
+      const series = option.series.find(s => s.type === 'scatter');
+      return series ? series.data.length : 0;
+    `);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    // At high zoom, we should see more individual nodes (clustering disabled)
+    // At low zoom, we should see fewer nodes (clustering enabled)
+    expect(finalNodeCount).toBeGreaterThan(initialNodeCount);
+    // Verify that we have a reasonable number of nodes
+    // The clustering data has multiple nodes at same coordinates
+    // so finalNodeCount should be significantly higher when unclustered
+    expect(finalNodeCount).toBeGreaterThan(5);
+    expect(initialNodeCount).toBeGreaterThan(0);
   });
 });
