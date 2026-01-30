@@ -32,6 +32,12 @@ class NetJSONGraph {
     this.setupGraph();
     this.config.onInit.call(this.graph);
     this.initializeECharts();
+    if (
+      this.config.showMapLabelsAtZoom === undefined &&
+      this.config.showLabelsAtZoomLevel !== undefined
+    ) {
+      this.config.showMapLabelsAtZoom = this.config.showLabelsAtZoomLevel;
+    }
     // eslint-disable-next-line no-constructor-return
     return this.graph;
   }
