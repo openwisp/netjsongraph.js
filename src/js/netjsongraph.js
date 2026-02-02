@@ -4,7 +4,7 @@ import NetJSONGraphCore from "./netjsongraph.core";
 import NetJSONGraphRender from "./netjsongraph.render";
 import NetJSONGraphGUI from "./netjsongraph.gui";
 import attachClientsOverlay from "./netjsongraph.clients";
-import {registerLeafletSystem} from "./echarts-leaflet";
+import registerLeafletSystem from "./echarts-leaflet";
 
 let isLeafletRegistered = false;
 

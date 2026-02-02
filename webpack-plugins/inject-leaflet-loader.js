@@ -11,8 +11,11 @@ class InjectLeafletLoaderPlugin {
       "netjsonmap-appendData.html",
       "netjsonmap-appendData2.html",
       "netjsonmap-indoormap.html",
+      "netjsonmap-indoormap-overlay.html",
+      "netjsonmap-moving-node.html",
       "netjsonmap-multipleTiles.html",
       "netjsonmap-nodeTiles.html",
+      "netjsonmap-overrideData.html",
       "netjsonmap-plugins.html",
       "netjsonmap.html",
       "njg-geojson.html",
@@ -173,7 +176,7 @@ ${
         }
 
         // Remove main leaflet.js script if present
-        const leafletJSRegex = /<script[^>]*leaflet[^>]*>[\s\S]*?<\/script>/gi;
+        const leafletJSRegex = /<script[^>]*leaflet\.js[^>]*>[\s\S]*?<\/script>/gi;
         let prev;
         do {
           prev = html;

@@ -46,13 +46,6 @@ const getMinimizers = (isProduction) => {
             hoist_funs: true,
             hoist_vars: false,
             pure_getters: true,
-            unsafe: true,
-            unsafe_comps: true,
-            unsafe_Function: true,
-            unsafe_math: true,
-            unsafe_proto: true,
-            unsafe_regexp: true,
-            unsafe_undefined: true,
           },
           output: {
             comments: false,

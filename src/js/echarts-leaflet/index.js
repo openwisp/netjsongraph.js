@@ -7,7 +7,7 @@ import getLeaflet from "../leaflet-loader";
 /**
  * echarts register leaflet coord system
  */
-export function registerLeafletSystem() {
+function registerLeafletSystem() {
   const L = getLeaflet(true);
   if (!L) {
     // Leaflet is not available, so we can't register the Leaflet coordinate system.

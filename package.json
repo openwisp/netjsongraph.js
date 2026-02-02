@@ -58,7 +58,6 @@
     "@babel/preset-env": "^7.23.9",
     "@testing-library/jest-dom": "^6.4.2",
     "@types/jest": "^30.0.0",
-    "acorn": "^8.11.3",
     "compression-webpack-plugin": "^11.1.0",
     "copy-webpack-plugin": "^13.0.0",
     "coveralls": "^3.1.1",
@@ -89,8 +88,7 @@
   },
   "dependencies": {
     "echarts": "^5.6.0",
-    "kdbush": "^4.0.2",
-    "zrender": "^6.0.0"
+    "kdbush": "^4.0.2"
   },
   "peerDependencies": {
     "leaflet": "^1.8.0"

@@ -26,7 +26,7 @@ export default function getLeaflet(suppressError = false) {
   } else {
     if (typeof window === "undefined" || !window.L) {
       if (!suppressError) {
-        console.error(
+        console.warn(
           "Leaflet (L) is not defined! Make sure Leaflet is loaded before NetJSONGraph.",
         );
       }
