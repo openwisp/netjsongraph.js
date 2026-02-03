@@ -71,8 +71,8 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, "dist"),
       filename: isProduction
         ? isEchartsOnly
-          ? "netjsongraph.echarts.[contenthash:8].min.js"
-          : "netjsongraph.[contenthash:8].min.js"
+          ? "netjsongraph.echarts.min.js"
+          : "netjsongraph.min.js"
         : isEchartsOnly
           ? "netjsongraph.echarts.js"
           : "netjsongraph.js",
@@ -90,7 +90,7 @@ module.exports = (env, argv) => {
       minimize: isProduction,
       minimizer: getMinimizers(isProduction),
       usedExports: true,
-      sideEffects: false,
+      sideEffects: true,
       providedExports: true,
       concatenateModules: true,
       flagIncludedChunks: true,

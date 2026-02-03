@@ -2,6 +2,24 @@
  * Webpack plugin to inject Leaflet loader snippet into HTML files
  * Only for echarts-only builds
  */
+const path = require("path");
+const fs = require("fs");
+const crypto = require("crypto");
+
+const leafletPkgPath = path.resolve(__dirname, "../node_modules/leaflet/package.json");
+const leafletPkg = JSON.parse(fs.readFileSync(leafletPkgPath, "utf8"));
+const LEAFLET_VERSION = leafletPkg.version;
+
+function getIntegrity(filePath) {
+  const fullPath = path.resolve(__dirname, "../node_modules/leaflet/dist", filePath);
+  const content = fs.readFileSync(fullPath);
+  const hash = crypto.createHash("sha512").update(content).digest("base64");
+  return `sha512-${hash}`;
+}
+
+const LEAFLET_CSS_INTEGRITY = getIntegrity("leaflet.css");
+const LEAFLET_JS_INTEGRITY = getIntegrity("leaflet.js");
+
 class InjectLeafletLoaderPlugin {
   constructor(options = {}) {
     this.isEchartsOnly = options.isEchartsOnly || false;
@@ -35,15 +53,15 @@ class InjectLeafletLoaderPlugin {
         // Inject Leaflet CSS
         const leafletCSS = document.createElement('link');
         leafletCSS.rel = 'stylesheet';
-        leafletCSS.href = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.css';
-        leafletCSS.integrity = 'sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==';
+        leafletCSS.href = 'https://unpkg.com/leaflet@${LEAFLET_VERSION}/dist/leaflet.css';
+        leafletCSS.integrity = '${LEAFLET_CSS_INTEGRITY}';
         leafletCSS.crossOrigin = '';
         document.head.appendChild(leafletCSS);
 
         // Inject Leaflet JS
         const leafletJS = document.createElement('script');
-        leafletJS.src = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.js';
-        leafletJS.integrity = 'sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==';
+        leafletJS.src = 'https://unpkg.com/leaflet@${LEAFLET_VERSION}/dist/leaflet.js';
+        leafletJS.integrity = '${LEAFLET_JS_INTEGRITY}';
         leafletJS.crossOrigin = '';
         leafletJS.onerror = function() {
           console.error('Failed to load Leaflet from CDN. Please check your internet connection.');

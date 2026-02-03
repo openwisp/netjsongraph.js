@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import {init} from "echarts/core";
 import NetJSONGraphCore from "./netjsongraph.core";
 import NetJSONGraphRender from "./netjsongraph.render";
@@ -170,3 +169,5 @@ class NetJSONGraph {
 }
 
 window.NetJSONGraph = NetJSONGraph;
+
+export default NetJSONGraph;

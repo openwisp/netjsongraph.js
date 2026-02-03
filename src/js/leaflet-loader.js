@@ -19,7 +19,6 @@ export default function getLeaflet(suppressError = false) {
   // BUNDLE_LEAFLET is defined by webpack DefinePlugin
   // For full build: BUNDLE_LEAFLET = true
   // For echarts-only build: BUNDLE_LEAFLET = false
-  // eslint-disable-next-line no-undef
   if (typeof BUNDLE_LEAFLET !== "undefined" && BUNDLE_LEAFLET) {
     // eslint-disable-next-line global-require
     L = require("leaflet");

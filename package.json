@@ -2,8 +2,9 @@
   "name": "netjsongraph.js",
   "version": "0.3.0",
   "description": "NetJSON NetworkGraph visualizer",
-  "main": "index.js",
-  "sideEffects": false,
+  "main": "dist/netjsongraph.min.js",
+  "module": "src/js/netjsongraph.js",
+  "sideEffects": true,
   "scripts": {
     "test": "jest --silent",
     "dev": "webpack serve --open --mode development",

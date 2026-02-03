@@ -11,4 +11,7 @@ module.exports = {
     browser: true,
     es6: true,
   },
+  globals: {
+    BUNDLE_LEAFLET: "readonly",
+  },
 };
