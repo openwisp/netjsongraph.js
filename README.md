@@ -255,8 +255,6 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   - If set to `false`, labels are completely disabled and will never be shown.
   - If set to a number (e.g., `13`), labels will be shown when the map zoom level is greater than or equal to that value.
 
-  In graph mode, the overlapping labels are hidden automatically when zooming (use `showGraphLabelsAtZoom` for graph mode).
-
 - `showGraphLabelsAtZoom`
 
   Provide an explicit label-visibility threshold for graph mode (ECharts `graph`).

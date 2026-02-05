@@ -180,7 +180,7 @@ class NetJSONGraphRender {
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
 
-    // Added this for label hover issue
+    // Prevent redundant overlapping labels
     baseGraphLabel.silent = true;
 
     // Shared helper to get current graph zoom level
@@ -577,7 +577,6 @@ class NetJSONGraphRender {
     }
 
     self.echarts.on("mouseover", () => {
-      // FIX: Removed the variable declaration. We use the one from upper scope.
       if (
         showMapLabelsAtZoom &&
         self.leaflet &&
@@ -619,13 +618,13 @@ class NetJSONGraphRender {
 
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
-      const show = showMapLabelsAtZoom && currentZoom >= showMapLabelsAtZoom;
+      const showLabel = showMapLabelsAtZoom && currentZoom >= showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
-              show,
+              show: showLabel,
               silent: true,
             },
             emphasis: {
