@@ -41,6 +41,7 @@ export const urls = {
   geoJson: `${url}/examples/njg-geojson.html`,
   movingNode: `${url}/examples/netjsonmap-moving-node.html`,
   clustering: `${url}/examples/netjson-clustering.html`,
+  leafletPlugins: `${url}/examples/netjsonmap-plugins.html`,
 };
 
 export const getElementByCss = async (driver, css, waitTime = 1000) => {

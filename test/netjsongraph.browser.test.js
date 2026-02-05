@@ -522,4 +522,33 @@ describe("Chart Rendering Test", () => {
     expect(finalNodeCount).toBeGreaterThan(5);
     expect(initialNodeCount).toBeGreaterThan(0);
   });
+
+  test("render geo map with leaflet plugins without console errors", async () => {
+    await driver.get(urls.leafletPlugins);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    const drawToolbar = await getElementByCss(driver, ".leaflet-draw-toolbar", 2000);
+    const drawSection = await getElementByCss(driver, ".leaflet-draw-section", 2000);
+    const drawPolylineBtn = await getElementByCss(
+      driver,
+      ".leaflet-draw-draw-polyline",
+      2000,
+    );
+    const measureControl = await getElementByCss(
+      driver,
+      ".leaflet-control-measure",
+      2000,
+    );
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(leafletContainer).not.toBeNull();
+    expect(drawToolbar).not.toBeNull();
+    expect(drawSection).not.toBeNull();
+    expect(drawPolylineBtn).not.toBeNull();
+    expect(measureControl).not.toBeNull();
+  });
 });
