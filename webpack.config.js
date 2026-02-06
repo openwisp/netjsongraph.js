@@ -6,7 +6,6 @@ const TerserPlugin = require("terser-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CompressionPlugin = require("compression-webpack-plugin");
 const InjectLeafletLoaderPlugin = require("./webpack-plugins/inject-leaflet-loader");
 
@@ -202,7 +201,9 @@ module.exports = (env, argv) => {
             }),
           ]
         : []),
-      ...(process.env.ANALYZE ? [new BundleAnalyzerPlugin()] : []),
+      ...(process.env.STATS
+        ? [new (require("webpack-bundle-analyzer").BundleAnalyzerPlugin)()]
+        : []),
     ],
     performance: {
       hints: isProduction ? "warning" : false,

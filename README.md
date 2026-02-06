@@ -161,6 +161,12 @@ Build the complete library with all dependencies included:
 yarn build:full
 ```
 
+Analyze the build with [Webpack Bundle Analyzer](https://github.com/webpack/webpack-bundle-analyzer):
+
+```bash
+yarn build:full:stats
+```
+
 **Output**:
 
 - `dist/netjsongraph.min.js` - Complete library with ECharts and Leaflet
@@ -175,6 +181,12 @@ Build the library without Leaflet, expecting it to be provided externally:
 
 ```bash
 yarn build:echarts-only
+```
+
+Analyze the build with [Webpack Bundle Analyzer](https://github.com/webpack/webpack-bundle-analyzer):
+
+```bash
+yarn build:echarts-only:stats
 ```
 
 **Output**:
