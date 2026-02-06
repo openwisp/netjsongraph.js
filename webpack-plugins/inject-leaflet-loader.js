@@ -226,7 +226,7 @@ ${
           const originalScript = match[1];
           const loaderSnippet = this.getLeafletLoaderSnippet(hasPlugins);
           // Determine the script type from the original tag
-          const typeMatch = match[0].match(/type="([^"])"/i);
+          const typeMatch = match[0].match(/type="([^"]+)"/i);
           const scriptType = typeMatch ? typeMatch[1] : "text/javascript";
           // Wrap the original script in initMap function and add the loader
           const newScript = `${loaderSnippet}\n${originalScript}\n      }`;
