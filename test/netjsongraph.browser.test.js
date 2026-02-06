@@ -27,8 +27,8 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
-    const {nodesPresent, linksPresent} =
+    const { nodesRendered, linksRendered } = await getRenderedNodesAndLinksCount(driver);
+    const { nodesPresent, linksPresent } =
       await getPresentNodesAndLinksCount("Basic usage");
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
@@ -47,8 +47,8 @@ describe("Chart Rendering Test", () => {
       driver,
       ".ec-extension-leaflet .leaflet-overlay-pane canvas",
     );
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
-    const {nodesPresent, linksPresent} =
+    const { nodesRendered, linksRendered } = await getRenderedNodesAndLinksCount(driver);
+    const { nodesPresent, linksPresent } =
       await getPresentNodesAndLinksCount("Geographic map");
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
@@ -83,8 +83,8 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
     const consoleErrors = await captureConsoleErrors(driver);
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
-    const {nodesPresent, linksPresent} =
+    const { nodesRendered, linksRendered } = await getRenderedNodesAndLinksCount(driver);
+    const { nodesPresent, linksPresent } =
       await getPresentNodesAndLinksCount("Indoor map");
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -99,7 +99,7 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     /* eslint-disable no-unused-vars */
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const { nodesRendered, linksRendered } = await getRenderedNodesAndLinksCount(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
@@ -258,8 +258,8 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
-    const {nodesPresent, linksPresent} =
+    const { nodesRendered, linksRendered } = await getRenderedNodesAndLinksCount(driver);
+    const { nodesPresent, linksPresent } =
       await getPresentNodesAndLinksCount("Geographic map");
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
@@ -273,9 +273,9 @@ describe("Chart Rendering Test", () => {
     const indoorCanvas = await getElementByCss(driver, "canvas", 2000);
     const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
     const indoorConsoleErrors = await captureConsoleErrors(driver);
-    const {nodesRendered: indoorNodesRendered, linksRendered: indoorLinksRendered} =
+    const { nodesRendered: indoorNodesRendered, linksRendered: indoorLinksRendered } =
       await getRenderedNodesAndLinksCount(driver);
-    const {nodesPresent: indoorNodesPresent, linksPresent: indoorLinksPresent} =
+    const { nodesPresent: indoorNodesPresent, linksPresent: indoorLinksPresent } =
       await getPresentNodesAndLinksCount("Indoor map");
     printConsoleErrors(indoorConsoleErrors);
     expect(indoorConsoleErrors.length).toBe(0);
@@ -367,24 +367,24 @@ describe("Chart Rendering Test", () => {
 
     // FIX: Removed 'async' and 'await' to satisfy linter
     await driver.wait(
-      () => driver.executeScript("return typeof window.graph !== 'undefined'"),
+      () => driver.executeScript("return typeof window.map !== 'undefined'"),
       5000,
-      "Timed out waiting for window.graph to initialize",
+      "Timed out waiting for window.map to initialize",
     );
 
     await driver.executeScript(`
-      window.graph.config.showMapLabelsAtZoom = 12;
-      window.graph.leaflet.setZoom(13);
+      window.map.config.showMapLabelsAtZoom = 12;
+      window.map.leaflet.setZoom(13);
     `);
     await driver.sleep(500);
     let isVisible = await driver.executeScript(
-      "return window.graph.echarts.getOption().series[0].label.show;",
+      "return window.map.echarts.getOption().series[0].label.show;",
     );
     expect(isVisible).toBe(true);
-    await driver.executeScript("window.graph.leaflet.setZoom(10);");
+    await driver.executeScript("window.map.leaflet.setZoom(10);");
     await driver.sleep(500);
     isVisible = await driver.executeScript(
-      "return window.graph.echarts.getOption().series[0].label.show;",
+      "return window.map.echarts.getOption().series[0].label.show;",
     );
     expect(isVisible).toBe(false);
   });
