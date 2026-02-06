@@ -77,7 +77,7 @@ module.exports = (env, argv) => {
           ? "netjsongraph.echarts.js"
           : "netjsongraph.js",
       clean: true,
-      publicPath: "/",
+      publicPath: "auto",
     },
     devtool: isDevelopment ? "eval-source-map" : false,
     // Externalize Leaflet for echarts-only build
