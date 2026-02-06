@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const webpack = require("webpack");
+const zlib = require("zlib");
 const TerserPlugin = require("terser-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
@@ -189,12 +190,11 @@ module.exports = (env, argv) => {
               test: /\.(js|css|html|svg|json)$/,
               compressionOptions: {
                 params: {
-                  [require("zlib").constants.BROTLI_PARAM_QUALITY]: 11,
-                  [require("zlib").constants.BROTLI_PARAM_SIZE_HINT]: 0,
-                  [require("zlib").constants.BROTLI_PARAM_MODE]:
-                    require("zlib").constants.BROTLI_MODE_TEXT,
-                  [require("zlib").constants.BROTLI_PARAM_LGWIN]: 22,
-                  [require("zlib").constants.BROTLI_PARAM_LGBLOCK]: 0,
+                  [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
+                  [zlib.constants.BROTLI_PARAM_SIZE_HINT]: 0,
+                  [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+                  [zlib.constants.BROTLI_PARAM_LGWIN]: 22,
+                  [zlib.constants.BROTLI_PARAM_LGBLOCK]: 0,
                 },
               },
               threshold: 1024,
@@ -207,7 +207,8 @@ module.exports = (env, argv) => {
     performance: {
       hints: isProduction ? "warning" : false,
       maxEntrypointSize: 400000,
-      maxAssetSize: 300000,
+      // Full build includes Library + ECharts + Leaflet; warnings for large bundle are expected
+      maxAssetSize: 450000,
     },
     resolve: {
       extensions: [".js", ".json"],

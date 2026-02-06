@@ -150,9 +150,6 @@ function createLeafletCoordSystem() {
     // TODO Dispose
     ecModel.eachComponent("leaflet", (leafletModel) => {
       const viewportRoot = api.getZr().painter.getViewportRoot();
-      if (typeof L === "undefined") {
-        throw new Error("Leaflet api is not loaded");
-      }
       if (leafletCoordSys) {
         throw new Error("Only one leaflet component can exist");
       }

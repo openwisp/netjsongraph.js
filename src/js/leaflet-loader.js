@@ -1,4 +1,3 @@
-/* eslint-disable import/no-mutable-exports */
 /**
  * Leaflet loader - conditionally uses bundled Leaflet or global L
  *

@@ -367,7 +367,7 @@ const config = {...NetJSONGraphDefaultConfig};
 
 Object.defineProperty(config, "crs", {
   get() {
-    const L = getLeaflet();
+    const L = getLeaflet(true);
     return L ? L.CRS.EPSG3857 : null;
   },
   enumerable: true,

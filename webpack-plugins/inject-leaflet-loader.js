@@ -65,6 +65,11 @@ class InjectLeafletLoaderPlugin {
         leafletJS.crossOrigin = '';
         leafletJS.onerror = function() {
           console.error('Failed to load Leaflet from CDN. Please check your internet connection.');
+          const errorDiv = document.createElement('div');
+          errorDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#f44336;color:white;padding:10px;text-align:center;z-index:9999;';
+          errorDiv.textContent = 'Error: Failed to load Leaflet. Please check your internet connection.';
+          document.body.appendChild(errorDiv);
+          ${hasPlugins ? "loadLeafletPlugins();" : "initMap();"}
         };
         leafletJS.onload = ${hasPlugins ? "loadLeafletPlugins" : "initMap"};
         document.head.appendChild(leafletJS);
