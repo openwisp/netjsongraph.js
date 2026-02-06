@@ -5,6 +5,11 @@ import NetJSONGraphGUI from "./netjsongraph.gui";
 import attachClientsOverlay from "./netjsongraph.clients";
 import registerLeafletSystem from "./echarts-leaflet";
 
+if (typeof BUNDLE_LEAFLET !== "undefined" && BUNDLE_LEAFLET) {
+  // eslint-disable-next-line global-require
+  window.L = require("leaflet");
+}
+
 let isLeafletRegistered = false;
 
 /**
