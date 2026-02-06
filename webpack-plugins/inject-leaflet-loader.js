@@ -163,28 +163,22 @@ ${
       const HtmlWebpackPlugin = compiler.options.plugins
         .map((plugin) => plugin.constructor)
         .find((constructor) => constructor && constructor.name === "HtmlWebpackPlugin");
-
       if (!HtmlWebpackPlugin) {
         return;
       }
-
       const hooks = HtmlWebpackPlugin.getHooks(compilation);
 
       hooks.beforeEmit.tapAsync("InjectLeafletLoaderPlugin", (data, cb) => {
         const {outputName, html: originalHtml} = data;
         const filename = outputName.replace("examples/", "");
-
         // Only inject for map-related examples
         if (!this.mapExamples.includes(filename)) {
           cb(null, data);
           return;
         }
-
         let html = originalHtml;
-
         // Check if this file uses Leaflet plugins (like leaflet-draw, leaflet-measure)
         const hasPlugins = filename === "netjsonmap-plugins.html";
-
         // Remove hardcoded Leaflet CSS and JS from head (we'll load them dynamically)
         // For plugins file, also remove plugin CSS
         if (hasPlugins) {
@@ -197,32 +191,30 @@ ${
           const leafletCSSRegex = /<link[^>]*leaflet\.css[^>]*>/gi;
           html = html.replace(leafletCSSRegex, "");
         }
-
         // Remove main leaflet.js script if present
         const leafletJSRegex = /<script[^>]*leaflet\.js[^>]*>[\s\S]*?<\/script>/gi;
-        html = html.replace(leafletJSRegex, "");
-
+        let prev;
+        do {
+          prev = html;
+          html = html.replace(leafletJSRegex, "");
+        } while (html !== prev); // remove all occurrences
         // For plugin file, remove hardcoded plugin scripts from body (we'll load them dynamically)
         if (hasPlugins) {
           const pluginScripts = [
             /<script[^>]*src="[^"]*leaflet-draw\.js"[^>]*>[\s\S]*?<\/script>/gi,
             /<script[^>]*src="[^"]*leaflet-measure\.js"[^>]*>[\s\S]*?<\/script>/gi,
           ];
-
           pluginScripts.forEach((regex) => {
             html = html.replace(regex, "");
           });
         }
-
         // Find the script tag and its content (handles <script>, <script type="text/javascript">, and <script type="module">)
         const scriptRegex =
           /<script(?:\s+type="(?:text\/javascript|module)")?>\s*([\s\S]*?)\s*<\/script>/i;
         const match = html.match(scriptRegex);
-
         if (match) {
           const originalScript = match[1];
           const loaderSnippet = this.getLeafletLoaderSnippet(hasPlugins);
-
           // Determine the script type from the original tag
           const scriptTypeMatch = html.match(
             /<script(\s+type="(text\/javascript|module)")?>/i,
@@ -231,16 +223,13 @@ ${
             scriptTypeMatch && scriptTypeMatch[2]
               ? scriptTypeMatch[2]
               : "text/javascript";
-
           // Wrap the original script in initMap function and add the loader
           const newScript = `${loaderSnippet}\n${originalScript}\n      }`;
-
           html = html.replace(
             scriptRegex,
             `<script type="${scriptType}">\n      ${newScript}\n    </script>`,
           );
         }
-
         data.html = html;
         cb(null, data);
       });
