@@ -6,19 +6,28 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 
-const leafletPkgPath = path.resolve(__dirname, "../node_modules/leaflet/package.json");
-const leafletPkg = JSON.parse(fs.readFileSync(leafletPkgPath, "utf8"));
-const LEAFLET_VERSION = leafletPkg.version;
-
-function getIntegrity(filePath) {
-  const fullPath = path.resolve(__dirname, "../node_modules/leaflet/dist", filePath);
-  const content = fs.readFileSync(fullPath);
-  const hash = crypto.createHash("sha512").update(content).digest("base64");
-  return `sha512-${hash}`;
+let leafletMeta;
+function getLeafletMeta() {
+  if (!leafletMeta) {
+    const leafletPkgPath = path.resolve(
+      __dirname,
+      "../node_modules/leaflet/package.json",
+    );
+    const {version} = JSON.parse(fs.readFileSync(leafletPkgPath, "utf8"));
+    const integrity = (file) => {
+      const fullPath = path.resolve(__dirname, "../node_modules/leaflet/dist", file);
+      const content = fs.readFileSync(fullPath);
+      const hash = crypto.createHash("sha512").update(content).digest("base64");
+      return `sha512-${hash}`;
+    };
+    leafletMeta = {
+      version,
+      cssIntegrity: integrity("leaflet.css"),
+      jsIntegrity: integrity("leaflet.js"),
+    };
+  }
+  return leafletMeta;
 }
-
-const LEAFLET_CSS_INTEGRITY = getIntegrity("leaflet.css");
-const LEAFLET_JS_INTEGRITY = getIntegrity("leaflet.js");
 
 class InjectLeafletLoaderPlugin {
   constructor(options = {}) {
@@ -41,6 +50,7 @@ class InjectLeafletLoaderPlugin {
   }
 
   getLeafletLoaderSnippet(hasPlugins = false) {
+    getLeafletMeta();
     return `
       // Dynamic Leaflet loader for echarts-only build
       (function () {
@@ -53,15 +63,15 @@ class InjectLeafletLoaderPlugin {
         // Inject Leaflet CSS
         const leafletCSS = document.createElement('link');
         leafletCSS.rel = 'stylesheet';
-        leafletCSS.href = 'https://unpkg.com/leaflet@${LEAFLET_VERSION}/dist/leaflet.css';
-        leafletCSS.integrity = '${LEAFLET_CSS_INTEGRITY}';
+        leafletCSS.href = 'https://unpkg.com/leaflet@${leafletMeta.version}/dist/leaflet.css';
+        leafletCSS.integrity = '${leafletMeta.cssIntegrity}';
         leafletCSS.crossOrigin = '';
         document.head.appendChild(leafletCSS);
 
         // Inject Leaflet JS
         const leafletJS = document.createElement('script');
-        leafletJS.src = 'https://unpkg.com/leaflet@${LEAFLET_VERSION}/dist/leaflet.js';
-        leafletJS.integrity = '${LEAFLET_JS_INTEGRITY}';
+        leafletJS.src = 'https://unpkg.com/leaflet@${leafletMeta.version}/dist/leaflet.js';
+        leafletJS.integrity = '${leafletMeta.jsIntegrity}';
         leafletJS.crossOrigin = '';
         leafletJS.onerror = function() {
           console.error('Failed to load Leaflet from CDN. Please check your internet connection.');
@@ -210,19 +220,14 @@ ${
         }
         // Find the script tag and its content (handles <script>, <script type="text/javascript">, and <script type="module">)
         const scriptRegex =
-          /<script(?:\s+type="(?:text\/javascript|module)")?>\s*([\s\S]*?)\s*<\/script>/i;
+          /<script(?:\stype="(?:text\/javascript|module)")?>\s*([\s\S]*?)\s*<\/script>/i;
         const match = html.match(scriptRegex);
         if (match) {
           const originalScript = match[1];
           const loaderSnippet = this.getLeafletLoaderSnippet(hasPlugins);
           // Determine the script type from the original tag
-          const scriptTypeMatch = html.match(
-            /<script(\s+type="(text\/javascript|module)")?>/i,
-          );
-          const scriptType =
-            scriptTypeMatch && scriptTypeMatch[2]
-              ? scriptTypeMatch[2]
-              : "text/javascript";
+          const typeMatch = match[0].match(/type="([^"])"/i);
+          const scriptType = typeMatch ? typeMatch[1] : "text/javascript";
           // Wrap the original script in initMap function and add the loader
           const newScript = `${loaderSnippet}\n${originalScript}\n      }`;
           html = html.replace(
