@@ -27,9 +27,9 @@
     <script type="text/javascript" src="../lib/js/leaflet-measure.js"></script>
     <script type="module">
       /*
-          The demo is used to show how to use the leaflet plugins.
-          Mainly the operation of leaflet.
-          See below for details.
+        The demo is used to show how to use the leaflet plugins.
+        Mainly the operation of leaflet.
+        See below for details.
       */
       const graph = new NetJSONGraph("../assets/data/netjsonmap.json", {
         render: "map",
@@ -44,7 +44,6 @@
             },
           },
         },
-
         // Convert to internal json format
         prepareData: (data) => {
           data.nodes.map((node) => {
@@ -54,13 +53,12 @@
             });
           });
         },
-
         // Load related plugins after the map is rendered
         onReady: function () {
           /* 
-              The map has this property only after the map is rendered, 
-              so we have to put the relevant function in `onLoad` life cycle  
-            */
+            The map has this property only after the map is rendered,
+            so we have to put the relevant function in `onLoad` life cycle
+          */
           let map = this.leaflet,
             editableLayers = new L.FeatureGroup(),
             // Plugin related configuration
@@ -101,28 +99,24 @@
                 },
               },
               edit: {
-                featureGroup: editableLayers, //REQUIRED!!
+                featureGroup: editableLayers, // REQUIRED!!
                 remove: true,
               },
             };
-
           map.addLayer(editableLayers);
           map.addControl(new L.Control.Draw(options));
           map.on(L.Draw.Event.CREATED, function (e) {
             var type = e.layerType,
               layer = e.layer;
-
             if (type === "marker") {
               layer.bindPopup("A popup!");
             }
 
             editableLayers.addLayer(layer);
           });
-
           L.control.measure({}).addTo(map);
         },
       });
-
       graph.render();
     </script>
   </body>

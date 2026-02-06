@@ -1,12 +1,16 @@
+import {init} from "echarts/core";
 import NetJSONGraphCore from "./netjsongraph.core";
-import {NetJSONGraphRender, echarts, L} from "./netjsongraph.render";
-import registerLeafletSystem from "../../lib/js/echarts-leaflet/index";
+import NetJSONGraphRender from "./netjsongraph.render";
 import NetJSONGraphGUI from "./netjsongraph.gui";
 import attachClientsOverlay from "./netjsongraph.clients";
+import registerLeafletSystem from "./echarts-leaflet";
 
-const colorTool = require("zrender/lib/tool/color");
-const {each} = require("zrender/lib/core/util");
-const env = require("zrender/lib/core/env");
+if (typeof BUNDLE_LEAFLET !== "undefined" && BUNDLE_LEAFLET) {
+  // eslint-disable-next-line global-require
+  window.L = require("leaflet");
+}
+
+let isLeafletRegistered = false;
 
 /**
  * @class
@@ -81,7 +85,11 @@ class NetJSONGraph {
    * Initializes the ECharts rendering engine. Used in constructor
    */
   initializeECharts() {
-    this.graph.echarts = echarts.init(this.graph.el, null, {
+    if (!isLeafletRegistered) {
+      registerLeafletSystem();
+      isLeafletRegistered = true;
+    }
+    this.graph.echarts = init(this.graph.el, null, {
       renderer: this.graph.config.svgRender ? "svg" : "canvas",
     });
   }
@@ -176,12 +184,6 @@ class NetJSONGraph {
   }
 }
 
-registerLeafletSystem(echarts, L, {
-  colorTool,
-  each,
-  env,
-});
-
 window.NetJSONGraph = NetJSONGraph;
-window.echarts = echarts;
-window.L = L;
+
+export default NetJSONGraph;

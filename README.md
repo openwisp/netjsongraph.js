@@ -25,6 +25,12 @@ Visualize a NetJSON NetworkGraph with pan/zoom, labels and tooltips.
 
 Plot nodes by geographic coordinates on a Leaflet basemap; pan/zoom with markers.
 
+### Geographic map with nodes moving in real-time
+
+[![Geographic map with nodes moving in real-time](docs/gifs/movingnode.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-moving-node.html)
+
+This example demonstrates how to update a node’s coordinates to simulate a moving vehicle.
+
 ### Indoor map
 
 [![Indoor map](docs/gifs/netjsonmap-indoormap.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-indoormap.html)
@@ -140,6 +146,61 @@ Normalize ISO timestamps to the browser timezone in node/link details.
 yarn install
 yarn start
 ```
+
+## Building the library
+
+The netjsongraph.js library provides **two build variants** to optimize bundle size for different use cases.
+
+By default, `yarn build` executes the full bundle.
+
+### 1. Full Bundle (Recommended for standalone usage)
+
+Build the complete library with all dependencies included:
+
+```bash
+yarn build:full
+```
+
+Analyze the build with [Webpack Bundle Analyzer](https://github.com/webpack/webpack-bundle-analyzer):
+
+```bash
+yarn build:full:stats
+```
+
+**Output**:
+
+- `dist/netjsongraph.min.js` - Complete library with ECharts and Leaflet
+- Compressed versions (`.gz` and `.br`) for optimized delivery
+- Deletes/overwrites previous builds
+
+**Use when**: You want a standalone library with all dependencies bundled.
+
+### 2. ECharts-Only Bundle (Optimized for projects with existing Leaflet)
+
+Build the library without Leaflet, expecting it to be provided externally:
+
+```bash
+yarn build:echarts-only
+```
+
+Analyze the build with [Webpack Bundle Analyzer](https://github.com/webpack/webpack-bundle-analyzer):
+
+```bash
+yarn build:echarts-only:stats
+```
+
+**Output**:
+
+- `dist/netjsongraph.echarts.min.js` - Library with ECharts only
+- Compressed versions (`.gz` and `.br`)
+- Deletes/overwrites previous builds
+
+**Use when**: Your project already includes Leaflet (e.g., via django-leaflet in OpenWISP projects). This reduces bundle size by ~144 KiB.
+
+**Requirements**: Leaflet must be loaded before NetJSONGraph (available as global `L` object).
+
+**Note**: The echarts-only build dynamically loads Leaflet from CDN for map examples.
+For production use, ensure Leaflet is available locally or from a trusted CDN.
 
 ### Run Tests
 
@@ -923,6 +984,22 @@ yarn start
 </body>
 </html>
 ```
+
+### Geographic map nodes moving in realtime
+
+You can move a node programmatically on the map at runtime using the `moveNodeInRealTime` helper in utils.
+
+This is useful to animate devices, show mobile nodes, or reflect position updates coming from a realtime source (sockets, polling, etc.).
+
+You can see this feature in action in the following example: [Geographic map nodes moving in realtime](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-moving-node.html).
+
+```JS
+// .util.moveNodeInRealTime(nodeId, location)
+moveNodeInRealTime(id, location)
+```
+
+- `id` - the node id (string) to move.
+- `location` - `{lat: number, lng: number}`
 
 ### Upgrading from 0.1.x versions to 0.2.x
 

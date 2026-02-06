@@ -74,6 +74,9 @@ class NetJSONGraphCore {
    * @function
    * @name render
    * netjsongraph.js render function
+   * Note: This method is fire-and-forget. Data loading and rendering happen
+   * asynchronously via paginatedDataParse. Callers should rely on lifecycle
+   * events (onReady, onLoad, onRender) instead of awaiting this method.
    *
    * @this {object}      The instantiated object of NetJSONGraph
    */
@@ -95,11 +98,7 @@ class NetJSONGraphCore {
     });
     this.event.once("onLoad", this.config.onLoad.bind(this));
     this.event.once("applyUrlFragmentState", async () => {
-      try {
-        await onReadyDone;
-      } catch (e) {
-        console.error("onReady failed:", e);
-      }
+      await onReadyDone;
       this.utils.applyUrlFragmentState.call(this, this);
     });
     this.utils.paginatedDataParse
@@ -210,7 +209,9 @@ class NetJSONGraphCore {
         },
       },
     );
-
+    if (typeof self.utils.moveNodeInRealTime === "function") {
+      self.utils.moveNodeInRealTime = self.utils.moveNodeInRealTime.bind(self);
+    }
     return self.utils;
   }
 }
