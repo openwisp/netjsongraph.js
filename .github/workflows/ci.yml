@@ -49,8 +49,12 @@ jobs:
         run: ./run-qa-checks
 
   build:
-    name: Tests and Coverage
+    name: Tests and Coverage (${{ matrix.build-type }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build-type: [dev, prod, echarts-only]
 
     steps:
       - uses: actions/checkout@v6
@@ -76,8 +80,21 @@ jobs:
         run: |
           yarn install
 
-      - name: Running Server
+      - name: Build (Prod Full)
+        if: matrix.build-type == 'prod'
+        run: yarn build:full
+
+      - name: Build (Echarts Only)
+        if: matrix.build-type == 'echarts-only'
+        run: yarn build:echarts-only
+
+      - name: Running Server (Dev)
+        if: matrix.build-type == 'dev'
         run: yarn start &
+
+      - name: Running Server (Dist)
+        if: matrix.build-type == 'prod' || matrix.build-type == 'echarts-only'
+        run: npx --yes http-server dist -p 8080 &
 
       - name: Wait for server to be ready
         run: npx wait-on http://localhost:8080
@@ -96,6 +113,7 @@ jobs:
           which chromedriver
 
       - name: Unit tests
+        if: matrix.build-type == 'dev'
         run: yarn coverage --testPathIgnorePatterns=test/netjsongraph.browser.test.js
 
       - name: Browser tests
@@ -103,6 +121,7 @@ jobs:
         run: yarn test --runInBand --testTimeout=30000 test/netjsongraph.browser.test.js
 
       - name: Coveralls
+        if: matrix.build-type == 'dev'
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
