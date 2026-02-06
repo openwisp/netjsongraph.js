@@ -208,7 +208,7 @@ module.exports = (env, argv) => {
       hints: isProduction ? "warning" : false,
       maxEntrypointSize: 400000,
       // Full build includes Library + ECharts + Leaflet; warnings for large bundle are expected
-      maxAssetSize: 450000,
+      maxAssetSize: 600000,
     },
     resolve: {
       extensions: [".js", ".json"],

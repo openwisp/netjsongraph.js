@@ -163,8 +163,9 @@ yarn build:full
 
 **Output**:
 
-- `netjsongraph.min.js` - Complete library with ECharts and Leaflet
+- `dist/netjsongraph.min.js` - Complete library with ECharts and Leaflet
 - Compressed versions (`.gz` and `.br`) for optimized delivery
+- Deletes/overwrites previous builds
 
 **Use when**: You want a standalone library with all dependencies bundled.
 
@@ -178,8 +179,9 @@ yarn build:echarts-only
 
 **Output**:
 
-- `netjsongraph.echarts.min.js` - Library with ECharts only
+- `dist/netjsongraph.echarts.min.js` - Library with ECharts only
 - Compressed versions (`.gz` and `.br`)
+- Deletes/overwrites previous builds
 
 **Use when**: Your project already includes Leaflet (e.g., via django-leaflet in OpenWISP projects). This reduces bundle size by ~144 KiB.
 

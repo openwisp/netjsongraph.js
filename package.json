@@ -6,7 +6,8 @@
   "module": "src/js/netjsongraph.js",
   "sideEffects": true,
   "files": [
-    "dist/"
+    "dist/",
+    "src/"
   ],
   "scripts": {
     "test": "jest --silent",

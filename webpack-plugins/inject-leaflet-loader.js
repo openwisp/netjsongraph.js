@@ -69,7 +69,7 @@ class InjectLeafletLoaderPlugin {
           errorDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#f44336;color:white;padding:10px;text-align:center;z-index:9999;';
           errorDiv.textContent = 'Error: Failed to load Leaflet. Please check your internet connection.';
           document.body.appendChild(errorDiv);
-          ${hasPlugins ? "loadLeafletPlugins();" : "initMap();"}
+          initMap();
         };
         leafletJS.onload = ${hasPlugins ? "loadLeafletPlugins" : "initMap"};
         document.head.appendChild(leafletJS);
@@ -200,11 +200,7 @@ ${
 
         // Remove main leaflet.js script if present
         const leafletJSRegex = /<script[^>]*leaflet\.js[^>]*>[\s\S]*?<\/script>/gi;
-        let prev;
-        do {
-          prev = html;
-          html = html.replace(leafletJSRegex, "");
-        } while (html !== prev);
+        html = html.replace(leafletJSRegex, "");
 
         // For plugin file, remove hardcoded plugin scripts from body (we'll load them dynamically)
         if (hasPlugins) {

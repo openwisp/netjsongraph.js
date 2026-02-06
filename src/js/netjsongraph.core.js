@@ -80,7 +80,7 @@ class NetJSONGraphCore {
    *
    * @this {object}      The instantiated object of NetJSONGraph
    */
-  async render() {
+  render() {
     const [JSONParam, ...resParam] = this.JSONParam;
 
     this.config.onRender.call(this);
@@ -98,11 +98,7 @@ class NetJSONGraphCore {
     });
     this.event.once("onLoad", this.config.onLoad.bind(this));
     this.event.once("applyUrlFragmentState", async () => {
-      try {
-        await onReadyDone;
-      } catch (e) {
-        console.error("onReady failed:", e);
-      }
+      await onReadyDone;
       this.utils.applyUrlFragmentState.call(this, this);
     });
     this.utils.paginatedDataParse
