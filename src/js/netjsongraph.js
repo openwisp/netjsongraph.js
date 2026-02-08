@@ -39,13 +39,13 @@ class NetJSONGraph {
     // Maintain backward compatibility with old config option "showLabelsAtZoomLevel"
     // TODO: remove in future versions
     if (
-      this.config.showMapLabelsAtZoom === undefined &&
-      this.config.showLabelsAtZoomLevel !== undefined
+      config.showMapLabelsAtZoom === undefined &&
+      config.showLabelsAtZoomLevel !== undefined
     ) {
       console.warn(
         "showLabelsAtZoomLevel has been renamed to showMapLabelsAtZoom, please update your code accordingly.",
       );
-      this.config.showMapLabelsAtZoom = this.config.showLabelsAtZoomLevel;
+      this.graph.config.showMapLabelsAtZoom = config.showLabelsAtZoomLevel;
     }
     // eslint-disable-next-line no-constructor-return
     return this.graph;
