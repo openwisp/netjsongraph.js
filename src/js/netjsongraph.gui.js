@@ -35,6 +35,57 @@ class NetJSONGraphGUI {
     return selectIconContainer;
   }
 
+  createThemeControl() {
+    const themeControl = document.createElement("div");
+    themeControl.setAttribute("class", "njg-themeControl");
+    
+    const icon = document.createElement("span");
+    icon.innerHTML = "🌓"; 
+    icon.setAttribute("aria-label", "Toggle Dark Mode");
+    icon.style.marginRight = "5px";
+    
+    const text = document.createElement("span");
+    text.innerHTML = "Toggle Theme";
+    
+    themeControl.appendChild(icon);
+    themeControl.appendChild(text);
+    
+    // Check initial state
+    try {
+      const savedTheme = localStorage.getItem("map_theme");
+      if (savedTheme === "dark") {
+        this.self.el.classList.add("dark-mode");
+      }
+    } catch (e) {
+      console.debug("LocalStorage access denied or not available");
+    }
+
+    themeControl.onclick = () => {
+      this.self.el.classList.toggle("dark-mode");
+      const isDark = this.self.el.classList.contains("dark-mode");
+      try {
+        localStorage.setItem("map_theme", isDark ? "dark" : "light");
+      } catch (e) {
+        console.debug("LocalStorage access denied or not available");
+      }
+      
+      // If map is active, re-render to update tiles
+      if (this.self.config.render === this.self.utils.mapRender) {
+        this.self.utils.render();
+      }
+    };
+
+    // Append to controls if exists, otherwise create a container
+    if (this.controls) {
+      this.controls.appendChild(themeControl);
+    } else {
+      const controls = this.createControls();
+      this.controls = controls;
+      controls.appendChild(themeControl);
+    }
+    return themeControl;
+  }
+
   createSideBar() {
     const sideBar = document.createElement("div");
     sideBar.setAttribute("class", "njg-sideBar");
@@ -280,8 +331,13 @@ class NetJSONGraphGUI {
 
   init() {
     this.sideBar = this.createSideBar();
+    // Always create theme control for now, or make it configurable
+    this.createThemeControl();
+    
     if (this.self.config.switchMode) {
-      this.controls = this.createControls();
+      if (!this.controls) {
+         this.controls = this.createControls();
+      }
       this.renderModeSelector = this.createRenderModeSelector();
     }
   }

@@ -394,9 +394,15 @@ class NetJSONGraphRender {
       }),
     ];
 
+    const isDarkMode = self.utils.isDarkMode(self);
+    const tiles =
+      isDarkMode && configs.mapTileConfigDark
+        ? configs.mapTileConfigDark
+        : configs.mapTileConfig;
+
     return {
       leaflet: {
-        tiles: configs.mapTileConfig,
+        tiles,
         mapOptions: configs.mapOptions,
       },
       series,
@@ -542,7 +548,29 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet = self.echarts._api.getCoordinateSystems()[0].getLeaflet();
     // eslint-disable-next-line no-underscore-dangle
-    self.leaflet._zoomAnimated = false;
+    if (self.leaflet) {
+      self.leaflet._zoomAnimated = false;
+    }
+
+    // Manually update tile layers because echarts-leaflet doesn't handle tile updates on setOption
+    const isDarkMode = self.utils.isDarkMode(self);
+    
+    const targetTiles =
+      isDarkMode && self.config.mapTileConfigDark
+        ? self.config.mapTileConfigDark
+        : self.config.mapTileConfig;
+
+    if (self.leaflet) {
+      self.leaflet.eachLayer((layer) => {
+        if (layer instanceof L.TileLayer) {
+          self.leaflet.removeLayer(layer);
+        }
+      });
+
+      targetTiles.forEach((tile) => {
+        L.tileLayer(tile.urlTemplate, tile.options).addTo(self.leaflet);
+      });
+    }
 
     self.config.geoOptions = self.utils.deepMergeObj(
       {
@@ -590,12 +618,12 @@ class NetJSONGraphRender {
         }
       }
 
-      if (bounds && bounds.isValid()) {
+      if (bounds && bounds.isValid() && self.leaflet) {
         self.leaflet.fitBounds(bounds, {padding: [20, 20]});
       }
     }
 
-    if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
+    if (self.leaflet && self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
       self.echarts.setOption({
         series: [
           {
@@ -613,48 +641,53 @@ class NetJSONGraphRender {
       });
     }
 
-    self.leaflet.on("zoomend", () => {
-      const currentZoom = self.leaflet.getZoom();
-      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
-      self.echarts.setOption({
-        series: [
-          {
-            id: "geo-map",
-            label: {
-              show: showLabel,
-            },
-            emphasis: {
+    if (self.leaflet) {
+      self.leaflet.on("zoomend", () => {
+        const currentZoom = self.leaflet.getZoom();
+        const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
+        self.echarts.setOption({
+          series: [
+            {
+              id: "geo-map",
               label: {
                 show: showLabel,
               },
+              emphasis: {
+                label: {
+                  show: showLabel,
+                },
+              },
             },
-          },
-        ],
+          ],
+        });
+
+        // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
+        // Manually handle zoom control state to ensure correct behavior with float zoom levels
+        const minZoom = self.leaflet.getMinZoom();
+        const maxZoom = self.leaflet.getMaxZoom();
+        const zoomIn = document.querySelector(".leaflet-control-zoom-in");
+        const zoomOut = document.querySelector(".leaflet-control-zoom-out");
+
+        if (zoomIn && zoomOut) {
+          if (Math.round(currentZoom) >= maxZoom) {
+            zoomIn.classList.add("leaflet-disabled");
+          } else {
+            zoomIn.classList.remove("leaflet-disabled");
+          }
+
+          if (Math.round(currentZoom) <= minZoom) {
+            zoomOut.classList.add("leaflet-disabled");
+          } else {
+            zoomOut.classList.remove("leaflet-disabled");
+          }
+        }
       });
+    }
 
-      // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
-      // Manually handle zoom control state to ensure correct behavior with float zoom levels
-      const minZoom = self.leaflet.getMinZoom();
-      const maxZoom = self.leaflet.getMaxZoom();
-      const zoomIn = document.querySelector(".leaflet-control-zoom-in");
-      const zoomOut = document.querySelector(".leaflet-control-zoom-out");
 
-      if (zoomIn && zoomOut) {
-        if (Math.round(currentZoom) >= maxZoom) {
-          zoomIn.classList.add("leaflet-disabled");
-        } else {
-          zoomIn.classList.remove("leaflet-disabled");
-        }
 
-        if (Math.round(currentZoom) <= minZoom) {
-          zoomOut.classList.add("leaflet-disabled");
-        } else {
-          zoomOut.classList.remove("leaflet-disabled");
-        }
-      }
-    });
-
-    self.leaflet.on("moveend", async () => {
+    if (self.leaflet) {
+      self.leaflet.on("moveend", async () => {
       const bounds = self.leaflet.getBounds();
       const removeBBoxData = () => {
         const removeNodes = new Set(self.bboxData.nodes);
@@ -704,6 +737,7 @@ class NetJSONGraphRender {
         removeBBoxData();
       }
     });
+    }
     if (
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
@@ -711,7 +745,7 @@ class NetJSONGraphRender {
       let {clusters, nonClusterNodes, nonClusterLinks} = self.utils.makeCluster(self);
 
       // Only show clusters if we're below the disableClusteringAtLevel
-      if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
+      if (self.leaflet && self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
         clusters = [];
         nonClusterNodes = JSONData.nodes;
         nonClusterLinks = JSONData.links;
@@ -732,18 +766,21 @@ class NetJSONGraphRender {
       self.echarts.on("click", (params) => {
         if (params.componentSubType === "scatter" && params.data.cluster) {
           // Zoom into the clicked cluster instead of expanding it
-          const currentZoom = self.leaflet.getZoom();
-          const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
-          self.leaflet.setView(
-            [params.data.value[1], params.data.value[0]],
-            targetZoom,
-          );
+          const currentZoom = self.leaflet ? self.leaflet.getZoom() : 0;
+          const targetZoom = Math.min(currentZoom + 2, self.leaflet ? self.leaflet.getMaxZoom() : 18);
+          if (self.leaflet) {
+            self.leaflet.setView(
+              [params.data.value[1], params.data.value[0]],
+              targetZoom,
+            );
+          }
         }
       });
 
       // Ensure zoom handler consistently applies the same clustering logic
-      self.leaflet.on("zoomend", () => {
-        if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
+      if (self.leaflet) {
+        self.leaflet.on("zoomend", () => {
+          if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
           const nodeData = self.utils.makeCluster(self);
           clusters = nodeData.clusters;
           nonClusterNodes = nodeData.nonClusterNodes;
@@ -764,6 +801,7 @@ class NetJSONGraphRender {
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
       });
+    }
     }
 
     self.utils.setupHashChangeHandler(self);
