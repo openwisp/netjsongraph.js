@@ -1,3 +1,13 @@
+/**
+ * @class
+ * NetJSONGraphGUI - User interface components and controls management.
+ *
+ * Main Responsibilities:
+ * - Creates DOM elements for controls and information panels
+ * - Manages metadata display and node/link details
+ * - Handles UI interactions and event binding
+ * - Maintains responsive design and accessibility
+ */
 class NetJSONGraphGUI {
   constructor(_this) {
     this.self = _this;

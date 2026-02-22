@@ -1,5 +1,6 @@
 import {
   getElementByCss,
+  getElementByXpath,
   tearDown,
   captureConsoleErrors,
   getDriver,
@@ -115,12 +116,14 @@ describe("Chart Rendering Test", () => {
   });
 
   test("render wifi clients example without errors", async () => {
-    driver.get(urls.wifiClients);
+    await driver.get(urls.wifiClients);
     const canvas = await getElementByCss(driver, "canvas", 2000);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
 
     const canvasHeight = await driver.executeScript(
       "return graph.echarts.getRenderedCanvas().height",
@@ -138,5 +141,414 @@ describe("Chart Rendering Test", () => {
       "return !!document.querySelector('canvas') && !!graph.echarts",
     );
     expect(hasDots).toBe(true);
+  });
+
+  test("render Geographic map with GeoJSON data without console errors", async () => {
+    await driver.get(urls.geoJson);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(leafletContainer).not.toBeNull();
+
+    // GeoJSON rendering may not show metadata counts the same way as NetJSON
+    // The important check is that it renders without errors
+  });
+
+  test("bookmarkableActions: render Basic usage example with url fragments for a node", async () => {
+    await driver.get(`${urls.basicUsage}#id=basicUsage&nodeId=10.149.3.3`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
+    const node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='10.149.3.3']",
+      2000,
+    );
+    const nodeId = await node.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(nodeId).toBe("10.149.3.3");
+  });
+
+  test("bookmarkableActions: render Basic usage example with url fragments for a link", async () => {
+    await driver.get(
+      `${urls.basicUsage}#id=basicUsage&nodeId=172.16.155.5~172.16.155.4`,
+    );
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
+    const source = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.155.5']",
+      2000,
+    );
+    const target = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.155.4']",
+      2000,
+    );
+    const sourceId = await source.getText();
+    const targetId = await target.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(sourceId).toBe("172.16.155.5");
+    expect(targetId).toBe("172.16.155.4");
+  });
+
+  test("bookmarkableActions: render Geographic map example with url fragments for a node", async () => {
+    await driver.get(`${urls.geographicMap}#id=geographicMap&nodeId=172.16.169.1`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
+    const node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.169.1']",
+      2000,
+    );
+    const nodeId = await node.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(nodeId).toBe("172.16.169.1");
+  });
+
+  test("bookmarkableActions: render Geographic map example with url fragments for a link", async () => {
+    await driver.get(
+      `${urls.geographicMap}#id=geographicMap&nodeId=172.16.185.12~172.16.185.13`,
+    );
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
+    const source = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.185.12']",
+      2000,
+    );
+    const target = await getElementByXpath(
+      driver,
+      "//span[@class='njg-valueLabel' and text()='172.16.185.13']",
+      2000,
+    );
+    const sourceId = await source.getText();
+    const targetId = await target.getText();
+
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(sideBar).not.toBeNull();
+    expect(sourceId).toBe("172.16.185.12");
+    expect(targetId).toBe("172.16.185.13");
+  });
+
+  test("bookmarkableActions: render indoor overlay example without JS console errors", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const {nodesPresent, linksPresent} =
+      await getPresentNodesAndLinksCount("Geographic map");
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(nodesRendered).toBe(nodesPresent);
+    expect(linksRendered).toBe(linksPresent);
+
+    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    let currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    let indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    const indoorCanvas = await getElementByCss(driver, "canvas", 2000);
+    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
+    const indoorConsoleErrors = await captureConsoleErrors(driver);
+    const {nodesRendered: indoorNodesRendered, linksRendered: indoorLinksRendered} =
+      await getRenderedNodesAndLinksCount(driver);
+    const {nodesPresent: indoorNodesPresent, linksPresent: indoorLinksPresent} =
+      await getPresentNodesAndLinksCount("Indoor map");
+    printConsoleErrors(indoorConsoleErrors);
+    expect(indoorConsoleErrors.length).toBe(0);
+    expect(indoorContainer).not.toBeNull();
+    expect(indoorCanvas).not.toBeNull();
+    expect(floorplanImage).not.toBeNull();
+    expect(indoorNodesRendered).toBe(indoorNodesPresent);
+    expect(indoorLinksRendered).toBe(indoorLinksPresent);
+    await driver.executeScript('window._indoorMap.utils.triggerOnClick("node_2");');
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("node_2");
+    const closeBtn = await getElementByCss(driver, "#indoormap-close");
+    expect(closeBtn).not.toBeNull();
+    await closeBtn.click();
+    indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    expect(indoorContainer).toBeNull();
+  });
+
+  test("bookmarkableActions: test url fragments for nodes", async () => {
+    await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+    expect(indoorContainer).not.toBeNull();
+    expect(floorplanImage).not.toBeNull();
+  });
+
+  test("bookmarkableActions: test forward/backward actions", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    let currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    let indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).not.toBeNull();
+    await driver.executeScript('window._indoorMap.utils.triggerOnClick("node_2");');
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("node_2");
+    await driver.get("http://0.0.0.0:8080");
+    await driver.navigate().back();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).not.toBeNull();
+    let node = await getElementByCss(driver, "#indoormap-container .njg-valueLabel");
+    let nodeId = await node.getText();
+    expect(nodeId).toBe("Node_2");
+    await driver.navigate().back();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).not.toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).toBeNull();
+    await driver.navigate().forward();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).not.toBeNull();
+    node = await getElementByCss(driver, "#indoormap-container .njg-valueLabel");
+    nodeId = await node.getText();
+    expect(nodeId).toBe("Node_2");
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test("bookmarkableActions: check if parseUrlFragments handles invalid UTF-8", async () => {
+    // Invalid UTF-8 sequence in hash
+    await driver.get(`${urls.indoorMapOverlay}#%E2%82`);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(canvas).not.toBeNull();
+  });
+
+  test("moveNodeInRealTime: test in Geographic map example", async () => {
+    await driver.get(urls.geographicMap);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+    await driver.executeScript(() => {
+      window.map.utils.moveNodeInRealTime("172.16.171.15", {
+        lat: 41.90197,
+        lng: 12.49071,
+      });
+    });
+    await driver.sleep(500);
+    const coordinate = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const location = series.data.find((l) => l.name === "Germany-2");
+      return location.value;
+    });
+    expect(coordinate).toEqual([12.49071, 41.90197]);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test("moveNodeInRealTime: render example without console errors", async () => {
+    await driver.get(urls.movingNode);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    expect(leafletContainer).not.toBeNull();
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+
+    // Wait for map to initialize and get initial position
+    await driver.sleep(2000);
+    const initialPosition = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const node = series.data.find((l) => l.name === "Bus 141 Rome");
+      return node ? node.value : null;
+    });
+    expect(initialPosition).not.toBeNull();
+    expect(Array.isArray(initialPosition)).toBe(true);
+    expect(initialPosition).toHaveLength(2);
+
+    // Wait for at least one movement cycle (2 seconds per movement)
+    await driver.sleep(2500);
+
+    // Get new position after movement
+    const newPosition = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const node = series.data.find((l) => l.name === "Bus 141 Rome");
+      return node ? node.value : null;
+    });
+    expect(newPosition).not.toBeNull();
+    expect(Array.isArray(newPosition)).toBe(true);
+    expect(newPosition).toHaveLength(2);
+    // Verify the position has changed
+    expect(newPosition).not.toEqual(initialPosition);
+
+    // Check for console errors
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test("graph: zoom works when scrolling on empty container area", async () => {
+    await driver.get(urls.basicUsage);
+    await getElementByCss(driver, "canvas", 2000);
+    const zoomChanged = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      const option = graph.echarts.getOption();
+      const initialZoom = option?.series?.[0]?.zoom ?? 1;
+
+      const dom = graph.echarts.getDom();
+      const zr = graph.echarts.getZr();
+      const canvas = zr && zr.dom;
+      if (!dom || !canvas) return done(false);
+
+      const containerRect = dom.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();    
+
+      const x = (canvasRect.right + containerRect.right) / 2;
+      const y = (canvasRect.bottom + containerRect.bottom) / 2;    
+    
+      dom.dispatchEvent(new WheelEvent('wheel', {
+        bubbles: true,
+        clientX: x,
+        clientY: y,
+        deltaY: -120,
+        deltaMode: 0
+      }));
+      const start = Date.now();
+      (function poll() {
+        const option = graph.echarts.getOption();
+        const newZoom = (option && option.series && option.series[0] && option.series[0].zoom) || 1;
+        if (newZoom !== initialZoom) return done(true);
+        if (Date.now() - start > 2000) return done(false);
+        setTimeout(poll, 50);
+      }());
+    `);
+    expect(zoomChanged).toBe(true);
+  });
+
+  test("clustering: renders without errors and works correctly on zoom", async () => {
+    await driver.get(urls.clustering);
+    // Wait for map to load
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    // check for presence of legend and canvas
+    const legend = await getElementByCss(driver, "#legend", 2000);
+    const canvases = await getElementsByCss(
+      driver,
+      ".ec-extension-leaflet .leaflet-overlay-pane canvas",
+    );
+    expect(leafletContainer).not.toBeNull();
+    expect(legend).not.toBeNull();
+    expect(canvases.length).toBeGreaterThan(0);
+    // Get initial node count at low zoom (should have fewer nodes due to clustering)
+    const initialNodeCount = await driver.executeScript(`
+      const option = window.map.echarts.getOption();
+      const series = option.series.find(s => s.type === 'scatter');
+      return series ? series.data.length : 0;
+    `);
+    // Zoom in to disable clustering (at higher zoom levels)
+    const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
+    let click = 0;
+    while (click < 10) {
+      // eslint-disable-next-line no-await-in-loop
+      const className = await zoomIn.getAttribute("class");
+      if (className.includes("leaflet-disabled")) {
+        break;
+      }
+      zoomIn.click();
+      click += 1;
+    }
+    await driver.sleep(1000); // Wait for clustering to update
+    // Get node count at high zoom (should have more nodes when clustering is disabled)
+    const finalNodeCount = await driver.executeScript(`
+      const option = window.map.echarts.getOption();
+      const series = option.series.find(s => s.type === 'scatter');
+      return series ? series.data.length : 0;
+    `);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    // At high zoom, we should see more individual nodes (clustering disabled)
+    // At low zoom, we should see fewer nodes (clustering enabled)
+    expect(finalNodeCount).toBeGreaterThan(initialNodeCount);
+    // Verify that we have a reasonable number of nodes
+    // The clustering data has multiple nodes at same coordinates
+    // so finalNodeCount should be significantly higher when unclustered
+    expect(finalNodeCount).toBeGreaterThan(5);
+    expect(initialNodeCount).toBeGreaterThan(0);
+  });
+
+  test("render geo map with leaflet plugins without console errors", async () => {
+    await driver.get(urls.leafletPlugins);
+    const leafletContainer = await getElementByCss(
+      driver,
+      ".ec-extension-leaflet",
+      2000,
+    );
+    const drawToolbar = await getElementByCss(driver, ".leaflet-draw-toolbar", 2000);
+    const drawSection = await getElementByCss(driver, ".leaflet-draw-section", 2000);
+    const drawPolylineBtn = await getElementByCss(
+      driver,
+      ".leaflet-draw-draw-polyline",
+      2000,
+    );
+    const measureControl = await getElementByCss(
+      driver,
+      ".leaflet-control-measure",
+      2000,
+    );
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+    expect(leafletContainer).not.toBeNull();
+    expect(drawToolbar).not.toBeNull();
+    expect(drawSection).not.toBeNull();
+    expect(drawPolylineBtn).not.toBeNull();
+    expect(measureControl).not.toBeNull();
   });
 });

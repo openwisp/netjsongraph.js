@@ -1,30 +1,40 @@
-import * as echarts from "echarts/core";
-import {GraphChart, EffectScatterChart, LinesChart, ScatterChart} from "echarts/charts";
-import {
-  TooltipComponent,
-  TitleComponent,
-  ToolboxComponent,
-  LegendComponent,
-  GraphicComponent,
-} from "echarts/components";
-import {SVGRenderer} from "echarts/renderers";
-import L from "leaflet/dist/leaflet";
-import "echarts-gl";
+import {use} from "echarts/core";
+import {install as LinesChart} from "echarts/lib/chart/lines/install";
+import {install as GraphChart} from "echarts/lib/chart/graph/install";
+import {install as ScatterChart} from "echarts/lib/chart/scatter/install";
+import {install as TooltipComponent} from "echarts/lib/component/tooltip/install";
+import {install as TitleComponent} from "echarts/lib/component/title/install";
+import {install as ToolboxComponent} from "echarts/lib/component/toolbox/install";
+import {install as LegendComponent} from "echarts/lib/component/legend/install";
+import {install as GraphicComponent} from "echarts/lib/component/graphic/install";
+import {install as SVGRenderer} from "echarts/lib/renderer/installSVGRenderer";
+import {install as CanvasRenderer} from "echarts/lib/renderer/installCanvasRenderer";
+import getLeaflet from "./leaflet-loader";
 import {addPolygonOverlays} from "./netjsongraph.geojson";
 
-echarts.use([
+use([
   GraphChart,
-  EffectScatterChart,
   LinesChart,
   TooltipComponent,
   TitleComponent,
   ToolboxComponent,
   LegendComponent,
   SVGRenderer,
+  CanvasRenderer,
   ScatterChart,
   GraphicComponent,
 ]);
 
+/**
+ * @class
+ * NetJSONGraphRender - Rendering utilities and visualization engine integration.
+ *
+ * Main Responsibilities:
+ * - Provides mapRender() and graphRender() methods for different view modes
+ * - Integrates ECharts and Leaflet for network topology visualization
+ * - Handles interactive features like tooltips and legends
+ * - Manages node clustering and styling
+ */
 class NetJSONGraphRender {
   /**
    * @function
@@ -76,9 +86,6 @@ class NetJSONGraphRender {
                 ? self.utils.getLinkTooltipInfo(params.data)
                 : self.utils.getNodeTooltipInfo(params.data);
             }
-            if (params.componentSubType === "graphGL") {
-              return self.utils.getNodeTooltipInfo(params.data);
-            }
             return params.componentSubType === "lines"
               ? self.utils.getLinkTooltipInfo(params.data.link)
               : self.utils.getNodeTooltipInfo(params.data.node);
@@ -93,14 +100,12 @@ class NetJSONGraphRender {
       "click",
       (params) => {
         const clickElement = configs.onClickElement.bind(self);
+        self.utils.addActionToUrl(self, params);
         if (params.componentSubType === "graph") {
           return clickElement(
             params.dataType === "edge" ? "link" : "node",
             params.data,
           );
-        }
-        if (params.componentSubType === "graphGL") {
-          return clickElement("node", params.data);
         }
         return params.componentSubType === "lines"
           ? clickElement("link", params.data.link)
@@ -128,7 +133,7 @@ class NetJSONGraphRender {
     const categories = [];
     const configs = self.config;
     const nodes = JSONData.nodes.map((node) => {
-      const nodeResult = JSON.parse(JSON.stringify(node));
+      const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
 
@@ -149,20 +154,18 @@ class NetJSONGraphRender {
       nodeResult.name = resolvedName;
       // Preserve original NetJSON node for sidebar use
       /* eslint-disable no-underscore-dangle */
-      nodeResult._source = JSON.parse(JSON.stringify(node));
+      nodeResult._source = self.utils.fastDeepCopy(node);
       return nodeResult;
     });
     const links = JSONData.links.map((link) => {
-      const linkResult = JSON.parse(JSON.stringify(link));
+      const linkResult = self.utils.fastDeepCopy(link);
       const {linkStyleConfig, linkEmphasisConfig} = self.utils.getLinkStyle(
         link,
         configs,
         "graph",
       );
-
       linkResult.lineStyle = linkStyleConfig;
       linkResult.emphasis = {lineStyle: linkEmphasisConfig.linkStyle};
-
       return linkResult;
     });
 
@@ -200,11 +203,8 @@ class NetJSONGraphRender {
       {
         ...baseGraphSeries,
         id: "network-graph",
-        type: configs.graphConfig.series.type === "graphGL" ? "graphGL" : "graph",
-        layout:
-          configs.graphConfig.series.type === "graphGL"
-            ? "forceAtlas2"
-            : configs.graphConfig.series.layout,
+        type: "graph",
+        layout: configs.graphConfig.series.layout || "force",
         nodes,
         links,
       },
@@ -245,7 +245,7 @@ class NetJSONGraphRender {
       if (node.properties) {
         // Maintain flatNodes lookup regardless of whether the node is rendered as a marker
         if (!JSONData.flatNodes) {
-          flatNodes[node.id] = JSON.parse(JSON.stringify(node));
+          flatNodes[node.id] = self.utils.fastDeepCopy(node);
         }
       }
 
@@ -285,7 +285,7 @@ class NetJSONGraphRender {
               symbolSize: nodeEmphasisConfig.nodeSize,
             },
             node,
-            _source: JSON.parse(JSON.stringify(node)),
+            _source: self.utils.fastDeepCopy(node),
           });
         }
       }
@@ -324,14 +324,10 @@ class NetJSONGraphRender {
     const series = [
       {
         id: "geo-map",
-        type:
-          configs.mapOptions.nodeConfig.type === "effectScatter"
-            ? "effectScatter"
-            : "scatter",
+        type: "scatter",
         name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
-        animationDuration: 1000,
         label: configs.mapOptions.nodeConfig.label,
         itemStyle: {
           color: (params) => {
@@ -410,6 +406,61 @@ class NetJSONGraphRender {
 
   /**
    * @function
+   * @name _propagateGraphZoom
+   *
+   * Enables wheel zoom outside graph canvas area.
+   * @param  {object}  self          NetJSONGraph object
+   *
+   */
+  _propagateGraphZoom(self) {
+    const dom = self.echarts.getDom && self.echarts.getDom();
+    if (!dom) {
+      return;
+    }
+    const canvas = dom.querySelector("canvas");
+    dom.addEventListener(
+      "wheel",
+      (e) => {
+        if (!canvas) {
+          return;
+        }
+        const rect = dom.getBoundingClientRect();
+        // if coordinates of mouse are inside the canvas,
+        // zoom will be handled normally
+        if (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        ) {
+          // during manual testing I couldn't trigger this
+          // but let's leave it just in case the internals
+          // of the library some day may change
+          return;
+        }
+        // if we get here it's because the mouse is outside the canvas
+        e.preventDefault();
+        const r = canvas.getBoundingClientRect();
+        // trigger wheel event in the canvas to propagate zoom
+        canvas.dispatchEvent(
+          new WheelEvent("wheel", {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            clientX: r.left + r.width / 2,
+            clientY: r.top + r.height / 2,
+            // invert deltaY to match expected zoom direction
+            deltaY: -e.deltaY,
+            deltaMode: e.deltaMode,
+          }),
+        );
+      },
+      {passive: false},
+    );
+  }
+
+  /**
+   * @function
    * @name graphRender
    *
    * Render the final graph result based on JSONData.
@@ -419,11 +470,11 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-
     window.onresize = () => {
       self.echarts.resize();
     };
-
+    // Handles zoom outside graph area
+    self.utils._propagateGraphZoom(self);
     // Toggle labels on zoom threshold crossing
     if (self.config.showGraphLabelsAtZoom > 0) {
       self.echarts.on("graphRoam", (params) => {
@@ -443,9 +494,12 @@ class NetJSONGraphRender {
       });
     }
 
+    self.utils.setupHashChangeHandler(self);
+
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
@@ -458,6 +512,12 @@ class NetJSONGraphRender {
    *
    */
   mapRender(JSONData, self) {
+    const L = getLeaflet();
+    if (!L) {
+      throw new Error("Leaflet api is not loaded");
+    }
+    const {circleMarker, latLngBounds} = L;
+
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
@@ -466,7 +526,7 @@ class NetJSONGraphRender {
     // deep-copy it for polygon overlays and convert the working copy to
     // NetJSON so the rest of the pipeline can operate uniformly.
     if (self.utils.isGeoJSON(JSONData)) {
-      self.originalGeoJSON = JSON.parse(JSON.stringify(JSONData));
+      self.originalGeoJSON = self.utils.fastDeepCopy(JSONData);
       JSONData = self.utils.geojsonToNetjson(JSONData);
       // From this point forward we treat the data as NetJSON internally,
       // but keep the public-facing `type` value unchanged ("geojson").
@@ -487,7 +547,7 @@ class NetJSONGraphRender {
     self.config.geoOptions = self.utils.deepMergeObj(
       {
         pointToLayer: (feature, latlng) =>
-          L.circleMarker(latlng, self.config.geoOptions.style),
+          circleMarker(latlng, self.config.geoOptions.style),
         onEachFeature: (feature, layer) => {
           layer.on("click", () => {
             const properties = {
@@ -526,7 +586,7 @@ class NetJSONGraphRender {
         if (bounds) {
           latlngs.forEach((ll) => bounds.extend(ll));
         } else {
-          bounds = L.latLngBounds(latlngs);
+          bounds = latLngBounds(latlngs);
         }
       }
 
@@ -670,11 +730,7 @@ class NetJSONGraphRender {
       );
 
       self.echarts.on("click", (params) => {
-        if (
-          (params.componentSubType === "scatter" ||
-            params.componentSubType === "effectScatter") &&
-          params.data.cluster
-        ) {
+        if (params.componentSubType === "scatter" && params.data.cluster) {
           // Zoom into the clicked cluster instead of expanding it
           const currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
@@ -710,9 +766,11 @@ class NetJSONGraphRender {
       });
     }
 
+    self.utils.setupHashChangeHandler(self);
     self.event.emit("onLoad");
     self.event.emit("onReady");
     self.event.emit("renderArray");
+    self.event.emit("applyUrlFragmentState");
   }
 
   /**
@@ -810,4 +868,4 @@ class NetJSONGraphRender {
   }
 }
 
-export {NetJSONGraphRender, echarts, L};
+export default NetJSONGraphRender;

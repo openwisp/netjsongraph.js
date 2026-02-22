@@ -1,3 +1,15 @@
+/**
+ * Fast deep copy using structuredClone if available, fallback to JSON.parse(JSON.stringify())
+ * @param {any} obj - The object to deep copy
+ * @return {any} - Deep copied object
+ */
+function fastDeepCopy(obj) {
+  if (typeof structuredClone === "function") {
+    return structuredClone(obj);
+  }
+  return JSON.parse(JSON.stringify(obj));
+}
+
 const operations = {
   /**
    * @function
@@ -80,7 +92,7 @@ const operations = {
    *
    */
   changeInterfaceID(JSONData) {
-    const copyLinks = JSON.parse(JSON.stringify(JSONData.links));
+    const copyLinks = fastDeepCopy(JSONData.links);
     for (let i = copyLinks.length - 1; i >= 0; i -= 1) {
       const link = copyLinks[i];
 
@@ -112,7 +124,7 @@ const operations = {
    *
    */
   arrayDeduplication(arrData, eigenvalues = [], ordered = true) {
-    const copyArr = JSON.parse(JSON.stringify(arrData));
+    const copyArr = fastDeepCopy(arrData);
     const tempStack = [];
     for (let i = copyArr.length - 1; i >= 0; i -= 1) {
       const tempValueArr = [];

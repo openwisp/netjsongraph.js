@@ -1,5 +1,6 @@
-import NetJSONGraph from "../src/js/netjsongraph.core";
-import {NetJSONGraphRender, L} from "../src/js/netjsongraph.render";
+import L from "leaflet";
+import NetJSONGraphCore from "../src/js/netjsongraph.core";
+import NetJSONGraphRender from "../src/js/netjsongraph.render";
 
 const JSONFILE = "test";
 const JSONData = {
@@ -33,7 +34,7 @@ const data3 = {
   next: null,
 };
 
-const graph = new NetJSONGraph([JSONFILE, JSONFILE]);
+const graph = new NetJSONGraphCore([JSONFILE, JSONFILE]);
 graph.event = graph.utils.createEvent();
 graph.setConfig({
   render: () => {},
@@ -108,7 +109,7 @@ describe("Test netjsongraph render", () => {
 });
 
 describe("Test netjsongraph setConfig", () => {
-  test("NetJSONGraph support dynamic modification of config parameters", () => {
+  test("NetJSONGraphCore support dynamic modification of config parameters", () => {
     graph.setConfig({
       nodeSize: 1,
     });
@@ -119,14 +120,14 @@ describe("Test netjsongraph setConfig", () => {
     expect(graph.config.nodeSize).toBe(5);
   });
   test("Modify el config", () => {
-    const obj1 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    const obj1 = new NetJSONGraphCore([JSONFILE, JSONFILE]);
     expect(obj1.config.el).toBeUndefined();
     obj1.setConfig({});
     expect(obj1.el).toBe(document.body);
 
     const container = document.createElement("div");
     document.body.appendChild(container);
-    const obj2 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    const obj2 = new NetJSONGraphCore([JSONFILE, JSONFILE]);
     obj2.setConfig({
       el: container,
     });
@@ -134,12 +135,12 @@ describe("Test netjsongraph setConfig", () => {
     obj2.setConfig({});
     expect(obj2.el).toBe(container);
 
-    const obj3 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    const obj3 = new NetJSONGraphCore([JSONFILE, JSONFILE]);
     obj3.setConfig();
     expect(obj3.el).toBe(document.body);
 
     container.setAttribute("id", "container");
-    const obj4 = new NetJSONGraph([JSONFILE, JSONFILE]);
+    const obj4 = new NetJSONGraphCore([JSONFILE, JSONFILE]);
     obj4.setConfig({
       el: "#container",
     });
@@ -327,7 +328,7 @@ describe("Test netjsongraph searchElements", () => {
 });
 
 describe("Test netjsongraph properties", () => {
-  const map = new NetJSONGraph(JSONFILE);
+  const map = new NetJSONGraphCore(JSONFILE);
   const jsonData = {
     nodes: [],
     links: [],
@@ -395,7 +396,7 @@ describe("Test netjsongraph GeoJSON properties", () => {
       },
     ],
   };
-  const map = new NetJSONGraph(geoJSONData);
+  const map = new NetJSONGraphCore(geoJSONData);
 
   beforeAll(() => {
     map.event = map.utils.createEvent();
@@ -443,7 +444,7 @@ describe("Test netjsongraph GeoJSON properties", () => {
 });
 
 describe("Test when invalid data is passed", () => {
-  const map = new NetJSONGraph({});
+  const map = new NetJSONGraphCore({});
   beforeAll(() => {
     map.event = map.utils.createEvent();
     map.setConfig({
@@ -473,8 +474,8 @@ describe("Test when invalid data is passed", () => {
     console.error.mockClear();
   });
 
-  test("Handle the error", () => {
-    expect(map.render).toThrow();
+  test("Handle the error", async () => {
+    await map.render();
     expect(console.error).toHaveBeenCalled();
     expect(console.error).toHaveBeenCalledWith(new Error("Invalid data format!"));
   });
@@ -509,6 +510,8 @@ describe("generateMapOption - node processing and dynamic styling", () => {
           linkStyleConfig: {},
           linkEmphasisConfig: {linkStyle: {}},
         })),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
     };
   });
@@ -648,7 +651,7 @@ describe("Test when more data is present than maxPointsFetched", () => {
       {source: "5", target: "1", cost: 1},
     ],
   };
-  const map = new NetJSONGraph(data);
+  const map = new NetJSONGraphCore(data);
   beforeAll(() => {
     map.event = map.utils.createEvent();
     map.setConfig({
@@ -701,6 +704,16 @@ describe("Test when more data is present than maxPointsFetched", () => {
 
 describe("Test clustering", () => {
   let container;
+  let originalPrototype;
+
+  beforeEach(() => {
+    originalPrototype = Object.getPrototypeOf(NetJSONGraphRender.prototype);
+  });
+
+  afterEach(() => {
+    Object.setPrototypeOf(NetJSONGraphRender.prototype, originalPrototype);
+  });
+
   const setUp = (map) => {
     Object.setPrototypeOf(NetJSONGraphRender.prototype, map.utils);
     map.utils = new NetJSONGraphRender();
@@ -777,7 +790,7 @@ describe("Test clustering", () => {
       ],
     };
 
-    const map = new NetJSONGraph(data);
+    const map = new NetJSONGraphCore(data);
 
     setUp(map);
 
@@ -845,7 +858,7 @@ describe("Test clustering", () => {
       links: [],
     };
 
-    const map = new NetJSONGraph(data);
+    const map = new NetJSONGraphCore(data);
 
     setUp(map);
     map.setConfig({
@@ -903,7 +916,7 @@ describe("Test clustering", () => {
       ],
       links: [],
     };
-    const map = new NetJSONGraph(data);
+    const map = new NetJSONGraphCore(data);
     setUp(map);
     document.body.appendChild(container);
     map.leaflet = L.map("map", {
@@ -980,6 +993,9 @@ describe("Test disableClusteringAtLevel: 0", () => {
           nonClusterNodes: [],
           nonClusterLinks: [],
         })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        setupHashChangeHandler: jest.fn(),
+        parseUrlFragments: jest.fn(),
       },
       event: {
         emit: jest.fn(),
@@ -1076,6 +1092,9 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       event: {
         emit: jest.fn(),
@@ -1217,6 +1236,9 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         echartsSetOption: jest.fn(),
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},
     };
@@ -1275,6 +1297,9 @@ describe("graph label visibility and fallbacks", () => {
           nodeSizeConfig: 10,
           nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
         })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       echarts: {
         getOption: jest.fn(() => ({series: [{id: "network-graph", zoom: 1}]})),
@@ -1310,6 +1335,9 @@ describe("graph label visibility and fallbacks", () => {
           nodeSizeConfig: 10,
           nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
         })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       echarts: {
         getOption: jest
@@ -1339,6 +1367,9 @@ describe("graph label visibility and fallbacks", () => {
       utils: {
         generateGraphOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
+        _propagateGraphZoom: jest.fn(),
       },
       echarts: {
         on: jest.fn((evt, cb) => {
@@ -1382,6 +1413,9 @@ describe("map series ids and name fallbacks", () => {
           linkStyleConfig: {},
           linkEmphasisConfig: {linkStyle: {}},
         })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
     };
 
@@ -1444,6 +1478,9 @@ describe("map series ids and name fallbacks", () => {
         geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
         generateMapOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        parseUrlFragments: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
       },
       event: {emit: jest.fn()},
     };
