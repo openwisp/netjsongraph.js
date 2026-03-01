@@ -120,7 +120,7 @@
     "leaflet": "^1.8.0"
   },
   "dependencies": {
-    "echarts": "^5.6.0",
+    "echarts": "^6.0.0",
     "kdbush": "^4.0.2"
   },
   "peerDependencies": {
