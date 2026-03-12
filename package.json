@@ -1,6 +1,7 @@
 {
   "name": "netjsongraph.js",
   "version": "0.3.0",
+  "packageManager": "yarn@1.22.22",
   "description": "NetJSON NetworkGraph visualizer",
   "main": "dist/netjsongraph.min.js",
   "module": "src/js/netjsongraph.js",
@@ -9,6 +10,13 @@
     "dist/",
     "src/"
   ],
+  "resolutions": {
+    "serialize-javascript": "^7.0.3",
+    "tough-cookie": "^4.1.3",
+    "form-data": "^2.5.4",
+    "qs": "^6.14.1",
+    "minimatch": "^3.0.5"
+  },
   "scripts": {
     "test": "jest --silent",
     "dev": "webpack serve --open --mode development",
@@ -105,6 +113,5 @@
     "leaflet": {
       "optional": true
     }
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }
