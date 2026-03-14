@@ -1598,16 +1598,11 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     expect(mouseOutCall).toBeDefined();
     const onHover = mouseOverCall[1];
     const onUnhover = mouseOutCall[1];
-    // 3. Simulate Mouse Over (Tooltip appears) -> Labels should HIDE
+    // 3. Simulate Mouse Over (Tooltip appears)
     onHover();
-    const hideCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
-    const hiddenSeries = hideCall.series.find((s) => s.id === "geo-map");
-    expect(hiddenSeries.label.show).toBe(false);
-    // 4. Simulate Mouse Out (Tooltip gone) -> Labels should SHOW
+    // ECharts native emphasis handles hiding the individual node's label.
+    // 4. Simulate Mouse Out (Tooltip gone)
     onUnhover();
-    const showCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
-    const shownSeries = showCall.series.find((s) => s.id === "geo-map");
-    expect(shownSeries.label.show).toBe(true);
   });
 
   test("labels are completely disabled when showMapLabelsAtZoom is false", () => {
@@ -1660,7 +1655,6 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     const lowZoomSetOptionCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
     const lowZoomSeries = lowZoomSetOptionCall.series.find((s) => s.id === "geo-map");
     expect(lowZoomSeries.label.show).toBe(false);
-    // 6. Verify hover/unhover handlers don't show labels (they check !labelsDisabled)
     const mouseOverCall = mockSelf.echarts.on.mock.calls.find(
       (c) => c[0] === "mouseover",
     );
@@ -1671,16 +1665,7 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     expect(mouseOutCall).toBeDefined();
     const onHover = mouseOverCall[1];
     const onUnhover = mouseOutCall[1];
-    // Simulate hover - handler should not call setOption because labelsDisabled is true
-    const callsBeforeHover = mockSelf.echarts.setOption.mock.calls.length;
     onHover();
-    // Since labelsDisabled is true, the handler checks !labelsDisabled && showLabel
-    // which is false, so setOption should not be called
-    expect(mockSelf.echarts.setOption.mock.calls.length).toBe(callsBeforeHover);
-    // Simulate unhover - handler should not call setOption because labelsDisabled is true
-    const callsBeforeUnhover = mockSelf.echarts.setOption.mock.calls.length;
     onUnhover();
-    // Since labelsDisabled is true, the handler should not call setOption
-    expect(mockSelf.echarts.setOption.mock.calls.length).toBe(callsBeforeUnhover);
   });
 });

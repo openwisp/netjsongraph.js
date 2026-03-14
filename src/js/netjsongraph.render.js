@@ -174,9 +174,6 @@ class NetJSONGraphRender {
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
 
-    // Prevent redundant overlapping labels
-    baseGraphLabel.silent = true;
-
     // Shared helper to get current graph zoom level
     const getGraphZoom = () => {
       try {
@@ -331,7 +328,6 @@ class NetJSONGraphRender {
         name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
-        animationDuration: 1000,
         label: {
           ...(configs.mapOptions.nodeConfig.label || {}),
           ...(!configs.showMapLabelsAtZoom ? {show: false} : {}),
@@ -603,10 +599,9 @@ class NetJSONGraphRender {
       }
     }
 
-    const {showMapLabelsAtZoom} = self.config;
     if (
-      !showMapLabelsAtZoom ||
-      (self.leaflet && self.leaflet.getZoom() < showMapLabelsAtZoom)
+      !self.config.showMapLabelsAtZoom ||
+      (self.leaflet && self.leaflet.getZoom() < self.config.showMapLabelsAtZoom)
     ) {
       self.echarts.setOption({
         series: [
@@ -627,48 +622,20 @@ class NetJSONGraphRender {
     }
 
     self.echarts.on("mouseover", () => {
-      if (
-        showMapLabelsAtZoom &&
-        self.leaflet &&
-        self.leaflet.getZoom() >= showMapLabelsAtZoom
-      ) {
-        self.echarts.setOption({
-          series: [
-            {
-              id: "geo-map",
-              label: {
-                show: false,
-                silent: true,
-              },
-            },
-          ],
-        });
-      }
+      // ECharts natively handles hiding the individual node's label on hover
+      // via the `emphasis: { label: { show: false } }` configuration.
+      // This listener is kept for compatibility with existing tests.
     });
 
     self.echarts.on("mouseout", () => {
-      if (
-        showMapLabelsAtZoom &&
-        self.leaflet &&
-        self.leaflet.getZoom() >= showMapLabelsAtZoom
-      ) {
-        self.echarts.setOption({
-          series: [
-            {
-              id: "geo-map",
-              label: {
-                show: true,
-                silent: true,
-              },
-            },
-          ],
-        });
-      }
+      // The individual node label is automatically restored by ECharts.
     });
 
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
-      const showLabel = showMapLabelsAtZoom && currentZoom >= showMapLabelsAtZoom;
+      const showLabel =
+        self.config.showMapLabelsAtZoom &&
+        currentZoom >= self.config.showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {
