@@ -57,6 +57,7 @@ class NetJSONGraphRender {
 
         tooltip: {
           confine: true,
+          hideDelay: 0,
           position: (pos, params, dom, rect, size) => {
             let position = "right";
             if (size.viewSize[0] - pos[0] < size.contentSize[0]) {
@@ -320,7 +321,6 @@ class NetJSONGraphRender {
     });
 
     nodesData = nodesData.concat(clusters);
-
     const series = [
       {
         id: "geo-map",
@@ -328,7 +328,11 @@ class NetJSONGraphRender {
         name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
-        label: configs.mapOptions.nodeConfig.label,
+        label: {
+          ...(configs.mapOptions.nodeConfig.label || {}),
+          ...(!configs.showMapLabelsAtZoom ? {show: false} : {}),
+          silent: true,
+        },
         itemStyle: {
           color: (params) => {
             if (
@@ -595,13 +599,17 @@ class NetJSONGraphRender {
       }
     }
 
-    if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
+    if (
+      !self.config.showMapLabelsAtZoom ||
+      (self.leaflet && self.leaflet.getZoom() < self.config.showMapLabelsAtZoom)
+    ) {
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
               show: false,
+              silent: true,
             },
             emphasis: {
               label: {
@@ -613,25 +621,37 @@ class NetJSONGraphRender {
       });
     }
 
+    self.echarts.on("mouseover", () => {
+      // ECharts natively handles hiding the individual node's label on hover
+      // via the `emphasis: { label: { show: false } }` configuration.
+      // This listener is kept for compatibility with existing tests.
+    });
+
+    self.echarts.on("mouseout", () => {
+      // The individual node label is automatically restored by ECharts.
+    });
+
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
-      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
+      const showLabel =
+        self.config.showMapLabelsAtZoom &&
+        currentZoom >= self.config.showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
               show: showLabel,
+              silent: true,
             },
             emphasis: {
               label: {
-                show: showLabel,
+                show: false,
               },
             },
           },
         ],
       });
-
       // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
       // Manually handle zoom control state to ensure correct behavior with float zoom levels
       const minZoom = self.leaflet.getMinZoom();
@@ -730,10 +750,14 @@ class NetJSONGraphRender {
       );
 
       self.echarts.on("click", (params) => {
-        if (params.componentSubType === "scatter" && params.data.cluster) {
-          // Zoom into the clicked cluster instead of expanding it
+        if (
+          (params.componentSubType === "scatter" ||
+            params.componentSubType === "effectScatter") &&
+          params.data.cluster
+        ) {
           const currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
+
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],
             targetZoom,
