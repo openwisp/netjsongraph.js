@@ -2,7 +2,6 @@ import {Builder, By, until} from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 import netJsonMap from "../public/assets/data/netjsonmap.json";
 import netJsonMultipleInterfaces from "../public/assets/data/netjson-multipleInterfaces.json";
-import netJsonGraphFoldNodes from "../public/assets/data/netjsongraph-foldNodes.json";
 import netJsonMapIndoorMap from "../public/assets/data/netjsonmap-indoormap.json";
 import netJsonElementsLegend from "../public/assets/data/netjson-elementsLegend.json";
 import netJsonGraphMultipleLinks from "../public/assets/data/netjsongraph-multipleLinks.json";
@@ -96,7 +95,6 @@ export const getPresentNodesAndLinksCount = async (example) => {
     "Data parse": netJsonMap,
     "Switch render mode": netJsonMap,
     "Switch graph mode": netJsonMap,
-    "Nodes expand or fold": netJsonGraphFoldNodes,
     "Indoor map": netJsonMapIndoorMap,
     "Leaflet plugins": netJsonMap,
     "Custom attributes": netJsonElementsLegend,
