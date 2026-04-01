@@ -81,7 +81,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.5",
-    "knip": "^5.81.0",
+    "knip": "^6.2.0",
     "lint-staged": "^16.1.0",
     "prettier": "^3.6.2",
     "selenium-webdriver": "^4.29.0",
