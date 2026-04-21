@@ -314,7 +314,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   Controls when map labels are shown. This only works when `render` is set to `map`.
   - If set to `false`, labels are completely disabled and will never be shown.
-  - If set to a number (e.g., `13`), labels will be shown when the map zoom level is greater than or equal to that value.
+  - If set to `0`, labels are always shown regardless of zoom level.
+  - If set to a positive number (e.g., `13`), labels will be shown when the map zoom level is greater than or equal to that value.
 
 - `showGraphLabelsAtZoom`
 

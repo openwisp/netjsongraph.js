@@ -1642,12 +1642,34 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     expect(lowZoomSeries.label.show).toBe(false);
   });
 
+  test("labels are always shown when showMapLabelsAtZoom is 0", () => {
+    // generateMapOption: 0 should not force show: false on the label
+    const result = renderInstance.generateMapOption(
+      {nodes: [], links: []},
+      {
+        config: {
+          mapOptions: {nodeConfig: {label: {show: true}}, linkConfig: {}},
+          mapTileConfig: [],
+          showMapLabelsAtZoom: 0,
+        },
+      },
     );
-    expect(mouseOverCall).toBeDefined();
-    expect(mouseOutCall).toBeDefined();
-    const onHover = mouseOverCall[1];
-    const onUnhover = mouseOutCall[1];
-    onHover();
-    onUnhover();
+    const series = result.series.find((s) => s.id === "geo-map");
+    expect(series.label.show).not.toBe(false);
+
+    // zoomend: labels should show at any zoom level when threshold is 0
+    mockSelf.config.showMapLabelsAtZoom = 0;
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    const zoomHandler = capturedEvents.zoomend;
+    expect(zoomHandler).toBeDefined();
+
+    [1, 5, 10, 18].forEach((zoom) => {
+      mockLeaflet.getZoom.mockReturnValue(zoom);
+      mockSelf.echarts.setOption.mockClear();
+      zoomHandler();
+      const lastCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
+      const s = lastCall.series.find((x) => x.id === "geo-map");
+      expect(s.label.show).toBe(true);
+    });
   });
 });

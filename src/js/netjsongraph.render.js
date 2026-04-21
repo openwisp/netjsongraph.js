@@ -330,7 +330,7 @@ class NetJSONGraphRender {
         data: nodesData,
         label: {
           ...(configs.mapOptions.nodeConfig.label || {}),
-          ...(!configs.showMapLabelsAtZoom ? {show: false} : {}),
+          ...(configs.showMapLabelsAtZoom === false ? {show: false} : {}),
           silent: true,
         },
         itemStyle: {
@@ -600,7 +600,7 @@ class NetJSONGraphRender {
     }
 
     if (
-      !self.config.showMapLabelsAtZoom ||
+      self.config.showMapLabelsAtZoom === false ||
       (self.leaflet && self.leaflet.getZoom() < self.config.showMapLabelsAtZoom)
     ) {
       self.echarts.setOption({
@@ -624,7 +624,7 @@ class NetJSONGraphRender {
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
       const showLabel =
-        self.config.showMapLabelsAtZoom &&
+        self.config.showMapLabelsAtZoom !== false &&
         currentZoom >= self.config.showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
