@@ -599,33 +599,10 @@ class NetJSONGraphRender {
       }
     }
 
-    if (
-      self.config.showMapLabelsAtZoom === false ||
-      (self.leaflet && self.leaflet.getZoom() < self.config.showMapLabelsAtZoom)
-    ) {
-      self.echarts.setOption({
-        series: [
-          {
-            id: "geo-map",
-            label: {
-              show: false,
-              silent: true,
-            },
-            emphasis: {
-              label: {
-                show: false,
-              },
-            },
-          },
-        ],
-      });
-    }
-
-    self.leaflet.on("zoomend", () => {
-      const currentZoom = self.leaflet.getZoom();
+    const updateLabelVisibility = () => {
       const showLabel =
         self.config.showMapLabelsAtZoom !== false &&
-        currentZoom >= self.config.showMapLabelsAtZoom;
+        self.leaflet.getZoom() >= self.config.showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {
@@ -642,8 +619,15 @@ class NetJSONGraphRender {
           },
         ],
       });
+    };
+
+    updateLabelVisibility();
+
+    self.leaflet.on("zoomend", () => {
+      updateLabelVisibility();
       // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
       // Manually handle zoom control state to ensure correct behavior with float zoom levels
+      const currentZoom = self.leaflet.getZoom();
       const minZoom = self.leaflet.getMinZoom();
       const maxZoom = self.leaflet.getMaxZoom();
       const zoomIn = document.querySelector(".leaflet-control-zoom-in");

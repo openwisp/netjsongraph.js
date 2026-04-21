@@ -1272,17 +1272,16 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
     // Ensure self.data exists for bbox merge logic
     mockSelf.data = {nodes: [], links: []};
 
-    // Initial render calls setOption once via echartsSetOption with initial map option.
-    // Since zoom (5) >= threshold (3), labels are visible and no extra setOption call is made.
-    expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(1);
+    // Initial render calls setOption twice: once via echartsSetOption, once via updateLabelVisibility.
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(2);
 
     // Invoke the captured moveend callback
     await capturedEvents.moveend();
 
     expect(mockSelf.utils.getBBoxData).toHaveBeenCalled();
     // After data merge, echarts.setOption should be invoked once more for the update
-    // Total: 1 (initial render) + 1 (moveend update) = 2
-    expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(2);
+    // Total: 2 (initial render) + 1 (moveend update) = 3
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(3);
     // Data should now include the fetched node
     expect(mockSelf.data.nodes.some((n) => n.id === "n1")).toBe(true);
   });
@@ -1560,6 +1559,34 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
       event: {emit: jest.fn()},
     };
     renderInstance = new NetJSONGraphRender();
+  });
+
+  test("labels are explicitly shown on initial render when zoom is above the threshold", () => {
+    // zoom (15) >= threshold (13): labels should be set show:true on initial render
+    // without waiting for a zoom event
+    mockLeaflet.getZoom.mockReturnValue(15);
+    mockSelf.echarts.setOption.mockClear();
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    // The post-render visibility block must produce a setOption call with show:true.
+    // It is distinguishable from the echartsSetOption pass-through by the presence of
+    // emphasis.label.show (which the mock's generateMapOption return value does not include).
+    const visibilityCall = mockSelf.echarts.setOption.mock.calls.find((call) => {
+      const opt = call[0];
+      return (
+        opt.series &&
+        opt.series.some(
+          (s) =>
+            s.id === "geo-map" &&
+            s.label &&
+            s.label.show === true &&
+            s.emphasis &&
+            s.emphasis.label &&
+            s.emphasis.label.show === false,
+        )
+      );
+    });
+    expect(visibilityCall).toBeDefined();
   });
 
   test("generateMapOption sets labels as silent to prevent tooltip hover conflicts", () => {
