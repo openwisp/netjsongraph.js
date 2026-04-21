@@ -621,16 +621,6 @@ class NetJSONGraphRender {
       });
     }
 
-    self.echarts.on("mouseover", () => {
-      // ECharts natively handles hiding the individual node's label on hover
-      // via the `emphasis: { label: { show: false } }` configuration.
-      // This listener is kept for compatibility with existing tests.
-    });
-
-    self.echarts.on("mouseout", () => {
-      // The individual node label is automatically restored by ECharts.
-    });
-
     self.leaflet.on("zoomend", () => {
       const currentZoom = self.leaflet.getZoom();
       const showLabel =

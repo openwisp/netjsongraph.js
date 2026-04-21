@@ -1562,11 +1562,18 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     renderInstance = new NetJSONGraphRender();
   });
 
-  test("labels are silent to prevent tooltip hover conflicts", () => {
-    renderInstance.mapRender(mockSelf.data, mockSelf);
-    const option = mockSelf.utils.generateMapOption.mock.results[0].value;
-    const series = option.series.find((s) => s.id === "geo-map");
-    // This now passes because we added silent: true to the mock above
+  test("generateMapOption sets labels as silent to prevent tooltip hover conflicts", () => {
+    const result = renderInstance.generateMapOption(
+      {nodes: [], links: []},
+      {
+        config: {
+          mapOptions: {nodeConfig: {label: {show: true}}, linkConfig: {}},
+          mapTileConfig: [],
+          showMapLabelsAtZoom: 13,
+        },
+      },
+    );
+    const series = result.series.find((s) => s.id === "geo-map");
     expect(series.label.silent).toBe(true);
   });
 
@@ -1581,28 +1588,6 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     const series = lastCall.series.find((s) => s.id === "geo-map");
     // Ensure the update maintains the silent property
     expect(series.label.silent).toBe(true);
-  });
-
-  test("hovering a node hides labels (when zoom > 13) and unhovering restores them", () => {
-    // 1. Setup: Zoom is high (15), so labels are visible initially
-    mockLeaflet.getZoom.mockReturnValue(15);
-    renderInstance.mapRender(mockSelf.data, mockSelf);
-    // 2. Get the registered event handlers
-    const mouseOverCall = mockSelf.echarts.on.mock.calls.find(
-      (c) => c[0] === "mouseover",
-    );
-    const mouseOutCall = mockSelf.echarts.on.mock.calls.find(
-      (c) => c[0] === "mouseout",
-    );
-    expect(mouseOverCall).toBeDefined();
-    expect(mouseOutCall).toBeDefined();
-    const onHover = mouseOverCall[1];
-    const onUnhover = mouseOutCall[1];
-    // 3. Simulate Mouse Over (Tooltip appears)
-    onHover();
-    // ECharts native emphasis handles hiding the individual node's label.
-    // 4. Simulate Mouse Out (Tooltip gone)
-    onUnhover();
   });
 
   test("labels are completely disabled when showMapLabelsAtZoom is false", () => {
@@ -1655,11 +1640,8 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     const lowZoomSetOptionCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
     const lowZoomSeries = lowZoomSetOptionCall.series.find((s) => s.id === "geo-map");
     expect(lowZoomSeries.label.show).toBe(false);
-    const mouseOverCall = mockSelf.echarts.on.mock.calls.find(
-      (c) => c[0] === "mouseover",
-    );
-    const mouseOutCall = mockSelf.echarts.on.mock.calls.find(
-      (c) => c[0] === "mouseout",
+  });
+
     );
     expect(mouseOverCall).toBeDefined();
     expect(mouseOutCall).toBeDefined();
