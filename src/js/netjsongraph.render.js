@@ -722,6 +722,7 @@ class NetJSONGraphRender {
           clusters,
         ),
       );
+      updateLabelVisibility();
 
       self.echarts.on("click", (params) => {
         if (
@@ -761,6 +762,7 @@ class NetJSONGraphRender {
           // When above the threshold, show all nodes without clustering
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
+        updateLabelVisibility();
       });
     }
 

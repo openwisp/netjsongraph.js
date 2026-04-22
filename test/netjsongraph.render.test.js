@@ -1700,3 +1700,122 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
     });
   });
 });
+
+describe("mapRender clustering label visibility", () => {
+  let renderInstance;
+  let mockSelf;
+  let mockLeaflet;
+  let capturedEvents;
+
+  beforeEach(() => {
+    capturedEvents = {};
+    mockLeaflet = {
+      on: jest.fn((event, handler) => {
+        capturedEvents[event] = handler;
+      }),
+      getZoom: jest.fn(() => 15),
+      getMinZoom: jest.fn(() => 1),
+      getMaxZoom: jest.fn(() => 18),
+      getBounds: jest.fn(() => ({isValid: () => false})),
+      fitBounds: jest.fn(),
+      getPane: jest.fn(() => undefined),
+      createPane: jest.fn(() => ({style: {}})),
+      _zoomAnimated: false,
+    };
+    mockSelf = {
+      type: "geojson",
+      data: {type: "FeatureCollection", features: []},
+      config: {
+        geoOptions: {},
+        mapOptions: {nodeConfig: {label: {show: true}}, linkConfig: {}},
+        mapTileConfig: [{}],
+        showMapLabelsAtZoom: 13,
+        clustering: true,
+        clusteringThreshold: 0,
+        disableClusteringAtLevel: 18,
+        clusterRadius: 80,
+        onClickElement: jest.fn(),
+        prepareData: jest.fn(),
+      },
+      leaflet: mockLeaflet,
+      echarts: {
+        setOption: jest.fn(),
+        on: jest.fn(),
+        _api: {
+          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => mockLeaflet}]),
+        },
+      },
+      utils: {
+        deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({
+          nodes: [{id: "n1", properties: {location: {lat: 10, lng: 20}}}],
+          links: [],
+        })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        generateMapOption: jest.fn(() => ({
+          series: [{id: "geo-map", label: {show: true, silent: true}}],
+        })),
+        echartsSetOption: jest.fn((opt) => mockSelf.echarts.setOption(opt)),
+        makeCluster: jest.fn(() => ({
+          clusters: [],
+          nonClusterNodes: [{id: "n1", properties: {location: {lat: 10, lng: 20}}}],
+          nonClusterLinks: [],
+        })),
+        setupHashChangeHandler: jest.fn(),
+      },
+      event: {emit: jest.fn()},
+    };
+    renderInstance = new NetJSONGraphRender();
+  });
+
+  // Helper: find the last setOption call that carries the updateLabelVisibility signature
+  // (geo-map series with both label.show and emphasis.label.show defined).
+  const lastVisibilityCall = (calls) => {
+    const hit = [...calls]
+      .reverse()
+      .find(
+        (c) =>
+          c[0].series &&
+          c[0].series.some(
+            (s) =>
+              s.id === "geo-map" &&
+              s.label &&
+              s.label.show !== undefined &&
+              s.emphasis &&
+              s.emphasis.label &&
+              s.emphasis.label.show !== undefined,
+          ),
+      );
+    return hit ? hit[0].series.find((s) => s.id === "geo-map") : undefined;
+  };
+
+  test("initial clustering setOption does not override label visibility", () => {
+    // zoom (15) >= threshold (13): labels should be shown after mapRender completes.
+    // The clustering setOption runs after updateLabelVisibility and currently overwrites
+    // it — so the last geo-map label call lacks emphasis and show:true is not guaranteed.
+    mockLeaflet.getZoom.mockReturnValue(15);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    const series = lastVisibilityCall(mockSelf.echarts.setOption.mock.calls);
+    expect(series).toBeDefined();
+    expect(series.label.show).toBe(true);
+    expect(series.emphasis.label.show).toBe(false);
+  });
+
+  test("clustering zoomend applies label visibility after updating clusters", () => {
+    // capturedEvents.zoomend is the clustering handler (last registered).
+    // It currently calls generateMapOption/setOption but not updateLabelVisibility.
+    mockLeaflet.getZoom.mockReturnValue(15);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    mockSelf.echarts.setOption.mockClear();
+    mockLeaflet.getZoom.mockReturnValue(15);
+    capturedEvents.zoomend();
+
+    const series = lastVisibilityCall(mockSelf.echarts.setOption.mock.calls);
+    expect(series).toBeDefined();
+    expect(series.label.show).toBe(true);
+    expect(series.emphasis.label.show).toBe(false);
+  });
+});
