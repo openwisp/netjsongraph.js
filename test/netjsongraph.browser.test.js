@@ -361,6 +361,33 @@ describe("Chart Rendering Test", () => {
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
   });
+  test("Regression: Labels should hide when zoomed out below showMapLabelsAtZoom", async () => {
+    await driver.get(urls.geographicMap);
+    await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+
+    // FIX: Removed 'async' and 'await' to satisfy linter
+    await driver.wait(
+      () => driver.executeScript("return typeof window.map !== 'undefined'"),
+      5000,
+      "Timed out waiting for window.map to initialize",
+    );
+
+    await driver.executeScript(`
+      window.map.config.showMapLabelsAtZoom = 12;
+      window.map.leaflet.setZoom(13);
+    `);
+    await driver.sleep(500);
+    let isVisible = await driver.executeScript(
+      "return window.map.echarts.getOption().series[0].label.show;",
+    );
+    expect(isVisible).toBe(true);
+    await driver.executeScript("window.map.leaflet.setZoom(10);");
+    await driver.sleep(500);
+    isVisible = await driver.executeScript(
+      "return window.map.echarts.getOption().series[0].label.show;",
+    );
+    expect(isVisible).toBe(false);
+  });
 
   test("moveNodeInRealTime: test in Geographic map example", async () => {
     await driver.get(urls.geographicMap);

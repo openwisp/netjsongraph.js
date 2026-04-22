@@ -57,6 +57,7 @@ class NetJSONGraphRender {
 
         tooltip: {
           confine: true,
+          hideDelay: 0,
           position: (pos, params, dom, rect, size) => {
             let position = "right";
             if (size.viewSize[0] - pos[0] < size.contentSize[0]) {
@@ -320,7 +321,6 @@ class NetJSONGraphRender {
     });
 
     nodesData = nodesData.concat(clusters);
-
     const series = [
       {
         id: "geo-map",
@@ -328,7 +328,11 @@ class NetJSONGraphRender {
         name: "nodes",
         coordinateSystem: "leaflet",
         data: nodesData,
-        label: configs.mapOptions.nodeConfig.label,
+        label: {
+          ...(configs.mapOptions.nodeConfig.label || {}),
+          ...(configs.showMapLabelsAtZoom === false ? {show: false} : {}),
+          silent: true,
+        },
         itemStyle: {
           color: (params) => {
             if (
@@ -595,13 +599,17 @@ class NetJSONGraphRender {
       }
     }
 
-    if (self.leaflet.getZoom() < self.config.showLabelsAtZoomLevel) {
+    const updateLabelVisibility = () => {
+      const showLabel =
+        self.config.showMapLabelsAtZoom !== false &&
+        self.leaflet.getZoom() >= self.config.showMapLabelsAtZoom;
       self.echarts.setOption({
         series: [
           {
             id: "geo-map",
             label: {
-              show: false,
+              show: showLabel,
+              silent: true,
             },
             emphasis: {
               label: {
@@ -611,29 +619,15 @@ class NetJSONGraphRender {
           },
         ],
       });
-    }
+    };
+
+    updateLabelVisibility();
 
     self.leaflet.on("zoomend", () => {
-      const currentZoom = self.leaflet.getZoom();
-      const showLabel = currentZoom >= self.config.showLabelsAtZoomLevel;
-      self.echarts.setOption({
-        series: [
-          {
-            id: "geo-map",
-            label: {
-              show: showLabel,
-            },
-            emphasis: {
-              label: {
-                show: showLabel,
-              },
-            },
-          },
-        ],
-      });
-
+      updateLabelVisibility();
       // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
       // Manually handle zoom control state to ensure correct behavior with float zoom levels
+      const currentZoom = self.leaflet.getZoom();
       const minZoom = self.leaflet.getMinZoom();
       const maxZoom = self.leaflet.getMaxZoom();
       const zoomIn = document.querySelector(".leaflet-control-zoom-in");
@@ -728,12 +722,17 @@ class NetJSONGraphRender {
           clusters,
         ),
       );
+      updateLabelVisibility();
 
       self.echarts.on("click", (params) => {
-        if (params.componentSubType === "scatter" && params.data.cluster) {
-          // Zoom into the clicked cluster instead of expanding it
+        if (
+          (params.componentSubType === "scatter" ||
+            params.componentSubType === "effectScatter") &&
+          params.data.cluster
+        ) {
           const currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
+
           self.leaflet.setView(
             [params.data.value[1], params.data.value[0]],
             targetZoom,
@@ -763,6 +762,7 @@ class NetJSONGraphRender {
           // When above the threshold, show all nodes without clustering
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
+        updateLabelVisibility();
       });
     }
 

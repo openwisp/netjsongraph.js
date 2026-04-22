@@ -978,6 +978,7 @@ describe("Test disableClusteringAtLevel: 0", () => {
       leaflet: mockLeafletInstance,
       echarts: {
         setOption: jest.fn(),
+        on: jest.fn(),
         _api: {
           getCoordinateSystems: () => [{getLeaflet: () => mockLeafletInstance}],
         },
@@ -1077,11 +1078,12 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         onClickElement: jest.fn(),
         mapOptions: {},
         mapTileConfig: [{}],
-        showLabelsAtZoomLevel: 3,
+        showMapLabelsAtZoom: 3,
       },
       leaflet: leafletMap,
       echarts: {
         setOption: jest.fn(),
+        on: jest.fn(),
         _api: {
           getCoordinateSystems: jest.fn(() => [{getLeaflet: () => leafletMap}]),
         },
@@ -1219,12 +1221,13 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         onClickElement: jest.fn(),
         mapOptions: {},
         mapTileConfig: [{}],
-        showLabelsAtZoomLevel: 3,
+        showMapLabelsAtZoom: 3,
         loadMoreAtZoomLevel: 4,
       },
       leaflet: mockLeaflet,
       echarts: {
         setOption: jest.fn(),
+        on: jest.fn(),
         _api: {
           getCoordinateSystems: jest.fn(() => [{getLeaflet: () => mockLeaflet}]),
         },
@@ -1233,7 +1236,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         isGeoJSON: jest.fn(() => true),
         geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
         generateMapOption: jest.fn(() => ({series: [{data: []}]})),
-        echartsSetOption: jest.fn(),
+        echartsSetOption: jest.fn((opt) => mockSelf.echarts.setOption(opt)),
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
@@ -1269,12 +1272,16 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
     // Ensure self.data exists for bbox merge logic
     mockSelf.data = {nodes: [], links: []};
 
+    // Initial render calls setOption twice: once via echartsSetOption, once via updateLabelVisibility.
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(2);
+
     // Invoke the captured moveend callback
     await capturedEvents.moveend();
 
     expect(mockSelf.utils.getBBoxData).toHaveBeenCalled();
-    // After data merge, echarts.setOption should be invoked once for the update
-    expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(1);
+    // After data merge, echarts.setOption should be invoked once more for the update
+    // Total: 2 (initial render) + 1 (moveend update) = 3
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(3);
     // Data should now include the fetched node
     expect(mockSelf.data.nodes.some((n) => n.id === "n1")).toBe(true);
   });
@@ -1462,12 +1469,13 @@ describe("map series ids and name fallbacks", () => {
         geoOptions: {},
         mapOptions: {},
         mapTileConfig: [{}],
-        showLabelsAtZoomLevel: 3,
+        showMapLabelsAtZoom: 3,
         onClickElement: jest.fn(),
         prepareData: jest.fn(),
       },
       echarts: {
         setOption: jest.fn(),
+        on: jest.fn(),
         _api: {
           getCoordinateSystems: jest.fn(() => [{getLeaflet: () => leafletMap}]),
         },
@@ -1491,5 +1499,323 @@ describe("map series ids and name fallbacks", () => {
     expect(calls.length).toBeGreaterThan(0);
     const [lastArg] = calls[calls.length - 1];
     expect(lastArg.series[0].id).toBe("geo-map");
+  });
+});
+
+describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
+  let renderInstance;
+  let mockSelf;
+  let mockLeaflet;
+  let capturedEvents = {};
+  beforeEach(() => {
+    capturedEvents = {}; // Reset events
+    mockLeaflet = {
+      on: jest.fn((event, handler) => {
+        capturedEvents[event] = handler;
+      }),
+      getZoom: jest.fn(() => 15),
+      getMinZoom: jest.fn(() => 1),
+      getMaxZoom: jest.fn(() => 18),
+      getBounds: jest.fn(() => ({})),
+      getPane: jest.fn(() => undefined),
+      createPane: jest.fn(() => ({style: {}})),
+      _zoomAnimated: false,
+    };
+    mockSelf = {
+      type: "geojson",
+      data: {type: "FeatureCollection", features: []},
+      config: {
+        geoOptions: {},
+        mapOptions: {
+          nodeConfig: {
+            label: {show: true},
+          },
+        },
+        mapTileConfig: [{}],
+        showMapLabelsAtZoom: 13,
+        onClickElement: jest.fn(),
+        prepareData: jest.fn(),
+      },
+      leaflet: mockLeaflet,
+      echarts: {
+        setOption: jest.fn(),
+        on: jest.fn(), // Needed for hover test
+        _api: {
+          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => mockLeaflet}]),
+        },
+      },
+      utils: {
+        deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({nodes: [], links: []})),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        // KEY FIX: Add silent: true to the mock return so the test passes
+        generateMapOption: jest.fn(() => ({
+          series: [{id: "geo-map", label: {show: true, silent: true}}],
+        })),
+        echartsSetOption: jest.fn((opt) => mockSelf.echarts.setOption(opt)), // Link to spy
+        setupHashChangeHandler: jest.fn(),
+      },
+      event: {emit: jest.fn()},
+    };
+    renderInstance = new NetJSONGraphRender();
+  });
+
+  test("labels are explicitly shown on initial render when zoom is above the threshold", () => {
+    // zoom (15) >= threshold (13): labels should be set show:true on initial render
+    // without waiting for a zoom event
+    mockLeaflet.getZoom.mockReturnValue(15);
+    mockSelf.echarts.setOption.mockClear();
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    // The post-render visibility block must produce a setOption call with show:true.
+    // It is distinguishable from the echartsSetOption pass-through by the presence of
+    // emphasis.label.show (which the mock's generateMapOption return value does not include).
+    const visibilityCall = mockSelf.echarts.setOption.mock.calls.find((call) => {
+      const opt = call[0];
+      return (
+        opt.series &&
+        opt.series.some(
+          (s) =>
+            s.id === "geo-map" &&
+            s.label &&
+            s.label.show === true &&
+            s.emphasis &&
+            s.emphasis.label &&
+            s.emphasis.label.show === false,
+        )
+      );
+    });
+    expect(visibilityCall).toBeDefined();
+  });
+
+  test("generateMapOption sets labels as silent to prevent tooltip hover conflicts", () => {
+    const result = renderInstance.generateMapOption(
+      {nodes: [], links: []},
+      {
+        config: {
+          mapOptions: {nodeConfig: {label: {show: true}}, linkConfig: {}},
+          mapTileConfig: [],
+          showMapLabelsAtZoom: 13,
+        },
+      },
+    );
+    const series = result.series.find((s) => s.id === "geo-map");
+    expect(series.label.silent).toBe(true);
+  });
+
+  test("zoomend keeps labels silent when zoom remains above threshold", () => {
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    const zoomHandler = capturedEvents.zoomend;
+    mockLeaflet.getZoom.mockReturnValue(15);
+    if (zoomHandler) {
+      zoomHandler();
+    }
+    const lastCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
+    const series = lastCall.series.find((s) => s.id === "geo-map");
+    // Ensure the update maintains the silent property
+    expect(series.label.silent).toBe(true);
+  });
+
+  test("labels are completely disabled when showMapLabelsAtZoom is false", () => {
+    // 1. Setup: Set showMapLabelsAtZoom to false to disable labels completely
+    mockSelf.config.showMapLabelsAtZoom = false;
+    mockLeaflet.getZoom.mockReturnValue(15); // High zoom level
+    // Reset mocks to track calls
+    mockSelf.echarts.setOption.mockClear();
+    // Mock generateMapOption to return a series with label config
+    mockSelf.utils.generateMapOption.mockReturnValue({
+      series: [{id: "geo-map", label: {show: true, silent: true}}],
+      leaflet: {tiles: [{}], mapOptions: {}},
+    });
+    // 2. Call mapRender
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    // 3. Verify labels are disabled via setOption call after mapRender
+    // mapRender should call setOption to disable labels when showMapLabelsAtZoom is false
+    const setOptionCalls = mockSelf.echarts.setOption.mock.calls;
+    expect(setOptionCalls.length).toBeGreaterThan(0);
+    // Find the call that disables labels (should have show: false)
+    const disableLabelsCall = setOptionCalls.find((call) => {
+      const option = call[0];
+      return (
+        option.series &&
+        option.series.some(
+          (s) => s.id === "geo-map" && s.label && s.label.show === false,
+        )
+      );
+    });
+    expect(disableLabelsCall).toBeDefined();
+    const disabledSeries = disableLabelsCall[0].series.find((s) => s.id === "geo-map");
+    expect(disabledSeries.label.show).toBe(false);
+    expect(disabledSeries.emphasis.label.show).toBe(false);
+    // 4. Verify labels remain disabled even at high zoom levels (zoomend handler)
+    const zoomHandler = capturedEvents.zoomend;
+    expect(zoomHandler).toBeDefined();
+    mockLeaflet.getZoom.mockReturnValue(18); // Very high zoom
+    const callsBeforeZoom = mockSelf.echarts.setOption.mock.calls.length;
+    zoomHandler();
+    // Verify setOption was called
+    expect(mockSelf.echarts.setOption.mock.calls.length).toBeGreaterThan(
+      callsBeforeZoom,
+    );
+    const zoomSetOptionCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
+    const zoomSeries = zoomSetOptionCall.series.find((s) => s.id === "geo-map");
+    expect(zoomSeries.label.show).toBe(false);
+    // 5. Verify labels remain disabled even at low zoom levels
+    mockLeaflet.getZoom.mockReturnValue(5); // Low zoom
+    zoomHandler();
+    const lowZoomSetOptionCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
+    const lowZoomSeries = lowZoomSetOptionCall.series.find((s) => s.id === "geo-map");
+    expect(lowZoomSeries.label.show).toBe(false);
+  });
+
+  test("labels are always shown when showMapLabelsAtZoom is 0", () => {
+    // generateMapOption: 0 should not force show: false on the label
+    const result = renderInstance.generateMapOption(
+      {nodes: [], links: []},
+      {
+        config: {
+          mapOptions: {nodeConfig: {label: {show: true}}, linkConfig: {}},
+          mapTileConfig: [],
+          showMapLabelsAtZoom: 0,
+        },
+      },
+    );
+    const series = result.series.find((s) => s.id === "geo-map");
+    expect(series.label.show).not.toBe(false);
+
+    // zoomend: labels should show at any zoom level when threshold is 0
+    mockSelf.config.showMapLabelsAtZoom = 0;
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    const zoomHandler = capturedEvents.zoomend;
+    expect(zoomHandler).toBeDefined();
+
+    [1, 5, 10, 18].forEach((zoom) => {
+      mockLeaflet.getZoom.mockReturnValue(zoom);
+      mockSelf.echarts.setOption.mockClear();
+      zoomHandler();
+      const lastCall = mockSelf.echarts.setOption.mock.calls.at(-1)[0];
+      const s = lastCall.series.find((x) => x.id === "geo-map");
+      expect(s.label.show).toBe(true);
+    });
+  });
+});
+
+describe("mapRender clustering label visibility", () => {
+  let renderInstance;
+  let mockSelf;
+  let mockLeaflet;
+  let capturedEvents;
+
+  beforeEach(() => {
+    capturedEvents = {};
+    mockLeaflet = {
+      on: jest.fn((event, handler) => {
+        capturedEvents[event] = handler;
+      }),
+      getZoom: jest.fn(() => 15),
+      getMinZoom: jest.fn(() => 1),
+      getMaxZoom: jest.fn(() => 18),
+      getBounds: jest.fn(() => ({isValid: () => false})),
+      fitBounds: jest.fn(),
+      getPane: jest.fn(() => undefined),
+      createPane: jest.fn(() => ({style: {}})),
+      _zoomAnimated: false,
+    };
+    mockSelf = {
+      type: "geojson",
+      data: {type: "FeatureCollection", features: []},
+      config: {
+        geoOptions: {},
+        mapOptions: {nodeConfig: {label: {show: true}}, linkConfig: {}},
+        mapTileConfig: [{}],
+        showMapLabelsAtZoom: 13,
+        clustering: true,
+        clusteringThreshold: 0,
+        disableClusteringAtLevel: 18,
+        clusterRadius: 80,
+        onClickElement: jest.fn(),
+        prepareData: jest.fn(),
+      },
+      leaflet: mockLeaflet,
+      echarts: {
+        setOption: jest.fn(),
+        on: jest.fn(),
+        _api: {
+          getCoordinateSystems: jest.fn(() => [{getLeaflet: () => mockLeaflet}]),
+        },
+      },
+      utils: {
+        deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({
+          nodes: [{id: "n1", properties: {location: {lat: 10, lng: 20}}}],
+          links: [],
+        })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        generateMapOption: jest.fn(() => ({
+          series: [{id: "geo-map", label: {show: true, silent: true}}],
+        })),
+        echartsSetOption: jest.fn((opt) => mockSelf.echarts.setOption(opt)),
+        makeCluster: jest.fn(() => ({
+          clusters: [],
+          nonClusterNodes: [{id: "n1", properties: {location: {lat: 10, lng: 20}}}],
+          nonClusterLinks: [],
+        })),
+        setupHashChangeHandler: jest.fn(),
+      },
+      event: {emit: jest.fn()},
+    };
+    renderInstance = new NetJSONGraphRender();
+  });
+
+  // Helper: find the last setOption call that carries the updateLabelVisibility signature
+  // (geo-map series with both label.show and emphasis.label.show defined).
+  const lastVisibilityCall = (calls) => {
+    const hit = [...calls]
+      .reverse()
+      .find(
+        (c) =>
+          c[0].series &&
+          c[0].series.some(
+            (s) =>
+              s.id === "geo-map" &&
+              s.label &&
+              s.label.show !== undefined &&
+              s.emphasis &&
+              s.emphasis.label &&
+              s.emphasis.label.show !== undefined,
+          ),
+      );
+    return hit ? hit[0].series.find((s) => s.id === "geo-map") : undefined;
+  };
+
+  test("initial clustering setOption does not override label visibility", () => {
+    // zoom (15) >= threshold (13): labels should be shown after mapRender completes.
+    // The clustering setOption runs after updateLabelVisibility and currently overwrites
+    // it — so the last geo-map label call lacks emphasis and show:true is not guaranteed.
+    mockLeaflet.getZoom.mockReturnValue(15);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    const series = lastVisibilityCall(mockSelf.echarts.setOption.mock.calls);
+    expect(series).toBeDefined();
+    expect(series.label.show).toBe(true);
+    expect(series.emphasis.label.show).toBe(false);
+  });
+
+  test("clustering zoomend applies label visibility after updating clusters", () => {
+    // capturedEvents.zoomend is the clustering handler (last registered).
+    // It currently calls generateMapOption/setOption but not updateLabelVisibility.
+    mockLeaflet.getZoom.mockReturnValue(15);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+
+    mockSelf.echarts.setOption.mockClear();
+    mockLeaflet.getZoom.mockReturnValue(15);
+    capturedEvents.zoomend();
+
+    const series = lastVisibilityCall(mockSelf.echarts.setOption.mock.calls);
+    expect(series).toBeDefined();
+    expect(series.label.show).toBe(true);
+    expect(series.emphasis.label.show).toBe(false);
   });
 });
