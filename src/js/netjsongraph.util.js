@@ -1376,7 +1376,7 @@ class NetJSONGraphUtil {
         cluster != null
           ? self.config.disableClusteringAtLevel
           : self.config.bookmarkableActions.zoomLevel ||
-            self.config.showLabelsAtZoomLevel;
+            self.config.showMapLabelsAtZoom;
       if (self.leaflet) {
         self.leaflet.setView(center, zoom);
       }
