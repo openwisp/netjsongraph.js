@@ -95,7 +95,7 @@
     "copy-webpack-plugin": "^14.0.0",
     "coveralls": "^3.1.1",
     "css-loader": "^7.1.2",
-    "dotenv-webpack": "^8.0.1",
+    "dotenv-webpack": "^9.0.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^10.0.1",
