@@ -108,9 +108,15 @@ class NetJSONGraphRender {
             params.data,
           );
         }
-        return params.componentSubType === "lines"
-          ? clickElement("link", params.data.link)
-          : !params.data.cluster && clickElement("node", params.data.node);
+        if (params.componentSubType === "lines") {
+          return clickElement("link", params.data.link);
+        }
+        if (!params.data.cluster) {
+          if (configs.mapOptions.nodePopup.show) {
+            self.gui.loadNodePopup(params.data.node);
+          }
+          return clickElement("node", params.data.node);
+        }
       },
       {passive: true},
     );

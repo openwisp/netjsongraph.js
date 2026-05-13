@@ -73,6 +73,32 @@
       #indoormap-container .njg-container .hidden .sideBarHandle {
         left: 35px;
       }
+      .njg-container .njg-sideBar {
+        display: none;
+      } 
+      .njg-container .leaflet-popup-tip-container {
+        bottom: -5%;
+      }
+      .njg-container .default-popup .njg-popup-button-container{
+        display: flex;
+        justify-content: center;
+      }
+      .njg-container .default-popup .njg-popup-button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        background-color: black;
+        color: white;
+        cursor: pointer;
+        margin-top: 5px;
+      }
+      .njg-container .default-popup .njg-popup-button:hover{
+        background-color: rgb(85, 85, 85);
+      }
+      .njg-container .leaflet-popup-tip{
+        box-shadow: none;
+      }
+      
     </style>
   </head>
   <body>
@@ -95,6 +121,15 @@
             },
           },
           baseOptions: {media: [{option: {tooltip: {show: true}}}]},
+          nodePopup: {
+            show: true,
+            content:  createCustomPopup,
+            config: {
+              autoPan: true,
+              autoPanPadding: [25, 25],
+              offset: [-8, -8]
+            }
+          },
         },
         bookmarkableActions: {
           enabled: true,
@@ -113,11 +148,7 @@
           });
           return data;
         },
-        onClickElement(type, data) {
-          if (type === "node") {
-            openIndoorMap();
-          }
-        },
+        onClickElement(type, data) {},
       });
       netjsonmap.setUtils({
         // Added to open popup for a specific location Id in selenium tests
@@ -153,6 +184,60 @@
       netjsonmap.render();
       // needed for selenium tests
       window._geoMap = netjsonmap;
+      function getIndoorMapFragment() {
+        const fragments =
+          decodeURIComponent(window.location.hash.replace(/^#/, ""))
+            .split(";")
+            .filter(Boolean);
+
+        return fragments.find((fragment) => {
+          const params = new URLSearchParams(fragment);
+          return params.get("id") === "indoorMap";
+        });
+      }
+      if (getIndoorMapFragment()) {
+        openIndoorMap();
+      }
+
+      function createCustomPopup(node){
+        console.log("Node", node)
+        const popupContent = document.createElement("div");
+        popupContent.classList.add("default-popup");
+        const location = node?.location || node?.properties?.location;
+        const fields = {
+          name: node?.name,
+          id: node?.id,
+          label: node?.label,
+          location: location ? `${location.lat.toFixed(8)}, ${location.lng.toFixed(8)}`: null,
+        };
+        Object.keys(fields).forEach((key) => {
+          const value = fields[key];
+          if (!value) {
+            return;
+          }
+          const item = document.createElement("div");
+          item.classList.add("njg-tooltip-item");
+          const keyLabel = document.createElement("span");
+          keyLabel.classList.add("njg-tooltip-key");
+          keyLabel.innerHTML = key;
+          const valueLabel = document.createElement("span");
+          valueLabel.classList.add("njg-tooltip-value");
+          valueLabel.innerHTML = value;
+          item.appendChild(keyLabel);
+          item.appendChild(valueLabel);
+          popupContent.appendChild(item);
+        });
+        const buttonContainer = document.createElement("div");
+        buttonContainer.classList.add("njg-popup-button-container");
+
+        const button = document.createElement("button");
+        button.classList.add("njg-popup-button");
+        button.innerHTML = "Open Floorplan";
+        buttonContainer.appendChild(button);
+        popupContent.appendChild(buttonContainer);
+        button.addEventListener("click", () => openIndoorMap())
+        return popupContent
+      }
 
       function createIndoorMapContainer() {
         const container = document.createElement("div");
@@ -182,7 +267,6 @@
           container.remove();
         });
       }
-
       function openIndoorMap() {
         let indoorMapContainer = document.getElementById("indoormap-container");
         if (!indoorMapContainer) {
@@ -211,6 +295,15 @@
                 animation: false,
               },
               baseOptions: {media: [{option: {tooltip: {show: true}}}]},
+              nodePopup: {
+                show: true,
+                content:  null,
+                config: {
+                  autoPan: true,
+                  autoPanPadding: [25, 25],
+                  offset: [-8, -8]
+                }
+              },
             },
             bookmarkableActions: {
               enabled: true,
@@ -254,12 +347,14 @@
 
               const mapOptions = this.echarts.getOption();
               // Refer netjsonmap-indoormap.html for full explanation of this workaround
-              mapOptions.series[0].data.forEach((data) => {
+              mapOptions.series[0].data.forEach((data, index) => {
                 const node = data.node;
                 const px = Number(node.location.lng);
                 const py = -Number(node.location.lat);
                 const nodeProjected = L.point(topLeft.x + px, topLeft.y + py);
                 const nodeLatLng = map.unproject(nodeProjected, zoom);
+                this.data.nodes[index].location = nodeLatLng;
+                this.data.nodes[index].properties.location = nodeLatLng;
                 node.location = nodeLatLng;
                 node.properties.location = nodeLatLng;
                 data.value = [nodeLatLng.lng, nodeLatLng.lat];
@@ -302,6 +397,7 @@
               map.setMaxBounds(bnds);
               map.invalidateSize();
             },
+            // onClickElement: function () {},
           },
         );
         indoor.setUtils({

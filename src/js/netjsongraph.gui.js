@@ -278,6 +278,93 @@ class NetJSONGraphGUI {
     };
   }
 
+  /**
+   * Load and display a popup for a node on the map using leaflet popup
+   * @param {Object} node - The node data containing location and properties
+   * @returns {void}
+   */
+  async loadNodePopup(node) {
+    if (!this.self.leaflet) {
+      console.error("Leaflet map not available. Cannot load popup.");
+      return;
+    }
+    this.self.echarts?.dispatchAction({type: "hideTip"});
+    if (this.self.leaflet.currentPopup) {
+      this.self.leaflet.currentPopup.remove();
+    }
+    const nodeLocation = node?.properties?.location || node?.location;
+    if (!nodeLocation) {
+      console.error("Node location not available. Cannot load popup.");
+      return;
+    }
+    let popupContent = this.self.config.mapOptions.nodePopup.content;
+    if (popupContent == null) {
+      popupContent = this.createDefaultPopupContent(node);
+    } else if (popupContent && typeof popupContent === "function") {
+      popupContent = await popupContent.call(this, node, this.self);
+    }
+    let popupConfig = this.self.config.mapOptions.nodePopup.config;
+    popupConfig = Object.fromEntries(
+      Object.entries(popupConfig).filter(([, value]) => value != null),
+    );
+    this.self.leaflet.currentPopup = window.L.popup({
+      closeOnClick: false,
+      ...popupConfig,
+    })
+      .setLatLng(nodeLocation)
+      .setContent(popupContent)
+      .openOn(this.self.leaflet);
+
+    const onOpen = this.self.config.mapOptions.nodePopup.onOpen;
+    if (onOpen && typeof onOpen === "function") {
+      onOpen.call(this, this.self);
+    }
+
+    this.self.leaflet.currentPopup.on("remove", () => {
+      if (this.self.config.bookmarkableActions?.enabled) {
+        const fragments = this.self.utils.parseUrlFragments();
+        const id = this.self.config.bookmarkableActions.id;
+        if (fragments[id]) {
+          fragments[id].delete("nodeId");
+          this.self.utils.updateUrlFragments(fragments);
+        }
+      }
+      this.self.leaflet.currentPopup = null;
+    });
+  }
+
+  createDefaultPopupContent(node) {
+    const popupContent = document.createElement("div");
+    popupContent.classList.add("default-popup");
+    const location = node?.location || node?.properties?.location;
+    const fields = {
+      name: node?.name,
+      id: node?.id,
+      label: node?.label,
+      location: location
+        ? `${location.lat.toFixed(8)}, ${location.lng.toFixed(8)}`
+        : null,
+    };
+    Object.keys(fields).forEach((key) => {
+      const value = fields[key];
+      if (!value) {
+        return;
+      }
+      const item = document.createElement("div");
+      item.classList.add("njg-tooltip-item");
+      const keyLabel = document.createElement("span");
+      keyLabel.classList.add("njg-tooltip-key");
+      keyLabel.innerHTML = key;
+      const valueLabel = document.createElement("span");
+      valueLabel.classList.add("njg-tooltip-value");
+      valueLabel.innerHTML = value;
+      item.appendChild(keyLabel);
+      item.appendChild(valueLabel);
+      popupContent.appendChild(item);
+    });
+    return popupContent;
+  }
+
   init() {
     this.sideBar = this.createSideBar();
     if (this.self.config.switchMode) {

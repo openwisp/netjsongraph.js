@@ -1381,6 +1381,9 @@ class NetJSONGraphUtil {
         self.leaflet.setView(center, zoom);
       }
     }
+    if (self.config.mapOptions.nodePopup.show) {
+      self.gui.loadNodePopup(node);
+    }
     if (typeof self.config.onClickElement === "function") {
       self.config.onClickElement.call(self, source && target ? "link" : "node", node);
     }
