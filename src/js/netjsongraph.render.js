@@ -117,6 +117,7 @@ class NetJSONGraphRender {
           }
           return clickElement("node", params.data.node);
         }
+        return null;
       },
       {passive: true},
     );

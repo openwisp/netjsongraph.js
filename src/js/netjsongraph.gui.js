@@ -288,9 +288,8 @@ class NetJSONGraphGUI {
       console.error("Leaflet map not available. Cannot load popup.");
       return;
     }
-    this.self.echarts?.dispatchAction({type: "hideTip"});
-    if (this.self.leaflet.currentPopup) {
-      this.self.leaflet.currentPopup.remove();
+    if (this.self.echarts) {
+      this.self.echarts.dispatchAction({type: "hideTip"});
     }
     const nodeLocation = node?.properties?.location || node?.location;
     if (!nodeLocation) {
@@ -301,13 +300,27 @@ class NetJSONGraphGUI {
     if (popupContent == null) {
       popupContent = this.createDefaultPopupContent(node);
     } else if (popupContent && typeof popupContent === "function") {
-      popupContent = await popupContent.call(this, node, this.self);
+      const popupRequest = popupContent.call(this, node, this.self);
+      this.self.leaflet.currentPopupRequest = popupRequest;
+      try {
+        popupContent = await popupRequest;
+      } catch (error) {
+        if (this.self.leaflet.currentPopupRequest !== popupRequest) {
+          return;
+        }
+        console.error("Failed to build node popup content:", error);
+        return;
+      }
+      if (this.self.leaflet.currentPopupRequest !== popupRequest) {
+        return;
+      }
     }
-    let popupConfig = this.self.config.mapOptions.nodePopup.config;
-    popupConfig = Object.fromEntries(
-      Object.entries(popupConfig).filter(([, value]) => value != null),
+    const popupConfigInput = this.self.config.mapOptions.nodePopup.config || {};
+    const popupConfig = Object.fromEntries(
+      Object.entries(popupConfigInput).filter(([, value]) => value != null),
     );
-    this.self.leaflet.currentPopup = window.L.popup({
+
+    const popup = window.L.popup({
       closeOnClick: false,
       ...popupConfig,
     })
@@ -315,21 +328,30 @@ class NetJSONGraphGUI {
       .setContent(popupContent)
       .openOn(this.self.leaflet);
 
-    const onOpen = this.self.config.mapOptions.nodePopup.onOpen;
+    this.self.leaflet.currentPopup = popup;
+    const {onOpen} = this.self.config.mapOptions.nodePopup;
     if (onOpen && typeof onOpen === "function") {
-      onOpen.call(this, this.self);
-    }
-
-    this.self.leaflet.currentPopup.on("remove", () => {
-      if (this.self.config.bookmarkableActions?.enabled) {
-        const fragments = this.self.utils.parseUrlFragments();
-        const id = this.self.config.bookmarkableActions.id;
-        if (fragments[id]) {
-          fragments[id].delete("nodeId");
-          this.self.utils.updateUrlFragments(fragments);
-        }
+      try {
+        onOpen.call(this, this.self);
+      } catch (error) {
+        console.error("Failed to run popup onOpen callback:", error);
       }
-      this.self.leaflet.currentPopup = null;
+    }
+    const popupElement = popup
+      .getElement()
+      .querySelector(".leaflet-popup-close-button");
+    popupElement.addEventListener("click", () => {
+      if (!this.self.config.bookmarkableActions?.enabled) {
+        return;
+      }
+      const fragments = this.self.utils.parseUrlFragments();
+      const {id} = this.self.config.bookmarkableActions;
+      const currentNodeId = fragments[id]?.get("nodeId");
+      const popupNodeId = node?.id || node?.properties?.id;
+      if (currentNodeId === popupNodeId) {
+        fragments[id].delete("nodeId");
+        this.self.utils.updateUrlFragments(fragments);
+      }
     });
   }
 
@@ -354,10 +376,10 @@ class NetJSONGraphGUI {
       item.classList.add("njg-tooltip-item");
       const keyLabel = document.createElement("span");
       keyLabel.classList.add("njg-tooltip-key");
-      keyLabel.innerHTML = key;
+      keyLabel.textContent = key;
       const valueLabel = document.createElement("span");
       valueLabel.classList.add("njg-tooltip-value");
-      valueLabel.innerHTML = value;
+      valueLabel.textContent = String(value);
       item.appendChild(keyLabel);
       item.appendChild(valueLabel);
       popupContent.appendChild(item);

@@ -1,5 +1,9 @@
 module.exports = {
   extends: ["airbnb", "prettier"],
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
+  },
   rules: {
     "no-param-reassign": "off",
     "class-methods-use-this": "off",

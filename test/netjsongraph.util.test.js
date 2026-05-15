@@ -314,7 +314,10 @@ describe("Test URL fragment utilities", () => {
           zoomOnRestore: true,
         },
         graphConfig: {series: {type: null}},
-        mapOptions: {nodeConfig: {type: "scatter"}, center: [0, 0]},
+        mapOptions: {
+          nodeConfig: {type: "scatter"},
+          center: [0, 0],
+        },
         onClickElement: mockOnClick,
       },
       nodeLinkIndex: {n1: node},

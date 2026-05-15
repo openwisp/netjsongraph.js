@@ -200,6 +200,15 @@ describe("NetJSONGraphCore Specification", () => {
         },
       ],
     },
+    nodePopup: {
+      show: false,
+      content: null,
+      config: {
+        autoPan: true,
+        autoPanPadding: [25, 25],
+        offset: null,
+      },
+    },
   };
 
   test("APIs exist", () => {
