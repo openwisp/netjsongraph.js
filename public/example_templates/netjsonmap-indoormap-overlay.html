@@ -77,11 +77,13 @@
         display: none;
       }
       .njg-container .leaflet-popup-tip-container {
-        bottom: -5%;
+        bottom: -3.5%;
+      }
+      .njg-container .leaflet-popup-tip {
+        box-shadow: none;
       }
       .njg-container .default-popup .njg-popup-button-container {
-        display: flex;
-        justify-content: center;
+        text-align: center;
       }
       .njg-container .default-popup .njg-popup-button {
         padding: 6px 12px;
@@ -94,9 +96,6 @@
       }
       .njg-container .default-popup .njg-popup-button:hover {
         background-color: rgb(85, 85, 85);
-      }
-      .njg-container .leaflet-popup-tip {
-        box-shadow: none;
       }
     </style>
   </head>
@@ -124,6 +123,7 @@
             show: true,
             content: createCustomPopup,
             config: {
+              closeOnClick: false,
               autoPan: true,
               autoPanPadding: [25, 25],
               offset: [-8, -8],
@@ -147,7 +147,7 @@
           });
           return data;
         },
-        onClickElement(type, data) {},
+        onClickElement() {},
       });
       netjsonmap.setUtils({
         // Added to open popup for a specific location Id in selenium tests
@@ -238,7 +238,7 @@
 
         const button = document.createElement("button");
         button.classList.add("njg-popup-button");
-        button.innerHTML = "Open Floorplan";
+        button.textContent = "Open Floorplan";
         buttonContainer.appendChild(button);
         popupContent.appendChild(buttonContainer);
         button.addEventListener("click", () => openIndoorMap());
@@ -309,6 +309,7 @@
                 show: true,
                 content: null,
                 config: {
+                  closeOnClick: false,
                   autoPan: true,
                   autoPanPadding: [25, 25],
                   offset: [-8, -8],
@@ -407,6 +408,8 @@
               map.setMaxBounds(bnds);
               map.invalidateSize();
             },
+            // Empty onclick needed to override the default coming from config
+            // to the netjsongraph sidebar
             onClickElement: function () {},
           },
         );

@@ -433,6 +433,14 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
         clusterConfig:{
           // The configuration for the clusters
         },
+        nodePopup:{
+            show: boolean,
+            content: function|HTMLElement|string|null,
+            config:{
+                // Leaflet popup options
+            },
+            onOpen: function,
+        },
         baseOptions:{
             // The global configuration for Echarts specifically for the map.
         }
@@ -454,6 +462,9 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   `linkConfig` deals with the configuration of the links. You can pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-lines) in `linkConfig`.
 
   The `linkStyle` property is used to customize the style of the links. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-lines.lineStyle).
+
+  `nodePopup` displays a Leaflet popup when a map node is clicked. Set `show` to `true` to enable it, `content` can be a function which returns and HTML element, or `null` to use the default node details. Use `config` for Leaflet popup options and `onOpen` for a async callback after the popup opens.
+  **Note:** For async `content`, only the latest resolved request opens a popup, earlier requests are ignored but not cancelled.
 
 - `mapTileConfig`
 

@@ -1328,9 +1328,14 @@ class NetJSONGraphUtil {
     this.updateUrlFragments(fragments, nodeData);
   }
 
-  removeUrlFragment(id) {
+  removeUrlFragment(id, nodeId = null) {
     const fragments = this.parseUrlFragments();
-    if (fragments[id]) {
+    if (!fragments[id]) {
+      return;
+    }
+    if (nodeId) {
+      fragments[id].delete(nodeId);
+    } else {
       delete fragments[id];
     }
     const state = {id};
@@ -1442,6 +1447,33 @@ class NetJSONGraphUtil {
     this.nodeLinkIndex[id].properties.location = location;
     this.echarts.setOption({
       series: options.series,
+    });
+  }
+
+  updateLabelVisibility(self, show) {
+    if (!self.echarts || typeof self.echarts.setOption !== "function") {
+      console.warn("updateLabelVisibility: ECharts instance not ready");
+      return;
+    }
+    const showLabel =
+      show &&
+      self.config.showMapLabelsAtZoom !== false &&
+      self.leaflet.getZoom() >= self.config.showMapLabelsAtZoom;
+    self.echarts.setOption({
+      series: [
+        {
+          id: "geo-map",
+          label: {
+            show: showLabel,
+            silent: true,
+          },
+          emphasis: {
+            label: {
+              show: false,
+            },
+          },
+        },
+      ],
     });
   }
 }

@@ -365,18 +365,6 @@
 .njg-container .default-popup {
   padding: 18px;
 }
-
-.njg-container .default-popup a.leaflet-popup-close-button {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  font-size: 18px !important;
-}
-
-.njg-container .default-popup a.leaflet-popup-close-button:hover {
-  color: black !important;
-}
-
 .njg-container .default-popup .njg-tooltip-item {
   display: flex;
   align-items: center;

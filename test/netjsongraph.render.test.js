@@ -1,6 +1,11 @@
 import L from "leaflet";
 import NetJSONGraphCore from "../src/js/netjsongraph.core";
 import NetJSONGraphRender from "../src/js/netjsongraph.render";
+import NetJSONGraphGUI from "../src/js/netjsongraph.gui";
+import NetJSONGraphUtil from "../src/js/netjsongraph.util";
+
+const createUpdateLabelVisibilityMock = () =>
+  jest.fn((self, show) => new NetJSONGraphUtil().updateLabelVisibility(self, show));
 
 const JSONFILE = "test";
 const JSONData = {
@@ -512,6 +517,7 @@ describe("generateMapOption - node processing and dynamic styling", () => {
         })),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
     };
   });
@@ -997,6 +1003,7 @@ describe("Test disableClusteringAtLevel: 0", () => {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         setupHashChangeHandler: jest.fn(),
         parseUrlFragments: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       event: {
         emit: jest.fn(),
@@ -1097,6 +1104,7 @@ describe("Test leaflet zoomend handler and zoom control state", () => {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       event: {
         emit: jest.fn(),
@@ -1242,6 +1250,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       event: {emit: jest.fn()},
     };
@@ -1307,6 +1316,7 @@ describe("graph label visibility and fallbacks", () => {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       echarts: {
         getOption: jest.fn(() => ({series: [{id: "network-graph", zoom: 1}]})),
@@ -1345,6 +1355,7 @@ describe("graph label visibility and fallbacks", () => {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       echarts: {
         getOption: jest
@@ -1377,6 +1388,7 @@ describe("graph label visibility and fallbacks", () => {
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
         _propagateGraphZoom: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       echarts: {
         on: jest.fn((evt, cb) => {
@@ -1423,6 +1435,7 @@ describe("map series ids and name fallbacks", () => {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
     };
 
@@ -1489,6 +1502,7 @@ describe("map series ids and name fallbacks", () => {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       event: {emit: jest.fn()},
     };
@@ -1555,6 +1569,7 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
         })),
         echartsSetOption: jest.fn((opt) => mockSelf.echarts.setOption(opt)), // Link to spy
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       event: {emit: jest.fn()},
     };
@@ -1763,6 +1778,7 @@ describe("mapRender clustering label visibility", () => {
           nonClusterLinks: [],
         })),
         setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       event: {emit: jest.fn()},
     };
@@ -1817,5 +1833,141 @@ describe("mapRender clustering label visibility", () => {
     expect(series).toBeDefined();
     expect(series.label.show).toBe(true);
     expect(series.emphasis.label.show).toBe(false);
+  });
+});
+
+describe("Test nodePopup on node and link click", () => {
+  test("nodePopup config with loadNodePopup method exists", () => {
+    const nodePopupTestData = {
+      nodes: [
+        {
+          id: "node-1",
+          location: {lat: 10, lng: 20},
+        },
+      ],
+      links: [],
+    };
+    const container = document.createElement("div");
+    container.setAttribute("id", "map");
+    document.body.appendChild(container);
+    const popupGraph = new NetJSONGraphCore(nodePopupTestData);
+    popupGraph.event = popupGraph.utils.createEvent();
+    popupGraph.setConfig({
+      el: container,
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: null,
+          config: {
+            autoPan: true,
+          },
+        },
+      },
+      onClickElement: jest.fn(),
+    });
+    popupGraph.setUtils();
+    popupGraph.gui = new NetJSONGraphGUI(popupGraph);
+    expect(popupGraph.config.mapOptions.nodePopup).toBeDefined();
+    expect(popupGraph.config.mapOptions.nodePopup.show).toBe(true);
+    expect(popupGraph.config.mapOptions.nodePopup.config.autoPan).toBe(true);
+    expect(popupGraph.gui).toBeDefined();
+    expect(popupGraph.gui.loadNodePopup).toBeInstanceOf(Function);
+    document.body.removeChild(container);
+  });
+
+  test("nodePopup disabled in config", () => {
+    const nodePopupTestData2 = {
+      nodes: [
+        {
+          id: "node-1",
+          location: {lat: 10, lng: 20},
+        },
+      ],
+      links: [],
+    };
+    const container = document.createElement("div");
+    container.setAttribute("id", "map-2");
+    document.body.appendChild(container);
+    const disabledPopupGraph = new NetJSONGraphCore(nodePopupTestData2);
+    disabledPopupGraph.event = disabledPopupGraph.utils.createEvent();
+    disabledPopupGraph.setConfig({
+      el: container,
+      mapOptions: {
+        nodePopup: {
+          show: false,
+        },
+      },
+    });
+    disabledPopupGraph.setUtils();
+    expect(disabledPopupGraph.config.mapOptions.nodePopup.show).toBe(false);
+    document.body.removeChild(container);
+  });
+
+  test("createDefaultPopupContent creates valid HTML", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const defaultPopupGraph = new NetJSONGraphCore({
+      type: "NetworkGraph",
+      nodes: [],
+      links: [],
+    });
+    defaultPopupGraph.event = defaultPopupGraph.utils.createEvent();
+    defaultPopupGraph.gui = new NetJSONGraphGUI(defaultPopupGraph);
+    const node = {
+      id: "test-node",
+      name: "Test Node",
+      label: "Node Label",
+      location: {
+        lat: 45.123456,
+        lng: -87.654321,
+      },
+    };
+    const popupContent = defaultPopupGraph.gui.createDefaultPopupContent(node);
+    expect(popupContent).toBeInstanceOf(HTMLElement);
+    expect(popupContent.classList.contains("default-popup")).toBe(true);
+    expect(popupContent.innerHTML).toContain("test-node");
+    expect(popupContent.innerHTML).toContain("Test Node");
+    expect(popupContent.innerHTML).toContain("Node Label");
+    expect(popupContent.innerHTML).toContain("45.12345600");
+    expect(popupContent.innerHTML).toContain("-87.65432100");
+    document.body.removeChild(container);
+  });
+
+  test("nodePopup configuration includes custom popup content handler", () => {
+    const nodePopupTestData3 = {
+      nodes: [{id: "node-1", location: {lat: 10, lng: 20}}],
+      links: [],
+    };
+    const customContentHandler = jest.fn();
+    const onOpenHandler = jest.fn();
+    const container = document.createElement("div");
+    container.setAttribute("id", "map-3");
+    document.body.appendChild(container);
+    const customPopupGraph = new NetJSONGraphCore(nodePopupTestData3);
+    customPopupGraph.event = customPopupGraph.utils.createEvent();
+    customPopupGraph.setConfig({
+      el: container,
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: customContentHandler,
+          config: {
+            autoPan: false,
+            offset: [10, 20],
+          },
+          onOpen: onOpenHandler,
+        },
+      },
+    });
+    customPopupGraph.setUtils();
+    expect(customPopupGraph.config.mapOptions.nodePopup.content).toBe(
+      customContentHandler,
+    );
+    expect(customPopupGraph.config.mapOptions.nodePopup.onOpen).toBe(onOpenHandler);
+    expect(customPopupGraph.config.mapOptions.nodePopup.config.autoPan).toBe(false);
+    expect(customPopupGraph.config.mapOptions.nodePopup.config.offset).toEqual([
+      10, 20,
+    ]);
+    document.body.removeChild(container);
   });
 });

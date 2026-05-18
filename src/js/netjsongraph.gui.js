@@ -288,23 +288,27 @@ class NetJSONGraphGUI {
       console.error("Leaflet map not available. Cannot load popup.");
       return;
     }
-    if (this.self.echarts) {
-      this.self.echarts.dispatchAction({type: "hideTip"});
-    }
+    this.self.echarts?.setOption({
+      media: [{option: {tooltip: {show: false}}}],
+    });
+    this.self.utils.updateLabelVisibility(this.self, false);
     const nodeLocation = node?.properties?.location || node?.location;
     if (!nodeLocation) {
       console.error("Node location not available. Cannot load popup.");
       return;
     }
+    const bookmarkableActionId =
+      this.self.config.bookmarkableActions && this.self.config.bookmarkableActions.id;
     let popupContent = this.self.config.mapOptions.nodePopup.content;
     if (popupContent == null) {
       popupContent = this.createDefaultPopupContent(node);
-    } else if (popupContent && typeof popupContent === "function") {
+    } else if (typeof popupContent === "function") {
       const popupRequest = popupContent.call(this, node, this.self);
       this.self.leaflet.currentPopupRequest = popupRequest;
       try {
         popupContent = await popupRequest;
       } catch (error) {
+        this.self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
         if (this.self.leaflet.currentPopupRequest !== popupRequest) {
           return;
         }
@@ -312,6 +316,7 @@ class NetJSONGraphGUI {
         return;
       }
       if (this.self.leaflet.currentPopupRequest !== popupRequest) {
+        this.self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
         return;
       }
     }
@@ -321,7 +326,6 @@ class NetJSONGraphGUI {
     );
 
     const popup = window.L.popup({
-      closeOnClick: false,
       ...popupConfig,
     })
       .setLatLng(nodeLocation)
@@ -334,24 +338,19 @@ class NetJSONGraphGUI {
       try {
         onOpen.call(this, this.self);
       } catch (error) {
+        this.self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
         console.error("Failed to run popup onOpen callback:", error);
       }
     }
     const popupElement = popup
       .getElement()
-      .querySelector(".leaflet-popup-close-button");
-    popupElement.addEventListener("click", () => {
-      if (!this.self.config.bookmarkableActions?.enabled) {
-        return;
-      }
-      const fragments = this.self.utils.parseUrlFragments();
-      const {id} = this.self.config.bookmarkableActions;
-      const currentNodeId = fragments[id]?.get("nodeId");
-      const popupNodeId = node?.id || node?.properties?.id;
-      if (currentNodeId === popupNodeId) {
-        fragments[id].delete("nodeId");
-        this.self.utils.updateUrlFragments(fragments);
-      }
+      ?.querySelector(".leaflet-popup-close-button");
+    popupElement?.addEventListener("click", () => {
+      this.self.echarts?.setOption({
+        media: [{option: {tooltip: {show: true}}}],
+      });
+      this.self.utils.updateLabelVisibility(this.self, true);
+      this.self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
     });
   }
 
@@ -359,13 +358,14 @@ class NetJSONGraphGUI {
     const popupContent = document.createElement("div");
     popupContent.classList.add("default-popup");
     const location = node?.location || node?.properties?.location;
+    const lat = Number(location?.lat);
+    const lng = Number(location?.lng);
+    const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
     const fields = {
       name: node?.name,
       id: node?.id,
       label: node?.label,
-      location: location
-        ? `${location.lat.toFixed(8)}, ${location.lng.toFixed(8)}`
-        : null,
+      location: hasCoords ? `${lat.toFixed(8)}, ${lng.toFixed(8)}` : null,
     };
     Object.keys(fields).forEach((key) => {
       const value = fields[key];

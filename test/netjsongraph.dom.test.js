@@ -442,3 +442,401 @@ describe("Test GUI on narrow screens", () => {
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("region");
   });
 });
+
+describe("Test GUI createDefaultPopupContent", () => {
+  beforeEach(() => {
+    graph.gui = new NetJSONGraphGUI(graph);
+  });
+  afterEach(() => {
+    graph.gui = null;
+  });
+  test("Create default popup content with valid location coordinates", () => {
+    const node = {
+      id: "node-1",
+      name: "Test Node",
+      label: "Node Label",
+      location: {
+        lat: 12.3456789,
+        lng: 98.7654321,
+      },
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.classList.contains("default-popup")).toBe(true);
+    expect(content.innerHTML).toContain("node-1");
+    expect(content.innerHTML).toContain("Test Node");
+    expect(content.innerHTML).toContain("Node Label");
+    expect(content.innerHTML).toContain("12.34567890");
+    expect(content.innerHTML).toContain("98.76543210");
+  });
+
+  test("Create default popup content with missing location should not display coordinates", () => {
+    const node = {
+      id: "node-2",
+      name: "Test Node No Location",
+      label: "No Location Node",
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.innerHTML).toContain("node-2");
+    expect(content.innerHTML).not.toContain("location");
+  });
+
+  test("Create default popup content with null location should not display coordinates", () => {
+    const node = {
+      id: "node-3",
+      name: "Test Node",
+      label: "Node Label",
+      location: null,
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.innerHTML).toContain("node-3");
+    expect(content.innerHTML).not.toContain("location");
+  });
+
+  test("Create default popup content with NaN coordinates should not display coordinates", () => {
+    const node = {
+      id: "node-4",
+      name: "Test Node",
+      label: "Node Label",
+      location: {
+        lat: NaN,
+        lng: 98.7654321,
+      },
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.innerHTML).toContain("node-4");
+    expect(content.innerHTML).not.toContain("location");
+  });
+
+  test("Create default popup content with Infinity coordinates should not display coordinates", () => {
+    const node = {
+      id: "node-5",
+      name: "Test Node",
+      label: "Node Label",
+      location: {
+        lat: Infinity,
+        lng: 98.7654321,
+      },
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.innerHTML).toContain("node-5");
+    expect(content.innerHTML).not.toContain("location");
+  });
+
+  test("Create default popup content with string coordinates should convert and validate", () => {
+    const node = {
+      id: "node-6",
+      name: "Test Node",
+      label: "Node Label",
+      location: {
+        lat: "45.123456",
+        lng: "-87.654321",
+      },
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.innerHTML).toContain("45.12345600");
+    expect(content.innerHTML).toContain("-87.65432100");
+  });
+
+  test("Create default popup content with properties.location fallback", () => {
+    const node = {
+      id: "node-7",
+      name: "Test Node",
+      label: "Node Label",
+      properties: {
+        location: {
+          lat: 10.5,
+          lng: 20.5,
+        },
+      },
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.innerHTML).toContain("10.50000000");
+    expect(content.innerHTML).toContain("20.50000000");
+  });
+
+  test("Create default popup content with only finite lat should not display coordinates", () => {
+    const node = {
+      id: "node-8",
+      name: "Test Node",
+      label: "Node Label",
+      location: {
+        lat: 45.123,
+        lng: NaN,
+      },
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.innerHTML).not.toContain("location");
+  });
+
+  test("Create default popup content with empty node", () => {
+    const node = {};
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    expect(content.classList.contains("default-popup")).toBe(true);
+  });
+});
+
+describe("Test GUI loadNodePopup with async and tooltip handling", () => {
+  let testGraph;
+  let container;
+  let originalLeaflet;
+  let mockPopup;
+  let closeButton;
+
+  const mockLeafletPopup = (popupElement) => {
+    mockPopup = {
+      getElement: jest.fn(() => popupElement),
+      setLatLng: jest.fn(() => mockPopup),
+      setContent: jest.fn(() => mockPopup),
+      openOn: jest.fn(() => mockPopup),
+    };
+    window.L = {
+      CRS: {
+        EPSG3857: {},
+      },
+      popup: jest.fn(() => mockPopup),
+    };
+    global.L = window.L;
+  };
+
+  beforeEach(() => {
+    originalLeaflet = window.L;
+    closeButton = {
+      addEventListener: jest.fn(),
+    };
+    mockLeafletPopup({
+      querySelector: jest.fn(() => closeButton),
+    });
+    container = document.createElement("div");
+    container.setAttribute("id", "test-popup-map");
+    document.body.appendChild(container);
+    testGraph = new NetJSONGraphCore({
+      nodes: [{id: "node-1", location: {lat: 10, lng: 20}}],
+      links: [],
+    });
+    testGraph.event = testGraph.utils.createEvent();
+    testGraph.gui = new NetJSONGraphGUI(testGraph);
+    testGraph.setConfig({
+      el: container,
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: null,
+          config: {autoPan: true},
+        },
+      },
+      bookmarkableActions: {
+        enabled: true,
+        id: "id",
+      },
+    });
+    testGraph.setUtils();
+  });
+
+  afterEach(() => {
+    if (container && document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
+    window.L = originalLeaflet;
+    global.L = originalLeaflet;
+    testGraph = null;
+  });
+
+  test("loadNodePopup hides tooltip on popup open", async () => {
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
+      media: [{option: {tooltip: {show: false}}}],
+    });
+    expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(
+      testGraph,
+      false,
+    );
+  });
+
+  test("loadNodePopup handles async content error and cleans up URL fragment", async () => {
+    const asyncContentHandler = jest.fn(() =>
+      Promise.reject(new Error("Content load failed")),
+    );
+    testGraph.setConfig({
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: asyncContentHandler,
+          config: {autoPan: true},
+        },
+      },
+      bookmarkableActions: {
+        enabled: true,
+        id: "id",
+      },
+    });
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      currentPopupRequest: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.removeUrlFragment = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    try {
+      await testGraph.gui.loadNodePopup(node);
+    } catch (e) {
+      // Expected to fail
+    }
+    // Should remove URL fragment on error
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+  });
+
+  test("loadNodePopup sets up popup close handler to restore tooltip", async () => {
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    expect(closeButton.addEventListener).toHaveBeenCalledWith(
+      "click",
+      expect.any(Function),
+    );
+    closeButton.addEventListener.mock.calls[0][1]();
+    expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
+      media: [{option: {tooltip: {show: true}}}],
+    });
+    expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(testGraph, true);
+  });
+
+  test("loadNodePopup handles null popup element gracefully", async () => {
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    mockLeafletPopup(null);
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await expect(testGraph.gui.loadNodePopup(node)).resolves.toBeUndefined();
+  });
+
+  test("loadNodePopup with async custom content handler that succeeds", async () => {
+    const customContent = "<div>Custom Popup</div>";
+    const asyncContentHandler = jest.fn(() => Promise.resolve(customContent));
+    testGraph.setConfig({
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: asyncContentHandler,
+          config: {autoPan: true},
+        },
+      },
+    });
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      currentPopupRequest: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    // Verify async content was resolved and popup was created with it
+    expect(asyncContentHandler).toHaveBeenCalledWith(node, testGraph);
+    expect(mockPopup.setContent).toHaveBeenCalledWith(customContent);
+  });
+
+  test("loadNodePopup calls onOpen callback if provided", async () => {
+    const onOpenCallback = jest.fn();
+    testGraph.setConfig({
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: null,
+          config: {autoPan: true},
+          onOpen: onOpenCallback,
+        },
+      },
+    });
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.removeUrlFragment = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    // Verify onOpen callback was called
+    expect(onOpenCallback).toHaveBeenCalledWith(testGraph);
+  });
+
+  test("loadNodePopup handles onOpen callback error and cleans up URL fragment", async () => {
+    const onOpenError = new Error("onOpen failed");
+    const onOpenCallback = jest.fn(() => {
+      throw onOpenError;
+    });
+    testGraph.setConfig({
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: null,
+          config: {autoPan: true},
+          onOpen: onOpenCallback,
+        },
+      },
+      bookmarkableActions: {
+        enabled: true,
+        id: "id",
+      },
+    });
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.removeUrlFragment = jest.fn();
+    global.console.error = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    // Verify URL fragment was cleaned up on error
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+  });
+});
