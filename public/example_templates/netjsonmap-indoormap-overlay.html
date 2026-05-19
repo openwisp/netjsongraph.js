@@ -206,6 +206,24 @@
         openIndoorMap();
       }
 
+      // Registered once at page load so back/forward navigation keeps working
+      // across repeated open/close cycles. A handler installed inside
+      // openIndoorMap that removes itself on close cannot react to a later
+      // forward-nav that should reopen the indoor map.
+      window.addEventListener("popstate", () => {
+        if (getIndoorMapFragment()) {
+          if (!document.getElementById("indoormap-container")) {
+            openIndoorMap();
+          }
+        } else {
+          const container = document.getElementById("indoormap-container");
+          if (container) {
+            container.remove();
+          }
+          window._indoorMap = null;
+        }
+      });
+
       function createCustomPopup(node) {
         const popupContent = document.createElement("div");
         popupContent.classList.add("default-popup");
@@ -443,28 +461,9 @@
             indoor.echarts.trigger("click", params);
           },
         });
-        const popstateHandler = () => {
-          const fragments = indoor.utils.parseUrlFragments();
-          const id = indoor.config.bookmarkableActions.id;
-          if (fragments[id]) {
-            if (!document.getElementById("indoormap-container")) {
-              openIndoorMap();
-            }
-          } else {
-            const container = document.getElementById("indoormap-container");
-            if (container) {
-              container.remove();
-            }
-            window._indoorMap = null;
-            window.removeEventListener("popstate", popstateHandler);
-          }
-        };
-        window.addEventListener("popstate", popstateHandler);
         indoor.render();
         window._indoorMap = indoor;
-        closeButtonHandler(indoorMapContainer, indoor, () => {
-          window.removeEventListener("popstate", popstateHandler);
-        });
+        closeButtonHandler(indoorMapContainer, indoor);
       }
     </script>
   </body>

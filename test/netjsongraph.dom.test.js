@@ -944,4 +944,59 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     // Verify URL fragment was cleaned up on error
     expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
   });
+
+  test("loadNodePopup preserves URL fragment when replacing popup for the still-current node", async () => {
+    // Reproduces the popstate-restoration regression: when the URL still
+    // points to the currently-open node and applyUrlFragmentState re-invokes
+    // loadNodePopup for that same node, removing the previous popup must
+    // not trigger the user-close cleanup that strips the URL fragment.
+    const popups = [];
+    const makePopup = () => {
+      const popup = {
+        setLatLng: jest.fn(() => popup),
+        setContent: jest.fn(() => popup),
+        openOn: jest.fn(() => popup),
+        handlers: {},
+        on: jest.fn((event, handler) => {
+          popup.handlers[event] = handler;
+          return popup;
+        }),
+        remove: jest.fn(() => {
+          // Match real Leaflet: firing remove() invokes the "remove" event
+          // listener synchronously.
+          if (typeof popup.handlers.remove === "function") {
+            popup.handlers.remove();
+          }
+        }),
+      };
+      popups.push(popup);
+      return popup;
+    };
+    window.L = {CRS: {EPSG3857: {}}, popup: jest.fn(makePopup)};
+    global.L = window.L;
+
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.leaflet = {
+      currentPopup: null,
+      currentPopupRequest: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.parseUrlFragments = jest.fn(() => ({
+      id: new URLSearchParams("id=id&nodeId=node-1"),
+    }));
+    testGraph.utils.removeUrlFragment = jest.fn();
+
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    expect(popups).toHaveLength(1);
+
+    // Second invocation for the same node (popstate restoration path).
+    await testGraph.gui.loadNodePopup(node);
+    expect(popups).toHaveLength(2);
+    expect(popups[0].remove).toHaveBeenCalled();
+
+    expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
+  });
 });

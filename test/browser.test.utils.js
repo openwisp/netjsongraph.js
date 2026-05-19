@@ -132,8 +132,13 @@ export const getPresentNodesAndLinksCount = async (example) => {
 
 export const captureConsoleErrors = async (driver) => {
   const logs = await driver.manage().logs().get("browser");
+  // OSM tile 503s are upstream rate-limiting flakes — filter them so CI
+  // does not red on unrelated infrastructure issues.
+  const isIgnoredNoise = (msg) =>
+    msg.includes("favicon.ico") ||
+    (msg.includes("tile.openstreetmap.org") && msg.includes("503"));
   return logs.filter(
-    (log) => log.level.name === "SEVERE" && !log.message.includes("favicon.ico"),
+    (log) => log.level.name === "SEVERE" && !isIgnoredNoise(log.message),
   );
 };
 

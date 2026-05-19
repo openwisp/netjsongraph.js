@@ -299,7 +299,14 @@ class NetJSONGraphGUI {
     const popupRequest = {};
     self.leaflet.currentPopupRequest = popupRequest;
     if (self.leaflet.currentPopup) {
-      self.leaflet.currentPopup.remove();
+      // Null out before remove() so the old popup's "remove" handler bails on
+      // the currentPopup !== popup check. Otherwise it runs the user-close
+      // cleanup path (tooltip/label restore + URL fragment removal), which on
+      // popstate restoration of the same node ends up wiping the URL fragment
+      // we just restored.
+      const previousPopup = self.leaflet.currentPopup;
+      self.leaflet.currentPopup = null;
+      previousPopup.remove();
     }
     let popupContent = self.config.mapOptions.nodePopup.content;
     if (popupContent == null) {
