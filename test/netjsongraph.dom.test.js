@@ -678,6 +678,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     if (container && document.body.contains(container)) {
       document.body.removeChild(container);
     }
@@ -993,7 +994,10 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     await testGraph.gui.loadNodePopup(node);
     expect(mockPopup.remove).toHaveBeenCalled();
     expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
-    consoleErrorSpy.mockRestore();
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Failed to run popup onOpen callback:",
+      onOpenError,
+    );
   });
 
   test("loadNodePopup preserves URL fragment when replacing popup for the still-current node", async () => {
