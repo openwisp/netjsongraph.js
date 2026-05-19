@@ -415,7 +415,7 @@ describe("Chart Rendering Test", () => {
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
-  }, 10000);  // This test needs more time
+  }, 10000); // This test needs more time
 
   test("bookmarkableActions: check if parseUrlFragments handles invalid UTF-8", async () => {
     // Invalid UTF-8 sequence in hash

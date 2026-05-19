@@ -134,9 +134,27 @@ export const captureConsoleErrors = async (driver) => {
   const logs = await driver.manage().logs().get("browser");
   // OSM tile 503s are upstream rate-limiting flakes — filter them so CI
   // does not red on unrelated infrastructure issues.
-  const isIgnoredNoise = (msg) =>
-    msg.includes("favicon.ico") ||
-    (msg.includes("tile.openstreetmap.org") && msg.includes("503"));
+  const isIgnoredNoise = (msg) => {
+    if (msg.includes("favicon.ico")) {
+      return true;
+    }
+    if (!msg.includes("503")) {
+      return false;
+    }
+    const urlMatch = msg.match(/https?:\/\/[^\s"')]+/);
+    if (!urlMatch) {
+      return false;
+    }
+    try {
+      const {hostname} = new URL(urlMatch[0]);
+      return (
+        hostname === "tile.openstreetmap.org" ||
+        hostname.endsWith(".tile.openstreetmap.org")
+      );
+    } catch (error) {
+      return false;
+    }
+  };
   return logs.filter(
     (log) => log.level.name === "SEVERE" && !isIgnoredNoise(log.message),
   );
