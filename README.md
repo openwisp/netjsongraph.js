@@ -463,8 +463,11 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The `linkStyle` property is used to customize the style of the links. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-lines.lineStyle).
 
-  `nodePopup` displays a Leaflet popup when a map node is clicked. Set `show` to `true` to enable it. Set `content` to a function that returns a DOM element or string, or leave it as `null` to use the default node details. Use `config` to pass Leaflet popup options and `onOpen` to run a callback after the popup opens.
-  **Note:** `content` can be asynchronous. When multiple async popup requests overlap, only the latest request is used; earlier requests are ignored, but they are not cancelled.
+  `nodePopup` displays a Leaflet popup when a map node is clicked. Set `show` to `true` to enable it. Set `content` to a function `(node) => DOMElement | string` (invoked with `this` = the netjsongraph instance), or leave it as `null` to use the default node details. Use `config` to pass Leaflet popup options and `onOpen` (invoked with `this` = the netjsongraph instance, no args) to run a callback after the popup opens.
+
+  **Note:** `content` can be asynchronous. When multiple async popup requests overlap, only the latest request is rendered; earlier requests' return values are discarded, but **the functions are not cancelled** — any side effects you put inside them (network calls, DOM mutations, analytics) will still run, possibly after a newer click. Don't assume the value you return is what ends up on screen.
+
+  **Security:** when `content` returns a `string`, Leaflet interprets it as HTML. If the string contains any node data that may come from an untrusted source (remote API, user input, etc.), escape it or — preferably — return a DOM element built with `textContent`, like the built-in `createDefaultPopupContent` does.
 
 - `mapTileConfig`
 

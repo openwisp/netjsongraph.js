@@ -248,10 +248,11 @@ const NetJSONGraphDefaultConfig = {
     nodePopup: {
       show: false,
       content: null,
+      // `offset` is intentionally not set — Leaflet picks an offset that
+      // accounts for its own anchor; we only override autoPan defaults here.
       config: {
         autoPan: true,
         autoPanPadding: [25, 25],
-        offset: null,
       },
     },
   },

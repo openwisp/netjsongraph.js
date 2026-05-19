@@ -169,6 +169,11 @@ describe("Chart Rendering Test", () => {
       "//span[@class='njg-valueLabel' and text()='10.149.3.3']",
       2000,
     );
+    // Use textContent rather than getText(): in the popup-based examples the
+    // sidebar is hidden via CSS, and Selenium's getText() returns "" for
+    // elements that aren't visible. textContent gives us the raw text
+    // regardless of layout state, so all the bookmarkable tests stay
+    // consistent across visible-sidebar and hidden-sidebar examples.
     const nodeId = await node.getAttribute("textContent");
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);

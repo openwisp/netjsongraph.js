@@ -206,7 +206,6 @@ describe("NetJSONGraphCore Specification", () => {
       config: {
         autoPan: true,
         autoPanPadding: [25, 25],
-        offset: null,
       },
     },
   };

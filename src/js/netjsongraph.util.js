@@ -1328,13 +1328,28 @@ class NetJSONGraphUtil {
     this.updateUrlFragments(fragments, nodeData);
   }
 
-  removeUrlFragment(id, nodeId = null) {
+  /**
+   * Remove the URL fragment for the given action id, or just one URLSearchParams
+   * key inside that fragment.
+   *
+   * @param {string} id        The bookmarkable action id (e.g. "geoMap").
+   * @param {string} [paramName] If provided, only this query-param is removed
+   *   from the fragment. If omitted, the whole fragment for the id is dropped.
+   */
+  removeUrlFragment(id, paramName = null) {
     const fragments = this.parseUrlFragments();
     if (!fragments[id]) {
       return;
     }
-    if (nodeId) {
-      fragments[id].delete(nodeId);
+    if (paramName) {
+      fragments[id].delete(paramName);
+      // Drop the whole entry if only the bare action id is left — a fragment
+      // like "#id=geoMap" with no other params is a useless stub that
+      // parseUrlFragments would still pick up on subsequent visits.
+      const remainingKeys = Array.from(fragments[id].keys()).filter((k) => k !== "id");
+      if (remainingKeys.length === 0) {
+        delete fragments[id];
+      }
     } else {
       delete fragments[id];
     }
@@ -1352,6 +1367,11 @@ class NetJSONGraphUtil {
     const nodeId =
       fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
     if (!nodeId || !self.nodeLinkIndex || self.nodeLinkIndex[nodeId] == null) {
+      // Popstate to a state without a selected node: close any open popup so
+      // the visible map state matches the URL.
+      if (self.leaflet && self.leaflet.currentPopup) {
+        self.leaflet.currentPopup.remove();
+      }
       return;
     }
     const [source, target] = nodeId.split("~");

@@ -279,9 +279,40 @@ class NetJSONGraphGUI {
   }
 
   /**
-   * Load and display a popup for a node on the map using leaflet popup
-   * @param {Object} node - The node data containing location and properties
-   * @returns {void}
+   * Canonical lookup order for a node's location. `prepareData` normalizes a
+   * node by setting `properties.location = node.location`, so the
+   * post-pipeline value lives on `properties.location`; we read it first
+   * and fall back to the top-level NetJSON field for nodes that bypass
+   * `prepareData`.
+   *
+   * @param {Object} node
+   * @returns {{lat: number, lng: number}|undefined}
+   */
+  getNodeLocation(node) {
+    return node?.properties?.location || node?.location;
+  }
+
+  /**
+   * Load and display a Leaflet popup for a node on the map.
+   *
+   * Resolves `mapOptions.nodePopup.content`:
+   *   - if `null` → uses the built-in `createDefaultPopupContent`
+   *   - if a function → calls it with `this` = the netjsongraph instance and
+   *     awaits the result (the function may be async)
+   *
+   * Concurrency: only the latest invocation's result is rendered. Earlier
+   * pending content promises are not cancelled; their resolved/rejected
+   * values are discarded. Callers should not assume their content function's
+   * return value reaches the screen.
+   *
+   * Failure handling:
+   *   - if content building throws (sync or async), the URL fragment for the
+   *     current bookmarkable action is cleared and no popup is opened
+   *   - if `onOpen` throws after the popup is shown, the popup is removed
+   *     and the URL fragment is cleared (via the popup's own remove handler)
+   *
+   * @param {Object} node - The node data containing location and properties.
+   * @returns {Promise<void>}
    */
   async loadNodePopup(node) {
     const {self} = this;
@@ -289,7 +320,7 @@ class NetJSONGraphGUI {
       console.error("Leaflet map not available. Cannot load popup.");
       return;
     }
-    const nodeLocation = node?.properties?.location || node?.location;
+    const nodeLocation = this.getNodeLocation(node);
     if (!nodeLocation) {
       console.error("Node location not available. Cannot load popup.");
       return;
@@ -313,7 +344,9 @@ class NetJSONGraphGUI {
       popupContent = this.createDefaultPopupContent(node);
     } else if (typeof popupContent === "function") {
       try {
-        popupContent = await popupContent.call(this, node, self);
+        // Matches the project-wide callback convention: callbacks receive the
+        // netjsongraph instance as `this` and any context as positional args.
+        popupContent = await popupContent.call(self, node);
       } catch (error) {
         if (self.leaflet.currentPopupRequest !== popupRequest) {
           return;
@@ -343,14 +376,17 @@ class NetJSONGraphGUI {
       if (self.leaflet.currentPopup !== popup) {
         return;
       }
-      self.echarts?.setOption({
-        media: [{option: {tooltip: {show: true}}}],
-      });
+      // Restore the chart's own tooltip (we hid it while the popup was open).
+      self.echarts?.setOption({tooltip: {show: true}});
       self.utils.updateLabelVisibility(self, true);
-      if (self.config.bookmarkableActions?.enabled && popupNodeId) {
+      if (
+        self.config.bookmarkableActions &&
+        self.config.bookmarkableActions.enabled &&
+        popupNodeId
+      ) {
         const fragments = self.utils.parseUrlFragments();
         const currentFragment = fragments[bookmarkableActionId];
-        if (currentFragment?.get("nodeId") === popupNodeId) {
+        if (currentFragment && currentFragment.get("nodeId") === popupNodeId) {
           self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
         }
       }
@@ -362,26 +398,45 @@ class NetJSONGraphGUI {
 
     self.leaflet.currentPopup = popup;
     popup.openOn(self.leaflet);
-    self.echarts?.setOption({
-      media: [{option: {tooltip: {show: false}}}],
-    });
+    // Hide the chart's own tooltip so it does not stack with the popup.
+    // Direct tooltip option update — earlier code used a one-element media
+    // array which clobbered any media queries the consumer had configured.
+    self.echarts?.setOption({tooltip: {show: false}});
     self.utils.updateLabelVisibility(self, false);
 
     const {onOpen} = self.config.mapOptions.nodePopup;
-    if (onOpen && typeof onOpen === "function") {
+    if (typeof onOpen === "function") {
       try {
-        onOpen.call(this, self);
+        onOpen.call(self);
       } catch (error) {
-        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
+        // onOpen runs after the popup is already visible. If it throws we
+        // roll back to a consistent state by removing the popup; the popup's
+        // own remove handler clears the URL fragment when it still points
+        // at the now-rolled-back node.
+        if (self.leaflet.currentPopup) {
+          self.leaflet.currentPopup.remove();
+        }
         console.error("Failed to run popup onOpen callback:", error);
       }
     }
   }
 
+  /**
+   * Build the default popup body for a node: a `.default-popup` div with
+   * `name`, `id`, `label`, and `location` rows (rendered only when present).
+   * All values are written with `textContent`, so they are XSS-safe even if
+   * the node fields contain user-controlled strings.
+   *
+   * Consumers may call this from a custom `mapOptions.nodePopup.content`
+   * function and extend the returned element with additional UI.
+   *
+   * @param {Object} node
+   * @returns {HTMLElement}
+   */
   createDefaultPopupContent(node) {
     const popupContent = document.createElement("div");
     popupContent.classList.add("default-popup");
-    const location = node?.location || node?.properties?.location;
+    const location = this.getNodeLocation(node);
     const lat = Number(location?.lat);
     const lng = Number(location?.lng);
     const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
@@ -393,7 +448,9 @@ class NetJSONGraphGUI {
     };
     Object.keys(fields).forEach((key) => {
       const value = fields[key];
-      if (!value) {
+      // Skip only null/undefined/empty-string; preserve falsy-but-valid
+      // values like id: 0.
+      if (value == null || value === "") {
         return;
       }
       const item = document.createElement("div");

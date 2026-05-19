@@ -599,6 +599,45 @@ describe("Test applyUrlFragmentState with nodePopup", () => {
     expect(mockSelf.gui.loadNodePopup).not.toHaveBeenCalled();
   });
 
+  test("closes the open popup when popstate navigates to a state without nodeId", () => {
+    // Regression for popstate-back to a no-nodeId state: the URL no longer
+    // references a selected node, so any popup that was opened by an earlier
+    // applyUrlFragmentState must be closed to keep the visible state in sync
+    // with the URL.
+    const util = new NetJSONGraphUtil();
+    const fragments = {};
+    const popupRemove = jest.fn();
+    const mockSelf = {
+      config: {
+        bookmarkableActions: {
+          enabled: true,
+          id: "id",
+          zoomOnRestore: false,
+        },
+        mapOptions: {
+          nodePopup: {
+            show: true,
+          },
+        },
+        onClickElement: jest.fn(),
+      },
+      gui: {
+        loadNodePopup: jest.fn(),
+      },
+      utils: {
+        parseUrlFragments: jest.fn(() => fragments),
+      },
+      nodeLinkIndex: {},
+      leaflet: {
+        setView: jest.fn(),
+        currentPopup: {remove: popupRemove},
+      },
+    };
+    util.applyUrlFragmentState.call(util, mockSelf);
+    expect(popupRemove).toHaveBeenCalled();
+    expect(mockSelf.gui.loadNodePopup).not.toHaveBeenCalled();
+  });
+
   test("calls onClickElement for node clicks regardless of nodePopup setting", () => {
     const util = new NetJSONGraphUtil();
     const node = {
@@ -643,10 +682,11 @@ describe("Test applyUrlFragmentState with nodePopup", () => {
   });
 });
 
-describe("Test removeUrlFragment with nodeId parameter", () => {
-  test("removeUrlFragment deletes only specific nodeId when provided", () => {
+describe("Test removeUrlFragment with paramName argument", () => {
+  test("removeUrlFragment deletes only the named param when paramName is provided", () => {
     const util = new NetJSONGraphUtil();
     const params = new URLSearchParams();
+    params.set("id", "id");
     params.set("nodeId", "node-1");
     params.set("other", "value");
     util.parseUrlFragments = jest.fn(() => ({
@@ -659,7 +699,7 @@ describe("Test removeUrlFragment with nodeId parameter", () => {
     expect(params.get("other")).toBe("value");
   });
 
-  test("removeUrlFragment deletes entire fragment when nodeId is not provided", () => {
+  test("removeUrlFragment deletes entire fragment when paramName is not provided", () => {
     const util = new NetJSONGraphUtil();
     util.parseUrlFragments = jest.fn(() => ({
       id: new URLSearchParams("nodeId=node-1"),
@@ -675,6 +715,22 @@ describe("Test removeUrlFragment with nodeId parameter", () => {
     util.updateUrlFragments = jest.fn();
     util.removeUrlFragment.call(util, "nonexistent");
     expect(util.updateUrlFragments).not.toHaveBeenCalled();
+  });
+
+  test("removeUrlFragment drops the whole fragment entry when only the action id remains", () => {
+    // If removing the named param leaves nothing but the bare `id` key, the
+    // fragment becomes a useless stub like "#id=geoMap" — drop it entirely.
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "geoMap");
+    params.set("nodeId", "node-1");
+    util.parseUrlFragments = jest.fn(() => ({
+      geoMap: params,
+    }));
+    util.updateUrlFragments = jest.fn();
+    util.removeUrlFragment.call(util, "geoMap", "nodeId");
+    // After deletion, only `id` would remain → entire entry should be gone.
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "geoMap"});
   });
 });
 

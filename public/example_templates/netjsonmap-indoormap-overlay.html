@@ -107,6 +107,15 @@
     <script>
       // This example uses popups instead of the default sidebar.
       const disableDefaultSidebar = () => {};
+      // Shared between the outer geo map and the indoor map; the only thing
+      // that differs between the two popups is `content` (custom button for
+      // the geo map, default for the indoor map).
+      const SHARED_POPUP_CONFIG = {
+        closeOnClick: false,
+        autoPan: true,
+        autoPanPadding: [25, 25],
+        offset: [-8, -8],
+      };
       const netjsonmap = new NetJSONGraph("../assets/data/netjsonmap.json", {
         el: "#map-content",
         render: "map",
@@ -124,12 +133,7 @@
           nodePopup: {
             show: true,
             content: createCustomPopup,
-            config: {
-              closeOnClick: false,
-              autoPan: true,
-              autoPanPadding: [25, 25],
-              offset: [-8, -8],
-            },
+            config: SHARED_POPUP_CONFIG,
           },
         },
         bookmarkableActions: {
@@ -224,44 +228,19 @@
         }
       });
 
+      // Called with `this` = the netjsongraph instance (see README docs for
+      // mapOptions.nodePopup.content). We reuse the library's default popup
+      // builder and just append the "Open Floorplan" action.
       function createCustomPopup(node) {
-        const popupContent = document.createElement("div");
-        popupContent.classList.add("default-popup");
-        const location = node?.location || node?.properties?.location;
-        const fields = {
-          name: node?.name,
-          id: node?.id,
-          label: node?.label,
-          location: location
-            ? `${location.lat.toFixed(8)}, ${location.lng.toFixed(8)}`
-            : null,
-        };
-        Object.keys(fields).forEach((key) => {
-          const value = fields[key];
-          if (!value) {
-            return;
-          }
-          const item = document.createElement("div");
-          item.classList.add("njg-tooltip-item");
-          const keyLabel = document.createElement("span");
-          keyLabel.classList.add("njg-tooltip-key");
-          keyLabel.textContent = key;
-          const valueLabel = document.createElement("span");
-          valueLabel.classList.add("njg-tooltip-value");
-          valueLabel.textContent = String(value);
-          item.appendChild(keyLabel);
-          item.appendChild(valueLabel);
-          popupContent.appendChild(item);
-        });
+        const popupContent = this.gui.createDefaultPopupContent(node);
         const buttonContainer = document.createElement("div");
         buttonContainer.classList.add("njg-popup-button-container");
-
         const button = document.createElement("button");
         button.classList.add("njg-popup-button");
         button.textContent = "Open Floorplan";
+        button.addEventListener("click", () => openIndoorMap());
         buttonContainer.appendChild(button);
         popupContent.appendChild(buttonContainer);
-        button.addEventListener("click", () => openIndoorMap());
         return popupContent;
       }
 
@@ -328,12 +307,7 @@
               nodePopup: {
                 show: true,
                 content: null,
-                config: {
-                  closeOnClick: false,
-                  autoPan: true,
-                  autoPanPadding: [25, 25],
-                  offset: [-8, -8],
-                },
+                config: SHARED_POPUP_CONFIG,
               },
             },
             bookmarkableActions: {
@@ -378,15 +352,24 @@
 
               const mapOptions = this.echarts.getOption();
               // Refer netjsonmap-indoormap.html for full explanation of this workaround
-              mapOptions.series[0].data.forEach((data, index) => {
+              // Build an id -> node map so we don't assume the echarts series
+              // data and this.data.nodes share array indices (clustering or
+              // filtering can break that assumption).
+              const nodesById = new Map(this.data.nodes.map((n) => [n.id, n]));
+              mapOptions.series[0].data.forEach((data) => {
                 const node = data.node;
                 const px = Number(node.location.lng);
                 const py = -Number(node.location.lat);
                 const nodeProjected = L.point(topLeft.x + px, topLeft.y + py);
                 const nodeLatLng = map.unproject(nodeProjected, zoom);
-                this.data.nodes[index].location = nodeLatLng;
-                this.data.nodes[index].properties.location = nodeLatLng;
+                const dataNode = nodesById.get(node.id);
+                if (dataNode) {
+                  dataNode.location = nodeLatLng;
+                  dataNode.properties = dataNode.properties || {};
+                  dataNode.properties.location = nodeLatLng;
+                }
                 node.location = nodeLatLng;
+                node.properties = node.properties || {};
                 node.properties.location = nodeLatLng;
                 data.value = [nodeLatLng.lng, nodeLatLng.lat];
               });

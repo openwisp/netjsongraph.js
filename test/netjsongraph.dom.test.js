@@ -582,6 +582,40 @@ describe("Test GUI createDefaultPopupContent", () => {
     expect(content).toBeInstanceOf(HTMLElement);
     expect(content.classList.contains("default-popup")).toBe(true);
   });
+
+  test("Create default popup content prefers properties.location over top-level location", () => {
+    // loadNodePopup positions the popup using node.properties.location ||
+    // node.location. createDefaultPopupContent must read coordinates in the
+    // same order, otherwise the rendered text would disagree with the popup
+    // position when both fields exist with different values.
+    const node = {
+      id: "node-mismatch",
+      location: {lat: 1, lng: 2},
+      properties: {location: {lat: 3, lng: 4}},
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content.innerHTML).toContain("3.00000000");
+    expect(content.innerHTML).toContain("4.00000000");
+    expect(content.innerHTML).not.toContain("1.00000000");
+    expect(content.innerHTML).not.toContain("2.00000000");
+  });
+
+  test("Create default popup content keeps falsy-but-valid id (id:0)", () => {
+    // id:0 is a legal integer NetJSON node id and must not be filtered out.
+    const node = {
+      id: 0,
+      name: "Origin node",
+      label: "Origin",
+    };
+    const content = graph.gui.createDefaultPopupContent(node);
+    expect(content).toBeInstanceOf(HTMLElement);
+    const items = content.querySelectorAll(".njg-tooltip-item");
+    const idItem = Array.from(items).find(
+      (el) => el.querySelector(".njg-tooltip-key")?.textContent === "id",
+    );
+    expect(idItem).toBeDefined();
+    expect(idItem.querySelector(".njg-tooltip-value").textContent).toBe("0");
+  });
 });
 
 describe("Test GUI loadNodePopup with async and tooltip handling", () => {
@@ -601,6 +635,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
         mockPopup.handlers[event] = handler;
         return mockPopup;
       }),
+      remove: jest.fn(),
     };
     window.L = {
       CRS: {
@@ -664,7 +699,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
     expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
-      media: [{option: {tooltip: {show: false}}}],
+      tooltip: {show: false},
     });
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(
       testGraph,
@@ -756,7 +791,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     expect(mockPopup.on).toHaveBeenCalledWith("remove", expect.any(Function));
     mockPopup.handlers.remove();
     expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
-      media: [{option: {tooltip: {show: true}}}],
+      tooltip: {show: true},
     });
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(testGraph, true);
     expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
@@ -876,8 +911,11 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     testGraph.utils.updateLabelVisibility = jest.fn();
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
-    // Verify async content was resolved and popup was created with it
-    expect(asyncContentHandler).toHaveBeenCalledWith(node, testGraph);
+    // Verify async content was resolved and popup was created with it.
+    // Callback receives the netjsongraph instance as `this` (project-wide
+    // callback convention) and the node as the positional argument.
+    expect(asyncContentHandler).toHaveBeenCalledWith(node);
+    expect(asyncContentHandler.mock.instances[0]).toBe(testGraph);
     expect(mockPopup.setContent).toHaveBeenCalledWith(customContent);
   });
 
@@ -905,11 +943,16 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     testGraph.utils.removeUrlFragment = jest.fn();
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
-    // Verify onOpen callback was called
-    expect(onOpenCallback).toHaveBeenCalledWith(testGraph);
+    // Verify onOpen callback was called with the netjsongraph instance as
+    // `this` (project-wide callback convention) and no positional args.
+    expect(onOpenCallback).toHaveBeenCalledWith();
+    expect(onOpenCallback.mock.instances[0]).toBe(testGraph);
   });
 
-  test("loadNodePopup handles onOpen callback error and cleans up URL fragment", async () => {
+  test("loadNodePopup closes the popup and clears URL when onOpen throws", async () => {
+    // The popup is already visible by the time onOpen runs (openOn happens
+    // before onOpen is invoked). If onOpen throws, both the URL fragment and
+    // the popup must be rolled back so the visible map state matches the URL.
     const onOpenError = new Error("onOpen failed");
     const onOpenCallback = jest.fn(() => {
       throw onOpenError;
@@ -928,20 +971,29 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
         id: "id",
       },
     });
-    testGraph.echarts = {
-      setOption: jest.fn(),
-    };
+    testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
     };
     testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.parseUrlFragments = jest.fn(() => ({
+      id: new URLSearchParams("id=id&nodeId=node-1"),
+    }));
     testGraph.utils.removeUrlFragment = jest.fn();
+    // Match real Leaflet: .remove() fires the registered "remove" handler
+    // synchronously. This lets the assertions confirm both that the popup
+    // got removed AND that the handler then cleared the URL fragment.
+    mockPopup.remove = jest.fn(() => {
+      if (typeof mockPopup.handlers.remove === "function") {
+        mockPopup.handlers.remove();
+      }
+    });
     global.console.error = jest.fn();
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
-    // Verify URL fragment was cleaned up on error
+    expect(mockPopup.remove).toHaveBeenCalled();
     expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
   });
 
