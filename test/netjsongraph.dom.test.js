@@ -589,7 +589,6 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
   let container;
   let originalLeaflet;
   let mockPopup;
-  let closeButton;
 
   const mockLeafletPopup = (popupElement) => {
     mockPopup = {
@@ -597,6 +596,11 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setLatLng: jest.fn(() => mockPopup),
       setContent: jest.fn(() => mockPopup),
       openOn: jest.fn(() => mockPopup),
+      handlers: {},
+      on: jest.fn((event, handler) => {
+        mockPopup.handlers[event] = handler;
+        return mockPopup;
+      }),
     };
     window.L = {
       CRS: {
@@ -609,11 +613,8 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
 
   beforeEach(() => {
     originalLeaflet = window.L;
-    closeButton = {
-      addEventListener: jest.fn(),
-    };
     mockLeafletPopup({
-      querySelector: jest.fn(() => closeButton),
+      querySelector: jest.fn(),
     });
     container = document.createElement("div");
     container.setAttribute("id", "test-popup-map");
@@ -700,16 +701,43 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     testGraph.utils.updateLabelVisibility = jest.fn();
     testGraph.utils.removeUrlFragment = jest.fn();
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
-    try {
-      await testGraph.gui.loadNodePopup(node);
-    } catch (e) {
-      // Expected to fail
-    }
-    // Should remove URL fragment on error
+    await testGraph.gui.loadNodePopup(node);
     expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+    expect(testGraph.echarts.setOption).not.toHaveBeenCalled();
+    expect(testGraph.utils.updateLabelVisibility).not.toHaveBeenCalled();
   });
 
-  test("loadNodePopup sets up popup close handler to restore tooltip", async () => {
+  test("loadNodePopup catches synchronous custom content errors", async () => {
+    const contentHandler = jest.fn(() => {
+      throw new Error("Content build failed");
+    });
+    testGraph.setConfig({
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: contentHandler,
+          config: {autoPan: true},
+        },
+      },
+    });
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      currentPopupRequest: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.removeUrlFragment = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+    expect(testGraph.echarts.setOption).not.toHaveBeenCalled();
+  });
+
+  test("loadNodePopup restores tooltip and removes matching fragment on popup remove", async () => {
     testGraph.echarts = {
       setOption: jest.fn(),
     };
@@ -719,17 +747,94 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       off: jest.fn(),
     };
     testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.parseUrlFragments = jest.fn(() => ({
+      id: new URLSearchParams("id=id&nodeId=node-1"),
+    }));
+    testGraph.utils.removeUrlFragment = jest.fn();
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
-    expect(closeButton.addEventListener).toHaveBeenCalledWith(
-      "click",
-      expect.any(Function),
-    );
-    closeButton.addEventListener.mock.calls[0][1]();
+    expect(mockPopup.on).toHaveBeenCalledWith("remove", expect.any(Function));
+    mockPopup.handlers.remove();
     expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
       media: [{option: {tooltip: {show: true}}}],
     });
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(testGraph, true);
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+  });
+
+  test("loadNodePopup ignores stale async content without clearing newer URL fragment", async () => {
+    let resolveFirst;
+    const asyncContentHandler = jest
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirst = resolve;
+          }),
+      )
+      .mockResolvedValueOnce("<div>Second Popup</div>");
+    testGraph.setConfig({
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: asyncContentHandler,
+          config: {autoPan: true},
+        },
+      },
+    });
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      currentPopupRequest: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.removeUrlFragment = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    const firstRequest = testGraph.gui.loadNodePopup(node);
+    await testGraph.gui.loadNodePopup(node);
+    resolveFirst("<div>First Popup</div>");
+    await firstRequest;
+    expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
+    expect(mockPopup.setContent).toHaveBeenCalledWith("<div>Second Popup</div>");
+  });
+
+  test("loadNodePopup closes the current popup before waiting for async content", async () => {
+    let resolveContent;
+    const asyncContentHandler = jest.fn(
+      () =>
+        new Promise((resolve) => {
+          resolveContent = resolve;
+        }),
+    );
+    testGraph.setConfig({
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: asyncContentHandler,
+          config: {autoPan: true},
+        },
+      },
+    });
+    const currentPopup = {remove: jest.fn()};
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup,
+      currentPopupRequest: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    const popupRequest = testGraph.gui.loadNodePopup(node);
+    expect(currentPopup.remove).toHaveBeenCalled();
+    resolveContent("<div>New Popup</div>");
+    await popupRequest;
   });
 
   test("loadNodePopup handles null popup element gracefully", async () => {

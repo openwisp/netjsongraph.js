@@ -284,43 +284,43 @@ class NetJSONGraphGUI {
    * @returns {void}
    */
   async loadNodePopup(node) {
-    if (!this.self.leaflet) {
+    const {self} = this;
+    if (!self.leaflet) {
       console.error("Leaflet map not available. Cannot load popup.");
       return;
     }
-    this.self.echarts?.setOption({
-      media: [{option: {tooltip: {show: false}}}],
-    });
-    this.self.utils.updateLabelVisibility(this.self, false);
     const nodeLocation = node?.properties?.location || node?.location;
     if (!nodeLocation) {
       console.error("Node location not available. Cannot load popup.");
       return;
     }
     const bookmarkableActionId =
-      this.self.config.bookmarkableActions && this.self.config.bookmarkableActions.id;
-    let popupContent = this.self.config.mapOptions.nodePopup.content;
+      self.config.bookmarkableActions && self.config.bookmarkableActions.id;
+    const popupRequest = {};
+    self.leaflet.currentPopupRequest = popupRequest;
+    if (self.leaflet.currentPopup) {
+      self.leaflet.currentPopup.remove();
+    }
+    let popupContent = self.config.mapOptions.nodePopup.content;
     if (popupContent == null) {
       popupContent = this.createDefaultPopupContent(node);
     } else if (typeof popupContent === "function") {
-      const popupRequest = popupContent.call(this, node, this.self);
-      this.self.leaflet.currentPopupRequest = popupRequest;
       try {
-        popupContent = await popupRequest;
+        popupContent = await popupContent.call(this, node, self);
       } catch (error) {
-        this.self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
-        if (this.self.leaflet.currentPopupRequest !== popupRequest) {
+        if (self.leaflet.currentPopupRequest !== popupRequest) {
           return;
         }
+        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
+        self.leaflet.currentPopupRequest = null;
         console.error("Failed to build node popup content:", error);
         return;
       }
-      if (this.self.leaflet.currentPopupRequest !== popupRequest) {
-        this.self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
-        return;
-      }
     }
-    const popupConfigInput = this.self.config.mapOptions.nodePopup.config || {};
+    if (self.leaflet.currentPopupRequest !== popupRequest) {
+      return;
+    }
+    const popupConfigInput = self.config.mapOptions.nodePopup.config || {};
     const popupConfig = Object.fromEntries(
       Object.entries(popupConfigInput).filter(([, value]) => value != null),
     );
@@ -329,29 +329,46 @@ class NetJSONGraphGUI {
       ...popupConfig,
     })
       .setLatLng(nodeLocation)
-      .setContent(popupContent)
-      .openOn(this.self.leaflet);
+      .setContent(popupContent);
+    const popupNodeId = node && node.id != null ? String(node.id) : null;
 
-    this.self.leaflet.currentPopup = popup;
-    const {onOpen} = this.self.config.mapOptions.nodePopup;
+    popup.on("remove", () => {
+      if (self.leaflet.currentPopup !== popup) {
+        return;
+      }
+      self.echarts?.setOption({
+        media: [{option: {tooltip: {show: true}}}],
+      });
+      self.utils.updateLabelVisibility(self, true);
+      if (self.config.bookmarkableActions?.enabled && popupNodeId) {
+        const fragments = self.utils.parseUrlFragments();
+        const currentFragment = fragments[bookmarkableActionId];
+        if (currentFragment?.get("nodeId") === popupNodeId) {
+          self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
+        }
+      }
+      self.leaflet.currentPopup = null;
+      if (self.leaflet.currentPopupRequest === popupRequest) {
+        self.leaflet.currentPopupRequest = null;
+      }
+    });
+
+    self.leaflet.currentPopup = popup;
+    popup.openOn(self.leaflet);
+    self.echarts?.setOption({
+      media: [{option: {tooltip: {show: false}}}],
+    });
+    self.utils.updateLabelVisibility(self, false);
+
+    const {onOpen} = self.config.mapOptions.nodePopup;
     if (onOpen && typeof onOpen === "function") {
       try {
-        onOpen.call(this, this.self);
+        onOpen.call(this, self);
       } catch (error) {
-        this.self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
+        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
         console.error("Failed to run popup onOpen callback:", error);
       }
     }
-    const popupElement = popup
-      .getElement()
-      ?.querySelector(".leaflet-popup-close-button");
-    popupElement?.addEventListener("click", () => {
-      this.self.echarts?.setOption({
-        media: [{option: {tooltip: {show: true}}}],
-      });
-      this.self.utils.updateLabelVisibility(this.self, true);
-      this.self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
-    });
   }
 
   createDefaultPopupContent(node) {

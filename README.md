@@ -463,8 +463,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The `linkStyle` property is used to customize the style of the links. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-lines.lineStyle).
 
-  `nodePopup` displays a Leaflet popup when a map node is clicked. Set `show` to `true` to enable it, `content` can be a function which returns and HTML element, or `null` to use the default node details. Use `config` for Leaflet popup options and `onOpen` for a async callback after the popup opens.
-  **Note:** For async `content`, only the latest resolved request opens a popup, earlier requests are ignored but not cancelled.
+  `nodePopup` displays a Leaflet popup when a map node is clicked. Set `show` to `true` to enable it. Set `content` to a function that returns a DOM element or string, or leave it as `null` to use the default node details. Use `config` to pass Leaflet popup options and `onOpen` to run a callback after the popup opens.
+  **Note:** `content` can be asynchronous. When multiple async popup requests overlap, only the latest request is used; earlier requests are ignored, but they are not cancelled.
 
 - `mapTileConfig`
 

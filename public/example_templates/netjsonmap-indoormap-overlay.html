@@ -105,6 +105,8 @@
     </div>
 
     <script>
+      // This example uses popups instead of the default sidebar.
+      const disableDefaultSidebar = () => {};
       const netjsonmap = new NetJSONGraph("../assets/data/netjsonmap.json", {
         el: "#map-content",
         render: "map",
@@ -147,7 +149,7 @@
           });
           return data;
         },
-        onClickElement() {},
+        onClickElement: disableDefaultSidebar,
       });
       netjsonmap.setUtils({
         // Added to open popup for a specific location Id in selenium tests
@@ -408,9 +410,7 @@
               map.setMaxBounds(bnds);
               map.invalidateSize();
             },
-            // Empty onclick needed to override the default coming from config
-            // to the netjsongraph sidebar
-            onClickElement: function () {},
+            onClickElement: disableDefaultSidebar,
           },
         );
         indoor.setUtils({
@@ -454,8 +454,9 @@
             const container = document.getElementById("indoormap-container");
             if (container) {
               container.remove();
-              window._indoorMap = null;
             }
+            window._indoorMap = null;
+            window.removeEventListener("popstate", popstateHandler);
           }
         };
         window.addEventListener("popstate", popstateHandler);
