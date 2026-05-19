@@ -110,7 +110,7 @@ class NetJSONGraphRender {
           clickElement("link", params.data.link);
           return;
         }
-        if (!params.data.cluster) {
+        if (params.data && !params.data.cluster) {
           if (configs.mapOptions?.nodePopup?.show) {
             self.gui.loadNodePopup(params.data.node);
           }
