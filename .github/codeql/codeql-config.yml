@@ -1,0 +1,11 @@
+name: "CodeQL config"
+
+# Skip directories that do not ship in the published package and are not
+# security-relevant: jest/selenium test suites and example HTML templates.
+# These are development tooling; they don't end up in the npm artifact
+# (see package.json "files": ["dist/", "src/"]) and treating them as
+# production code generates noise like incomplete-URL-substring-sanitization
+# alerts on test log-message filtering.
+paths-ignore:
+  - test/**
+  - public/example_templates/**
