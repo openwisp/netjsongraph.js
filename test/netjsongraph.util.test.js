@@ -314,7 +314,10 @@ describe("Test URL fragment utilities", () => {
           zoomOnRestore: true,
         },
         graphConfig: {series: {type: null}},
-        mapOptions: {nodeConfig: {type: "scatter"}, center: [0, 0]},
+        mapOptions: {
+          nodeConfig: {type: "scatter"},
+          center: [0, 0],
+        },
         onClickElement: mockOnClick,
       },
       nodeLinkIndex: {n1: node},
@@ -427,5 +430,458 @@ describe("Test move Node in Real Time", () => {
     expect(updated.node.location).toEqual(newLocation);
     expect(updated.node.properties.location).toEqual(newLocation);
     expect(updated.value).toEqual([newLocation.lng, newLocation.lat]);
+  });
+});
+
+describe("Test applyUrlFragmentState with nodePopup", () => {
+  test("calls loadNodePopup when target is null and nodePopup.show is true", () => {
+    const util = new NetJSONGraphUtil();
+    const node = {
+      id: "node-1",
+      location: {lat: 10, lng: 20},
+    };
+    const params = new URLSearchParams();
+    params.set("id", "id");
+    params.set("nodeId", "node-1");
+    const fragments = {
+      id: params,
+    };
+    const mockSelf = {
+      config: {
+        bookmarkableActions: {
+          enabled: true,
+          id: "id",
+          zoomOnRestore: false,
+        },
+        mapOptions: {
+          nodePopup: {
+            show: true,
+          },
+        },
+        onClickElement: jest.fn(),
+      },
+      gui: {
+        loadNodePopup: jest.fn(),
+      },
+      utils: {
+        parseUrlFragments: jest.fn(() => fragments),
+      },
+      nodeLinkIndex: {
+        "node-1": node,
+      },
+      leaflet: {
+        setView: jest.fn(),
+      },
+    };
+    util.applyUrlFragmentState.call(util, mockSelf);
+    expect(mockSelf.gui.loadNodePopup).toHaveBeenCalledWith(node);
+  });
+
+  test("does not call loadNodePopup when target is not null (link case)", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "id");
+    params.set("nodeId", "node-1~node-2");
+    const fragments = {
+      id: params,
+    };
+    const mockSelf = {
+      config: {
+        bookmarkableActions: {
+          enabled: true,
+          id: "id",
+          zoomOnRestore: false,
+        },
+        mapOptions: {
+          nodePopup: {
+            show: true,
+          },
+        },
+        onClickElement: jest.fn(),
+      },
+      gui: {
+        loadNodePopup: jest.fn(),
+      },
+      utils: {
+        parseUrlFragments: jest.fn(() => fragments),
+      },
+      nodeLinkIndex: {
+        "node-1~node-2": {id: "node-1~node-2", location: {lat: 12, lng: 22}},
+      },
+      leaflet: {
+        setView: jest.fn(),
+      },
+    };
+    util.applyUrlFragmentState.call(util, mockSelf);
+    expect(mockSelf.gui.loadNodePopup).not.toHaveBeenCalled();
+  });
+
+  test("does not call loadNodePopup when nodePopup.show is false", () => {
+    const util = new NetJSONGraphUtil();
+    const node = {
+      id: "node-3",
+      location: {lat: 20, lng: 30},
+    };
+    const params = new URLSearchParams();
+    params.set("id", "id");
+    params.set("nodeId", "node-3");
+
+    const fragments = {
+      id: params,
+    };
+    const mockSelf = {
+      config: {
+        bookmarkableActions: {
+          enabled: true,
+          id: "id",
+          zoomOnRestore: false,
+        },
+        mapOptions: {
+          nodePopup: {
+            show: false,
+          },
+        },
+        onClickElement: jest.fn(),
+      },
+      gui: {
+        loadNodePopup: jest.fn(),
+      },
+      utils: {
+        parseUrlFragments: jest.fn(() => fragments),
+      },
+      nodeLinkIndex: {
+        "node-3": node,
+      },
+      leaflet: {
+        setView: jest.fn(),
+      },
+    };
+    util.applyUrlFragmentState.call(util, mockSelf);
+    expect(mockSelf.gui.loadNodePopup).not.toHaveBeenCalled();
+  });
+
+  test("does not call loadNodePopup when mapOptions.nodePopup is not configured", () => {
+    const util = new NetJSONGraphUtil();
+    const node = {
+      id: "node-4",
+      location: {lat: 25, lng: 35},
+    };
+    const params = new URLSearchParams();
+    params.set("id", "id");
+    params.set("nodeId", "node-4");
+    const fragments = {
+      id: params,
+    };
+    const mockSelf = {
+      config: {
+        bookmarkableActions: {
+          enabled: true,
+          id: "id",
+          zoomOnRestore: false,
+        },
+        mapOptions: {},
+        onClickElement: jest.fn(),
+      },
+      gui: {
+        loadNodePopup: jest.fn(),
+      },
+      utils: {
+        parseUrlFragments: jest.fn(() => fragments),
+      },
+      nodeLinkIndex: {
+        "node-4": node,
+      },
+      leaflet: {
+        setView: jest.fn(),
+      },
+    };
+    util.applyUrlFragmentState.call(util, mockSelf);
+    expect(mockSelf.gui.loadNodePopup).not.toHaveBeenCalled();
+  });
+
+  test("closes the open popup when popstate navigates to a state without nodeId", () => {
+    // Regression for popstate-back to a no-nodeId state: the URL no longer
+    // references a selected node, so any popup that was opened by an earlier
+    // applyUrlFragmentState must be closed to keep the visible state in sync
+    // with the URL.
+    const util = new NetJSONGraphUtil();
+    const fragments = {};
+    const popupRemove = jest.fn();
+    const mockSelf = {
+      config: {
+        bookmarkableActions: {
+          enabled: true,
+          id: "id",
+          zoomOnRestore: false,
+        },
+        mapOptions: {
+          nodePopup: {
+            show: true,
+          },
+        },
+        onClickElement: jest.fn(),
+      },
+      gui: {
+        loadNodePopup: jest.fn(),
+      },
+      utils: {
+        parseUrlFragments: jest.fn(() => fragments),
+      },
+      nodeLinkIndex: {},
+      leaflet: {
+        setView: jest.fn(),
+        currentPopup: {remove: popupRemove},
+      },
+    };
+    util.applyUrlFragmentState.call(util, mockSelf);
+    expect(popupRemove).toHaveBeenCalled();
+    expect(mockSelf.gui.loadNodePopup).not.toHaveBeenCalled();
+  });
+
+  test("calls onClickElement for node clicks regardless of nodePopup setting", () => {
+    const util = new NetJSONGraphUtil();
+    const node = {
+      id: "node-5",
+      location: {lat: 30, lng: 40},
+    };
+    const params = new URLSearchParams();
+    params.set("id", "id");
+    params.set("nodeId", "node-5");
+    const fragments = {
+      id: params,
+    };
+    const mockSelf = {
+      config: {
+        bookmarkableActions: {
+          enabled: true,
+          id: "id",
+          zoomOnRestore: false,
+        },
+        mapOptions: {
+          nodePopup: {
+            show: true,
+          },
+        },
+        onClickElement: jest.fn(),
+      },
+      gui: {
+        loadNodePopup: jest.fn(),
+      },
+      utils: {
+        parseUrlFragments: jest.fn(() => fragments),
+      },
+      nodeLinkIndex: {
+        "node-5": node,
+      },
+      leaflet: {
+        setView: jest.fn(),
+      },
+    };
+    util.applyUrlFragmentState.call(util, mockSelf);
+    expect(mockSelf.config.onClickElement).toHaveBeenCalledWith("node", node);
+  });
+});
+
+describe("Test removeUrlFragment with paramName argument", () => {
+  test("removeUrlFragment deletes only the named param when paramName is provided", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "id");
+    params.set("nodeId", "node-1");
+    params.set("other", "value");
+    util.parseUrlFragments = jest.fn(() => ({
+      id: params,
+    }));
+    util.updateUrlFragments = jest.fn();
+    util.removeUrlFragment.call(util, "id", "nodeId");
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({id: params}, {id: "id"});
+    expect(params.has("nodeId")).toBe(false);
+    expect(params.get("other")).toBe("value");
+  });
+
+  test("removeUrlFragment deletes entire fragment when paramName is not provided", () => {
+    const util = new NetJSONGraphUtil();
+    util.parseUrlFragments = jest.fn(() => ({
+      id: new URLSearchParams("nodeId=node-1"),
+    }));
+    util.updateUrlFragments = jest.fn();
+    util.removeUrlFragment.call(util, "id");
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "id"});
+  });
+
+  test("removeUrlFragment returns early when fragment does not exist", () => {
+    const util = new NetJSONGraphUtil();
+    util.parseUrlFragments = jest.fn(() => ({}));
+    util.updateUrlFragments = jest.fn();
+    util.removeUrlFragment.call(util, "nonexistent");
+    expect(util.updateUrlFragments).not.toHaveBeenCalled();
+  });
+
+  test("removeUrlFragment drops the whole fragment entry when only the action id remains", () => {
+    // If removing the named param leaves nothing but the bare `id` key, the
+    // fragment becomes a useless stub like "#id=geoMap" — drop it entirely.
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "geoMap");
+    params.set("nodeId", "node-1");
+    util.parseUrlFragments = jest.fn(() => ({
+      geoMap: params,
+    }));
+    util.updateUrlFragments = jest.fn();
+    util.removeUrlFragment.call(util, "geoMap", "nodeId");
+    // After deletion, only `id` would remain → entire entry should be gone.
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "geoMap"});
+  });
+});
+
+describe("Test updateLabelVisibility utility method", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("updateLabelVisibility hides labels when show is false", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      echarts: {
+        setOption: jest.fn(),
+      },
+      config: {
+        showMapLabelsAtZoom: 3,
+      },
+      leaflet: {
+        getZoom: jest.fn(() => 5),
+      },
+    };
+    util.updateLabelVisibility.call(util, mockSelf, false);
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledWith({
+      series: [
+        {
+          id: "geo-map",
+          label: {
+            show: false,
+            silent: true,
+          },
+          emphasis: {
+            label: {
+              show: false,
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  test("updateLabelVisibility shows labels when show is true and zoom >= threshold", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      echarts: {
+        setOption: jest.fn(),
+      },
+      config: {
+        showMapLabelsAtZoom: 3,
+      },
+      leaflet: {
+        getZoom: jest.fn(() => 5),
+      },
+    };
+    util.updateLabelVisibility.call(util, mockSelf, true);
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledWith({
+      series: [
+        {
+          id: "geo-map",
+          label: {
+            show: true,
+            silent: true,
+          },
+          emphasis: {
+            label: {
+              show: false,
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  test("updateLabelVisibility hides labels when zoom < threshold even if show is true", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      echarts: {
+        setOption: jest.fn(),
+      },
+      config: {
+        showMapLabelsAtZoom: 10,
+      },
+      leaflet: {
+        getZoom: jest.fn(() => 5),
+      },
+    };
+    util.updateLabelVisibility.call(util, mockSelf, true);
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledWith({
+      series: [
+        {
+          id: "geo-map",
+          label: {
+            show: false,
+            silent: true,
+          },
+          emphasis: {
+            label: {
+              show: false,
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  test("updateLabelVisibility always hides labels when showMapLabelsAtZoom is false", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      echarts: {
+        setOption: jest.fn(),
+      },
+      config: {
+        showMapLabelsAtZoom: false,
+      },
+      leaflet: {
+        getZoom: jest.fn(() => 10),
+      },
+    };
+    util.updateLabelVisibility.call(util, mockSelf, true);
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledWith({
+      series: [
+        {
+          id: "geo-map",
+          label: {
+            show: false,
+            silent: true,
+          },
+          emphasis: {
+            label: {
+              show: false,
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  test("updateLabelVisibility returns early when echarts is not ready", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      echarts: null,
+      config: {
+        showMapLabelsAtZoom: 3,
+      },
+      leaflet: {
+        getZoom: jest.fn(() => 5),
+      },
+    };
+    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    util.updateLabelVisibility.call(util, mockSelf, true);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      "updateLabelVisibility: ECharts instance not ready",
+    );
   });
 });

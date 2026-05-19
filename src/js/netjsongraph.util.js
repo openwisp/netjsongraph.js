@@ -1328,9 +1328,29 @@ class NetJSONGraphUtil {
     this.updateUrlFragments(fragments, nodeData);
   }
 
-  removeUrlFragment(id) {
+  /**
+   * Remove the URL fragment for the given action id, or just one URLSearchParams
+   * key inside that fragment.
+   *
+   * @param {string} id        The bookmarkable action id (e.g. "geoMap").
+   * @param {string} [paramName] If provided, only this query-param is removed
+   *   from the fragment. If omitted, the whole fragment for the id is dropped.
+   */
+  removeUrlFragment(id, paramName = null) {
     const fragments = this.parseUrlFragments();
-    if (fragments[id]) {
+    if (!fragments[id]) {
+      return;
+    }
+    if (paramName) {
+      fragments[id].delete(paramName);
+      // Drop the whole entry if only the bare action id is left — a fragment
+      // like "#id=geoMap" with no other params is a useless stub that
+      // parseUrlFragments would still pick up on subsequent visits.
+      const remainingKeys = Array.from(fragments[id].keys()).filter((k) => k !== "id");
+      if (remainingKeys.length === 0) {
+        delete fragments[id];
+      }
+    } else {
       delete fragments[id];
     }
     const state = {id};
@@ -1347,6 +1367,11 @@ class NetJSONGraphUtil {
     const nodeId =
       fragmentParams && fragmentParams.get ? fragmentParams.get("nodeId") : undefined;
     if (!nodeId || !self.nodeLinkIndex || self.nodeLinkIndex[nodeId] == null) {
+      // Popstate to a state without a selected node: close any open popup so
+      // the visible map state matches the URL.
+      if (self.leaflet && self.leaflet.currentPopup) {
+        self.leaflet.currentPopup.remove();
+      }
       return;
     }
     const [source, target] = nodeId.split("~");
@@ -1380,6 +1405,9 @@ class NetJSONGraphUtil {
       if (self.leaflet) {
         self.leaflet.setView(center, zoom);
       }
+    }
+    if (target == null && self.config.mapOptions?.nodePopup?.show) {
+      self.gui.loadNodePopup(node);
     }
     if (typeof self.config.onClickElement === "function") {
       self.config.onClickElement.call(self, source && target ? "link" : "node", node);
@@ -1440,6 +1468,43 @@ class NetJSONGraphUtil {
     this.echarts.setOption({
       series: options.series,
     });
+  }
+
+  updateLabelVisibility(self, show) {
+    if (!self.echarts || typeof self.echarts.setOption !== "function") {
+      console.warn("updateLabelVisibility: ECharts instance not ready");
+      return;
+    }
+    const showLabel =
+      show &&
+      self.config.showMapLabelsAtZoom !== false &&
+      self.leaflet.getZoom() >= self.config.showMapLabelsAtZoom;
+    self.echarts.setOption({
+      series: [
+        {
+          id: "geo-map",
+          label: {
+            show: showLabel,
+            silent: true,
+          },
+          emphasis: {
+            label: {
+              show: false,
+            },
+          },
+        },
+      ],
+    });
+  }
+
+  /**
+   * Hide/show the rendered ECharts tooltip without changing user tooltip config.
+   */
+  setTooltipVisibility(self, visible) {
+    if (!self.el) {
+      return;
+    }
+    self.el.classList.toggle("njg-hide-tooltip", !visible);
   }
 }
 

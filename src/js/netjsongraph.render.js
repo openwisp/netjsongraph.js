@@ -103,14 +103,19 @@ class NetJSONGraphRender {
         const clickElement = configs.onClickElement.bind(self);
         self.utils.addActionToUrl(self, params);
         if (params.componentSubType === "graph") {
-          return clickElement(
-            params.dataType === "edge" ? "link" : "node",
-            params.data,
-          );
+          clickElement(params.dataType === "edge" ? "link" : "node", params.data);
+          return;
         }
-        return params.componentSubType === "lines"
-          ? clickElement("link", params.data.link)
-          : !params.data.cluster && clickElement("node", params.data.node);
+        if (params.componentSubType === "lines") {
+          clickElement("link", params.data.link);
+          return;
+        }
+        if (params.data && !params.data.cluster) {
+          if (configs.mapOptions?.nodePopup?.show) {
+            self.gui.loadNodePopup(params.data.node);
+          }
+          clickElement("node", params.data.node);
+        }
       },
       {passive: true},
     );
@@ -598,33 +603,10 @@ class NetJSONGraphRender {
         self.leaflet.fitBounds(bounds, {padding: [20, 20]});
       }
     }
-
-    const updateLabelVisibility = () => {
-      const showLabel =
-        self.config.showMapLabelsAtZoom !== false &&
-        self.leaflet.getZoom() >= self.config.showMapLabelsAtZoom;
-      self.echarts.setOption({
-        series: [
-          {
-            id: "geo-map",
-            label: {
-              show: showLabel,
-              silent: true,
-            },
-            emphasis: {
-              label: {
-                show: false,
-              },
-            },
-          },
-        ],
-      });
-    };
-
-    updateLabelVisibility();
+    self.utils.updateLabelVisibility(self, true);
 
     self.leaflet.on("zoomend", () => {
-      updateLabelVisibility();
+      self.utils.updateLabelVisibility(self, true);
       // Zoom in/out buttons disabled only when it is equal to min/max zoomlevel
       // Manually handle zoom control state to ensure correct behavior with float zoom levels
       const currentZoom = self.leaflet.getZoom();
@@ -722,7 +704,7 @@ class NetJSONGraphRender {
           clusters,
         ),
       );
-      updateLabelVisibility();
+      self.utils.updateLabelVisibility(self, true);
 
       self.echarts.on("click", (params) => {
         if (
@@ -762,7 +744,7 @@ class NetJSONGraphRender {
           // When above the threshold, show all nodes without clustering
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
-        updateLabelVisibility();
+        self.utils.updateLabelVisibility(self, true);
       });
     }
 

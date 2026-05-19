@@ -169,8 +169,12 @@ describe("Chart Rendering Test", () => {
       "//span[@class='njg-valueLabel' and text()='10.149.3.3']",
       2000,
     );
-    const nodeId = await node.getText();
-
+    // Use textContent rather than getText(): in the popup-based examples the
+    // sidebar is hidden via CSS, and Selenium's getText() returns "" for
+    // elements that aren't visible. textContent gives us the raw text
+    // regardless of layout state, so all the bookmarkable tests stay
+    // consistent across visible-sidebar and hidden-sidebar examples.
+    const nodeId = await node.getAttribute("textContent");
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
@@ -195,8 +199,8 @@ describe("Chart Rendering Test", () => {
       "//span[@class='njg-valueLabel' and text()='172.16.155.4']",
       2000,
     );
-    const sourceId = await source.getText();
-    const targetId = await target.getText();
+    const sourceId = await source.getAttribute("textContent");
+    const targetId = await target.getAttribute("textContent");
 
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -216,7 +220,7 @@ describe("Chart Rendering Test", () => {
       "//span[@class='njg-valueLabel' and text()='172.16.169.1']",
       2000,
     );
-    const nodeId = await node.getText();
+    const nodeId = await node.getAttribute("textContent");
 
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -242,8 +246,8 @@ describe("Chart Rendering Test", () => {
       "//span[@class='njg-valueLabel' and text()='172.16.185.13']",
       2000,
     );
-    const sourceId = await source.getText();
-    const targetId = await target.getText();
+    const sourceId = await source.getAttribute("textContent");
+    const targetId = await target.getAttribute("textContent");
 
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -269,6 +273,12 @@ describe("Chart Rendering Test", () => {
     await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
     let currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).toContain("172.16.171.15");
+    const floorplanBtn = await getElementByCss(driver, ".njg-popup-button", 2000);
+    expect(floorplanBtn).not.toBeNull();
+    // Use JS click to avoid Leaflet popup click interception in Chrome
+    await driver.executeScript("arguments[0].click();", floorplanBtn);
+    // wait for overlay to open and render indoor map
+    await driver.sleep(500);
     let indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
     const indoorCanvas = await getElementByCss(driver, "canvas", 2000);
     const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
@@ -297,14 +307,41 @@ describe("Chart Rendering Test", () => {
   test("bookmarkableActions: test url fragments for nodes", async () => {
     await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
-    const indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
-    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
+    const indoorContainer = await getElementByCss(driver, ".njg-popup-button", 2000);
+    const node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='172.16.177.33']",
+      2000,
+    );
+    const nodeId = await node.getAttribute("textContent");
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
     expect(indoorContainer).not.toBeNull();
-    expect(floorplanImage).not.toBeNull();
+    expect(nodeId).toBe("172.16.177.33");
+  });
+
+  test("nodePopup toggles tooltip suppression while popup is open", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    const popupCloseBtn = await getElementByCss(
+      driver,
+      ".leaflet-popup-close-button",
+      2000,
+    );
+    expect(popupCloseBtn).not.toBeNull();
+    let tooltipSuppressed = await driver.executeScript(
+      'return window._geoMap.el.classList.contains("njg-hide-tooltip");',
+    );
+    expect(tooltipSuppressed).toBe(true);
+    await driver.executeScript("arguments[0].click();", popupCloseBtn);
+    tooltipSuppressed = await driver.executeScript(
+      'return window._geoMap.el.classList.contains("njg-hide-tooltip");',
+    );
+    expect(tooltipSuppressed).toBe(false);
   });
 
   test("bookmarkableActions: test forward/backward actions", async () => {
@@ -314,12 +351,25 @@ describe("Chart Rendering Test", () => {
     await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
     let currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).toContain("172.16.171.15");
-    let indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    let node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='172.16.171.15']",
+      2000,
+    );
+    let nodeId = await node.getAttribute("textContent");
+    expect(nodeId).toBe("172.16.171.15");
+    const floorplanBtn = await getElementByCss(driver, ".njg-popup-button", 2000);
+    expect(floorplanBtn).not.toBeNull();
+    await driver.executeScript("arguments[0].click();", floorplanBtn);
+    // wait for overlay to open and render indoor map
+    await driver.sleep(500);
+    let indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
     expect(indoorContainer).not.toBeNull();
     await driver.executeScript('window._indoorMap.utils.triggerOnClick("node_2");');
     currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).toContain("node_2");
     await driver.get("http://0.0.0.0:8080");
+    await driver.sleep(500);
     await driver.navigate().back();
     await driver.sleep(500);
     currentUrl = await driver.getCurrentUrl();
@@ -327,9 +377,13 @@ describe("Chart Rendering Test", () => {
     expect(currentUrl).toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
     expect(indoorContainer).not.toBeNull();
-    let node = await getElementByCss(driver, "#indoormap-container .njg-valueLabel");
-    let nodeId = await node.getText();
-    expect(nodeId).toBe("Node_2");
+    node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='Node 2']",
+      2000,
+    );
+    nodeId = await node.getAttribute("textContent");
+    expect(nodeId).toBe("Node 2");
     await driver.navigate().back();
     await driver.sleep(500);
     currentUrl = await driver.getCurrentUrl();
@@ -337,6 +391,13 @@ describe("Chart Rendering Test", () => {
     expect(currentUrl).not.toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
     expect(indoorContainer).toBeNull();
+    node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='172.16.171.15']",
+      2000,
+    );
+    nodeId = await node.getAttribute("textContent");
+    expect(nodeId).toBe("172.16.171.15");
     await driver.navigate().forward();
     await driver.sleep(500);
     currentUrl = await driver.getCurrentUrl();
@@ -344,13 +405,17 @@ describe("Chart Rendering Test", () => {
     expect(currentUrl).toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
     expect(indoorContainer).not.toBeNull();
-    node = await getElementByCss(driver, "#indoormap-container .njg-valueLabel");
-    nodeId = await node.getText();
-    expect(nodeId).toBe("Node_2");
+    node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='Node 2']",
+      2000,
+    );
+    nodeId = await node.getAttribute("textContent");
+    expect(nodeId).toBe("Node 2");
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
-  });
+  }, 10000); // This test needs more time
 
   test("bookmarkableActions: check if parseUrlFragments handles invalid UTF-8", async () => {
     // Invalid UTF-8 sequence in hash
@@ -424,7 +489,7 @@ describe("Chart Rendering Test", () => {
     expect(canvas).not.toBeNull();
 
     // Wait for map to initialize and get initial position
-    await driver.sleep(2000);
+    await driver.sleep(500);
     const initialPosition = await driver.executeScript(() => {
       const options = window.map.echarts.getOption();
       const series = options.series.find((s) => s.type === "scatter");

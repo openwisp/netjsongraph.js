@@ -278,6 +278,204 @@ class NetJSONGraphGUI {
     };
   }
 
+  /**
+   * Canonical lookup order for a node's location. `prepareData` normalizes a
+   * node by setting `properties.location = node.location`, so the
+   * post-pipeline value lives on `properties.location`; we read it first
+   * and fall back to the top-level NetJSON field for nodes that bypass
+   * `prepareData`.
+   *
+   * @param {Object} node
+   * @returns {{lat: number, lng: number}|undefined}
+   */
+  getNodeLocation(node) {
+    return node?.properties?.location || node?.location;
+  }
+
+  /**
+   * Load and display a Leaflet popup for a node on the map.
+   *
+   * Resolves `mapOptions.nodePopup.content`:
+   *   - if `null` → uses the built-in `createDefaultPopupContent`
+   *   - if a function → calls it with `this` = the netjsongraph instance and
+   *     awaits the result (the function may be async)
+   *
+   * Concurrency: only the latest invocation's result is rendered. Earlier
+   * pending content promises are not cancelled; their resolved/rejected
+   * values are discarded. Callers should not assume their content function's
+   * return value reaches the screen.
+   *
+   * Failure handling:
+   *   - if content building throws (sync or async), the URL fragment for the
+   *     current bookmarkable action is cleared and no popup is opened
+   *   - if `onOpen` throws after the popup is shown, the popup is removed
+   *     and the URL fragment is cleared (via the popup's own remove handler)
+   *
+   * @param {Object} node - The node data containing location and properties.
+   * @returns {Promise<void>}
+   */
+  async loadNodePopup(node) {
+    const {self} = this;
+    if (!self.leaflet) {
+      console.error("Leaflet map not available. Cannot load popup.");
+      return;
+    }
+    const nodeLocation = this.getNodeLocation(node);
+    if (!nodeLocation) {
+      console.error("Node location not available. Cannot load popup.");
+      return;
+    }
+    const bookmarkableActionId =
+      self.config.bookmarkableActions && self.config.bookmarkableActions.id;
+    const popupRequest = {};
+    self.leaflet.currentPopupRequest = popupRequest;
+    // Track whether tooltip/labels were already hidden by an open popup, so
+    // we can restore them if replacement content generation fails.
+    const hadOpenPopup = Boolean(self.leaflet.currentPopup);
+    if (self.leaflet.currentPopup) {
+      // Null out before remove() so the old popup's "remove" handler bails on
+      // the currentPopup !== popup check. Otherwise it runs the user-close
+      // cleanup path (tooltip/label restore + URL fragment removal), which on
+      // popstate restoration of the same node ends up wiping the URL fragment
+      // we just restored.
+      const previousPopup = self.leaflet.currentPopup;
+      self.leaflet.currentPopup = null;
+      previousPopup.remove();
+    }
+    let popupContent = self.config.mapOptions.nodePopup.content;
+    if (popupContent == null) {
+      popupContent = this.createDefaultPopupContent(node);
+    } else if (typeof popupContent === "function") {
+      try {
+        // Matches the project-wide callback convention: callbacks receive the
+        // netjsongraph instance as `this` and any context as positional args.
+        popupContent = await popupContent.call(self, node);
+      } catch (error) {
+        if (self.leaflet.currentPopupRequest !== popupRequest) {
+          return;
+        }
+        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
+        self.leaflet.currentPopupRequest = null;
+        // If we tore down a previous popup before content generation failed,
+        // its remove handler was bypassed — restore tooltip/labels manually so
+        // the map doesn't stay in popup-open visual state with no popup.
+        if (hadOpenPopup) {
+          self.utils.setTooltipVisibility(self, true);
+          self.utils.updateLabelVisibility(self, true);
+        }
+        console.error("Failed to build node popup content:", error);
+        return;
+      }
+    }
+    if (self.leaflet.currentPopupRequest !== popupRequest) {
+      return;
+    }
+    const popupConfigInput = self.config.mapOptions.nodePopup.config || {};
+    const popupConfig = Object.fromEntries(
+      Object.entries(popupConfigInput).filter(([, value]) => value != null),
+    );
+
+    const popup = window.L.popup({
+      ...popupConfig,
+    })
+      .setLatLng(nodeLocation)
+      .setContent(popupContent);
+    const popupNodeId = node && node.id != null ? String(node.id) : null;
+
+    popup.on("remove", () => {
+      if (self.leaflet.currentPopup !== popup) {
+        return;
+      }
+      // Restore the chart's own tooltip (we hid it while the popup was open).
+      self.utils.setTooltipVisibility(self, true);
+      self.utils.updateLabelVisibility(self, true);
+      if (
+        self.config.bookmarkableActions &&
+        self.config.bookmarkableActions.enabled &&
+        popupNodeId
+      ) {
+        const fragments = self.utils.parseUrlFragments();
+        const currentFragment = fragments[bookmarkableActionId];
+        if (currentFragment && currentFragment.get("nodeId") === popupNodeId) {
+          self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
+        }
+      }
+      self.leaflet.currentPopup = null;
+      if (self.leaflet.currentPopupRequest === popupRequest) {
+        self.leaflet.currentPopupRequest = null;
+      }
+    });
+
+    self.leaflet.currentPopup = popup;
+    popup.openOn(self.leaflet);
+    // Hide tooltip and labels while the popup is open
+    self.utils.setTooltipVisibility(self, false);
+    self.utils.updateLabelVisibility(self, false);
+
+    const {onOpen} = self.config.mapOptions.nodePopup;
+    if (typeof onOpen === "function") {
+      try {
+        onOpen.call(self);
+      } catch (error) {
+        // onOpen runs after the popup is already visible. If it throws we
+        // roll back to a consistent state by removing the popup; the popup's
+        // own remove handler clears the URL fragment when it still points
+        // at the now-rolled-back node.
+        if (self.leaflet.currentPopup) {
+          self.leaflet.currentPopup.remove();
+        }
+        console.error("Failed to run popup onOpen callback:", error);
+      }
+    }
+  }
+
+  /**
+   * Build the default popup body for a node: a `.default-popup` div with
+   * `name`, `id`, `label`, and `location` rows (rendered only when present).
+   * All values are written with `textContent`, so they are XSS-safe even if
+   * the node fields contain user-controlled strings.
+   *
+   * Consumers may call this from a custom `mapOptions.nodePopup.content`
+   * function and extend the returned element with additional UI.
+   *
+   * @param {Object} node
+   * @returns {HTMLElement}
+   */
+  createDefaultPopupContent(node) {
+    const popupContent = document.createElement("div");
+    popupContent.classList.add("default-popup");
+    const location = this.getNodeLocation(node);
+    const lat = Number(location?.lat);
+    const lng = Number(location?.lng);
+    const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
+    const fields = {
+      name: node?.name,
+      id: node?.id,
+      label: node?.label,
+      location: hasCoords ? `${lat.toFixed(8)}, ${lng.toFixed(8)}` : null,
+    };
+    Object.keys(fields).forEach((key) => {
+      const value = fields[key];
+      // Skip only null/undefined/empty-string; preserve falsy-but-valid
+      // values like id: 0.
+      if (value == null || value === "") {
+        return;
+      }
+      const item = document.createElement("div");
+      item.classList.add("njg-tooltip-item");
+      const keyLabel = document.createElement("span");
+      keyLabel.classList.add("njg-tooltip-key");
+      keyLabel.textContent = key;
+      const valueLabel = document.createElement("span");
+      valueLabel.classList.add("njg-tooltip-value");
+      valueLabel.textContent = String(value);
+      item.appendChild(keyLabel);
+      item.appendChild(valueLabel);
+      popupContent.appendChild(item);
+    });
+    return popupContent;
+  }
+
   init() {
     this.sideBar = this.createSideBar();
     if (this.self.config.switchMode) {
