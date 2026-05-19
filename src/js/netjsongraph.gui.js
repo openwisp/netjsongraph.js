@@ -377,7 +377,7 @@ class NetJSONGraphGUI {
         return;
       }
       // Restore the chart's own tooltip (we hid it while the popup was open).
-      self.echarts?.setOption({tooltip: {show: true}});
+      self.echarts?.setOption({media: [{option: {tooltip: {show: true}}}]});
       self.utils.updateLabelVisibility(self, true);
       if (
         self.config.bookmarkableActions &&
@@ -401,7 +401,7 @@ class NetJSONGraphGUI {
     // Hide the chart's own tooltip so it does not stack with the popup.
     // Direct tooltip option update — earlier code used a one-element media
     // array which clobbered any media queries the consumer had configured.
-    self.echarts?.setOption({tooltip: {show: false}});
+    self.echarts?.setOption({media: [{option: {tooltip: {show: false}}}]});
     self.utils.updateLabelVisibility(self, false);
 
     const {onOpen} = self.config.mapOptions.nodePopup;

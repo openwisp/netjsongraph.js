@@ -699,7 +699,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
     expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
-      tooltip: {show: false},
+      media: [{option: {tooltip: {show: false}}}],
     });
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(
       testGraph,
@@ -791,7 +791,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     expect(mockPopup.on).toHaveBeenCalledWith("remove", expect.any(Function));
     mockPopup.handlers.remove();
     expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
-      tooltip: {show: true},
+      media: [{option: {tooltip: {show: true}}}],
     });
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(testGraph, true);
     expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
@@ -990,11 +990,12 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
         mockPopup.handlers.remove();
       }
     });
-    global.console.error = jest.fn();
+    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
     expect(mockPopup.remove).toHaveBeenCalled();
     expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+    consoleErrorSpy.mockRestore();
   });
 
   test("loadNodePopup preserves URL fragment when replacing popup for the still-current node", async () => {
