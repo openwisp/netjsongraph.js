@@ -835,7 +835,7 @@ describe("Test updateLabelVisibility utility method", () => {
     });
   });
 
-  test("updateLabelVisibility always shows when showMapLabelsAtZoom is false", () => {
+  test("updateLabelVisibility always hides labels when showMapLabelsAtZoom is false", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
@@ -845,7 +845,7 @@ describe("Test updateLabelVisibility utility method", () => {
         showMapLabelsAtZoom: false,
       },
       leaflet: {
-        getZoom: jest.fn(() => 1),
+        getZoom: jest.fn(() => 10),
       },
     };
     util.updateLabelVisibility.call(util, mockSelf, true);
