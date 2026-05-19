@@ -735,6 +735,10 @@ describe("Test removeUrlFragment with paramName argument", () => {
 });
 
 describe("Test updateLabelVisibility utility method", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test("updateLabelVisibility hides labels when show is false", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
@@ -874,9 +878,9 @@ describe("Test updateLabelVisibility utility method", () => {
         getZoom: jest.fn(() => 5),
       },
     };
-    global.console.warn = jest.fn();
+    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
     util.updateLabelVisibility.call(util, mockSelf, true);
-    expect(global.console.warn).toHaveBeenCalledWith(
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
       "updateLabelVisibility: ECharts instance not ready",
     );
   });

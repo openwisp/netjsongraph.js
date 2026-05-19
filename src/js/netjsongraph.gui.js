@@ -329,6 +329,9 @@ class NetJSONGraphGUI {
       self.config.bookmarkableActions && self.config.bookmarkableActions.id;
     const popupRequest = {};
     self.leaflet.currentPopupRequest = popupRequest;
+    // Track whether tooltip/labels were already hidden by an open popup, so
+    // we can restore them if replacement content generation fails.
+    const hadOpenPopup = Boolean(self.leaflet.currentPopup);
     if (self.leaflet.currentPopup) {
       // Null out before remove() so the old popup's "remove" handler bails on
       // the currentPopup !== popup check. Otherwise it runs the user-close
@@ -353,6 +356,13 @@ class NetJSONGraphGUI {
         }
         self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
         self.leaflet.currentPopupRequest = null;
+        // If we tore down a previous popup before content generation failed,
+        // its remove handler was bypassed — restore tooltip/labels manually so
+        // the map doesn't stay in popup-open visual state with no popup.
+        if (hadOpenPopup) {
+          self.utils.setTooltipVisibility(self, true);
+          self.utils.updateLabelVisibility(self, true);
+        }
         console.error("Failed to build node popup content:", error);
         return;
       }

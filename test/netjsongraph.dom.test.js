@@ -742,6 +742,45 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     expect(testGraph.utils.updateLabelVisibility).not.toHaveBeenCalled();
   });
 
+  test("loadNodePopup restores tooltip and labels when replacement content fails", async () => {
+    // Replacement path: a previous popup was open (tooltip already hidden),
+    // we null currentPopup and call previousPopup.remove() so its handler
+    // bails. If new content generation then fails the catch must restore
+    // the tooltip/labels — otherwise the map is stuck in popup-open visual
+    // state with no popup actually visible.
+    const asyncContentHandler = jest.fn(() =>
+      Promise.reject(new Error("Replacement content failed")),
+    );
+    testGraph.setConfig({
+      mapOptions: {
+        nodePopup: {
+          show: true,
+          content: asyncContentHandler,
+          config: {autoPan: true},
+        },
+      },
+      bookmarkableActions: {
+        enabled: true,
+        id: "id",
+      },
+    });
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.leaflet = {
+      currentPopup: {remove: jest.fn()},
+      currentPopupRequest: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
+    testGraph.utils.removeUrlFragment = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    expect(testGraph.utils.setTooltipVisibility).toHaveBeenCalledWith(testGraph, true);
+    expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(testGraph, true);
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+  });
+
   test("loadNodePopup catches synchronous custom content errors", async () => {
     const contentHandler = jest.fn(() => {
       throw new Error("Content build failed");
