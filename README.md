@@ -463,11 +463,19 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   The `linkStyle` property is used to customize the style of the links. The list of all available style properties can be found in the [Echarts documentation](https://echarts.apache.org/en/option.html#series-lines.lineStyle).
 
-  `nodePopup` displays a Leaflet popup when a map node is clicked. Set `show` to `true` to enable it. Set `content` to a function `(node) => DOMElement | string` (invoked with `this` = the netjsongraph instance), or leave it as `null` to use the default node details. Use `config` to pass Leaflet popup options and `onOpen` (invoked with `this` = the netjsongraph instance, no args) to run a callback after the popup opens.
+  `nodePopup` displays a Leaflet popup when a map node is clicked.
+  Set `show` to `true` to enable it. If `content` is `null`, the popup shows the default node details.
+  If you need custom content, set `content` to a function that receives the clicked node and returns a DOM element or a string.
+  Use `config` to pass Leaflet popup options. Use `onOpen` if you need to run code after the popup opens.
 
-  **Note:** `content` can be asynchronous. When multiple async popup requests overlap, only the latest request is rendered; earlier requests' return values are discarded, but **the functions are not cancelled** — any side effects you put inside them (network calls, DOM mutations, analytics) will still run, possibly after a newer click. Don't assume the value you return is what ends up on screen.
+  **Note:** `content` can also return a promise.
+  If the user clicks multiple nodes quickly, only the latest popup result is shown.
+  Older requests may still finish in the background, but their result is ignored.
+  Avoid putting important side effects in `content`, because they may still run after a newer click.
 
-  **Security:** when `content` returns a `string`, Leaflet interprets it as HTML. If the string contains any node data that may come from an untrusted source (remote API, user input, etc.), escape it or — preferably — return a DOM element built with `textContent`, like the built-in `createDefaultPopupContent` does.
+  **Security:** when `content` returns a string, Leaflet treats it as HTML.
+  If the string includes node data from a remote API or user input, escape it first.
+  The safer option is to return a DOM element and set text with `textContent`, like the built-in popup does.
 
 - `mapTileConfig`
 
