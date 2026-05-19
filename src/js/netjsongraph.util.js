@@ -1496,6 +1496,16 @@ class NetJSONGraphUtil {
       ],
     });
   }
+
+  /**
+   * Hide/show the rendered ECharts tooltip without changing user tooltip config.
+   */
+  setTooltipVisibility(self, visible) {
+    if (!self.el) {
+      return;
+    }
+    self.el.classList.toggle("njg-hide-tooltip", !visible);
+  }
 }
 
 export default NetJSONGraphUtil;

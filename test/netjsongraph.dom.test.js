@@ -696,11 +696,10 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       off: jest.fn(),
     };
     testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
-    expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
-      media: [{option: {tooltip: {show: false}}}],
-    });
+    expect(testGraph.utils.setTooltipVisibility).toHaveBeenCalledWith(testGraph, false);
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(
       testGraph,
       false,
@@ -782,6 +781,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       off: jest.fn(),
     };
     testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
     testGraph.utils.parseUrlFragments = jest.fn(() => ({
       id: new URLSearchParams("id=id&nodeId=node-1"),
     }));
@@ -790,9 +790,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     await testGraph.gui.loadNodePopup(node);
     expect(mockPopup.on).toHaveBeenCalledWith("remove", expect.any(Function));
     mockPopup.handlers.remove();
-    expect(testGraph.echarts.setOption).toHaveBeenCalledWith({
-      media: [{option: {tooltip: {show: true}}}],
-    });
+    expect(testGraph.utils.setTooltipVisibility).toHaveBeenCalledWith(testGraph, true);
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(testGraph, true);
     expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
   });

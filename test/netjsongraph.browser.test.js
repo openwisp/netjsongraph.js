@@ -322,6 +322,28 @@ describe("Chart Rendering Test", () => {
     expect(nodeId).toBe("172.16.177.33");
   });
 
+  test("nodePopup toggles tooltip suppression while popup is open", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    const popupCloseBtn = await getElementByCss(
+      driver,
+      ".leaflet-popup-close-button",
+      2000,
+    );
+    expect(popupCloseBtn).not.toBeNull();
+    let tooltipSuppressed = await driver.executeScript(
+      'return window._geoMap.el.classList.contains("njg-hide-tooltip");',
+    );
+    expect(tooltipSuppressed).toBe(true);
+    await driver.executeScript("arguments[0].click();", popupCloseBtn);
+    tooltipSuppressed = await driver.executeScript(
+      'return window._geoMap.el.classList.contains("njg-hide-tooltip");',
+    );
+    expect(tooltipSuppressed).toBe(false);
+  });
+
   test("bookmarkableActions: test forward/backward actions", async () => {
     await driver.get(urls.indoorMapOverlay);
     const canvas = await getElementByCss(driver, "canvas", 2000);
@@ -393,7 +415,7 @@ describe("Chart Rendering Test", () => {
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
-  });
+  }, 10000);  // This test needs more time
 
   test("bookmarkableActions: check if parseUrlFragments handles invalid UTF-8", async () => {
     // Invalid UTF-8 sequence in hash

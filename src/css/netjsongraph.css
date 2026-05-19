@@ -319,6 +319,10 @@
   user-select: text !important;
 }
 
+.njg-container.njg-hide-tooltip .njg-tooltip {
+  display: none !important;
+}
+
 .njg-container .njg-tooltip .njg-closeButton {
   display: none;
 }
