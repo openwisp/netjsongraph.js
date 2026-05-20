@@ -1078,7 +1078,7 @@ Refer to the [Arguments section](#arguments) section for more details.
 
 ### Contributing
 
-Refer to the OpenWISP Contributing Guidelines: https://openwisp.io/docs/developer/contributing.html
+Refer to the [OpenWISP Contributing Guidelines](https://openwisp.io/docs/dev/developer/contributing.html).
 
 ### License
 
