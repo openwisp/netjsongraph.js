@@ -56,7 +56,42 @@
       }
       #indoormap-container .njg-container .hidden .sideBarHandle {
         left: 35px;
-      }</style><script src="../netjsongraph.min.js"></script></head><body><div id="map-container"><div id="map-content"></div></div><script>const netjsonmap = new NetJSONGraph("../assets/data/netjsonmap.json", {
+      }
+      .njg-container .njg-sideBar {
+        display: none;
+      }
+      .njg-container .leaflet-popup-tip-container {
+        bottom: -3.5%;
+      }
+      .njg-container .leaflet-popup-tip {
+        box-shadow: none;
+      }
+      .njg-container .default-popup .njg-popup-button-container {
+        text-align: center;
+      }
+      .njg-container .default-popup .njg-popup-button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        background-color: black;
+        color: white;
+        cursor: pointer;
+        margin-top: 5px;
+      }
+      .njg-container .default-popup .njg-popup-button:hover {
+        background-color: rgb(85, 85, 85);
+      }</style><script src="../netjsongraph.min.js"></script></head><body><div id="map-container"><div id="map-content"></div></div><script>// This example uses popups instead of the default sidebar.
+      const disableDefaultSidebar = () => {};
+      // Shared between the outer geo map and the indoor map; the only thing
+      // that differs between the two popups is `content` (custom button for
+      // the geo map, default for the indoor map).
+      const SHARED_POPUP_CONFIG = {
+        closeOnClick: false,
+        autoPan: true,
+        autoPanPadding: [25, 25],
+        offset: [-8, -8],
+      };
+      const netjsonmap = new NetJSONGraph("../assets/data/netjsonmap.json", {
         el: "#map-content",
         render: "map",
         mapOptions: {
@@ -70,6 +105,11 @@
             },
           },
           baseOptions: {media: [{option: {tooltip: {show: true}}}]},
+          nodePopup: {
+            show: true,
+            content: createCustomPopup,
+            config: SHARED_POPUP_CONFIG,
+          },
         },
         bookmarkableActions: {
           enabled: true,
@@ -88,11 +128,7 @@
           });
           return data;
         },
-        onClickElement(type, data) {
-          if (type === "node") {
-            openIndoorMap();
-          }
-        },
+        onClickElement: disableDefaultSidebar,
       });
       netjsonmap.setUtils({
         // Added to open popup for a specific location Id in selenium tests
@@ -129,6 +165,60 @@
       // needed for selenium tests
       window._geoMap = netjsonmap;
 
+      function getIndoorMapFragment() {
+        let decodedHash = "";
+        try {
+          decodedHash = decodeURIComponent(
+            window.location.hash.replace(/^#/, ""),
+          );
+        } catch (err) {
+          return null;
+        }
+        const fragments = decodedHash.split(";").filter(Boolean);
+
+        return fragments.find((fragment) => {
+          const params = new URLSearchParams(fragment);
+          return params.get("id") === "indoorMap";
+        });
+      }
+      if (getIndoorMapFragment()) {
+        openIndoorMap();
+      }
+
+      // Registered once at page load so back/forward navigation keeps working
+      // across repeated open/close cycles. A handler installed inside
+      // openIndoorMap that removes itself on close cannot react to a later
+      // forward-nav that should reopen the indoor map.
+      window.addEventListener("popstate", () => {
+        if (getIndoorMapFragment()) {
+          if (!document.getElementById("indoormap-container")) {
+            openIndoorMap();
+          }
+        } else {
+          const container = document.getElementById("indoormap-container");
+          if (container) {
+            container.remove();
+          }
+          window._indoorMap = null;
+        }
+      });
+
+      // Called with `this` = the netjsongraph instance (see README docs for
+      // mapOptions.nodePopup.content). We reuse the library's default popup
+      // builder and just append the "Open Floorplan" action.
+      function createCustomPopup(node) {
+        const popupContent = this.gui.createDefaultPopupContent(node);
+        const buttonContainer = document.createElement("div");
+        buttonContainer.classList.add("njg-popup-button-container");
+        const button = document.createElement("button");
+        button.classList.add("njg-popup-button");
+        button.textContent = "Open Floorplan";
+        button.addEventListener("click", () => openIndoorMap());
+        buttonContainer.appendChild(button);
+        popupContent.appendChild(buttonContainer);
+        return popupContent;
+      }
+
       function createIndoorMapContainer() {
         const container = document.createElement("div");
         container.id = "indoormap-container";
@@ -155,10 +245,13 @@
             onClose();
           }
           container.remove();
+          window._indoorMap = null;
         });
       }
-
       function openIndoorMap() {
+        if (window._indoorMap) {
+          return window._indoorMap;
+        }
         let indoorMapContainer = document.getElementById("indoormap-container");
         if (!indoorMapContainer) {
           indoorMapContainer = createIndoorMapContainer();
@@ -186,6 +279,11 @@
                 animation: false,
               },
               baseOptions: {media: [{option: {tooltip: {show: true}}}]},
+              nodePopup: {
+                show: true,
+                content: null,
+                config: SHARED_POPUP_CONFIG,
+              },
             },
             bookmarkableActions: {
               enabled: true,
@@ -229,13 +327,24 @@
 
               const mapOptions = this.echarts.getOption();
               // Refer netjsonmap-indoormap.html for full explanation of this workaround
+              // Build an id -> node map so we don't assume the echarts series
+              // data and this.data.nodes share array indices (clustering or
+              // filtering can break that assumption).
+              const nodesById = new Map(this.data.nodes.map((n) => [n.id, n]));
               mapOptions.series[0].data.forEach((data) => {
                 const node = data.node;
                 const px = Number(node.location.lng);
                 const py = -Number(node.location.lat);
                 const nodeProjected = L.point(topLeft.x + px, topLeft.y + py);
                 const nodeLatLng = map.unproject(nodeProjected, zoom);
+                const dataNode = nodesById.get(node.id);
+                if (dataNode) {
+                  dataNode.location = nodeLatLng;
+                  dataNode.properties = dataNode.properties || {};
+                  dataNode.properties.location = nodeLatLng;
+                }
                 node.location = nodeLatLng;
+                node.properties = node.properties || {};
                 node.properties.location = nodeLatLng;
                 data.value = [nodeLatLng.lng, nodeLatLng.lat];
               });
@@ -277,6 +386,7 @@
               map.setMaxBounds(bnds);
               map.invalidateSize();
             },
+            onClickElement: disableDefaultSidebar,
           },
         );
         indoor.setUtils({
@@ -309,18 +419,7 @@
             indoor.echarts.trigger("click", params);
           },
         });
-        const popstateHandler = () => {
-          const fragments = indoor.utils.parseUrlFragments();
-          const id = indoor.config.bookmarkableActions.id;
-          if (!fragments[id]) {
-            indoorMapContainer.remove();
-            window.removeEventListener("popstate", popstateHandler);
-          }
-        };
-        window.addEventListener("popstate", popstateHandler);
         indoor.render();
         window._indoorMap = indoor;
-        closeButtonHandler(indoorMapContainer, indoor, () => {
-          window.removeEventListener("popstate", popstateHandler);
-        });
+        closeButtonHandler(indoorMapContainer, indoor);
       }</script></body></html>
