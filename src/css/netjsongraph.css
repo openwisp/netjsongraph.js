@@ -319,6 +319,10 @@
   user-select: text !important;
 }
 
+.njg-container.njg-hide-tooltip .njg-tooltip {
+  display: none !important;
+}
+
 .njg-container .njg-tooltip .njg-closeButton {
   display: none;
 }
@@ -360,6 +364,34 @@
   right: 20px;
   cursor: pointer;
   font-size: 18px;
+}
+
+.njg-container .default-popup {
+  padding: 18px;
+}
+.njg-container .default-popup .njg-tooltip-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.njg-container .default-popup .njg-tooltip-item:last-child {
+  margin-bottom: 0;
+}
+
+.njg-container .default-popup .njg-tooltip-key {
+  flex-basis: 45%;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: black;
+}
+
+.njg-container .default-popup .njg-tooltip-value {
+  flex: 1;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  color: black;
 }
 
 @media only screen and (max-width: 850px) {
