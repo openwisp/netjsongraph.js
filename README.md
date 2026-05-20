@@ -235,33 +235,33 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
 ```JS
 {
-    nodes: [{
-        properties ? : {
-            // Define node category
-            category ? : String,
+  nodes: [{
+    properties ? : {
+      // Define node category
+      category ? : String,
 
-            /*
-                Define the geographic coordinates of the node.
-                Required when rendering a map.
-            */
-            location ? : {
-                lng: Float,
-                lat: Float,
-            },
+      /*
+        Define the geographic coordinates of the node.
+        Required when rendering a map.
+      */
+      location ? : {
+        lng: Float,
+        lat: Float,
+      },
 
-            // Define node updated time
-            time ? : String
-        }
-    }],
-    links: [{
-        properties ? : {
-            // Define link updated time
-            time ? : String
-        }
-    }]
-    flatNodes ? : {
-        <node id>: node Object
+      // Define node updated time
+      time ? : String
     }
+  }],
+  links: [{
+    properties ? : {
+      // Define link updated time
+      time ? : String
+    }
+  }]
+  flatNodes ? : {
+    <node id>: node Object
+  }
 }
 ```
 
@@ -387,20 +387,20 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   It consists of the following properties:
 
   ```JS
-    graphConfig:{
-        series:{
-            nodeStyle:{
-                // The style of the nodes
-            },
-            linkStyle:{
-                // The style of the links
-            },
-            nodeSize: string|number,
-        },
-        baseOptions:{
-            // The global configuration for Echarts specifically for the graph.
-        }
+  graphConfig:{
+    series:{
+      nodeStyle:{
+        // The style of the nodes
+      },
+      linkStyle:{
+        // The style of the links
+      },
+      nodeSize: string|number,
+    },
+    baseOptions:{
+      // The global configuration for Echarts specifically for the graph.
     }
+  }
 
   ```
 
@@ -418,33 +418,33 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   It consists of the following properties:
 
   ```JS
-    mapOptions:{
-        nodeConfig:{
-            nodeStyle:{
-                // The style of the nodes
-            },
-            nodeSize: string|number,
-        },
-        linkConfig:{
-            linkStyle:{
-                // The style of the links
-            },
-        },
-        clusterConfig:{
-          // The configuration for the clusters
-        },
-        nodePopup:{
-            show: boolean,
-            content: function|HTMLElement|string|null,
-            config:{
-                // Leaflet popup options
-            },
-            onOpen: function,
-        },
-        baseOptions:{
-            // The global configuration for Echarts specifically for the map.
-        }
+  mapOptions:{
+    nodeConfig:{
+      nodeStyle:{
+        // The style of the nodes
+      },
+      nodeSize: string|number,
+    },
+    linkConfig:{
+      linkStyle:{
+        // The style of the links
+      },
+    },
+    clusterConfig:{
+      // The configuration for the clusters
+    },
+    nodePopup:{
+      show: boolean,
+      content: function|HTMLElement|string|null,
+      config:{
+        // Leaflet popup options
+      },
+      onOpen: function,
+    },
+    baseOptions:{
+      // The global configuration for Echarts specifically for the map.
     }
+  }
   ```
 
   We use [Leaflet](https://leafletjs.com) to render the map. You can also pass any valid [Leaflet options](https://leafletjs.com/reference.html#map-option) in `mapOptions`.
@@ -482,19 +482,19 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   The configuration for the map tiles. You can use multiple tiles by passing an array of tile configurations.
 
   ```JS
-    mapTileConfig:[
-        ...,
-        {
-            label: string,
-            urlTemplate: string,
-            options:{
-                minZoom: number,
-                maxZoom: number,
-                attribution: string,
-            }
-        },
-        ...
-    ]
+  mapTileConfig:[
+    ...,
+    {
+      label: string,
+      urlTemplate: string,
+      options:{
+        minZoom: number,
+        maxZoom: number,
+        attribution: string,
+      }
+    },
+    ...
+  ]
 
   ```
 
@@ -506,17 +506,17 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   Each category is an object with the following properties:
 
   ```JS
-      nodeCategories:[
-          ...,
-          {
-              name: string,
-              nodeStyle: {
-                  // The style of the nodes
-              },
-              nodeSize: string|number,
-          },
-          ...
-      ]
+  nodeCategories:[
+    ...,
+    {
+      name: string,
+      nodeStyle: {
+        // The style of the nodes
+      },
+      nodeSize: string|number,
+    },
+    ...
+  ]
   ```
 
   `name` is the name of the category. You can also pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-graph.itemStyle) in `nodeStyle`.
@@ -527,16 +527,16 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   Each category is an object with the following properties:
 
   ```JS
-      linkCategories:[
-          ...,
-          {
-              name: string,
-              linkStyle: {
-                  // The style of the links
-              },
-          },
-          ...
-      ]
+  linkCategories:[
+    ...,
+    {
+      name: string,
+      linkStyle: {
+        // The style of the links
+      },
+    },
+    ...
+  ]
   ```
 
   `name` is the name of the category. You can also pass any valid [Echarts options](https://echarts.apache.org/en/option.html#series-graph.lineStyle) in
@@ -547,11 +547,11 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   The configuration for the GeoJSON render. It consists of the following properties:
 
   ```JS
-      geoOptions:{
-         style:{
-             // The style GeoJSON features
-         },
-      }
+  geoOptions:{
+    style:{
+      // The style GeoJSON features
+    },
+  }
   ```
 
   You can customize the style of GeoJSON features using `style` property. The list of all available properties can be found in the [Leaflet documentation](https://leafletjs.com/reference.html#geojson).
@@ -561,12 +561,12 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   Configuration for adding url fragments when a node/link is clicked.
 
   ```javascript
-      bookmarkableActions: {
-        enabled: boolean,
-        id: string,
-        zoomOnRestore: boolean,
-        zoomLevel: number,
-      }
+  bookmarkableActions: {
+    enabled: boolean,
+    id: string,
+    zoomOnRestore: boolean,
+    zoomLevel: number,
+  }
   ```
 
   **Note: This feature is disabled by default.**
@@ -693,7 +693,7 @@ We use [socket.io](https://socket.io/) to monitor data changes which supports We
  */
 
 const graph = new NetJSONGraph("./data/netjsonmap.json", {
-    render: "graph",
+  render: "graph",
 });
 
 graph.render();
@@ -701,10 +701,10 @@ graph.render();
 const socket = io("http://localhost:3000/",{ transports : ['websocket'] });
 
 socket.on("connect", function() {
-    console.log("client connected");
+  console.log("client connected");
 });
 socket.on("disconnect", function() {
-    console.log("client disconnected");
+  console.log("client disconnected");
 });
 // Self-monitoring server， re-render when the data changes.
 socket.on("netjsonChange", graph.utils.JSONDataUpdate.bind(graph));
@@ -742,49 +742,49 @@ Then you just need to obtain the value input, and pass it to the `searchFunc`.
  */
 
 const graph = new NetJSONGraph("./data/netjsonmap.json", {
-    onLoad: function(){
-        let searchContainer = document.createElement("div"),
-            searchInput = document.createElement("input"),
-            searchBtn = document.createElement("button"),
-            /*
-                Pass in the url to listen to, and save the returned function.
-                Please ensure that the return value of the api is the specified json format.
-            */
-            searchFunc = this.utils.searchElements.call(this, "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=");
+  onLoad: function(){
+    let searchContainer = document.createElement("div"),
+      searchInput = document.createElement("input"),
+      searchBtn = document.createElement("button"),
+      /*
+        Pass in the url to listen to, and save the returned function.
+        Please ensure that the return value of the api is the specified json format.
+      */
+      searchFunc = this.utils.searchElements.call(this, "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=");
 
-        searchInput.setAttribute("class", "njg-searchInput");
-        searchInput.placeholder = "Input value for searching special elements.";
-        searchBtn.setAttribute("class", "njg-searchBtn");
-        searchBtn.innerHTML = "search";
-        searchContainer.setAttribute("class", "njg-searchContainer");
-        searchContainer.appendChild(searchInput);
-        searchContainer.appendChild(searchBtn);
-        this.el.appendChild(searchContainer);
+    searchInput.setAttribute("class", "njg-searchInput");
+    searchInput.placeholder = "Input value for searching special elements.";
+    searchBtn.setAttribute("class", "njg-searchBtn");
+    searchBtn.innerHTML = "search";
+    searchContainer.setAttribute("class", "njg-searchContainer");
+    searchContainer.appendChild(searchInput);
+    searchContainer.appendChild(searchBtn);
+    this.el.appendChild(searchContainer);
 
-        searchInput.onchange = () => {
-            // do something to deal user input value.
-        };
+    searchInput.onchange = () => {
+      // do something to deal user input value.
+    };
 
-        searchBtn.onclick = () => {
-            let inputValue = searchInput.value.trim();
+    searchBtn.onclick = () => {
+      let inputValue = searchInput.value.trim();
 
-            /*
-                Pass in the relevant search value,
-                which will re-render automatically according to the request result within the function.
-            */
-            if(inputValue === "appendData"){
-                // appendData
-                searchFunc(inputValue, false);
-            }
-            else{
-                searchFunc(inputValue);
-            }
+      /*
+        Pass in the relevant search value,
+        which will re-render automatically according to the request result within the function.
+      */
+      if(inputValue === "appendData"){
+        // appendData
+        searchFunc(inputValue, false);
+      }
+      else{
+        searchFunc(inputValue);
+      }
 
-            searchInput.value = "";
-        }
-
-        this.utils.hideLoading();
+      searchInput.value = "";
     }
+
+    this.utils.hideLoading();
+  }
 });
 
 graph.render();
@@ -891,9 +891,9 @@ yarn start
 
   ```JS
   graph.setUtils({
-      paginatedDataParse: async function(JSONParam){
-          // Implement your custom logic here
-      }
+    paginatedDataParse: async function(JSONParam){
+      // Implement your custom logic here
+    }
   });
   ```
 
@@ -906,9 +906,9 @@ yarn start
 
   ```JS
   graph.setUtils({
-      getBBoxData: async function(JSONParam,bounds){
-          // Implement your custom logic here
-      }
+    getBBoxData: async function(JSONParam,bounds){
+      // Implement your custom logic here
+    }
   });
   ```
 
