@@ -737,7 +737,11 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     testGraph.utils.removeUrlFragment = jest.fn();
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
-    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith(
+      "id",
+      "nodeId",
+      false,
+    );
     expect(testGraph.echarts.setOption).not.toHaveBeenCalled();
     expect(testGraph.utils.updateLabelVisibility).not.toHaveBeenCalled();
   });
@@ -778,7 +782,11 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     await testGraph.gui.loadNodePopup(node);
     expect(testGraph.utils.setTooltipVisibility).toHaveBeenCalledWith(testGraph, true);
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(testGraph, true);
-    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith(
+      "id",
+      "nodeId",
+      false,
+    );
   });
 
   test("loadNodePopup catches synchronous custom content errors", async () => {
@@ -807,7 +815,11 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     testGraph.utils.removeUrlFragment = jest.fn();
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
-    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith(
+      "id",
+      "nodeId",
+      false,
+    );
     expect(testGraph.echarts.setOption).not.toHaveBeenCalled();
   });
 
@@ -832,7 +844,11 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     mockPopup.handlers.remove();
     expect(testGraph.utils.setTooltipVisibility).toHaveBeenCalledWith(testGraph, true);
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(testGraph, true);
-    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith(
+      "id",
+      "nodeId",
+      false,
+    );
   });
 
   test("loadNodePopup ignores stale async content without clearing newer URL fragment", async () => {
@@ -1032,7 +1048,11 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     const node = {id: "node-1", location: {lat: 10, lng: 20}};
     await testGraph.gui.loadNodePopup(node);
     expect(mockPopup.remove).toHaveBeenCalled();
-    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith("id", "nodeId");
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith(
+      "id",
+      "nodeId",
+      false,
+    );
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Failed to run popup onOpen callback:",
       onOpenError,

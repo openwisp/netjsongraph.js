@@ -325,8 +325,8 @@ class NetJSONGraphGUI {
       console.error("Node location not available. Cannot load popup.");
       return;
     }
-    const bookmarkableActionId =
-      self.config.bookmarkableActions && self.config.bookmarkableActions.id;
+    const {bookmarkableActions: {id: bookmarkableActionId, preserveFragment} = {}} =
+      self.config;
     const popupRequest = {};
     self.leaflet.currentPopupRequest = popupRequest;
     // Track whether tooltip/labels were already hidden by an open popup, so
@@ -354,7 +354,7 @@ class NetJSONGraphGUI {
         if (self.leaflet.currentPopupRequest !== popupRequest) {
           return;
         }
-        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
+        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId", preserveFragment);
         self.leaflet.currentPopupRequest = null;
         // If we tore down a previous popup before content generation failed,
         // its remove handler was bypassed — restore tooltip/labels manually so
@@ -397,7 +397,11 @@ class NetJSONGraphGUI {
         const fragments = self.utils.parseUrlFragments();
         const currentFragment = fragments[bookmarkableActionId];
         if (currentFragment && currentFragment.get("nodeId") === popupNodeId) {
-          self.utils.removeUrlFragment(bookmarkableActionId, "nodeId");
+          self.utils.removeUrlFragment(
+            bookmarkableActionId,
+            "nodeId",
+            preserveFragment,
+          );
         }
       }
       self.leaflet.currentPopup = null;

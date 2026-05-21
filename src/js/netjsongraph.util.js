@@ -1270,6 +1270,16 @@ class NetJSONGraphUtil {
       .map((urlParams) => urlParams.toString())
       .join(";");
 
+    // Remove dangling "#" when no fragments remain.
+    if (!newHash) {
+      window.history.pushState(
+        state,
+        "",
+        window.location.pathname + window.location.search,
+      );
+      return;
+    }
+
     // We store the selected node's data to the browser's history state.
     // This allows the node's information to be retrieved instantly on a back/forward
     // button click without needing to re-parse the entire nodes list.
@@ -1336,18 +1346,19 @@ class NetJSONGraphUtil {
    * @param {string} [paramName] If provided, only this query-param is removed
    *   from the fragment. If omitted, the whole fragment for the id is dropped.
    */
-  removeUrlFragment(id, paramName = null) {
+  removeUrlFragment(id, paramName = null, preserveFragment = false) {
     const fragments = this.parseUrlFragments();
     if (!fragments[id]) {
       return;
     }
     if (paramName) {
       fragments[id].delete(paramName);
-      // Drop the whole entry if only the bare action id is left — a fragment
-      // like "#id=geoMap" with no other params is a useless stub that
-      // parseUrlFragments would still pick up on subsequent visits.
+      // Remove the entire fragment if only the bare action id remains,
+      // unless preserveFragment is enabled. Some consumers (e.g. indoor
+      // overlays) use the fragment itself as meaningful UI state even
+      // without additional params like nodeId.
       const remainingKeys = Array.from(fragments[id].keys()).filter((k) => k !== "id");
-      if (remainingKeys.length === 0) {
+      if (!preserveFragment && remainingKeys.length === 0) {
         delete fragments[id];
       }
     } else {
