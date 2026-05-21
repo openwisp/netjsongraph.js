@@ -851,6 +851,38 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     );
   });
 
+  test("loadNodePopup forwards preserveFragment on popup remove", async () => {
+    testGraph.setConfig({
+      bookmarkableActions: {
+        enabled: true,
+        id: "id",
+        preserveFragment: true,
+      },
+    });
+    testGraph.echarts = {
+      setOption: jest.fn(),
+    };
+    testGraph.leaflet = {
+      currentPopup: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
+    testGraph.utils.parseUrlFragments = jest.fn(() => ({
+      id: new URLSearchParams("id=id&nodeId=node-1"),
+    }));
+    testGraph.utils.removeUrlFragment = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    mockPopup.handlers.remove();
+    expect(testGraph.utils.removeUrlFragment).toHaveBeenCalledWith(
+      "id",
+      "nodeId",
+      true,
+    );
+  });
+
   test("loadNodePopup ignores stale async content without clearing newer URL fragment", async () => {
     let resolveFirst;
     const asyncContentHandler = jest

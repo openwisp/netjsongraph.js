@@ -566,6 +566,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
     id: string,
     zoomOnRestore: boolean,
     zoomLevel: number,
+    preserveFragment: boolean,
   }
   ```
 
@@ -587,7 +588,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   For links, the URL fragment uses the format `source~target` as the `nodeId`. Opening such a URL restores the initial map or graph view and triggers the corresponding link click event.
 
-  If you need to manually remove the URL fragment, you can call the built-in utility method: `netjsongraphInstance.utils.removeUrlFragment(bookmarkableActions.id);` where you pass the value of your `bookmarkableActions.id` configuration.
+  If you need to manually remove the URL fragment, you can call the built-in utility method: `netjsongraphInstance.utils.removeUrlFragment(bookmarkableActions.id);` where you pass the value of your `bookmarkableActions.id` configuration. You can also remove only a specific parameter from the fragment, for example:
+  `netjsongraphInstance.utils.removeUrlFragment(bookmarkableActions.id, "nodeId");`. This removes only the `nodeId` parameter from the URL fragment for that specific map while preserving the remaining fragment state. To keep the fragment itself after removing `nodeId`, make sure to set `bookmarkableActions.preserveFragment = true` otherwise, if no additional parameters remain after removing `nodeId`, the entire fragment will be cleaned up automatically.
 
 - `onInit`
 
