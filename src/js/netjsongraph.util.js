@@ -1345,6 +1345,8 @@ class NetJSONGraphUtil {
    * @param {string} id        The bookmarkable action id (e.g. "geoMap").
    * @param {string} [paramName] If provided, only this query-param is removed
    *   from the fragment. If omitted, the whole fragment for the id is dropped.
+   * @param {boolean} [preserveFragment] If true, keep a bare id-only fragment
+   *   after removing paramName.
    */
   removeUrlFragment(id, paramName = null, preserveFragment = false) {
     const fragments = this.parseUrlFragments();
