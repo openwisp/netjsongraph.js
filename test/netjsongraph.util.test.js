@@ -732,6 +732,23 @@ describe("Test removeUrlFragment with paramName argument", () => {
     // After deletion, only `id` would remain → entire entry should be gone.
     expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "geoMap"});
   });
+
+  test("removeUrlFragment keeps an id-only fragment when preserveFragment is true", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "geoMap");
+    params.set("nodeId", "node-1");
+    util.parseUrlFragments = jest.fn(() => ({
+      geoMap: params,
+    }));
+    util.updateUrlFragments = jest.fn();
+    util.removeUrlFragment.call(util, "geoMap", "nodeId", true);
+    expect(util.updateUrlFragments).toHaveBeenCalledWith(
+      {geoMap: params},
+      {id: "geoMap"},
+    );
+    expect(params.toString()).toBe("id=geoMap");
+  });
 });
 
 describe("Test updateLabelVisibility utility method", () => {

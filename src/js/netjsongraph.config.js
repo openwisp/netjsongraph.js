@@ -301,6 +301,7 @@ const NetJSONGraphDefaultConfig = {
     id: null,
     zoomOnRestore: true,
     zoomLevel: null,
+    preserveFragment: false,
   },
 
   /**
