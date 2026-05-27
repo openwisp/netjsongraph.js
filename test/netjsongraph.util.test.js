@@ -756,7 +756,7 @@ describe("Test updateLabelVisibility utility method", () => {
     jest.restoreAllMocks();
   });
 
-  test("updateLabelVisibility hides labels and emphasis labels when show is false", () => {
+  test("updateLabelVisibility hides labels when show is false", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
@@ -780,7 +780,7 @@ describe("Test updateLabelVisibility utility method", () => {
           },
           emphasis: {
             label: {
-              show: false,
+              show: true,
             },
           },
         },
@@ -881,7 +881,7 @@ describe("Test updateLabelVisibility utility method", () => {
           },
           emphasis: {
             label: {
-              show: false,
+              show: true,
             },
           },
         },
@@ -913,7 +913,7 @@ describe("Test updateLabelVisibility utility method", () => {
           },
           emphasis: {
             label: {
-              show: false,
+              show: true,
             },
           },
         },

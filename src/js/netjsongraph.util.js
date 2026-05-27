@@ -1504,7 +1504,7 @@ class NetJSONGraphUtil {
           },
           emphasis: {
             label: {
-              show: showLabel && !tooltipEnabled,
+              show: !tooltipEnabled,
             },
           },
         },
