@@ -756,7 +756,7 @@ describe("Test updateLabelVisibility utility method", () => {
     jest.restoreAllMocks();
   });
 
-  test("updateLabelVisibility hides labels when show is false", () => {
+  test("updateLabelVisibility hides labels and emphasis labels when show is false", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
@@ -788,13 +788,50 @@ describe("Test updateLabelVisibility utility method", () => {
     });
   });
 
-  test("updateLabelVisibility shows labels when show is true and zoom >= threshold", () => {
+  test("updateLabelVisibility shows labels and emphasis labels when tooltip is disabled", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
         setOption: jest.fn(),
       },
       config: {
+        showMapLabelsAtZoom: 3,
+      },
+      leaflet: {
+        getZoom: jest.fn(() => 5),
+      },
+    };
+    util.updateLabelVisibility.call(util, mockSelf, true);
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledWith({
+      series: [
+        {
+          id: "geo-map",
+          label: {
+            show: true,
+            silent: true,
+          },
+          emphasis: {
+            label: {
+              show: true,
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  test("updateLabelVisibility hides emphasis labels when tooltip is enabled", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      echarts: {
+        setOption: jest.fn(),
+      },
+      config: {
+        mapOptions: {
+          baseOptions: {
+            media: [{option: {tooltip: {show: true}}}],
+          },
+        },
         showMapLabelsAtZoom: 3,
       },
       leaflet: {
