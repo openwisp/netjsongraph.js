@@ -459,13 +459,11 @@ describe("Chart Rendering Test", () => {
     try {
       await driver.get(urls.geographicMap);
       await getElementByCss(driver, ".ec-extension-leaflet", 2000);
-
       await driver.wait(
         () => driver.executeScript("return typeof window.map !== 'undefined'"),
         5000,
         "Timed out waiting for window.map to initialize",
       );
-
       await driver.executeScript(`
         window.map.config.showMapLabelsAtZoom = 12;
         window.map.leaflet.setZoom(13);
@@ -476,7 +474,6 @@ describe("Chart Rendering Test", () => {
         "return window.map.echarts.getOption().series[0].emphasis.label.show;",
       );
       expect(emphasisShow).toBe(false);
-
       await driver.manage().window().setRect({width: 800, height: 600});
       await driver.sleep(500);
       await driver.executeScript(`
