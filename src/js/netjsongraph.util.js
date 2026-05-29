@@ -1492,8 +1492,7 @@ class NetJSONGraphUtil {
       show &&
       self.config.showMapLabelsAtZoom !== false &&
       self.leaflet.getZoom() >= self.config.showMapLabelsAtZoom;
-    const media = self.config.mapOptions?.baseOptions?.media || [];
-    const tooltipEnabled = media.some((item) => item.option?.tooltip?.show === true);
+    const tooltipEnabled = self.echarts.getOption?.()?.tooltip?.[0]?.show === true;
     self.echarts.setOption({
       series: [
         {
@@ -1504,7 +1503,7 @@ class NetJSONGraphUtil {
           },
           emphasis: {
             label: {
-              show: !tooltipEnabled,
+              show: show && !tooltipEnabled,
             },
           },
         },

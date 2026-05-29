@@ -1555,6 +1555,9 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
       },
       leaflet: mockLeaflet,
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: [{show: true}],
+        })),
         setOption: jest.fn(),
         on: jest.fn(), // Needed for hover test
         _api: {
@@ -1763,6 +1766,9 @@ describe("mapRender clustering label visibility", () => {
       },
       leaflet: mockLeaflet,
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: [{show: true}],
+        })),
         setOption: jest.fn(),
         on: jest.fn(),
         _api: {
