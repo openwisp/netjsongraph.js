@@ -1541,6 +1541,9 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
       config: {
         geoOptions: {},
         mapOptions: {
+          baseOptions: {
+            media: [{option: {tooltip: {show: true}}}],
+          },
           nodeConfig: {
             label: {show: true},
           },
@@ -1552,6 +1555,9 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
       },
       leaflet: mockLeaflet,
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: [{show: true}],
+        })),
         setOption: jest.fn(),
         on: jest.fn(), // Needed for hover test
         _api: {
@@ -1742,7 +1748,13 @@ describe("mapRender clustering label visibility", () => {
       data: {type: "FeatureCollection", features: []},
       config: {
         geoOptions: {},
-        mapOptions: {nodeConfig: {label: {show: true}}, linkConfig: {}},
+        mapOptions: {
+          baseOptions: {
+            media: [{option: {tooltip: {show: true}}}],
+          },
+          nodeConfig: {label: {show: true}},
+          linkConfig: {},
+        },
         mapTileConfig: [{}],
         showMapLabelsAtZoom: 13,
         clustering: true,
@@ -1754,6 +1766,9 @@ describe("mapRender clustering label visibility", () => {
       },
       leaflet: mockLeaflet,
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: [{show: true}],
+        })),
         setOption: jest.fn(),
         on: jest.fn(),
         _api: {

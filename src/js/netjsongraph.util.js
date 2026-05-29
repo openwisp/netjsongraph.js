@@ -1492,6 +1492,16 @@ class NetJSONGraphUtil {
       show &&
       self.config.showMapLabelsAtZoom !== false &&
       self.leaflet.getZoom() >= self.config.showMapLabelsAtZoom;
+    // Use ECharts' resolved tooltip state because media rules are applied there.
+    // Tooltip can be returned as either an object or an array.
+    const tooltipOption = self.echarts.getOption?.()?.tooltip;
+    const tooltipShow = Array.isArray(tooltipOption)
+      ? tooltipOption[0]?.show
+      : tooltipOption?.show;
+    const tooltipEnabled = tooltipShow === true;
+    // Hover labels ignore the zoom threshold, but respect explicit disable and popups.
+    const showHoverLabel =
+      show && self.config.showMapLabelsAtZoom !== false && !tooltipEnabled;
     self.echarts.setOption({
       series: [
         {
@@ -1502,7 +1512,7 @@ class NetJSONGraphUtil {
           },
           emphasis: {
             label: {
-              show: false,
+              show: showHoverLabel,
             },
           },
         },

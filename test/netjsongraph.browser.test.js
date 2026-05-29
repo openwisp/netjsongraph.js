@@ -454,6 +454,41 @@ describe("Chart Rendering Test", () => {
     expect(isVisible).toBe(false);
   });
 
+  test("emphasis labels follow tooltip configuration", async () => {
+    await driver.manage().window().setRect({width: 1200, height: 800});
+    try {
+      await driver.get(urls.geographicMap);
+      await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+      await driver.wait(
+        () => driver.executeScript("return typeof window.map !== 'undefined'"),
+        5000,
+        "Timed out waiting for window.map to initialize",
+      );
+      await driver.executeScript(`
+        window.map.config.showMapLabelsAtZoom = 12;
+        window.map.leaflet.setZoom(13);
+        window.map.utils.updateLabelVisibility(window.map, true);
+      `);
+      await driver.sleep(500);
+      let emphasisShow = await driver.executeScript(
+        "return window.map.echarts.getOption().series[0].emphasis.label.show;",
+      );
+      expect(emphasisShow).toBe(false);
+      await driver.manage().window().setRect({width: 800, height: 600});
+      await driver.sleep(500);
+      await driver.executeScript(`
+        window.map.utils.updateLabelVisibility(window.map, true);
+      `);
+      await driver.sleep(500);
+      emphasisShow = await driver.executeScript(
+        "return window.map.echarts.getOption().series[0].emphasis.label.show;",
+      );
+      expect(emphasisShow).toBe(true);
+    } finally {
+      await driver.manage().window().setRect({width: 1200, height: 800});
+    }
+  });
+
   test("moveNodeInRealTime: test in Geographic map example", async () => {
     await driver.get(urls.geographicMap);
     const canvas = await getElementByCss(driver, "canvas", 2000);

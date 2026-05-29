@@ -788,13 +788,56 @@ describe("Test updateLabelVisibility utility method", () => {
     });
   });
 
-  test("updateLabelVisibility shows labels when show is true and zoom >= threshold", () => {
+  test("updateLabelVisibility shows labels and emphasis labels when tooltip is disabled", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: [{show: false}],
+        })),
         setOption: jest.fn(),
       },
       config: {
+        showMapLabelsAtZoom: 3,
+      },
+      leaflet: {
+        getZoom: jest.fn(() => 5),
+      },
+    };
+    util.updateLabelVisibility.call(util, mockSelf, true);
+    expect(mockSelf.echarts.setOption).toHaveBeenCalledWith({
+      series: [
+        {
+          id: "geo-map",
+          label: {
+            show: true,
+            silent: true,
+          },
+          emphasis: {
+            label: {
+              show: true,
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  test("updateLabelVisibility hides emphasis labels when tooltip is enabled", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: [{show: true}],
+        })),
+        setOption: jest.fn(),
+      },
+      config: {
+        mapOptions: {
+          baseOptions: {
+            media: [{option: {tooltip: {show: true}}}],
+          },
+        },
         showMapLabelsAtZoom: 3,
       },
       leaflet: {
@@ -824,6 +867,9 @@ describe("Test updateLabelVisibility utility method", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: {show: false},
+        })),
         setOption: jest.fn(),
       },
       config: {
@@ -844,7 +890,7 @@ describe("Test updateLabelVisibility utility method", () => {
           },
           emphasis: {
             label: {
-              show: false,
+              show: true,
             },
           },
         },
@@ -856,6 +902,9 @@ describe("Test updateLabelVisibility utility method", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: {show: false},
+        })),
         setOption: jest.fn(),
       },
       config: {
