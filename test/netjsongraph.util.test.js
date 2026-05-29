@@ -867,6 +867,9 @@ describe("Test updateLabelVisibility utility method", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: {show: false},
+        })),
         setOption: jest.fn(),
       },
       config: {
@@ -899,6 +902,9 @@ describe("Test updateLabelVisibility utility method", () => {
     const util = new NetJSONGraphUtil();
     const mockSelf = {
       echarts: {
+        getOption: jest.fn(() => ({
+          tooltip: {show: false},
+        })),
         setOption: jest.fn(),
       },
       config: {
@@ -919,7 +925,7 @@ describe("Test updateLabelVisibility utility method", () => {
           },
           emphasis: {
             label: {
-              show: true,
+              show: false,
             },
           },
         },

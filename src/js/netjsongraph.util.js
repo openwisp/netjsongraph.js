@@ -1492,7 +1492,13 @@ class NetJSONGraphUtil {
       show &&
       self.config.showMapLabelsAtZoom !== false &&
       self.leaflet.getZoom() >= self.config.showMapLabelsAtZoom;
-    const tooltipEnabled = self.echarts.getOption?.()?.tooltip?.[0]?.show === true;
+    const tooltipOption = self.echarts.getOption?.()?.tooltip;
+    const tooltipShow = Array.isArray(tooltipOption)
+      ? tooltipOption[0]?.show
+      : tooltipOption?.show;
+    const tooltipEnabled = tooltipShow === true;
+    const showHoverLabel =
+      show && self.config.showMapLabelsAtZoom !== false && !tooltipEnabled;
     self.echarts.setOption({
       series: [
         {
@@ -1503,7 +1509,7 @@ class NetJSONGraphUtil {
           },
           emphasis: {
             label: {
-              show: show && !tooltipEnabled,
+              show: showHoverLabel,
             },
           },
         },
