@@ -694,7 +694,11 @@ describe("Test removeUrlFragment with paramName argument", () => {
     }));
     util.updateUrlFragments = jest.fn();
     util.removeUrlFragment.call(util, "id", "nodeId");
-    expect(util.updateUrlFragments).toHaveBeenCalledWith({id: params}, {id: "id"});
+    expect(util.updateUrlFragments).toHaveBeenCalledWith(
+      {id: params},
+      {id: "id"},
+      true,
+    );
     expect(params.has("nodeId")).toBe(false);
     expect(params.get("other")).toBe("value");
   });
@@ -706,7 +710,7 @@ describe("Test removeUrlFragment with paramName argument", () => {
     }));
     util.updateUrlFragments = jest.fn();
     util.removeUrlFragment.call(util, "id");
-    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "id"});
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "id"}, true);
   });
 
   test("removeUrlFragment returns early when fragment does not exist", () => {
@@ -730,7 +734,7 @@ describe("Test removeUrlFragment with paramName argument", () => {
     util.updateUrlFragments = jest.fn();
     util.removeUrlFragment.call(util, "geoMap", "nodeId");
     // After deletion, only `id` would remain → entire entry should be gone.
-    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "geoMap"});
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "geoMap"}, true);
   });
 
   test("removeUrlFragment keeps an id-only fragment when preserveFragment is true", () => {
@@ -746,8 +750,183 @@ describe("Test removeUrlFragment with paramName argument", () => {
     expect(util.updateUrlFragments).toHaveBeenCalledWith(
       {geoMap: params},
       {id: "geoMap"},
+      true,
     );
     expect(params.toString()).toBe("id=geoMap");
+  });
+});
+
+describe("Test updateUrlFragments fragmentchange event", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+    window.location.hash = "";
+  });
+
+  test("calls pushState when replace=false (default)", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "test");
+    params.set("nodeId", "node-1");
+    const fragments = {test: params};
+    const state = {some: "state"};
+
+    const pushSpy = jest.spyOn(window.history, "pushState");
+    const replaceSpy = jest.spyOn(window.history, "replaceState");
+
+    util.updateUrlFragments(fragments, state);
+
+    expect(pushSpy).toHaveBeenCalledWith(state, "", `#${params.toString()}`);
+    expect(replaceSpy).not.toHaveBeenCalled();
+  });
+
+  test("calls replaceState when replace=true", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "test");
+    params.set("nodeId", "node-1");
+    const fragments = {test: params};
+    const state = {some: "state"};
+
+    const pushSpy = jest.spyOn(window.history, "pushState");
+    const replaceSpy = jest.spyOn(window.history, "replaceState");
+
+    util.updateUrlFragments(fragments, state, true);
+
+    expect(replaceSpy).toHaveBeenCalledWith(state, "", `#${params.toString()}`);
+    expect(pushSpy).not.toHaveBeenCalled();
+  });
+
+  test("dispatches fragmentchange with hash when fragments present", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "test");
+    params.set("nodeId", "node-1");
+    const fragments = {test: params};
+    const state = {some: "state"};
+
+    jest.spyOn(window.history, "pushState").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+
+    util.updateUrlFragments(fragments, state);
+
+    expect(dispatchSpy).toHaveBeenCalledTimes(1);
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+    expect(event.detail).toEqual({
+      fragments,
+      state,
+      hash: params.toString(),
+    });
+  });
+
+  test("dispatches fragmentchange with empty hash when no fragments remain", () => {
+    const util = new NetJSONGraphUtil();
+    const state = {some: "state"};
+
+    jest.spyOn(window.history, "pushState").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+
+    util.updateUrlFragments({}, state);
+
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+    expect(event.detail.hash).toBe(window.location.pathname + window.location.search);
+  });
+
+  test("dispatches fragmentchange on replaceState too", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "test");
+    const fragments = {test: params};
+    const state = {some: "state"};
+
+    jest.spyOn(window.history, "replaceState").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+
+    util.updateUrlFragments(fragments, state, true);
+
+    expect(dispatchSpy).toHaveBeenCalledTimes(1);
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+  });
+
+  test("clears hash when no fragments remain", () => {
+    const util = new NetJSONGraphUtil();
+    const state = {some: "state"};
+
+    const pushSpy = jest.spyOn(window.history, "pushState");
+    jest.spyOn(window, "dispatchEvent").mockImplementation(() => true);
+
+    util.updateUrlFragments({}, state);
+
+    const url = pushSpy.mock.calls[0][2];
+    expect(url).toBe(window.location.pathname + window.location.search);
+  });
+});
+
+describe("Test setupHashChangeHandler fragmentchange event", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("registers popstate listener", () => {
+    const util = new NetJSONGraphUtil();
+    /* eslint-disable no-underscore-dangle */
+    const self = {_popstateHandler: null};
+    const addSpy = jest.spyOn(window, "addEventListener");
+
+    util.setupHashChangeHandler(self);
+
+    expect(addSpy).toHaveBeenCalledWith("popstate", expect.any(Function));
+    expect(typeof self._popstateHandler).toBe("function");
+  });
+
+  test("removes duplicate listener on second call", () => {
+    const util = new NetJSONGraphUtil();
+    const oldHandler = jest.fn();
+    const self = {_popstateHandler: oldHandler};
+    const removeSpy = jest.spyOn(window, "removeEventListener");
+    jest.spyOn(window, "addEventListener").mockImplementation(() => {});
+
+    util.setupHashChangeHandler(self);
+
+    expect(removeSpy).toHaveBeenCalledWith("popstate", oldHandler);
+    expect(self._popstateHandler).not.toBe(oldHandler);
+  });
+
+  test("popstate handler calls applyUrlFragmentState and dispatches fragmentchange", () => {
+    const util = new NetJSONGraphUtil();
+    const self = {_popstateHandler: null};
+
+    const applySpy = jest
+      .spyOn(util, "applyUrlFragmentState")
+      .mockImplementation(() => {});
+    jest.spyOn(window, "addEventListener").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+
+    util.setupHashChangeHandler(self);
+    self._popstateHandler();
+
+    expect(applySpy).toHaveBeenCalledWith(self);
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+    expect(event.detail).toEqual({source: "popstate"});
+  });
+
+  test("teardown removes listener and clears handler", () => {
+    const util = new NetJSONGraphUtil();
+    const self = {_popstateHandler: null};
+
+    jest.spyOn(window, "addEventListener").mockImplementation(() => {});
+    const removeSpy = jest.spyOn(window, "removeEventListener");
+
+    const teardown = util.setupHashChangeHandler(self);
+    const handler = self._popstateHandler;
+    teardown();
+
+    expect(removeSpy).toHaveBeenCalledWith("popstate", handler);
+    expect(self._popstateHandler).toBeNull();
+    /* eslint-enable no-underscore-dangle */
   });
 });
 

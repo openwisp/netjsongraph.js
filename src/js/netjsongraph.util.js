@@ -1265,18 +1265,24 @@ class NetJSONGraphUtil {
    * @param {Object.<string, URLSearchParams>} fragments
    * @returns {string}
    */
-  updateUrlFragments(fragments, state) {
+  updateUrlFragments(fragments, state, replace = false) {
     const newHash = Object.values(fragments)
       .map((urlParams) => urlParams.toString())
       .join(";");
 
+    const updateHistory = (hash) => {
+      const method = replace ? "replaceState" : "pushState";
+      window.history[method](state, "", hash);
+      window.dispatchEvent(
+        new CustomEvent("fragmentchange", {
+          detail: {fragments, state, hash: hash.replace(/^#/, "")},
+        }),
+      );
+    };
+
     // Remove dangling "#" when no fragments remain.
     if (!newHash) {
-      window.history.pushState(
-        state,
-        "",
-        window.location.pathname + window.location.search,
-      );
+      updateHistory(window.location.pathname + window.location.search);
       return;
     }
 
@@ -1292,7 +1298,7 @@ class NetJSONGraphUtil {
       (match, key, value) =>
         `${key}=${encodeURIComponent(value.replace(/%7E/gi, "~"))}`,
     );
-    window.history.pushState(state, "", `#${safeHash}`);
+    updateHistory(`#${safeHash}`);
   }
 
   addActionToUrl(self, params) {
@@ -1367,7 +1373,7 @@ class NetJSONGraphUtil {
       delete fragments[id];
     }
     const state = {id};
-    this.updateUrlFragments(fragments, state);
+    this.updateUrlFragments(fragments, state, true);
   }
 
   applyUrlFragmentState(self) {
@@ -1434,6 +1440,11 @@ class NetJSONGraphUtil {
     }
     self._popstateHandler = () => {
       this.applyUrlFragmentState(self);
+      window.dispatchEvent(
+        new CustomEvent("fragmentchange", {
+          detail: {source: "popstate"},
+        }),
+      );
     };
     window.addEventListener("popstate", self._popstateHandler);
     return () => {

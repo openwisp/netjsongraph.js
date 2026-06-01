@@ -210,11 +210,10 @@
         openIndoorMap();
       }
 
-      // Registered once at page load so back/forward navigation keeps working
-      // across repeated open/close cycles. A handler installed inside
-      // openIndoorMap that removes itself on close cannot react to a later
-      // forward-nav that should reopen the indoor map.
-      window.addEventListener("popstate", () => {
+      // Keep the overlay in sync with the URL fragments.
+      // NetJSONGraph dispatches `fragmentchange` after calling history.pushState/
+      // history.replaceState, and also on browser back/forward navigation.
+      window.addEventListener("fragmentchange", () => {
         if (getIndoorMapFragment()) {
           if (!document.getElementById("indoormap-container")) {
             openIndoorMap();
@@ -273,10 +272,12 @@
           window._indoorMap = null;
         });
       }
+
       function openIndoorMap() {
         if (window._indoorMap) {
           return window._indoorMap;
         }
+
         let indoorMapContainer = document.getElementById("indoormap-container");
         if (!indoorMapContainer) {
           indoorMapContainer = createIndoorMapContainer();
@@ -411,6 +412,21 @@
               map.fitBounds(bnds);
               map.setMaxBounds(bnds);
               map.invalidateSize();
+
+              // Add the indoor fragment only after the map is initialized.
+              // Use pushState so the overlay-open state becomes its own
+              // back/forward history entry.
+              const fragments = this.utils.parseUrlFragments();
+              if (fragments && !fragments.indoorMap) {
+                const indoorParams = new URLSearchParams();
+                indoorParams.set("id", "indoorMap");
+                fragments.indoorMap = indoorParams;
+                this.utils.updateUrlFragments(
+                  fragments,
+                  {id: "indoorMap"},
+                  false,
+                );
+              }
             },
             onClickElement: disableDefaultSidebar,
           },

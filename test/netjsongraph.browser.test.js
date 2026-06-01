@@ -390,7 +390,9 @@ describe("Chart Rendering Test", () => {
     expect(currentUrl).toContain("172.16.171.15");
     expect(currentUrl).not.toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
-    expect(indoorContainer).toBeNull();
+    // The overlay-open state is a dedicated history entry.
+    // Back from the indoor node selection clears node_2 but keeps the overlay open.
+    expect(indoorContainer).not.toBeNull();
     node = await getElementByXpath(
       driver,
       "//span[@class='njg-tooltip-value' and text()='172.16.171.15']",
@@ -398,6 +400,24 @@ describe("Chart Rendering Test", () => {
     );
     nodeId = await node.getAttribute("textContent");
     expect(nodeId).toBe("172.16.171.15");
+
+    // Back again should close the overlay (no indoorMap fragment).
+    await driver.navigate().back();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).not.toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).toBeNull();
+    await driver.navigate().forward();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    // Forward should reopen the overlay-open state (no node selected).
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).not.toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).not.toBeNull();
+
+    // Forward again should restore the indoor node selection.
     await driver.navigate().forward();
     await driver.sleep(500);
     currentUrl = await driver.getCurrentUrl();
