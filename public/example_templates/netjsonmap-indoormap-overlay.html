@@ -214,16 +214,23 @@
       // NetJSONGraph dispatches `fragmentchange` after calling history.pushState/
       // history.replaceState, and also on browser back/forward navigation.
       window.addEventListener("fragmentchange", () => {
-        if (getIndoorMapFragment()) {
-          if (!document.getElementById("indoormap-container")) {
-            openIndoorMap();
+        const hasIndoorFragment = Boolean(getIndoorMapFragment());
+        const isOverlayOpen =
+          document.getElementById("indoormap-container") !== null;
+
+        // No indoor fragment → close overlay if open, then bail.
+        if (!hasIndoorFragment) {
+          if (isOverlayOpen) {
+            document.getElementById("indoormap-container").remove();
+            window._indoorMap = null;
           }
-        } else {
-          const container = document.getElementById("indoormap-container");
-          if (container) {
-            container.remove();
-          }
-          window._indoorMap = null;
+          return;
+        }
+
+        // Indoor fragment present but overlay not open → open it.
+        if (!isOverlayOpen) {
+          openIndoorMap();
+          return;
         }
       });
 
@@ -263,13 +270,32 @@
       function closeButtonHandler(container, indoorMap, onClose) {
         const closeBtn = container.querySelector("#indoormap-close");
         closeBtn.addEventListener("click", () => {
-          const id = indoorMap.config.bookmarkableActions.id;
-          indoorMap.utils.removeUrlFragment(id);
+          // Remove DOM first — then strip the indoor fragment from the URL via
+          // direct replaceState (avoids re-entering fragmentchange while cleanup
+          // is already in progress).
+          container.remove();
+          window._indoorMap = null;
+          const raw = window.location.hash.replace(/^#/, "");
+          if (raw) {
+            const fragments = decodeURIComponent(raw)
+              .split(";")
+              .map((f) => f.trim())
+              .filter(Boolean);
+            const kept = fragments.filter((fragment) => {
+              const params = new URLSearchParams(fragment);
+              return params.get("id") === "geoMap";
+            });
+            const nextHash = kept.length
+              ? `#${encodeURIComponent(kept.join(";"))}`
+              : "";
+            const nextUrl = `${
+              window.location.pathname
+            }${window.location.search}${nextHash}`;
+            window.history.replaceState(null, "", nextUrl);
+          }
           if (typeof onClose === "function") {
             onClose();
           }
-          container.remove();
-          window._indoorMap = null;
         });
       }
 
