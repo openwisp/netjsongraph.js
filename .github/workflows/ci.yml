@@ -103,7 +103,7 @@ jobs:
         uses: browser-actions/setup-chrome@v2
 
       - name: Set up ChromeDriver
-        uses: nanasess/setup-chromedriver@v2
+        uses: nanasess/setup-chromedriver@v3
 
       - name: Check chrome and chromedriver version
         run: |
