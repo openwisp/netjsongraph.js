@@ -7094,14 +7094,14 @@ select-hose@^2.0.0:
   integrity sha512-mEugaLK+YfkijB4fx0e6kImuJdCIt2LxCRcbEYPqRGCs4F2ogyfZU5IAZRdjCP8JPq2AtdNoC/Dux63d9Kiryg==
 
 selenium-webdriver@^4.29.0:
-  version "4.43.0"
-  resolved "https://registry.yarnpkg.com/selenium-webdriver/-/selenium-webdriver-4.43.0.tgz#f19f9ba6f7b3d7e986f0d3794695ba6da09943ad"
-  integrity sha512-dV4zBTT37or3Z3/8uD6rS8zvd4ZxPuG4EJVlqYIbZCGZCYttZm7xb9rlFLSk4rrsQHAeDYvudl7cquo0vWpHjg==
+  version "4.44.0"
+  resolved "https://registry.yarnpkg.com/selenium-webdriver/-/selenium-webdriver-4.44.0.tgz#c6499102272ac132eef44b984096ace6620aa710"
+  integrity sha512-7RbYoKK0zET+KMVak11UDCtKvNulOU6gFZp8HI5GN9K8+BhqrliIJU/FP6QADrvRAXFMr3wHxfE3JHOcAxO3GQ==
   dependencies:
     "@bazel/runfiles" "^6.5.0"
     jszip "^3.10.1"
     tmp "^0.2.5"
-    ws "^8.20.0"
+    ws "^8.20.1"
 
 selfsigned@^5.5.0:
   version "5.5.0"
@@ -8336,10 +8336,10 @@ write-file-atomic@^5.0.1:
     imurmurhash "^0.1.4"
     signal-exit "^4.0.1"
 
-ws@^8.18.0, ws@^8.19.0, ws@^8.20.0:
-  version "8.20.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.20.0.tgz#4cd9532358eba60bc863aad1623dfb045a4d4af8"
-  integrity sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==
+ws@^8.18.0, ws@^8.19.0, ws@^8.20.1:
+  version "8.21.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.21.0.tgz#012e413fc07429945121b0c153158c4343086951"
+  integrity sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==
 
 wsl-utils@^0.1.0:
   version "0.1.0"
