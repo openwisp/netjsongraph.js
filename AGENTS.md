@@ -2,68 +2,43 @@
 
 ## Project Overview
 
-NetJSON NetworkGraph visualizer: A JavaScript library for visualizing network data using NetJSON format, built with echarts, leaflet, and related dependencies.
+`netjsongraph.js` is a JavaScript library for visualizing NetJSON network graphs with echarts, leaflet, and related tooling.
 
-## Development Setup
+Core code lives in this repository root:
 
-- Install dependencies: `yarn install`.
-- Set up Python environment for QA tools: `pip install "openwisp-utils[qa]~=1.2.0"` (required for openwisp-qa-format and openwisp-qa-check).
-- For browser tests, ensure Chrome and ChromeDriver are available (CI handles this automatically).
+- `src/` contains source modules.
+- `lib/` and `dist/` contain built artifacts.
+- `test/`, `examples/`, `docs/`, `scripts/`, and `webpack-plugins/` support tests, demos, documentation, and builds.
 
-## Code Formatting
+## Source of Truth
 
-To format code, run:
+- Use `README.md` and `docs/` for setup, usage, examples, and build behavior.
+- Use `package.json`, `yarn.lock`, and `.github/workflows/ci.yml` for CI-tested dependencies, lint, test, build, and supported Node versions.
+- Use GitHub issue/PR templates when asked to open issues or PRs.
 
-```bash
-openwisp-qa-format   # python virtualenv needs to be enabled for this command to work, if not, install openwisp-utils as done in .github/workflows/ci.yml
-yarn lint:fix         # runs eslint --fix and prettier via lint-staged
-```
+If instructions conflict, repository config and CI workflows win first, docs next, and this file is supplemental.
 
-## QA Checks
+## Development Notes
 
-Run QA checks with:
+- Keep changes focused. Avoid unrelated refactors and formatting churn.
+- Preserve public APIs, NetJSON compatibility, rendered graph behavior, browser compatibility, and build outputs unless explicitly required.
+- Be careful with performance on large graphs, map interactions, accessibility, dependency updates, and bundle size.
+- Avoid unnecessary blank lines inside functions and methods.
+- Update docs or examples when behavior, options, public APIs, setup steps, or supported versions change.
 
-```bash
-./run-qa-checks
-```
+## Testing and QA
 
-This runs yarn lint, openwisp-qa-check (with CSS/JS linting, skipping Python checks), and fails if issues are found.
+- Add or update tests for every behavior change.
+- For bug fixes, write the regression test first, run it against the unfixed code, confirm it fails for the expected reason, then implement the fix.
+- Use `yarn test` for unit tests, `yarn coverage` for coverage, and the documented browser test flow for browser-specific behavior.
+- Run `openwisp-qa-format`, `yarn lint:fix`, and `./run-qa-checks` when available. Treat failures as blocking unless confirmed unrelated and reported.
 
-## Testing
+## Security Notes
 
-- Unit tests (Jest with jsdom): `yarn test`.
-- Browser tests (requires dev server): Start server with `yarn start &`, then run `yarn test test/netjsongraph.browser.test.js` (uses Chrome/ChromeDriver).
-- Coverage: `yarn coverage` (excludes browser test file).
-- CI runs unit tests with coverage, then browser tests separately (see `.github/workflows/ci.yml`, ignore "build-and-deploy" job).
-
-## Building and Running
-
-- Development server: `yarn dev` (opens browser at localhost:8080).
-- Production build: `yarn build`.
-- Pre-commit hooks: husky runs lint-staged (prettier on `src/\*_/_.js`).
-
-## General Guidelines
-
-- Avoid other arbitrary formatting changes.
-- Check for dependency vulnerabilities: `npm audit` or `yarn audit`.
-
-## Code Review Checklist
-
-When reviewing changes, always watch out for:
-
-- Missing tests (especially browser tests for UI‑intensive features).
-- Performance penalties.
-- Inconsistencies and duplication which can lead to maintenance overhead.
-- Security issues (e.g., no secrets in code, safe dep usage).
-- Usability issues.
-
-## Contributing Guidelines
-
-- [Follow OpenWISP contributing guidelines](https://openwisp.io/docs/stable/developer/contributing.html).
+- Watch for unsafe dependency changes, DOM injection, unsafe URL handling, leaked secrets, and performance regressions from untrusted graph data.
+- Preserve validation and safe handling around NetJSON input, map tiles, external links, browser APIs, and generated assets.
+- Write comments only when they explain why code is shaped a certain way. Put comments before the relevant block instead of scattering them inside it.
 
 ## Troubleshooting
 
-- QA/format commands fail: Ensure Python env is active and openwisp-utils is installed.
-- Browser tests fail: Check Chrome/ChromeDriver setup; server must be running on `localhost:8080`.
-- Deps not found: Run `yarn install` first.
-- CI issues: Refer to .github/workflows/ci.yml (ignore install steps if deps are cached locally).
+- If setup, QA, tests, browser tests, or builds fail, check docs first, then compare with CI. If commands diverge, follow CI.
