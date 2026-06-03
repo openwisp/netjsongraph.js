@@ -253,46 +253,22 @@
       function createIndoorMapContainer() {
         const container = document.createElement("div");
         container.id = "indoormap-container";
-
         const closeBtn = document.createElement("span");
         closeBtn.id = "indoormap-close";
         closeBtn.innerHTML = "&times;";
-
         const netjsonDiv = document.createElement("div");
         netjsonDiv.id = "netjson-indoormap";
-
         container.appendChild(closeBtn);
         container.appendChild(netjsonDiv);
-
         return container;
       }
 
       function closeButtonHandler(container, indoorMap, onClose) {
         const closeBtn = container.querySelector("#indoormap-close");
         closeBtn.addEventListener("click", () => {
-          // Remove DOM first — then strip the indoor fragment from the URL via
-          // direct replaceState (avoids re-entering fragmentchange while cleanup
-          // is already in progress).
           container.remove();
           window._indoorMap = null;
-          const raw = window.location.hash.replace(/^#/, "");
-          if (raw) {
-            const fragments = decodeURIComponent(raw)
-              .split(";")
-              .map((f) => f.trim())
-              .filter(Boolean);
-            const kept = fragments.filter((fragment) => {
-              const params = new URLSearchParams(fragment);
-              return params.get("id") === "geoMap";
-            });
-            const nextHash = kept.length
-              ? `#${encodeURIComponent(kept.join(";"))}`
-              : "";
-            const nextUrl = `${
-              window.location.pathname
-            }${window.location.search}${nextHash}`;
-            window.history.replaceState(null, "", nextUrl);
-          }
+          indoorMap.utils.removeUrlFragment("indoorMap");
           if (typeof onClose === "function") {
             onClose();
           }
@@ -360,13 +336,10 @@
               const imageUrl = "../assets/images/floorplan.png";
               img.src = imageUrl;
               await img.decode();
-
               const aspectRatio = img.width / img.height;
               const h = 700;
               const w = h * aspectRatio;
-
               const zoom = map.getMaxZoom() - 1;
-
               const anchorLatLng = L.latLng(0, 0);
               const anchorPoint = map.project(anchorLatLng, zoom);
               const topLeft = L.point(
@@ -377,7 +350,6 @@
                 anchorPoint.x + w / 2,
                 anchorPoint.y + h / 2,
               );
-
               const mapOptions = this.echarts.getOption();
               // Refer netjsonmap-indoormap.html for full explanation of this workaround
               // Build an id -> node map so we don't assume the echarts series
@@ -413,7 +385,6 @@
                   sourceNodeProjected,
                   zoom,
                 );
-
                 const target = data.coords[1];
                 const targetPx = Number(target[0]);
                 const targetPy = -Number(target[1]);
@@ -425,7 +396,6 @@
                   targetNodeProjected,
                   zoom,
                 );
-
                 data.coords[0] = [sourceNodeLatLng.lng, sourceNodeLatLng.lat];
                 data.coords[1] = [targetNodeLatLng.lng, targetNodeLatLng.lat];
               });
