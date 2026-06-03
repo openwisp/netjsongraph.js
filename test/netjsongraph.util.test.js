@@ -729,6 +729,16 @@ describe("Test removeUrlFragment with paramName argument", () => {
     );
     expect(params.toString()).toBe("id=geoMap");
   });
+
+  test("removeUrlFragment uses pushState when replace=false", () => {
+    const util = new NetJSONGraphUtil();
+    util.parseUrlFragments = jest.fn(() => ({
+      indoorMap: new URLSearchParams("id=indoorMap"),
+    }));
+    util.updateUrlFragments = jest.fn();
+    util.removeUrlFragment.call(util, "indoorMap", null, false, false);
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "indoorMap"}, false);
+  });
 });
 
 describe("Test updateUrlFragments fragmentchange event", () => {
@@ -847,7 +857,7 @@ describe("Test setupHashChangeHandler fragmentchange event", () => {
     expect(self._popstateHandler).not.toBe(oldHandler);
   });
 
-  test("popstate handler calls applyUrlFragmentState and dispatches fragmentchange", () => {
+  test("popstate handler calls applyUrlFragmentState and dispatches fragmentchange", async () => {
     const util = new NetJSONGraphUtil();
     const self = {_popstateHandler: null};
     const applySpy = jest
@@ -859,13 +869,20 @@ describe("Test setupHashChangeHandler fragmentchange event", () => {
     const popstateEvent = {};
     self._popstateHandler(popstateEvent);
     expect(applySpy).toHaveBeenCalledWith(self);
+    // Dispatch is deferred via queueMicrotask — not yet called
+    expect(dispatchSpy).not.toHaveBeenCalled();
+    // Flush microtasks
+    await Promise.resolve();
     expect(dispatchSpy).toHaveBeenCalledTimes(1);
     const event = dispatchSpy.mock.calls[0][0];
     expect(event.type).toBe("fragmentchange");
-    expect(event.detail).toEqual({source: "popstate"});
+    expect(event.detail.source).toBe("popstate");
+    expect(event.detail.fragments).toBeDefined();
+    expect(event.detail.state).toBeNull();
+    expect(typeof event.detail.hash).toBe("string");
   });
 
-  test("dispatches fragmentchange only once across multiple instances on same popstate event", () => {
+  test("dispatches fragmentchange only once across multiple instances on same popstate event", async () => {
     const util1 = new NetJSONGraphUtil();
     const util2 = new NetJSONGraphUtil();
     const self1 = {_popstateHandler: null};
@@ -881,6 +898,10 @@ describe("Test setupHashChangeHandler fragmentchange event", () => {
     self2._popstateHandler(popstateEvent);
     expect(util1.applyUrlFragmentState).toHaveBeenCalledWith(self1);
     expect(util2.applyUrlFragmentState).toHaveBeenCalledWith(self2);
+    // Both handlers ran — state restored, but dispatch queued as microtask
+    expect(dispatchSpy).not.toHaveBeenCalled();
+    // Flush microtasks
+    await Promise.resolve();
     expect(dispatchSpy).toHaveBeenCalledTimes(1);
     const event = dispatchSpy.mock.calls[0][0];
     expect(event.type).toBe("fragmentchange");

@@ -492,9 +492,16 @@ describe("Chart Rendering Test", () => {
     await driver.navigate().back();
     await driver.sleep(500);
     currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
     expect(currentUrl).not.toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
     expect(indoorContainer).toBeNull();
+    node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='172.16.171.15']",
+      2000,
+    );
+    expect(await node.getAttribute("textContent")).toBe("172.16.171.15");
     await driver.navigate().forward();
     await driver.sleep(500);
     currentUrl = await driver.getCurrentUrl();
@@ -503,6 +510,12 @@ describe("Chart Rendering Test", () => {
     expect(currentUrl).not.toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
     expect(indoorContainer).not.toBeNull();
+    node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='172.16.171.15']",
+      2000,
+    );
+    expect(await node.getAttribute("textContent")).toBe("172.16.171.15");
 
     // Forward again should restore the indoor node selection.
     await driver.navigate().forward();

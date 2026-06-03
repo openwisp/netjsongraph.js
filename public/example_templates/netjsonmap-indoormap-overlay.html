@@ -288,7 +288,7 @@
         const closeBtn = container.querySelector("#indoormap-close");
         closeBtn.addEventListener("click", () => {
           cleanupIndoorMap(container, indoorMap);
-          indoorMap.utils.removeUrlFragment("indoorMap");
+          indoorMap.utils.removeUrlFragment("indoorMap", null, false, false);
           if (typeof onClose === "function") {
             onClose();
           }
