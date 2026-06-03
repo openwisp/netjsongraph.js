@@ -221,8 +221,10 @@
         // No indoor fragment → close overlay if open, then bail.
         if (!hasIndoorFragment) {
           if (isOverlayOpen) {
-            document.getElementById("indoormap-container").remove();
-            window._indoorMap = null;
+            cleanupIndoorMap(
+              document.getElementById("indoormap-container"),
+              window._indoorMap,
+            );
           }
           return;
         }
@@ -263,11 +265,29 @@
         return container;
       }
 
+      function cleanupIndoorMap(container, indoorMap) {
+        if (indoorMap && indoorMap._popstateHandler) {
+          window.removeEventListener("popstate", indoorMap._popstateHandler);
+          indoorMap._popstateHandler = null;
+        }
+        if (indoorMap?.echarts?.dispose) {
+          indoorMap.echarts.dispose();
+        }
+        if (indoorMap?.leaflet?.remove) {
+          indoorMap.leaflet.remove();
+        }
+        if (container) {
+          container.remove();
+        }
+        if (!indoorMap || window._indoorMap === indoorMap) {
+          window._indoorMap = null;
+        }
+      }
+
       function closeButtonHandler(container, indoorMap, onClose) {
         const closeBtn = container.querySelector("#indoormap-close");
         closeBtn.addEventListener("click", () => {
-          container.remove();
-          window._indoorMap = null;
+          cleanupIndoorMap(container, indoorMap);
           indoorMap.utils.removeUrlFragment("indoorMap");
           if (typeof onClose === "function") {
             onClose();
@@ -336,6 +356,12 @@
               const imageUrl = "../assets/images/floorplan.png";
               img.src = imageUrl;
               await img.decode();
+              if (
+                window._indoorMap !== this ||
+                !document.getElementById("indoormap-container")
+              ) {
+                return;
+              }
               const aspectRatio = img.width / img.height;
               const h = 700;
               const w = h * aspectRatio;
