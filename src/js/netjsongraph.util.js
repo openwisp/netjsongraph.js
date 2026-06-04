@@ -1265,18 +1265,25 @@ class NetJSONGraphUtil {
    * @param {Object.<string, URLSearchParams>} fragments
    * @returns {string}
    */
-  updateUrlFragments(fragments, state) {
+  updateUrlFragments(fragments, state, replace = false) {
     const newHash = Object.values(fragments)
       .map((urlParams) => urlParams.toString())
       .join(";");
+    const method = replace ? "replaceState" : "pushState";
+
+    const dispatchFragmentChange = (hash) => {
+      window.dispatchEvent(
+        new CustomEvent("fragmentchange", {
+          detail: {fragments, state, hash: hash.replace(/^#/, "")},
+        }),
+      );
+    };
 
     // Remove dangling "#" when no fragments remain.
     if (!newHash) {
-      window.history.pushState(
-        state,
-        "",
-        window.location.pathname + window.location.search,
-      );
+      const url = window.location.pathname + window.location.search;
+      window.history[method](state, "", url);
+      dispatchFragmentChange("");
       return;
     }
 
@@ -1292,7 +1299,8 @@ class NetJSONGraphUtil {
       (match, key, value) =>
         `${key}=${encodeURIComponent(value.replace(/%7E/gi, "~"))}`,
     );
-    window.history.pushState(state, "", `#${safeHash}`);
+    window.history[method](state, "", `#${safeHash}`);
+    dispatchFragmentChange(`#${safeHash}`);
   }
 
   addActionToUrl(self, params) {
@@ -1347,8 +1355,10 @@ class NetJSONGraphUtil {
    *   from the fragment. If omitted, the whole fragment for the id is dropped.
    * @param {boolean} [preserveFragment] If true, keep a bare id-only fragment
    *   after removing paramName.
+   * @param {boolean} [replace=true] - Whether to use replaceState (true) or
+   *   pushState (false) when updating the URL.
    */
-  removeUrlFragment(id, paramName = null, preserveFragment = false) {
+  removeUrlFragment(id, paramName = null, preserveFragment = false, replace = true) {
     const fragments = this.parseUrlFragments();
     if (!fragments[id]) {
       return;
@@ -1367,7 +1377,7 @@ class NetJSONGraphUtil {
       delete fragments[id];
     }
     const state = {id};
-    this.updateUrlFragments(fragments, state);
+    this.updateUrlFragments(fragments, state, replace);
   }
 
   applyUrlFragmentState(self) {
@@ -1432,8 +1442,23 @@ class NetJSONGraphUtil {
     if (self._popstateHandler) {
       window.removeEventListener("popstate", self._popstateHandler);
     }
-    self._popstateHandler = () => {
+    self._popstateHandler = (event) => {
       this.applyUrlFragmentState(self);
+      if (event && event._fragmentchangePending) {
+        return;
+      }
+      if (event) {
+        event._fragmentchangePending = true;
+      }
+      queueMicrotask(() => {
+        const hash = window.location.hash.replace(/^#/, "");
+        const fragments = this.parseUrlFragments();
+        window.dispatchEvent(
+          new CustomEvent("fragmentchange", {
+            detail: {source: "popstate", fragments, state: null, hash},
+          }),
+        );
+      });
     };
     window.addEventListener("popstate", self._popstateHandler);
     return () => {

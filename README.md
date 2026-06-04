@@ -588,6 +588,19 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   For links, the URL fragment uses the format `source~target` as the `nodeId`. Opening such a URL restores the initial map or graph view and triggers the corresponding link click event.
 
+  When bookmarkable actions are enabled, the library also dispatches a `fragmentchange` event on `window` whenever it updates the URL fragments (after calling `history.pushState`/`history.replaceState`), and also on browser back/forward navigation.
+
+  You can use this event to keep external UI in sync with the URL:
+
+  ```js
+  window.addEventListener("fragmentchange", (event) => {
+    // event.detail contains { fragments, state, hash }.
+    // On browser back/forward, it also contains { source: "popstate" }.
+    const fragments = netjsongraphInstance.utils.parseUrlFragments();
+    // ...open/close overlays, update UI, etc.
+  });
+  ```
+
   If you need to manually remove the URL fragment, you can call the built-in utility method: `netjsongraphInstance.utils.removeUrlFragment(bookmarkableActions.id);` where you pass the value of your `bookmarkableActions.id` configuration. You can also remove only a specific parameter from the fragment, for example:
   `netjsongraphInstance.utils.removeUrlFragment(bookmarkableActions.id, "nodeId");`. This removes only the `nodeId` parameter from the URL fragment for that specific map while preserving the remaining fragment state. To keep the fragment itself after removing `nodeId`, make sure to set `bookmarkableActions.preserveFragment = true` otherwise, if no additional parameters remain after removing `nodeId`, the entire fragment will be cleaned up automatically.
 

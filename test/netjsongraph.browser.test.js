@@ -304,6 +304,93 @@ describe("Chart Rendering Test", () => {
     expect(indoorContainer).toBeNull();
   });
 
+  test("bookmarkableActions: indoor overlay removes popstate listener on close", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+    await driver.executeScript(`
+      window._popstateTracker = {added: [], removed: []};
+      const originalAdd = window.addEventListener.bind(window);
+      const originalRemove = window.removeEventListener.bind(window);
+      window._restorePopstateTracker = () => {
+        window.addEventListener = originalAdd;
+        window.removeEventListener = originalRemove;
+      };
+      window.addEventListener = (type, listener, options) => {
+        if (type === "popstate") {
+          window._popstateTracker.added.push(listener);
+        }
+        return originalAdd(type, listener, options);
+      };
+      window.removeEventListener = (type, listener, options) => {
+        if (type === "popstate") {
+          window._popstateTracker.removed.push(listener);
+        }
+        return originalRemove(type, listener, options);
+      };
+    `);
+    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    const floorplanBtn = await getElementByCss(driver, ".njg-popup-button", 2000);
+    await driver.executeScript("arguments[0].click();", floorplanBtn);
+    const closeBtn = await getElementByCss(driver, "#indoormap-close", 2000);
+    await driver.wait(
+      () => driver.executeScript("return window._popstateTracker.added.length > 0;"),
+      2000,
+    );
+    await closeBtn.click();
+    const popstateStats = await driver.executeScript(`
+      const {added, removed} = window._popstateTracker;
+      window._restorePopstateTracker();
+      return {
+        added: added.length,
+        leaked: added.filter((listener) => !removed.includes(listener)).length,
+      };
+    `);
+    expect(popstateStats.added).toBeGreaterThan(0);
+    expect(popstateStats.leaked).toBe(0);
+  });
+
+  test("bookmarkableActions: closing indoor overlay during image decode keeps it closed", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    const canvas = await getElementByCss(driver, "canvas", 2000);
+    expect(canvas).not.toBeNull();
+    await driver.executeScript(`
+      const originalDecode = Image.prototype.decode;
+      window._restoreIndoorImageDecode = () => {
+        Image.prototype.decode = originalDecode;
+      };
+      Image.prototype.decode = function () {
+        if (this.src.includes("floorplan.png")) {
+          return new Promise((resolve) => {
+            window._resolveIndoorImageDecode = resolve;
+          });
+        }
+        return originalDecode.call(this);
+      };
+    `);
+    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    const floorplanBtn = await getElementByCss(driver, ".njg-popup-button", 2000);
+    await driver.executeScript("arguments[0].click();", floorplanBtn);
+    const closeBtn = await getElementByCss(driver, "#indoormap-close", 2000);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return typeof window._resolveIndoorImageDecode === 'function';",
+        ),
+      2000,
+    );
+    await closeBtn.click();
+    await driver.executeScript(`
+      window._resolveIndoorImageDecode();
+      window._restoreIndoorImageDecode();
+    `);
+    await driver.sleep(500);
+    const currentUrl = await driver.getCurrentUrl();
+    const indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(currentUrl).not.toContain("id=indoorMap");
+    expect(indoorContainer).toBeNull();
+  });
+
   test("bookmarkableActions: test url fragments for nodes", async () => {
     await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
@@ -390,7 +477,9 @@ describe("Chart Rendering Test", () => {
     expect(currentUrl).toContain("172.16.171.15");
     expect(currentUrl).not.toContain("node_2");
     indoorContainer = await getElementByCss(driver, "#indoormap-container");
-    expect(indoorContainer).toBeNull();
+    // The overlay-open state is a dedicated history entry.
+    // Back from the indoor node selection clears node_2 but keeps the overlay open.
+    expect(indoorContainer).not.toBeNull();
     node = await getElementByXpath(
       driver,
       "//span[@class='njg-tooltip-value' and text()='172.16.171.15']",
@@ -398,6 +487,37 @@ describe("Chart Rendering Test", () => {
     );
     nodeId = await node.getAttribute("textContent");
     expect(nodeId).toBe("172.16.171.15");
+
+    // Back again should close the overlay (no indoorMap fragment).
+    await driver.navigate().back();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).not.toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).toBeNull();
+    node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='172.16.171.15']",
+      2000,
+    );
+    expect(await node.getAttribute("textContent")).toBe("172.16.171.15");
+    await driver.navigate().forward();
+    await driver.sleep(500);
+    currentUrl = await driver.getCurrentUrl();
+    // Forward should reopen the overlay-open state (no node selected).
+    expect(currentUrl).toContain("172.16.171.15");
+    expect(currentUrl).not.toContain("node_2");
+    indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    expect(indoorContainer).not.toBeNull();
+    node = await getElementByXpath(
+      driver,
+      "//span[@class='njg-tooltip-value' and text()='172.16.171.15']",
+      2000,
+    );
+    expect(await node.getAttribute("textContent")).toBe("172.16.171.15");
+
+    // Forward again should restore the indoor node selection.
     await driver.navigate().forward();
     await driver.sleep(500);
     currentUrl = await driver.getCurrentUrl();

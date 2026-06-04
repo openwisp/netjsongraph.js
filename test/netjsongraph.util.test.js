@@ -141,7 +141,6 @@ describe("makeCluster cluster separation logic", () => {
 describe("Test utils deepCopy function", () => {
   test("creates a deep clone that is independent from the original object", () => {
     const util = new NetJSONGraphUtil();
-
     const config = {
       render: "map",
       mapOptions: {
@@ -156,14 +155,11 @@ describe("Test utils deepCopy function", () => {
         },
       ],
     };
-
     const original = config;
     const clone = util.deepCopy(original);
-
     expect(clone).not.toBe(original);
     expect(clone.mapOptions).not.toBe(original.mapOptions);
     expect(clone.linkCategories).not.toBe(original.linkCategories);
-
     clone.render = "graph";
     clone.mapOptions.center = [0, 0];
     clone.mapOptions.zoom = 10;
@@ -172,7 +168,6 @@ describe("Test utils deepCopy function", () => {
       name: "up",
       linkStyle: {color: "#00ff00", width: 2},
     });
-
     expect(original.render).toBe("map");
     expect(clone.render).toBe("graph");
     expect(original.mapOptions.center).toEqual([50, 50]);
@@ -191,12 +186,10 @@ describe("Test utils deepCopy function", () => {
 
 describe("Test URL fragment utilities", () => {
   let utils;
-
   beforeEach(() => {
     utils = new NetJSONGraphUtil();
     window.location.hash = "";
   });
-
   afterEach(() => {
     window.location.hash = "";
   });
@@ -204,7 +197,6 @@ describe("Test URL fragment utilities", () => {
   test("Test parseUrlFragments parses multiple fragments and decodes values", () => {
     window.location.hash = "#id=geoMap&nodeId=abc%3A123;id=indoorMap&nodeId=indoorNode";
     const fragments = utils.parseUrlFragments();
-
     expect(Object.keys(fragments).sort()).toEqual(["geoMap", "indoorMap"].sort());
     expect(fragments.geoMap.get("nodeId")).toBe("abc:123");
     expect(fragments.indoorMap.get("nodeId")).toBe("indoorNode");
@@ -224,9 +216,7 @@ describe("Test URL fragment utilities", () => {
       dataType: "node",
       data: {id: "node1"},
     };
-
     utils.addActionToUrl(self, params);
-
     const fragments = utils.parseUrlFragments();
     expect(fragments.basicUsage).toBeDefined();
     expect(fragments.basicUsage.get("id")).toBe("basicUsage");
@@ -243,14 +233,11 @@ describe("Test URL fragment utilities", () => {
       utils: {...utils, graphRender: "graph", mapRender: "map"},
       nodeLinkIndex: {"node1~node2": link},
     };
-
     const params = {
       dataType: "edge",
       data: link,
     };
-
     utils.addActionToUrl(self, params);
-
     const fragments = utils.parseUrlFragments();
     expect(fragments.basicUsage).toBeDefined();
     expect(fragments.basicUsage.get("id")).toBe("basicUsage");
@@ -275,10 +262,8 @@ describe("Test URL fragment utilities", () => {
       dataType: "node",
       data: {id: "node1"},
     };
-
     utils.addActionToUrl(self, params);
     const fragments = utils.parseUrlFragments();
-
     expect(fragments.graph).toBeDefined();
     expect(fragments.graph.get("nodeId")).toBe("node1");
     expect(fragments.geo).toBeDefined();
@@ -297,13 +282,11 @@ describe("Test URL fragment utilities", () => {
   test("applyUrlFragmentState calls map.setView and triggers onClickElement", () => {
     const mockSetView = jest.fn();
     const mockOnClick = jest.fn();
-
     const node = {
       id: "n1",
       location: {lat: 12.1, lng: 77.5},
       cluster: null,
     };
-
     const self = {
       config: {
         render: "map",
@@ -324,17 +307,14 @@ describe("Test URL fragment utilities", () => {
       leaflet: {setView: mockSetView},
       utils,
     };
-
     window.location.hash = "#id=geo&nodeId=n1";
     utils.applyUrlFragmentState(self);
-
     expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 6);
     expect(mockOnClick).toHaveBeenCalledWith("node", node);
   });
 
   test("Test applyUrlFragmentState runs only after onReady completes", async () => {
     const recorder = [];
-
     const emitter = {
       handlers: {},
       once(event, handler) {
@@ -351,13 +331,11 @@ describe("Test URL fragment utilities", () => {
       new Promise((resolve) => {
         setTimeout(resolve, ms);
       });
-
     const asyncOnReady = async () => {
       recorder.push("onReady-start");
       await delay(20);
       recorder.push("onReady-done");
     };
-
     const onReadyDone = new Promise((resolve) => {
       emitter.once("onReady", async () => {
         await asyncOnReady();
@@ -417,14 +395,11 @@ describe("Test move Node in Real Time", () => {
     util.moveNodeInRealTime.call(mapContext, node.id, newLocation);
     expect(echarts.getOption).toHaveBeenCalled();
     expect(echarts.setOption).toHaveBeenCalled();
-
     const calledArg = echarts.setOption.mock.calls[0][0];
     expect(calledArg).toBeDefined();
     expect(calledArg.series).toBeDefined();
-
     const scatterSeries = calledArg.series.find((s) => s.type === "scatter");
     expect(scatterSeries).toBeDefined();
-
     const updated = scatterSeries.data.find((d) => d.node.id === node.id);
     expect(updated).toBeDefined();
     expect(updated.node.location).toEqual(newLocation);
@@ -694,7 +669,11 @@ describe("Test removeUrlFragment with paramName argument", () => {
     }));
     util.updateUrlFragments = jest.fn();
     util.removeUrlFragment.call(util, "id", "nodeId");
-    expect(util.updateUrlFragments).toHaveBeenCalledWith({id: params}, {id: "id"});
+    expect(util.updateUrlFragments).toHaveBeenCalledWith(
+      {id: params},
+      {id: "id"},
+      true,
+    );
     expect(params.has("nodeId")).toBe(false);
     expect(params.get("other")).toBe("value");
   });
@@ -706,7 +685,7 @@ describe("Test removeUrlFragment with paramName argument", () => {
     }));
     util.updateUrlFragments = jest.fn();
     util.removeUrlFragment.call(util, "id");
-    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "id"});
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "id"}, true);
   });
 
   test("removeUrlFragment returns early when fragment does not exist", () => {
@@ -730,7 +709,7 @@ describe("Test removeUrlFragment with paramName argument", () => {
     util.updateUrlFragments = jest.fn();
     util.removeUrlFragment.call(util, "geoMap", "nodeId");
     // After deletion, only `id` would remain → entire entry should be gone.
-    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "geoMap"});
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "geoMap"}, true);
   });
 
   test("removeUrlFragment keeps an id-only fragment when preserveFragment is true", () => {
@@ -746,8 +725,199 @@ describe("Test removeUrlFragment with paramName argument", () => {
     expect(util.updateUrlFragments).toHaveBeenCalledWith(
       {geoMap: params},
       {id: "geoMap"},
+      true,
     );
     expect(params.toString()).toBe("id=geoMap");
+  });
+
+  test("removeUrlFragment uses pushState when replace=false", () => {
+    const util = new NetJSONGraphUtil();
+    util.parseUrlFragments = jest.fn(() => ({
+      indoorMap: new URLSearchParams("id=indoorMap"),
+    }));
+    util.updateUrlFragments = jest.fn();
+    util.removeUrlFragment.call(util, "indoorMap", null, false, false);
+    expect(util.updateUrlFragments).toHaveBeenCalledWith({}, {id: "indoorMap"}, false);
+  });
+});
+
+describe("Test updateUrlFragments fragmentchange event", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+    window.location.hash = "";
+  });
+
+  test("calls pushState when replace=false (default)", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "test");
+    params.set("nodeId", "node-1");
+    const fragments = {test: params};
+    const state = {some: "state"};
+    const pushSpy = jest.spyOn(window.history, "pushState");
+    const replaceSpy = jest.spyOn(window.history, "replaceState");
+    util.updateUrlFragments(fragments, state);
+    expect(pushSpy).toHaveBeenCalledWith(state, "", `#${params.toString()}`);
+    expect(replaceSpy).not.toHaveBeenCalled();
+  });
+
+  test("calls replaceState when replace=true", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "test");
+    params.set("nodeId", "node-1");
+    const fragments = {test: params};
+    const state = {some: "state"};
+    const pushSpy = jest.spyOn(window.history, "pushState");
+    const replaceSpy = jest.spyOn(window.history, "replaceState");
+    util.updateUrlFragments(fragments, state, true);
+    expect(replaceSpy).toHaveBeenCalledWith(state, "", `#${params.toString()}`);
+    expect(pushSpy).not.toHaveBeenCalled();
+  });
+
+  test("dispatches fragmentchange with hash when fragments present", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "test");
+    params.set("nodeId", "node-1");
+    const fragments = {test: params};
+    const state = {some: "state"};
+    jest.spyOn(window.history, "pushState").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+    util.updateUrlFragments(fragments, state);
+    expect(dispatchSpy).toHaveBeenCalledTimes(1);
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+    expect(event.detail).toEqual({
+      fragments,
+      state,
+      hash: params.toString(),
+    });
+  });
+
+  test("dispatches fragmentchange with empty hash when no fragments remain", () => {
+    const util = new NetJSONGraphUtil();
+    const state = {some: "state"};
+    jest.spyOn(window.history, "pushState").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+    util.updateUrlFragments({}, state);
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+    expect(event.detail.hash).toBe("");
+  });
+
+  test("dispatches fragmentchange on replaceState too", () => {
+    const util = new NetJSONGraphUtil();
+    const params = new URLSearchParams();
+    params.set("id", "test");
+    const fragments = {test: params};
+    const state = {some: "state"};
+    jest.spyOn(window.history, "replaceState").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+    util.updateUrlFragments(fragments, state, true);
+    expect(dispatchSpy).toHaveBeenCalledTimes(1);
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+  });
+
+  test("clears hash when no fragments remain", () => {
+    const util = new NetJSONGraphUtil();
+    const state = {some: "state"};
+    const pushSpy = jest.spyOn(window.history, "pushState");
+    jest.spyOn(window, "dispatchEvent").mockImplementation(() => true);
+    util.updateUrlFragments({}, state);
+    const url = pushSpy.mock.calls[0][2];
+    expect(url).toBe(window.location.pathname + window.location.search);
+  });
+});
+
+describe("Test setupHashChangeHandler fragmentchange event", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("registers popstate listener", () => {
+    const util = new NetJSONGraphUtil();
+    /* eslint-disable no-underscore-dangle */
+    const self = {_popstateHandler: null};
+    const addSpy = jest.spyOn(window, "addEventListener");
+    util.setupHashChangeHandler(self);
+    expect(addSpy).toHaveBeenCalledWith("popstate", expect.any(Function));
+    expect(typeof self._popstateHandler).toBe("function");
+  });
+
+  test("removes duplicate listener on second call", () => {
+    const util = new NetJSONGraphUtil();
+    const oldHandler = jest.fn();
+    const self = {_popstateHandler: oldHandler};
+    const removeSpy = jest.spyOn(window, "removeEventListener");
+    jest.spyOn(window, "addEventListener").mockImplementation(() => {});
+    util.setupHashChangeHandler(self);
+    expect(removeSpy).toHaveBeenCalledWith("popstate", oldHandler);
+    expect(self._popstateHandler).not.toBe(oldHandler);
+  });
+
+  test("popstate handler calls applyUrlFragmentState and dispatches fragmentchange", async () => {
+    const util = new NetJSONGraphUtil();
+    const self = {_popstateHandler: null};
+    const applySpy = jest
+      .spyOn(util, "applyUrlFragmentState")
+      .mockImplementation(() => {});
+    jest.spyOn(window, "addEventListener").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+    util.setupHashChangeHandler(self);
+    const popstateEvent = {};
+    self._popstateHandler(popstateEvent);
+    expect(applySpy).toHaveBeenCalledWith(self);
+    // Dispatch is deferred via queueMicrotask — not yet called
+    expect(dispatchSpy).not.toHaveBeenCalled();
+    // Flush microtasks
+    await Promise.resolve();
+    expect(dispatchSpy).toHaveBeenCalledTimes(1);
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+    expect(event.detail.source).toBe("popstate");
+    expect(event.detail.fragments).toBeDefined();
+    expect(event.detail.state).toBeNull();
+    expect(typeof event.detail.hash).toBe("string");
+  });
+
+  test("dispatches fragmentchange only once across multiple instances on same popstate event", async () => {
+    const util1 = new NetJSONGraphUtil();
+    const util2 = new NetJSONGraphUtil();
+    const self1 = {_popstateHandler: null};
+    const self2 = {_popstateHandler: null};
+    jest.spyOn(util1, "applyUrlFragmentState").mockImplementation(() => {});
+    jest.spyOn(util2, "applyUrlFragmentState").mockImplementation(() => {});
+    jest.spyOn(window, "addEventListener").mockImplementation(() => {});
+    const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+    util1.setupHashChangeHandler(self1);
+    util2.setupHashChangeHandler(self2);
+    const popstateEvent = {};
+    self1._popstateHandler(popstateEvent);
+    self2._popstateHandler(popstateEvent);
+    expect(util1.applyUrlFragmentState).toHaveBeenCalledWith(self1);
+    expect(util2.applyUrlFragmentState).toHaveBeenCalledWith(self2);
+    // Both handlers ran — state restored, but dispatch queued as microtask
+    expect(dispatchSpy).not.toHaveBeenCalled();
+    // Flush microtasks
+    await Promise.resolve();
+    expect(dispatchSpy).toHaveBeenCalledTimes(1);
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.type).toBe("fragmentchange");
+  });
+
+  test("teardown removes listener and clears handler", () => {
+    const util = new NetJSONGraphUtil();
+    const self = {_popstateHandler: null};
+    jest.spyOn(window, "addEventListener").mockImplementation(() => {});
+    const removeSpy = jest.spyOn(window, "removeEventListener");
+    const teardown = util.setupHashChangeHandler(self);
+    const handler = self._popstateHandler;
+    teardown();
+    expect(removeSpy).toHaveBeenCalledWith("popstate", handler);
+    expect(self._popstateHandler).toBeNull();
+    /* eslint-enable no-underscore-dangle */
   });
 });
 
