@@ -594,8 +594,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   ```js
   window.addEventListener("fragmentchange", (event) => {
-    // event.detail is provided for programmatic URL updates.
-    // On browser back/forward, detail may contain only { source: "popstate" }.
+    // event.detail contains { fragments, state, hash }.
+    // On browser back/forward, it also contains { source: "popstate" }.
     const fragments = netjsongraphInstance.utils.parseUrlFragments();
     // ...open/close overlays, update UI, etc.
   });
