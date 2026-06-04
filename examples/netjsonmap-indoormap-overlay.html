@@ -185,21 +185,29 @@
         openIndoorMap();
       }
 
-      // Registered once at page load so back/forward navigation keeps working
-      // across repeated open/close cycles. A handler installed inside
-      // openIndoorMap that removes itself on close cannot react to a later
-      // forward-nav that should reopen the indoor map.
-      window.addEventListener("popstate", () => {
-        if (getIndoorMapFragment()) {
-          if (!document.getElementById("indoormap-container")) {
-            openIndoorMap();
+      // Keep the overlay in sync with the URL fragments.
+      // NetJSONGraph dispatches `fragmentchange` after calling history.pushState/
+      // history.replaceState, and also on browser back/forward navigation.
+      window.addEventListener("fragmentchange", () => {
+        const hasIndoorFragment = Boolean(getIndoorMapFragment());
+        const isOverlayOpen =
+          document.getElementById("indoormap-container") !== null;
+
+        // No indoor fragment → close overlay if open, then bail.
+        if (!hasIndoorFragment) {
+          if (isOverlayOpen) {
+            cleanupIndoorMap(
+              document.getElementById("indoormap-container"),
+              window._indoorMap,
+            );
           }
-        } else {
-          const container = document.getElementById("indoormap-container");
-          if (container) {
-            container.remove();
-          }
-          window._indoorMap = null;
+          return;
+        }
+
+        // Indoor fragment present but overlay not open → open it.
+        if (!isOverlayOpen) {
+          openIndoorMap();
+          return;
         }
       });
 
@@ -222,36 +230,51 @@
       function createIndoorMapContainer() {
         const container = document.createElement("div");
         container.id = "indoormap-container";
-
         const closeBtn = document.createElement("span");
         closeBtn.id = "indoormap-close";
         closeBtn.innerHTML = "&times;";
-
         const netjsonDiv = document.createElement("div");
         netjsonDiv.id = "netjson-indoormap";
-
         container.appendChild(closeBtn);
         container.appendChild(netjsonDiv);
-
         return container;
+      }
+
+      function cleanupIndoorMap(container, indoorMap) {
+        if (indoorMap && indoorMap._popstateHandler) {
+          window.removeEventListener("popstate", indoorMap._popstateHandler);
+          indoorMap._popstateHandler = null;
+        }
+        if (indoorMap?.echarts?.dispose) {
+          indoorMap.echarts.dispose();
+        }
+        if (indoorMap?.leaflet?.remove) {
+          indoorMap.leaflet.remove();
+        }
+        if (container) {
+          container.remove();
+        }
+        if (!indoorMap || window._indoorMap === indoorMap) {
+          window._indoorMap = null;
+        }
       }
 
       function closeButtonHandler(container, indoorMap, onClose) {
         const closeBtn = container.querySelector("#indoormap-close");
         closeBtn.addEventListener("click", () => {
-          const id = indoorMap.config.bookmarkableActions.id;
-          indoorMap.utils.removeUrlFragment(id);
+          cleanupIndoorMap(container, indoorMap);
+          indoorMap.utils.removeUrlFragment("indoorMap", null, false, false);
           if (typeof onClose === "function") {
             onClose();
           }
-          container.remove();
-          window._indoorMap = null;
         });
       }
+
       function openIndoorMap() {
         if (window._indoorMap) {
           return window._indoorMap;
         }
+
         let indoorMapContainer = document.getElementById("indoormap-container");
         if (!indoorMapContainer) {
           indoorMapContainer = createIndoorMapContainer();
@@ -308,13 +331,16 @@
               const imageUrl = "../assets/images/floorplan.png";
               img.src = imageUrl;
               await img.decode();
-
+              if (
+                window._indoorMap !== this ||
+                !document.getElementById("indoormap-container")
+              ) {
+                return;
+              }
               const aspectRatio = img.width / img.height;
               const h = 700;
               const w = h * aspectRatio;
-
               const zoom = map.getMaxZoom() - 1;
-
               const anchorLatLng = L.latLng(0, 0);
               const anchorPoint = map.project(anchorLatLng, zoom);
               const topLeft = L.point(
@@ -325,7 +351,6 @@
                 anchorPoint.x + w / 2,
                 anchorPoint.y + h / 2,
               );
-
               const mapOptions = this.echarts.getOption();
               // Refer netjsonmap-indoormap.html for full explanation of this workaround
               // Build an id -> node map so we don't assume the echarts series
@@ -361,7 +386,6 @@
                   sourceNodeProjected,
                   zoom,
                 );
-
                 const target = data.coords[1];
                 const targetPx = Number(target[0]);
                 const targetPy = -Number(target[1]);
@@ -373,7 +397,6 @@
                   targetNodeProjected,
                   zoom,
                 );
-
                 data.coords[0] = [sourceNodeLatLng.lng, sourceNodeLatLng.lat];
                 data.coords[1] = [targetNodeLatLng.lng, targetNodeLatLng.lat];
               });
@@ -386,6 +409,21 @@
               map.fitBounds(bnds);
               map.setMaxBounds(bnds);
               map.invalidateSize();
+
+              // Add the indoor fragment only after the map is initialized.
+              // Use pushState so the overlay-open state becomes its own
+              // back/forward history entry.
+              const fragments = this.utils.parseUrlFragments();
+              if (fragments && !fragments.indoorMap) {
+                const indoorParams = new URLSearchParams();
+                indoorParams.set("id", "indoorMap");
+                fragments.indoorMap = indoorParams;
+                this.utils.updateUrlFragments(
+                  fragments,
+                  {id: "indoorMap"},
+                  false,
+                );
+              }
             },
             onClickElement: disableDefaultSidebar,
           },
