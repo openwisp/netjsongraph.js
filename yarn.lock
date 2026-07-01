@@ -7198,14 +7198,14 @@ select-hose@^2.0.0:
   integrity sha512-mEugaLK+YfkijB4fx0e6kImuJdCIt2LxCRcbEYPqRGCs4F2ogyfZU5IAZRdjCP8JPq2AtdNoC/Dux63d9Kiryg==
 
 selenium-webdriver@^4.29.0:
-  version "4.44.0"
-  resolved "https://registry.yarnpkg.com/selenium-webdriver/-/selenium-webdriver-4.44.0.tgz#c6499102272ac132eef44b984096ace6620aa710"
-  integrity sha512-7RbYoKK0zET+KMVak11UDCtKvNulOU6gFZp8HI5GN9K8+BhqrliIJU/FP6QADrvRAXFMr3wHxfE3JHOcAxO3GQ==
+  version "4.45.0"
+  resolved "https://registry.yarnpkg.com/selenium-webdriver/-/selenium-webdriver-4.45.0.tgz#30789762c2c38529cf4912f5d8e7ab01324a9265"
+  integrity sha512-Cb2nqvJiwXVOtRTCYHX9D1FJR5+Ls7aL3Nev0t6n4CpXsQ//YGiiUmSCbvTDDeLtbV85SZ46qmLab4SIYKXWRw==
   dependencies:
     "@bazel/runfiles" "^6.5.0"
     jszip "^3.10.1"
-    tmp "^0.2.5"
-    ws "^8.20.1"
+    tmp "^0.2.7"
+    ws "^8.21.0"
 
 selfsigned@^5.5.0:
   version "5.5.0"
@@ -7819,7 +7819,7 @@ tldts@^7.0.5:
   dependencies:
     tldts-core "^7.0.28"
 
-tmp@^0.2.5:
+tmp@^0.2.7:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/tmp/-/tmp-0.2.7.tgz#26f4db11d1601ce8012dcb8a798ece1c06a99059"
   integrity sha512-e0votIpp4Uo2AJYSzVHV6xCcawuiez3DzqDAbrTc3YxBkplN6e+dM13ZeIcZnDg/QpSuU2zfZ3rzwY8ukEnaXw==
@@ -8438,7 +8438,7 @@ write-file-atomic@^5.0.1:
     imurmurhash "^0.1.4"
     signal-exit "^4.0.1"
 
-ws@^8.18.0, ws@^8.19.0, ws@^8.20.1:
+ws@^8.18.0, ws@^8.19.0, ws@^8.21.0:
   version "8.21.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.21.0.tgz#012e413fc07429945121b0c153158c4343086951"
   integrity sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==
