@@ -1410,6 +1410,139 @@ describe("graph label visibility and fallbacks", () => {
   });
 });
 
+describe("highlight emphasis option generation", () => {
+  test("generateGraphOption includes node and link halo emphasis styles", () => {
+    const render = new NetJSONGraphRender();
+    const mockSelf = {
+      config: {
+        graphConfig: {
+          series: {
+            layout: "force",
+            label: {},
+            emphasis: {
+              focus: "none",
+              itemStyle: {
+                shadowBlur: 18,
+                shadowColor: "rgba(128, 128, 128, 0.5)",
+              },
+              lineStyle: {
+                width: 9,
+                shadowBlur: 14,
+                shadowColor: "rgba(128, 128, 128, 0.5)",
+              },
+            },
+          },
+          baseOptions: {},
+        },
+        nodeCategories: [],
+        linkCategories: [],
+        showGraphLabelsAtZoom: null,
+      },
+      echarts: {getOption: jest.fn(() => ({series: []}))},
+      utils: {
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        getNodeStyle: jest.fn(() => ({
+          nodeStyleConfig: {},
+          nodeSizeConfig: 15,
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 15},
+        })),
+        getLinkStyle: jest.fn(() => ({
+          linkStyleConfig: {},
+          linkEmphasisConfig: {linkStyle: {}},
+        })),
+      },
+    };
+
+    const option = render.generateGraphOption(
+      {
+        nodes: [{id: "a"}, {id: "b"}],
+        links: [{source: "a", target: "b"}],
+      },
+      mockSelf,
+    );
+
+    expect(option.series[0].nodes[0].emphasis.itemStyle).toMatchObject({
+      shadowBlur: 18,
+      shadowColor: "rgba(128, 128, 128, 0.5)",
+    });
+    expect(option.series[0].links[0].emphasis.lineStyle).toMatchObject({
+      width: 9,
+      shadowBlur: 14,
+      shadowColor: "rgba(128, 128, 128, 0.5)",
+    });
+  });
+
+  test("generateMapOption includes node and link halo emphasis styles", () => {
+    const render = new NetJSONGraphRender();
+    const mockSelf = {
+      config: {
+        mapOptions: {
+          nodeConfig: {
+            label: {},
+            nodeStyle: {},
+            nodeSize: 17,
+            emphasis: {
+              scale: 1,
+              itemStyle: {
+                shadowBlur: 18,
+                shadowColor: "rgba(128, 128, 128, 0.5)",
+              },
+            },
+          },
+          linkConfig: {
+            emphasis: {
+              focus: "none",
+              lineStyle: {
+                width: 8,
+                shadowBlur: 14,
+                shadowColor: "rgba(128, 128, 128, 0.5)",
+              },
+            },
+          },
+          baseOptions: {},
+          clusterConfig: {},
+        },
+        mapTileConfig: [{}],
+        nodeCategories: [],
+        linkCategories: [],
+        showMapLabelsAtZoom: 13,
+      },
+      utils: {
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        getNodeStyle: jest.fn(() => ({
+          nodeSizeConfig: 17,
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 17},
+        })),
+        getLinkStyle: jest.fn(() => ({
+          linkStyleConfig: {},
+          linkEmphasisConfig: {linkStyle: {}},
+        })),
+      },
+    };
+
+    const option = render.generateMapOption(
+      {
+        nodes: [
+          {id: "a", properties: {location: {lng: 1, lat: 2}}},
+          {id: "b", properties: {location: {lng: 3, lat: 4}}},
+        ],
+        links: [{source: "a", target: "b"}],
+      },
+      mockSelf,
+    );
+
+    expect(option.series[0].data[0].emphasis.itemStyle).toMatchObject({
+      shadowBlur: 18,
+      shadowColor: "rgba(128, 128, 128, 0.5)",
+    });
+    expect(option.series[1].data[0].emphasis.lineStyle).toMatchObject({
+      width: 8,
+      shadowBlur: 14,
+      shadowColor: "rgba(128, 128, 128, 0.5)",
+    });
+  });
+});
+
 describe("map series ids and name fallbacks", () => {
   test("generateMapOption assigns stable ids and name fallback", () => {
     const render = new NetJSONGraphRender();

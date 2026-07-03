@@ -1141,6 +1141,364 @@ class NetJSONGraphUtil {
     return {linkStyleConfig, linkEmphasisConfig};
   }
 
+  getHighlightState() {
+    if (!this.activeHighlightedElements) {
+      this.activeHighlightedElements = [];
+    }
+    return this.activeHighlightedElements;
+  }
+
+  getLinkId(link) {
+    if (!link) {
+      return null;
+    }
+    return `${link.source}~${link.target}`;
+  }
+
+  getHighlightEvent(options = {}) {
+    return options.event && (options.event.event || options.event);
+  }
+
+  isMultiSelectHighlight(options = {}) {
+    const event = this.utils
+      ? this.utils.getHighlightEvent(options)
+      : this.getHighlightEvent(options);
+    return Boolean(options.multiSelect || options.append || (event && event.ctrlKey));
+  }
+
+  getHighlightKey(action) {
+    const dataType = action.dataType ? `:${action.dataType}` : "";
+    return `${action.seriesIndex}:${action.dataIndex}${dataType}`;
+  }
+
+  dispatchHighlightAction(action, type) {
+    const payload = {
+      type,
+      seriesIndex: action.seriesIndex,
+      dataIndex: action.dataIndex,
+    };
+    if (action.dataType) {
+      payload.dataType = action.dataType;
+    }
+    this.echarts.dispatchAction(payload);
+  }
+
+  addActiveHighlight(action) {
+    const state = this.utils
+      ? this.utils.getHighlightState.call(this)
+      : this.getHighlightState();
+    const key = this.utils
+      ? this.utils.getHighlightKey(action)
+      : this.getHighlightKey(action);
+    if (!state.some((item) => item.key === key)) {
+      state.push({...action, key});
+    }
+  }
+
+  clearHighlight() {
+    if (!this.echarts || typeof this.echarts.dispatchAction !== "function") {
+      return;
+    }
+    const state = this.utils
+      ? this.utils.getHighlightState.call(this)
+      : this.getHighlightState();
+    state.forEach((action) => {
+      const dispatch = this.utils
+        ? this.utils.dispatchHighlightAction.bind(this)
+        : this.dispatchHighlightAction.bind(this);
+      dispatch(action, "downplay");
+    });
+    if (this.hoverHighlightedElement) {
+      const dispatch = this.utils
+        ? this.utils.dispatchHighlightAction.bind(this)
+        : this.dispatchHighlightAction.bind(this);
+      dispatch(this.hoverHighlightedElement, "downplay");
+      this.hoverHighlightedElement = null;
+    }
+    state.length = 0;
+    this.echarts.dispatchAction({type: "hideTip"});
+  }
+
+  getHighlightSeriesOptions() {
+    if (!this.echarts || typeof this.echarts.getOption !== "function") {
+      return [];
+    }
+    const option = this.echarts.getOption();
+    return option && Array.isArray(option.series) ? option.series : [];
+  }
+
+  resolveNodeHighlightActions(nodeData, options = {}) {
+    if (!nodeData || nodeData.id == null) {
+      return [];
+    }
+    if (options.seriesIndex != null && options.dataIndex != null) {
+      return [
+        {
+          seriesIndex: options.seriesIndex,
+          dataIndex: options.dataIndex,
+          dataType: options.dataType,
+        },
+      ];
+    }
+    const series = this.utils
+      ? this.utils.getHighlightSeriesOptions.call(this)
+      : this.getHighlightSeriesOptions();
+    const actions = [];
+    series.forEach((serie, seriesIndex) => {
+      if (!serie) {
+        return;
+      }
+      if (serie.type === "graph") {
+        const nodes = serie.nodes || serie.data || [];
+        const dataIndex = nodes.findIndex((item) => item && item.id === nodeData.id);
+        if (dataIndex !== -1) {
+          actions.push({seriesIndex, dataIndex, dataType: "node"});
+        }
+      } else if (serie.type === "scatter" || serie.type === "effectScatter") {
+        const data = serie.data || [];
+        const dataIndex = data.findIndex(
+          (item) => item && item.node && item.node.id === nodeData.id,
+        );
+        if (dataIndex !== -1) {
+          actions.push({seriesIndex, dataIndex});
+        }
+      }
+    });
+    return actions;
+  }
+
+  resolveLinkHighlightActions(linkData, options = {}) {
+    if (!linkData) {
+      return [];
+    }
+    if (options.seriesIndex != null && options.dataIndex != null) {
+      const action = {
+        seriesIndex: options.seriesIndex,
+        dataIndex: options.dataIndex,
+        dataType: options.dataType,
+      };
+      if (options.showTip === false) {
+        action.showTip = false;
+      }
+      return [
+        action,
+      ];
+    }
+    const linkId = this.utils
+      ? this.utils.getLinkId(linkData)
+      : this.getLinkId(linkData);
+    const series = this.utils
+      ? this.utils.getHighlightSeriesOptions.call(this)
+      : this.getHighlightSeriesOptions();
+    const actions = [];
+    series.forEach((serie, seriesIndex) => {
+      if (!serie) {
+        return;
+      }
+      if (serie.type === "graph") {
+        const links = serie.links || serie.edges || [];
+        const dataIndex = links.findIndex(
+          (item) =>
+            item &&
+            (this.utils ? this.utils.getLinkId(item) : this.getLinkId(item)) === linkId,
+        );
+        if (dataIndex !== -1) {
+          actions.push({seriesIndex, dataIndex, dataType: "edge"});
+        }
+      } else if (serie.type === "lines") {
+        const data = serie.data || [];
+        const dataIndex = data.findIndex(
+          (item) =>
+            item &&
+            item.link &&
+            (this.utils ? this.utils.getLinkId(item.link) : this.getLinkId(item.link)) ===
+              linkId,
+        );
+        if (dataIndex !== -1) {
+          actions.push({seriesIndex, dataIndex, showTip: false});
+        }
+      }
+    });
+    return actions;
+  }
+
+  dispatchHighlightActions(actions, options = {}) {
+    if (!this.echarts || typeof this.echarts.dispatchAction !== "function") {
+      return;
+    }
+    const multiSelect = this.utils
+      ? this.utils.isMultiSelectHighlight.call(this, options)
+      : this.isMultiSelectHighlight(options);
+    if (!multiSelect) {
+      const clear = this.utils
+        ? this.utils.clearHighlight.bind(this)
+        : this.clearHighlight.bind(this);
+      clear();
+    }
+    actions.forEach((action) => {
+      const dispatch = this.utils
+        ? this.utils.dispatchHighlightAction.bind(this)
+        : this.dispatchHighlightAction.bind(this);
+      dispatch(action, "highlight");
+      if (options.openTooltip && action.showTip !== false) {
+        this.echarts.dispatchAction({
+          type: "showTip",
+          seriesIndex: action.seriesIndex,
+          dataIndex: action.dataIndex,
+          ...(action.dataType ? {dataType: action.dataType} : {}),
+        });
+      }
+      const addActive = this.utils
+        ? this.utils.addActiveHighlight.bind(this)
+        : this.addActiveHighlight.bind(this);
+      addActive(action);
+    });
+  }
+
+  highlightNode(nodeData, options = {}) {
+    if (!nodeData || nodeData.id == null) {
+      return;
+    }
+    const resolveNode = this.utils
+      ? this.utils.resolveNodeHighlightActions.bind(this)
+      : this.resolveNodeHighlightActions.bind(this);
+    const actions = resolveNode(nodeData, options);
+    const dispatch = this.utils
+      ? this.utils.dispatchHighlightActions.bind(this)
+      : this.dispatchHighlightActions.bind(this);
+    dispatch(actions, options);
+    if (options.showInfo && this.config && typeof this.config.onClickElement === "function") {
+      this.config.onClickElement.call(this, "node", nodeData);
+    }
+  }
+
+  highlightLink(linkData, options = {}) {
+    const resolveLink = this.utils
+      ? this.utils.resolveLinkHighlightActions.bind(this)
+      : this.resolveLinkHighlightActions.bind(this);
+    const dispatch = this.utils
+      ? this.utils.dispatchHighlightActions.bind(this)
+      : this.dispatchHighlightActions.bind(this);
+    dispatch(resolveLink(linkData, options), options);
+    if (options.showInfo && this.config && typeof this.config.onClickElement === "function") {
+      this.config.onClickElement.call(this, "link", linkData);
+    }
+  }
+
+  isHighlightActive(action) {
+    const state = this.utils
+      ? this.utils.getHighlightState.call(this)
+      : this.getHighlightState();
+    const key = this.utils
+      ? this.utils.getHighlightKey(action)
+      : this.getHighlightKey(action);
+    return state.some((item) => item.key === key);
+  }
+
+  getHighlightActionFromParams(params) {
+    if (!params || params.seriesIndex == null || params.dataIndex == null) {
+      return null;
+    }
+    if (params.componentSubType === "graph") {
+      return {
+        seriesIndex: params.seriesIndex,
+        dataIndex: params.dataIndex,
+        dataType: params.dataType === "edge" ? "edge" : "node",
+      };
+    }
+    if (params.componentSubType === "lines") {
+      return {
+        seriesIndex: params.seriesIndex,
+        dataIndex: params.dataIndex,
+      };
+    }
+    if (
+      (params.componentSubType === "scatter" ||
+        params.componentSubType === "effectScatter") &&
+      params.data &&
+      !params.data.cluster
+    ) {
+      return {
+        seriesIndex: params.seriesIndex,
+        dataIndex: params.dataIndex,
+      };
+    }
+    return null;
+  }
+
+  highlightHoveredElement(params) {
+    if (!this.echarts || typeof this.echarts.dispatchAction !== "function") {
+      return;
+    }
+    const getAction = this.utils
+      ? this.utils.getHighlightActionFromParams.bind(this)
+      : this.getHighlightActionFromParams.bind(this);
+    const action = getAction(params);
+    if (!action) {
+      return;
+    }
+    const dispatch = this.utils
+      ? this.utils.dispatchHighlightAction.bind(this)
+      : this.dispatchHighlightAction.bind(this);
+    dispatch(action, "highlight");
+    this.hoverHighlightedElement = action;
+  }
+
+  downplayHoveredElement(params) {
+    if (!this.echarts || typeof this.echarts.dispatchAction !== "function") {
+      return;
+    }
+    const getAction = this.utils
+      ? this.utils.getHighlightActionFromParams.bind(this)
+      : this.getHighlightActionFromParams.bind(this);
+    const action = getAction(params) || this.hoverHighlightedElement;
+    if (!action) {
+      return;
+    }
+    const isActive = this.utils
+      ? this.utils.isHighlightActive.call(this, action)
+      : this.isHighlightActive(action);
+    if (!isActive) {
+      const dispatch = this.utils
+        ? this.utils.dispatchHighlightAction.bind(this)
+        : this.dispatchHighlightAction.bind(this);
+      dispatch(action, "downplay");
+    }
+    this.hoverHighlightedElement = null;
+  }
+
+  setupHighlightEventHandlers(self) {
+    if (!self.echarts || typeof self.echarts.on !== "function") {
+      return;
+    }
+    if (self.highlightHandlers) {
+      if (typeof self.echarts.off === "function") {
+        self.echarts.off("mouseover", self.highlightHandlers.mouseover);
+        self.echarts.off("mouseout", self.highlightHandlers.mouseout);
+      }
+      window.removeEventListener("keyup", self.highlightHandlers.keyup);
+    }
+    const mouseover = (params) => {
+      self.utils.highlightHoveredElement.call(self, params);
+    };
+    const mouseout = (params) => {
+      self.utils.downplayHoveredElement.call(self, params);
+    };
+    const keyup = (event) => {
+      if (
+        event.key === "Control" ||
+        event.code === "ControlLeft" ||
+        event.code === "ControlRight"
+      ) {
+        self.utils.clearHighlight.call(self);
+      }
+    };
+    self.echarts.on("mouseover", mouseover);
+    self.echarts.on("mouseout", mouseout);
+    window.addEventListener("keyup", keyup);
+    self.highlightHandlers = {mouseover, mouseout, keyup};
+  }
+
   /**
    * @function
    * @name showLoading

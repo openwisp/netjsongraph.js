@@ -97,28 +97,58 @@ class NetJSONGraphRender {
     );
 
     echartsLayer.setOption(self.utils.deepMergeObj(commonOption, customOption));
-    echartsLayer.on(
-      "click",
-      (params) => {
-        const clickElement = configs.onClickElement.bind(self);
-        self.utils.addActionToUrl(self, params);
-        if (params.componentSubType === "graph") {
-          clickElement(params.dataType === "edge" ? "link" : "node", params.data);
-          return;
+    if (self.echartsClickHandler && typeof echartsLayer.off === "function") {
+      echartsLayer.off("click", self.echartsClickHandler);
+    }
+    self.echartsClickHandler = (params) => {
+      self.utils.addActionToUrl(self, params);
+      if (params.componentSubType === "graph") {
+        if (params.dataType === "edge") {
+          self.utils.highlightLink(params.data, {
+            openTooltip: true,
+            showInfo: true,
+            event: params.event,
+            seriesIndex: params.seriesIndex,
+            dataIndex: params.dataIndex,
+            dataType: "edge",
+          });
+        } else {
+          self.utils.highlightNode(params.data, {
+            openTooltip: true,
+            showInfo: true,
+            event: params.event,
+            seriesIndex: params.seriesIndex,
+            dataIndex: params.dataIndex,
+            dataType: "node",
+          });
         }
-        if (params.componentSubType === "lines") {
-          clickElement("link", params.data.link);
-          return;
+        return;
+      }
+      if (params.componentSubType === "lines") {
+        self.utils.highlightLink(params.data.link, {
+          openTooltip: false,
+          showInfo: true,
+          event: params.event,
+          seriesIndex: params.seriesIndex,
+          dataIndex: params.dataIndex,
+        });
+        return;
+      }
+      if (params.data && !params.data.cluster) {
+        if (configs.mapOptions?.nodePopup?.show) {
+          self.gui.loadNodePopup(params.data.node);
         }
-        if (params.data && !params.data.cluster) {
-          if (configs.mapOptions?.nodePopup?.show) {
-            self.gui.loadNodePopup(params.data.node);
-          }
-          clickElement("node", params.data.node);
-        }
-      },
-      {passive: true},
-    );
+        self.utils.highlightNode(params.data.node, {
+          openTooltip: true,
+          showInfo: true,
+          event: params.event,
+          seriesIndex: params.seriesIndex,
+          dataIndex: params.dataIndex,
+        });
+      }
+    };
+    echartsLayer.on("click", self.echartsClickHandler, {passive: true});
+    self.utils.setupHighlightEventHandlers(self);
 
     return echartsLayer;
   }
@@ -142,11 +172,17 @@ class NetJSONGraphRender {
       const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
+      const seriesEmphasis = (configs.graphConfig.series || {}).emphasis || {};
 
       nodeResult.itemStyle = nodeStyleConfig;
       nodeResult.symbolSize = nodeSizeConfig;
       nodeResult.emphasis = {
-        itemStyle: nodeEmphasisConfig.nodeStyle,
+        ...seriesEmphasis,
+        focus: "none",
+        itemStyle: {
+          ...(seriesEmphasis.itemStyle || {}),
+          ...(nodeEmphasisConfig.nodeStyle || {}),
+        },
         symbolSize: nodeEmphasisConfig.nodeSize,
       };
       let resolvedName = "";
@@ -170,8 +206,16 @@ class NetJSONGraphRender {
         configs,
         "graph",
       );
+      const seriesEmphasis = (configs.graphConfig.series || {}).emphasis || {};
       linkResult.lineStyle = linkStyleConfig;
-      linkResult.emphasis = {lineStyle: linkEmphasisConfig.linkStyle};
+      linkResult.emphasis = {
+        ...seriesEmphasis,
+        focus: "none",
+        lineStyle: {
+          ...(seriesEmphasis.lineStyle || {}),
+          ...(linkEmphasisConfig.linkStyle || {}),
+        },
+      };
       return linkResult;
     });
 
@@ -205,6 +249,10 @@ class NetJSONGraphRender {
           : "";
     }
     baseGraphSeries.label = baseGraphLabel;
+    baseGraphSeries.emphasis = {
+      ...(baseGraphSeries.emphasis || {}),
+      focus: "none",
+    };
     const series = [
       {
         ...baseGraphSeries,
@@ -287,7 +335,12 @@ class NetJSONGraphRender {
             name: nodeName,
             value: [location.lng, location.lat],
             emphasis: {
-              itemStyle: nodeEmphasisConfig.nodeStyle,
+              ...(configs.mapOptions.nodeConfig.emphasis || {}),
+              focus: "none",
+              itemStyle: {
+                ...((configs.mapOptions.nodeConfig.emphasis || {}).itemStyle || {}),
+                ...(nodeEmphasisConfig.nodeStyle || {}),
+              },
               symbolSize: nodeEmphasisConfig.nodeSize,
             },
             node,
@@ -319,7 +372,14 @@ class NetJSONGraphRender {
             ],
           ],
           lineStyle: linkStyleConfig,
-          emphasis: {lineStyle: linkEmphasisConfig.linkStyle},
+          emphasis: {
+            ...(configs.mapOptions.linkConfig.emphasis || {}),
+            focus: "none",
+            lineStyle: {
+              ...((configs.mapOptions.linkConfig.emphasis || {}).lineStyle || {}),
+              ...(linkEmphasisConfig.linkStyle || {}),
+            },
+          },
           link,
         });
       }
@@ -393,7 +453,10 @@ class NetJSONGraphRender {
             17
           );
         },
-        emphasis: configs.mapOptions.nodeConfig.emphasis,
+        emphasis: {
+          ...(configs.mapOptions.nodeConfig.emphasis || {}),
+          focus: "none",
+        },
       },
       Object.assign(configs.mapOptions.linkConfig, {
         id: "map-links",
