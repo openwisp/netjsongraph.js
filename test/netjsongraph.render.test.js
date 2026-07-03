@@ -1188,9 +1188,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
       getZoom: jest.fn(() => 2),
       getMinZoom: jest.fn(() => 1),
       getMaxZoom: jest.fn(() => 18),
-      getBounds: jest.fn(() => ({
-        /* dummy bounds */
-      })),
+      getBounds: jest.fn(() => ({/* dummy bounds */})),
       getPane: jest.fn(() => undefined),
       createPane: jest.fn(() => ({style: {}})),
       setView: jest.fn(),
