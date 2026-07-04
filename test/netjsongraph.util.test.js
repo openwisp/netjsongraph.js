@@ -1123,7 +1123,7 @@ describe("Test updateLabelVisibility utility method", () => {
 });
 
 describe("Test highlight utilities", () => {
-  test("highlightNode highlights the node and connected links with node tooltip", () => {
+  test("highlightNode highlights only the node with node tooltip", () => {
     const util = new NetJSONGraphUtil();
     const node = {id: "node-1"};
     const link = {source: "node-1", target: "node-2"};
@@ -1148,14 +1148,17 @@ describe("Test highlight utilities", () => {
       },
     };
 
-    util.highlightNode.call(mockSelf, node, {openTooltip: true, showInfo: true});
+    util.highlightNode.call(mockSelf, node, {
+      openTooltip: true,
+      showInfo: true,
+    });
 
     expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
       type: "highlight",
       seriesIndex: 0,
       dataIndex: 0,
     });
-    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalledWith({
       type: "highlight",
       seriesIndex: 1,
       dataIndex: 0,
@@ -1171,7 +1174,7 @@ describe("Test highlight utilities", () => {
       dataIndex: 0,
     });
     expect(mockSelf.config.onClickElement).toHaveBeenCalledWith("node", node);
-    expect(mockSelf.activeHighlightedElements).toHaveLength(2);
+    expect(mockSelf.activeHighlightedElements).toHaveLength(1);
   });
 
   test("highlightLink keeps existing highlight when Ctrl is pressed", () => {
@@ -1196,7 +1199,9 @@ describe("Test highlight utilities", () => {
     };
 
     util.highlightLink.call(mockSelf, firstLink);
-    util.highlightLink.call(mockSelf, secondLink, {event: {event: {ctrlKey: true}}});
+    util.highlightLink.call(mockSelf, secondLink, {
+      event: {event: {ctrlKey: true}},
+    });
 
     expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
       type: "highlight",
@@ -1239,7 +1244,9 @@ describe("Test highlight utilities", () => {
       dataIndex: 1,
       dataType: "node",
     });
-    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({type: "hideTip"});
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "hideTip",
+    });
     expect(mockSelf.activeHighlightedElements).toEqual([]);
   });
 });

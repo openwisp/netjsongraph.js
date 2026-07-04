@@ -46,8 +46,10 @@ describe("NetJSONGraphCore Specification", () => {
       emphasis: {
         focus: "none",
         itemStyle: {
-          shadowBlur: 18,
-          shadowColor: "rgba(128, 128, 128, 0.5)",
+          borderColor: "#ffffff",
+          borderWidth: 2,
+          shadowBlur: 24,
+          shadowColor: "rgba(0, 0, 0, 0.75)",
         },
         lineStyle: {
           color: "#3acc38",
@@ -145,8 +147,10 @@ describe("NetJSONGraphCore Specification", () => {
       emphasis: {
         scale: 1,
         itemStyle: {
-          shadowBlur: 18,
-          shadowColor: "rgba(128, 128, 128, 0.5)",
+          borderColor: "#ffffff",
+          borderWidth: 2,
+          shadowBlur: 24,
+          shadowColor: "rgba(0, 0, 0, 0.75)",
         },
       },
       nodeStyle: {

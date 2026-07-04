@@ -1280,9 +1280,7 @@ class NetJSONGraphUtil {
       if (options.showTip === false) {
         action.showTip = false;
       }
-      return [
-        action,
-      ];
+      return [action];
     }
     const linkId = this.utils
       ? this.utils.getLinkId(linkData)
@@ -1311,8 +1309,9 @@ class NetJSONGraphUtil {
           (item) =>
             item &&
             item.link &&
-            (this.utils ? this.utils.getLinkId(item.link) : this.getLinkId(item.link)) ===
-              linkId,
+            (this.utils
+              ? this.utils.getLinkId(item.link)
+              : this.getLinkId(item.link)) === linkId,
         );
         if (dataIndex !== -1) {
           actions.push({seriesIndex, dataIndex, showTip: false});
@@ -1367,7 +1366,11 @@ class NetJSONGraphUtil {
       ? this.utils.dispatchHighlightActions.bind(this)
       : this.dispatchHighlightActions.bind(this);
     dispatch(actions, options);
-    if (options.showInfo && this.config && typeof this.config.onClickElement === "function") {
+    if (
+      options.showInfo &&
+      this.config &&
+      typeof this.config.onClickElement === "function"
+    ) {
       this.config.onClickElement.call(this, "node", nodeData);
     }
   }
@@ -1380,7 +1383,11 @@ class NetJSONGraphUtil {
       ? this.utils.dispatchHighlightActions.bind(this)
       : this.dispatchHighlightActions.bind(this);
     dispatch(resolveLink(linkData, options), options);
-    if (options.showInfo && this.config && typeof this.config.onClickElement === "function") {
+    if (
+      options.showInfo &&
+      this.config &&
+      typeof this.config.onClickElement === "function"
+    ) {
       this.config.onClickElement.call(this, "link", linkData);
     }
   }
