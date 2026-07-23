@@ -45,9 +45,18 @@ describe("NetJSONGraphCore Specification", () => {
       legendHoverLink: true,
       emphasis: {
         focus: "none",
+        itemStyle: {
+          borderColor: "#ffffff",
+          borderWidth: 2,
+          shadowBlur: 24,
+          shadowColor: "rgba(0, 0, 0, 0.75)",
+        },
         lineStyle: {
           color: "#3acc38",
           opacity: 1,
+          width: 9,
+          shadowBlur: 14,
+          shadowColor: "rgba(128, 128, 128, 0.5)",
         },
       },
       nodeStyle: {
@@ -137,6 +146,12 @@ describe("NetJSONGraphCore Specification", () => {
       },
       emphasis: {
         scale: 1,
+        itemStyle: {
+          borderColor: "#ffffff",
+          borderWidth: 2,
+          shadowBlur: 24,
+          shadowColor: "rgba(0, 0, 0, 0.75)",
+        },
       },
       nodeStyle: {
         color: "#1566a9",
@@ -153,6 +168,9 @@ describe("NetJSONGraphCore Specification", () => {
         lineStyle: {
           color: "#3acc38",
           opacity: 1,
+          width: 8,
+          shadowBlur: 14,
+          shadowColor: "rgba(128, 128, 128, 0.5)",
         },
       },
     },

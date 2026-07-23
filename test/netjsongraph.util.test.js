@@ -1121,3 +1121,132 @@ describe("Test updateLabelVisibility utility method", () => {
     );
   });
 });
+
+describe("Test highlight utilities", () => {
+  test("highlightNode highlights only the node with node tooltip", () => {
+    const util = new NetJSONGraphUtil();
+    const node = {id: "node-1"};
+    const link = {source: "node-1", target: "node-2"};
+    const mockSelf = {
+      utils: util,
+      data: {nodes: [node, {id: "node-2"}], links: [link]},
+      config: {onClickElement: jest.fn()},
+      echarts: {
+        getOption: jest.fn(() => ({
+          series: [
+            {
+              type: "scatter",
+              data: [{node}, {node: {id: "node-2"}}],
+            },
+            {
+              type: "lines",
+              data: [{link}],
+            },
+          ],
+        })),
+        dispatchAction: jest.fn(),
+      },
+    };
+
+    util.highlightNode.call(mockSelf, node, {
+      openTooltip: true,
+      showInfo: true,
+    });
+
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "highlight",
+      seriesIndex: 0,
+      dataIndex: 0,
+    });
+    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalledWith({
+      type: "highlight",
+      seriesIndex: 1,
+      dataIndex: 0,
+    });
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "showTip",
+      seriesIndex: 0,
+      dataIndex: 0,
+    });
+    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalledWith({
+      type: "showTip",
+      seriesIndex: 1,
+      dataIndex: 0,
+    });
+    expect(mockSelf.config.onClickElement).toHaveBeenCalledWith("node", node);
+    expect(mockSelf.activeHighlightedElements).toHaveLength(1);
+  });
+
+  test("highlightLink keeps existing highlight when Ctrl is pressed", () => {
+    const util = new NetJSONGraphUtil();
+    const firstLink = {source: "a", target: "b"};
+    const secondLink = {source: "b", target: "c"};
+    const mockSelf = {
+      utils: util,
+      data: {nodes: [], links: [firstLink, secondLink]},
+      config: {onClickElement: jest.fn()},
+      echarts: {
+        getOption: jest.fn(() => ({
+          series: [
+            {
+              type: "graph",
+              links: [firstLink, secondLink],
+            },
+          ],
+        })),
+        dispatchAction: jest.fn(),
+      },
+    };
+
+    util.highlightLink.call(mockSelf, firstLink);
+    util.highlightLink.call(mockSelf, secondLink, {
+      event: {event: {ctrlKey: true}},
+    });
+
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "highlight",
+      seriesIndex: 0,
+      dataIndex: 0,
+      dataType: "edge",
+    });
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "highlight",
+      seriesIndex: 0,
+      dataIndex: 1,
+      dataType: "edge",
+    });
+    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalledWith({
+      type: "downplay",
+      seriesIndex: 0,
+      dataIndex: 0,
+      dataType: "edge",
+    });
+    expect(mockSelf.activeHighlightedElements).toHaveLength(2);
+  });
+
+  test("clearHighlight downplays active elements and clears tooltip", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      utils: util,
+      activeHighlightedElements: [
+        {seriesIndex: 0, dataIndex: 1, dataType: "node", key: "0:1:node"},
+      ],
+      echarts: {
+        dispatchAction: jest.fn(),
+      },
+    };
+
+    util.clearHighlight.call(mockSelf);
+
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "downplay",
+      seriesIndex: 0,
+      dataIndex: 1,
+      dataType: "node",
+    });
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "hideTip",
+    });
+    expect(mockSelf.activeHighlightedElements).toEqual([]);
+  });
+});
