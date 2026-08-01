@@ -1070,20 +1070,6 @@ class NetJSONGraphUtil {
           (nodeConf && nodeConf.nodeSize) || {},
           node,
         );
-
-        const emphasisConf = nodeConf && nodeConf.emphasis;
-        if (emphasisConf) {
-          nodeEmphasisConfig = {
-            nodeStyle: this.generateStyle(
-              (emphasisConf && emphasisConf.nodeStyle) || {},
-              node,
-            ),
-            nodeSize: this.generateStyle(
-              (emphasisConf && emphasisConf.nodeSize) || {},
-              node,
-            ),
-          };
-        }
       } else {
         const seriesConf = config.graphConfig && config.graphConfig.series;
         nodeStyleConfig = this.generateStyle(
@@ -1094,21 +1080,6 @@ class NetJSONGraphUtil {
           (seriesConf && seriesConf.nodeSize) || {},
           node,
         );
-
-        const emphasisConf = seriesConf && seriesConf.emphasis;
-        if (emphasisConf) {
-          nodeEmphasisConfig = {
-            nodeStyle: this.generateStyle(
-              (emphasisConf && emphasisConf.itemStyle) || {},
-              node,
-            ),
-
-            nodeSize: this.generateStyle(
-              (emphasisConf && emphasisConf.symbolSize) || nodeSizeConfig || {},
-              node,
-            ),
-          };
-        }
       }
     }
 
@@ -1139,6 +1110,176 @@ class NetJSONGraphUtil {
     }
 
     return {linkStyleConfig, linkEmphasisConfig};
+  }
+
+  getHighlightState() {
+    if (!this.activeHighlightedElements) {
+      this.activeHighlightedElements = [];
+    }
+    return this.activeHighlightedElements;
+  }
+
+  getLinkId(link) {
+    if (!link) {
+      return null;
+    }
+    return `${link.source}~${link.target}`;
+  }
+
+  getHighlightKey(type, data) {
+    const utils = this.utils || this;
+    return type === "node"
+      ? `node:${data.id}`
+      : `link:${utils.getLinkId.call(this, data)}`;
+  }
+
+  dispatchHighlightAction(action, type) {
+    const payload = {
+      type,
+      seriesIndex: action.seriesIndex,
+      dataIndex: action.dataIndex,
+    };
+    if (action.dataType) {
+      payload.dataType = action.dataType;
+    }
+    this.echarts.dispatchAction(payload);
+  }
+
+  clearHighlight() {
+    const utils = this.utils || this;
+    const state = utils.getHighlightState.call(this);
+    state.forEach((action) => {
+      if (this.echarts && typeof this.echarts.dispatchAction === "function") {
+        utils.dispatchHighlightAction.call(this, action.action, "downplay");
+      }
+    });
+    state.length = 0;
+    if (this.echarts && typeof this.echarts.dispatchAction === "function") {
+      this.echarts.dispatchAction({type: "hideTip"});
+    }
+    return state;
+  }
+
+  getHighlightSeriesOptions() {
+    if (!this.echarts || typeof this.echarts.getOption !== "function") {
+      return [];
+    }
+    const option = this.echarts.getOption();
+    return option && Array.isArray(option.series) ? option.series : [];
+  }
+
+  resolveHighlightAction(type, data, options = {}) {
+    if (!data || (type === "node" && data.id == null)) {
+      return null;
+    }
+    if (options.seriesIndex != null && options.dataIndex != null) {
+      return {
+        seriesIndex: options.seriesIndex,
+        dataIndex: options.dataIndex,
+        ...(options.dataType ? {dataType: options.dataType} : {}),
+      };
+    }
+    const utils = this.utils || this;
+    const series = utils.getHighlightSeriesOptions.call(this);
+    for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex += 1) {
+      const serie = series[seriesIndex];
+      if (serie && type === "node" && serie.type === "graph") {
+        const nodes = serie.nodes || serie.data || [];
+        const dataIndex = nodes.findIndex((item) => item && item.id === data.id);
+        if (dataIndex !== -1) {
+          return {seriesIndex, dataIndex, dataType: "node"};
+        }
+      } else if (
+        serie &&
+        type === "node" &&
+        (serie.type === "scatter" || serie.type === "effectScatter")
+      ) {
+        const seriesData = serie.data || [];
+        const dataIndex = seriesData.findIndex(
+          (item) => item && item.node && item.node.id === data.id,
+        );
+        if (dataIndex !== -1) {
+          return {seriesIndex, dataIndex};
+        }
+      }
+      if (serie && type === "link" && serie.type === "graph") {
+        const linkId = utils.getLinkId.call(this, data);
+        const links = serie.links || serie.edges || [];
+        const dataIndex = links.findIndex(
+          (item) => item && utils.getLinkId.call(this, item) === linkId,
+        );
+        if (dataIndex !== -1) {
+          return {seriesIndex, dataIndex, dataType: "edge"};
+        }
+      } else if (serie && type === "link" && serie.type === "lines") {
+        const linkId = utils.getLinkId.call(this, data);
+        const seriesData = serie.data || [];
+        const dataIndex = seriesData.findIndex(
+          (item) =>
+            item && item.link && utils.getLinkId.call(this, item.link) === linkId,
+        );
+        if (dataIndex !== -1) {
+          return {seriesIndex, dataIndex};
+        }
+      }
+    }
+    return null;
+  }
+
+  highlightElement(type, data, options = {}) {
+    if (!data || (type === "node" && data.id == null)) {
+      return this.activeHighlightedElements || [];
+    }
+    const utils = this.utils || this;
+    const action = utils.resolveHighlightAction.call(this, type, data, options);
+    const state = utils.getHighlightState.call(this);
+    if (!action) {
+      return state;
+    }
+    const key = utils.getHighlightKey.call(this, type, data);
+    const activeIndex = state.findIndex((item) => item.key === key);
+    if (options.toggle && activeIndex !== -1) {
+      if (this.echarts && typeof this.echarts.dispatchAction === "function") {
+        utils.dispatchHighlightAction.call(this, state[activeIndex].action, "downplay");
+      }
+      state.splice(activeIndex, 1);
+    } else {
+      if (!options.append) {
+        utils.clearHighlight.call(this);
+      }
+      if (this.echarts && typeof this.echarts.dispatchAction === "function") {
+        utils.dispatchHighlightAction.call(this, action, "highlight");
+        if (options.openTooltip) {
+          this.echarts.dispatchAction({
+            type: "showTip",
+            seriesIndex: action.seriesIndex,
+            dataIndex: action.dataIndex,
+            ...(action.dataType ? {dataType: action.dataType} : {}),
+          });
+        }
+      }
+      if (activeIndex === -1) {
+        state.push({key, type, data, action});
+      }
+    }
+    if (
+      options.showInfo &&
+      this.config &&
+      typeof this.config.onClickElement === "function"
+    ) {
+      this.config.onClickElement.call(this, type, data);
+    }
+    return state;
+  }
+
+  highlightNode(nodeData, options = {}) {
+    const utils = this.utils || this;
+    return utils.highlightElement.call(this, "node", nodeData, options);
+  }
+
+  highlightLink(linkData, options = {}) {
+    const utils = this.utils || this;
+    return utils.highlightElement.call(this, "link", linkData, options);
   }
 
   /**

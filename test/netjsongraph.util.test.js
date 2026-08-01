@@ -1121,3 +1121,191 @@ describe("Test updateLabelVisibility utility method", () => {
     );
   });
 });
+
+describe("Test highlight utilities", () => {
+  test("highlightNode stores the highlighted node by its logical identity", () => {
+    const util = new NetJSONGraphUtil();
+    const node = {id: "node-1"};
+    const link = {source: "node-1", target: "node-2"};
+    const mockSelf = {
+      utils: util,
+      data: {nodes: [node, {id: "node-2"}], links: [link]},
+      config: {onClickElement: jest.fn()},
+      echarts: {
+        getOption: jest.fn(() => ({
+          series: [
+            {
+              type: "scatter",
+              data: [{node}, {node: {id: "node-2"}}],
+            },
+            {
+              type: "lines",
+              data: [{link}],
+            },
+          ],
+        })),
+        dispatchAction: jest.fn(),
+      },
+    };
+
+    util.highlightNode.call(mockSelf, node, {
+      openTooltip: true,
+      showInfo: true,
+    });
+
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "highlight",
+      seriesIndex: 0,
+      dataIndex: 0,
+    });
+    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalledWith({
+      type: "highlight",
+      seriesIndex: 1,
+      dataIndex: 0,
+    });
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "showTip",
+      seriesIndex: 0,
+      dataIndex: 0,
+    });
+    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalledWith({
+      type: "showTip",
+      seriesIndex: 1,
+      dataIndex: 0,
+    });
+    expect(mockSelf.config.onClickElement).toHaveBeenCalledWith("node", node);
+    expect(mockSelf.activeHighlightedElements).toEqual([
+      {
+        key: "node:node-1",
+        type: "node",
+        data: node,
+        action: {seriesIndex: 0, dataIndex: 0},
+      },
+    ]);
+  });
+
+  test("highlightLink toggles selections with Ctrl or Meta", () => {
+    const util = new NetJSONGraphUtil();
+    const firstLink = {source: "a", target: "b"};
+    const secondLink = {source: "b", target: "c"};
+    const mockSelf = {
+      utils: util,
+      data: {nodes: [], links: [firstLink, secondLink]},
+      config: {onClickElement: jest.fn()},
+      echarts: {
+        getOption: jest.fn(() => ({
+          series: [
+            {
+              type: "graph",
+              links: [firstLink, secondLink],
+            },
+          ],
+        })),
+        dispatchAction: jest.fn(),
+      },
+    };
+
+    util.highlightLink.call(mockSelf, firstLink, {append: true, toggle: true});
+    util.highlightLink.call(mockSelf, secondLink, {append: true, toggle: true});
+    util.highlightLink.call(mockSelf, firstLink, {append: true, toggle: true});
+
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "highlight",
+      seriesIndex: 0,
+      dataIndex: 0,
+      dataType: "edge",
+    });
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "highlight",
+      seriesIndex: 0,
+      dataIndex: 1,
+      dataType: "edge",
+    });
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "downplay",
+      seriesIndex: 0,
+      dataIndex: 0,
+      dataType: "edge",
+    });
+    expect(mockSelf.activeHighlightedElements).toEqual([
+      {
+        key: "link:b~c",
+        type: "link",
+        data: secondLink,
+        action: {seriesIndex: 0, dataIndex: 1, dataType: "edge"},
+      },
+    ]);
+  });
+
+  test("highlightLink preserves selection when called without link data", () => {
+    const util = new NetJSONGraphUtil();
+    const activeHighlight = {
+      key: "node:node-1",
+      type: "node",
+      data: {id: "node-1"},
+      action: {seriesIndex: 0, dataIndex: 0},
+    };
+    const mockSelf = {
+      utils: util,
+      activeHighlightedElements: [activeHighlight],
+      config: {onClickElement: jest.fn()},
+      echarts: {dispatchAction: jest.fn()},
+    };
+    util.highlightLink.call(mockSelf, undefined, {showInfo: true});
+    expect(mockSelf.activeHighlightedElements).toEqual([activeHighlight]);
+    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalled();
+    expect(mockSelf.config.onClickElement).not.toHaveBeenCalled();
+  });
+
+  test("highlightLink opens a tooltip for a map link", () => {
+    const util = new NetJSONGraphUtil();
+    const link = {source: "a", target: "b"};
+    const mockSelf = {
+      utils: util,
+      config: {onClickElement: jest.fn()},
+      echarts: {
+        getOption: jest.fn(() => ({
+          series: [{id: "map-links", type: "lines", data: [{link}]}],
+        })),
+        dispatchAction: jest.fn(),
+      },
+    };
+    util.highlightLink.call(mockSelf, link, {openTooltip: true});
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "showTip",
+      seriesIndex: 0,
+      dataIndex: 0,
+    });
+  });
+
+  test("clearHighlight downplays active elements and clears tooltip", () => {
+    const util = new NetJSONGraphUtil();
+    const mockSelf = {
+      utils: util,
+      activeHighlightedElements: [
+        {
+          key: "node:node-1",
+          type: "node",
+          data: {id: "node-1"},
+          action: {seriesIndex: 0, dataIndex: 1, dataType: "node"},
+        },
+      ],
+      echarts: {
+        dispatchAction: jest.fn(),
+      },
+    };
+
+    util.clearHighlight.call(mockSelf);
+
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "downplay",
+      seriesIndex: 0,
+      dataIndex: 1,
+      dataType: "node",
+    });
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "hideTip",
+    });
+    expect(mockSelf.activeHighlightedElements).toEqual([]);
+  });
+});

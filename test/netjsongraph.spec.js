@@ -2,6 +2,9 @@ import NetJSONGraphCore from "../src/js/netjsongraph.core";
 
 describe("NetJSONGraphCore Specification", () => {
   const NetJSONGraphCoreOption = {
+    stateAnimation: {
+      duration: 150,
+    },
     aria: {
       show: true,
       description:
@@ -42,12 +45,19 @@ describe("NetJSONGraphCore Specification", () => {
       },
       roam: true,
       draggable: true,
+      cursor: "pointer",
       legendHoverLink: true,
       emphasis: {
         focus: "none",
+        scale: false,
+        itemStyle: {
+          borderWidth: 8,
+          borderOpacity: 0.5,
+        },
         lineStyle: {
           color: "#3acc38",
           opacity: 1,
+          width: 7,
         },
       },
       nodeStyle: {
@@ -136,16 +146,22 @@ describe("NetJSONGraphCore Specification", () => {
         borderRadius: 5,
       },
       emphasis: {
-        scale: 1,
+        focus: "none",
+        scale: false,
+        itemStyle: {
+          borderWidth: 8,
+          borderOpacity: 0.5,
+        },
       },
+      cursor: "pointer",
       nodeStyle: {
         color: "#1566a9",
       },
-      nodeSize: "17",
+      nodeSize: "16",
     },
     linkConfig: {
       linkStyle: {
-        width: 5,
+        width: 6,
         color: "#1ba619",
       },
       emphasis: {
@@ -153,8 +169,10 @@ describe("NetJSONGraphCore Specification", () => {
         lineStyle: {
           color: "#3acc38",
           opacity: 1,
+          width: 7,
         },
       },
+      cursor: "pointer",
     },
     clusterConfig: {
       symbolSize: 30,

@@ -154,6 +154,7 @@ class NetJSONGraph {
           const canvasContainer = this.echarts
             .getZr()
             .painter.getViewportRoot().parentNode;
+          this.utils.clearHighlight.call(this);
           this.echarts.clear();
           this.utils.graphRender(this.data, this);
           canvasContainer.style.background =
@@ -165,6 +166,7 @@ class NetJSONGraph {
           // Hide zoom control buttons in top right corner
           document.querySelector(".leaflet-control-zoom").style.display = "none";
         } else {
+          this.utils.clearHighlight.call(this);
           this.echarts.clear();
           this.config.render = this.utils.mapRender;
           this.utils.mapRender(this.data, this);

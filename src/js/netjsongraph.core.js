@@ -27,6 +27,7 @@ class NetJSONGraphCore {
     // if explicitly set it to somthing like L.CRS.Simple.
     this.config.crs = NetJSONGraphDefaultConfig.crs;
     this.JSONParam = this.utils.isArray(JSONParam) ? JSONParam : [JSONParam];
+    this.activeHighlightedElements = [];
   }
 
   /**
@@ -212,6 +213,11 @@ class NetJSONGraphCore {
     if (typeof self.utils.moveNodeInRealTime === "function") {
       self.utils.moveNodeInRealTime = self.utils.moveNodeInRealTime.bind(self);
     }
+    ["highlightNode", "highlightLink", "clearHighlight"].forEach((method) => {
+      if (typeof self.utils[method] === "function") {
+        self.utils[method] = self.utils[method].bind(self);
+      }
+    });
     return self.utils;
   }
 }

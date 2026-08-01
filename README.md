@@ -634,6 +634,31 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
 ### API reference
 
+### Node and Link Highlighting
+
+Nodes and links use the same emphasis style in graph and map views. Hovering is handled by ECharts and is temporary. Clicking an item keeps it highlighted until another plain click, a Ctrl-click or Meta-click toggle, closing its details, or calling `clearHighlight()`.
+
+The following utilities are available on `netjsongraphInstance.utils`:
+
+```js
+netjsongraphInstance.utils.highlightNode(node, {append: true, toggle: true});
+netjsongraphInstance.utils.highlightLink(link, {openTooltip: true});
+netjsongraphInstance.utils.clearHighlight();
+```
+
+`highlightNode` and `highlightLink` accept `append` to preserve the current selection, `toggle` to remove an already highlighted item, `openTooltip` to display its tooltip, and `showInfo` to invoke `onClickElement`. Active selections are available in `netjsongraphInstance.activeHighlightedElements` as node or link data with stable logical keys. Selection is cleared when the graph data or rendering mode changes.
+
+Configure node hover borders beside the other emphasis styles:
+
+```js
+itemStyle: {
+  borderWidth: 8,
+  borderOpacity: 0.5,
+}
+```
+
+Use `graphConfig.series.emphasis.itemStyle` for the network graph and `mapOptions.nodeConfig.emphasis.itemStyle` for the geographic map. `borderOpacity` is a NetJSONGraph setting used only to derive the border color from a hex or comma-separated RGB node fill. It affects only the border, not the node fill. Named and HSL fill colors require an explicit `borderColor` value. Category `emphasis.nodeStyle` settings take precedence over these defaults.
+
 Looking for configuration details? See the inline docs and type hints in the source code:
 
 - `src/js/netjsongraph.config.js` – default options and configuration structure

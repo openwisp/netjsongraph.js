@@ -113,6 +113,127 @@ describe("Test netjsongraph render", () => {
   });
 });
 
+describe("highlight click handling", () => {
+  test("uses Ctrl and Meta clicks to append and toggle selection", () => {
+    const render = new NetJSONGraphRender();
+    const echarts = {
+      setOption: jest.fn(),
+      on: jest.fn(),
+      off: jest.fn(),
+    };
+    const highlightNode = jest.fn();
+    const highlightLink = jest.fn();
+    const previousClickHandler = jest.fn();
+    const mockSelf = {
+      config: {
+        echartsOption: {},
+        onClickElement: jest.fn(),
+        mapOptions: {},
+      },
+      echarts,
+      utils: {
+        addActionToUrl: jest.fn(),
+        clearHighlight: jest.fn(),
+        deepMergeObj: jest.fn((base, custom) => ({...base, ...custom})),
+        highlightLink,
+        highlightNode,
+      },
+      echartsClickHandler: previousClickHandler,
+    };
+    render.echartsSetOption({}, mockSelf);
+    const node = {id: "node-1"};
+    mockSelf.echartsClickHandler({
+      componentSubType: "graph",
+      data: node,
+      dataType: "node",
+      event: {event: {ctrlKey: true}},
+      seriesIndex: 0,
+      dataIndex: 1,
+    });
+    const link = {source: "node-1", target: "node-2"};
+    mockSelf.echartsClickHandler({
+      componentSubType: "graph",
+      data: link,
+      dataType: "edge",
+      event: {event: {}},
+      seriesIndex: 0,
+      dataIndex: 2,
+    });
+    mockSelf.echartsClickHandler({
+      componentSubType: "lines",
+      data: {link},
+      event: {event: {}},
+      seriesIndex: 1,
+      dataIndex: 3,
+    });
+    mockSelf.echartsClickHandler({
+      componentSubType: "scatter",
+      data: {node},
+      event: {event: {}},
+      seriesIndex: 2,
+      dataIndex: 4,
+    });
+    mockSelf.echartsClickHandler({
+      componentSubType: "graph",
+      data: node,
+      dataType: "node",
+      event: {event: {metaKey: true}},
+      seriesIndex: 0,
+      dataIndex: 1,
+    });
+    expect(highlightNode).toHaveBeenNthCalledWith(1, node, {
+      showInfo: true,
+      append: true,
+      toggle: true,
+      seriesIndex: 0,
+      dataIndex: 1,
+      dataType: "node",
+    });
+    expect(highlightNode).toHaveBeenNthCalledWith(2, node, {
+      showInfo: true,
+      append: false,
+      toggle: false,
+      seriesIndex: 2,
+      dataIndex: 4,
+    });
+    expect(highlightNode).toHaveBeenNthCalledWith(3, node, {
+      showInfo: true,
+      append: true,
+      toggle: true,
+      seriesIndex: 0,
+      dataIndex: 1,
+      dataType: "node",
+    });
+    expect(highlightLink).toHaveBeenNthCalledWith(1, link, {
+      showInfo: true,
+      append: false,
+      toggle: false,
+      seriesIndex: 0,
+      dataIndex: 2,
+      dataType: "edge",
+    });
+    expect(highlightLink).toHaveBeenNthCalledWith(2, link, {
+      showInfo: true,
+      append: false,
+      toggle: false,
+      seriesIndex: 1,
+      dataIndex: 3,
+    });
+    expect(echarts.off).toHaveBeenCalledWith("click", previousClickHandler);
+    expect(echarts.on).toHaveBeenCalledWith("click", mockSelf.echartsClickHandler);
+  });
+
+  test("derives border opacity from hex and RGB fill colors", () => {
+    const render = new NetJSONGraphRender();
+    expect(render.getColorWithOpacity("#abc", 0.25)).toBe("rgba(170, 187, 204, 0.25)");
+    expect(render.getColorWithOpacity("rgb(21, 102, 169)", 0.5)).toBe(
+      "rgba(21, 102, 169, 0.5)",
+    );
+    expect(render.getColorWithOpacity("red", 0.5)).toBe("red");
+    expect(render.getColorWithOpacity(null, 0.5)).toBeNull();
+  });
+});
+
 describe("Test netjsongraph setConfig", () => {
   test("NetJSONGraphCore support dynamic modification of config parameters", () => {
     graph.setConfig({
@@ -932,11 +1053,20 @@ describe("Test clustering", () => {
     });
     // Ensure base data exists to merge into
     map.data = {nodes: [], links: []};
+    map.activeHighlightedElements = [
+      {
+        key: "node:stale",
+        type: "node",
+        data: {id: "stale"},
+        action: {seriesIndex: 0, dataIndex: 0},
+      },
+    ];
     map.utils.appendData(data, map);
 
     // Ensure echarts.appendData was called since appendData now routes through
     // the NetJSON-only path.
     expect(map.echarts.appendData).toHaveBeenCalled();
+    expect(map.activeHighlightedElements).toEqual([]);
   });
 });
 
@@ -1405,6 +1535,146 @@ describe("graph label visibility and fallbacks", () => {
     zoom = 1.2;
     handlers.graphRoam({zoom});
     expect(mockSelf.echarts.resize).toHaveBeenCalled();
+  });
+});
+
+describe("highlight emphasis option generation", () => {
+  test("generateGraphOption keeps shared emphasis on the graph series", () => {
+    const render = new NetJSONGraphRender();
+    const mockSelf = {
+      config: {
+        graphConfig: {
+          series: {
+            layout: "force",
+            label: {},
+            emphasis: {
+              focus: "none",
+              itemStyle: {
+                borderWidth: 12,
+                borderOpacity: 0.25,
+              },
+              lineStyle: {
+                width: 8,
+              },
+            },
+          },
+          baseOptions: {},
+        },
+        nodeCategories: [],
+        linkCategories: [],
+        showGraphLabelsAtZoom: null,
+      },
+      echarts: {getOption: jest.fn(() => ({series: []}))},
+      utils: {
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        getNodeStyle: jest.fn(() => ({
+          nodeStyleConfig: {color: "#ffebc4"},
+          nodeSizeConfig: 15,
+          nodeEmphasisConfig: {},
+        })),
+        getLinkStyle: jest.fn(() => ({
+          linkStyleConfig: {},
+          linkEmphasisConfig: {},
+        })),
+      },
+    };
+
+    const option = render.generateGraphOption(
+      {
+        nodes: [{id: "a"}, {id: "b"}],
+        links: [{source: "a", target: "b"}],
+      },
+      mockSelf,
+    );
+
+    expect(option.series[0].emphasis.itemStyle).toMatchObject({
+      borderWidth: 12,
+      borderOpacity: 0.25,
+    });
+    expect(option.series[0].emphasis.lineStyle).toMatchObject({
+      width: 8,
+    });
+    expect(option.series[0].nodes[0].emphasis.itemStyle).toMatchObject({
+      borderColor: "rgba(255, 235, 196, 0.25)",
+      borderWidth: 12,
+    });
+    expect(option.series[0].nodes[0].emphasis.itemStyle).not.toHaveProperty(
+      "borderOpacity",
+    );
+    expect(option.series[0].links[0].emphasis).toBeUndefined();
+  });
+
+  test("generateMapOption keeps shared emphasis on map series", () => {
+    const render = new NetJSONGraphRender();
+    const mockSelf = {
+      config: {
+        mapOptions: {
+          nodeConfig: {
+            label: {},
+            cursor: "crosshair",
+            nodeStyle: {},
+            nodeSize: 17,
+            emphasis: {
+              scale: false,
+              itemStyle: {
+                borderWidth: 2,
+                borderOpacity: 0.5,
+              },
+            },
+          },
+          linkConfig: {
+            emphasis: {
+              focus: "none",
+              lineStyle: {
+                width: 8,
+              },
+            },
+          },
+          baseOptions: {},
+          clusterConfig: {},
+        },
+        mapTileConfig: [{}],
+        nodeCategories: [],
+        linkCategories: [],
+        showMapLabelsAtZoom: 13,
+      },
+      utils: {
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        getNodeStyle: jest.fn(() => ({
+          nodeStyleConfig: {color: "#1566a9"},
+          nodeSizeConfig: 17,
+          nodeEmphasisConfig: {},
+        })),
+        getLinkStyle: jest.fn(() => ({
+          linkStyleConfig: {},
+          linkEmphasisConfig: {},
+        })),
+      },
+    };
+
+    const option = render.generateMapOption(
+      {
+        nodes: [
+          {id: "a", properties: {location: {lng: 1, lat: 2}}},
+          {id: "b", properties: {location: {lng: 3, lat: 4}}},
+        ],
+        links: [{source: "a", target: "b"}],
+      },
+      mockSelf,
+    );
+
+    expect(option.series[0].emphasis.itemStyle).toMatchObject({
+      borderWidth: 2,
+    });
+    expect(option.series[0].cursor).toBe("crosshair");
+    expect(option.series[1].emphasis.lineStyle).toMatchObject({
+      width: 8,
+    });
+    expect(option.series[0].data[0].emphasis.itemStyle).toMatchObject({
+      borderColor: "rgba(21, 102, 169, 0.5)",
+      borderWidth: 2,
+    });
+    expect(option.series[1].data[0].emphasis).toBeUndefined();
   });
 });
 
