@@ -1,5 +1,16 @@
 import getLeaflet from "./leaflet-loader";
 
+const highlightNodeStyle = {
+  borderWidth: 8,
+  borderOpacity: 0.5,
+};
+
+const highlightLinkStyle = {
+  color: "#3acc38",
+  opacity: 1,
+  width: 7,
+};
+
 /**
  * Default options
  *
@@ -45,6 +56,9 @@ const NetJSONGraphDefaultConfig = {
   showMapLabelsAtZoom: 13,
   showGraphLabelsAtZoom: null,
   echartsOption: {
+    stateAnimation: {
+      duration: 150,
+    },
     aria: {
       show: true,
       description:
@@ -86,22 +100,13 @@ const NetJSONGraphDefaultConfig = {
       },
       roam: true,
       draggable: true,
+      cursor: "pointer",
       legendHoverLink: true,
       emphasis: {
         focus: "none",
-        itemStyle: {
-          borderColor: "#ffffff",
-          borderWidth: 2,
-          shadowBlur: 24,
-          shadowColor: "rgba(0, 0, 0, 0.75)",
-        },
-        lineStyle: {
-          color: "#3acc38",
-          opacity: 1,
-          width: 9,
-          shadowBlur: 14,
-          shadowColor: "rgba(128, 128, 128, 0.5)",
-        },
+        scale: false,
+        itemStyle: highlightNodeStyle,
+        lineStyle: highlightLinkStyle,
       },
       nodeStyle: {
         color: "#ffebc4",
@@ -190,34 +195,26 @@ const NetJSONGraphDefaultConfig = {
         borderRadius: 5,
       },
       emphasis: {
-        scale: 1,
-        itemStyle: {
-          borderColor: "#ffffff",
-          borderWidth: 2,
-          shadowBlur: 24,
-          shadowColor: "rgba(0, 0, 0, 0.75)",
-        },
+        focus: "none",
+        scale: false,
+        itemStyle: highlightNodeStyle,
       },
+      cursor: "pointer",
       nodeStyle: {
         color: "#1566a9",
       },
-      nodeSize: "17",
+      nodeSize: "16",
     },
     linkConfig: {
       linkStyle: {
-        width: 5,
+        width: 6,
         color: "#1ba619",
       },
       emphasis: {
         focus: "none",
-        lineStyle: {
-          color: "#3acc38",
-          opacity: 1,
-          width: 8,
-          shadowBlur: 14,
-          shadowColor: "rgba(128, 128, 128, 0.5)",
-        },
+        lineStyle: highlightLinkStyle,
       },
+      cursor: "pointer",
     },
     clusterConfig: {
       symbolSize: 30,

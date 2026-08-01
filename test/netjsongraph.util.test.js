@@ -1123,7 +1123,7 @@ describe("Test updateLabelVisibility utility method", () => {
 });
 
 describe("Test highlight utilities", () => {
-  test("highlightNode highlights only the node with node tooltip", () => {
+  test("highlightNode stores the highlighted node by its logical identity", () => {
     const util = new NetJSONGraphUtil();
     const node = {id: "node-1"};
     const link = {source: "node-1", target: "node-2"};
@@ -1174,10 +1174,17 @@ describe("Test highlight utilities", () => {
       dataIndex: 0,
     });
     expect(mockSelf.config.onClickElement).toHaveBeenCalledWith("node", node);
-    expect(mockSelf.activeHighlightedElements).toHaveLength(1);
+    expect(mockSelf.activeHighlightedElements).toEqual([
+      {
+        key: "node:node-1",
+        type: "node",
+        data: node,
+        action: {seriesIndex: 0, dataIndex: 0},
+      },
+    ]);
   });
 
-  test("highlightLink keeps existing highlight when Ctrl is pressed", () => {
+  test("highlightLink toggles selections with Ctrl or Meta", () => {
     const util = new NetJSONGraphUtil();
     const firstLink = {source: "a", target: "b"};
     const secondLink = {source: "b", target: "c"};
@@ -1198,10 +1205,9 @@ describe("Test highlight utilities", () => {
       },
     };
 
-    util.highlightLink.call(mockSelf, firstLink);
-    util.highlightLink.call(mockSelf, secondLink, {
-      event: {event: {ctrlKey: true}},
-    });
+    util.highlightLink.call(mockSelf, firstLink, {append: true, toggle: true});
+    util.highlightLink.call(mockSelf, secondLink, {append: true, toggle: true});
+    util.highlightLink.call(mockSelf, firstLink, {append: true, toggle: true});
 
     expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
       type: "highlight",
@@ -1215,13 +1221,61 @@ describe("Test highlight utilities", () => {
       dataIndex: 1,
       dataType: "edge",
     });
-    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalledWith({
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
       type: "downplay",
       seriesIndex: 0,
       dataIndex: 0,
       dataType: "edge",
     });
-    expect(mockSelf.activeHighlightedElements).toHaveLength(2);
+    expect(mockSelf.activeHighlightedElements).toEqual([
+      {
+        key: "link:b~c",
+        type: "link",
+        data: secondLink,
+        action: {seriesIndex: 0, dataIndex: 1, dataType: "edge"},
+      },
+    ]);
+  });
+
+  test("highlightLink preserves selection when called without link data", () => {
+    const util = new NetJSONGraphUtil();
+    const activeHighlight = {
+      key: "node:node-1",
+      type: "node",
+      data: {id: "node-1"},
+      action: {seriesIndex: 0, dataIndex: 0},
+    };
+    const mockSelf = {
+      utils: util,
+      activeHighlightedElements: [activeHighlight],
+      config: {onClickElement: jest.fn()},
+      echarts: {dispatchAction: jest.fn()},
+    };
+    util.highlightLink.call(mockSelf, undefined, {showInfo: true});
+    expect(mockSelf.activeHighlightedElements).toEqual([activeHighlight]);
+    expect(mockSelf.echarts.dispatchAction).not.toHaveBeenCalled();
+    expect(mockSelf.config.onClickElement).not.toHaveBeenCalled();
+  });
+
+  test("highlightLink opens a tooltip for a map link", () => {
+    const util = new NetJSONGraphUtil();
+    const link = {source: "a", target: "b"};
+    const mockSelf = {
+      utils: util,
+      config: {onClickElement: jest.fn()},
+      echarts: {
+        getOption: jest.fn(() => ({
+          series: [{id: "map-links", type: "lines", data: [{link}]}],
+        })),
+        dispatchAction: jest.fn(),
+      },
+    };
+    util.highlightLink.call(mockSelf, link, {openTooltip: true});
+    expect(mockSelf.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "showTip",
+      seriesIndex: 0,
+      dataIndex: 0,
+    });
   });
 
   test("clearHighlight downplays active elements and clears tooltip", () => {
@@ -1229,7 +1283,12 @@ describe("Test highlight utilities", () => {
     const mockSelf = {
       utils: util,
       activeHighlightedElements: [
-        {seriesIndex: 0, dataIndex: 1, dataType: "node", key: "0:1:node"},
+        {
+          key: "node:node-1",
+          type: "node",
+          data: {id: "node-1"},
+          action: {seriesIndex: 0, dataIndex: 1, dataType: "node"},
+        },
       ],
       echarts: {
         dispatchAction: jest.fn(),

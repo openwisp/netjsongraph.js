@@ -59,6 +59,22 @@ describe("Chart Rendering Test", () => {
     expect(linksRendered).toBe(linksPresent);
   });
 
+  test("keep selections after modifier release", async () => {
+    await driver.get(urls.customAttributes);
+    await getElementByCss(driver, "canvas", 2000);
+    const selected = await driver.executeScript(`
+      const [firstNode, secondNode] = graph.data.nodes;
+      graph.utils.highlightNode(firstNode, {append: true, toggle: true});
+      graph.utils.highlightNode(secondNode, {append: true, toggle: true});
+      window.dispatchEvent(new KeyboardEvent("keyup", {key: "Control"}));
+      return {
+        selected: graph.activeHighlightedElements.map((item) => item.key),
+        expected: [firstNode, secondNode].map((node) => "node:" + node.id),
+      };
+    `);
+    expect(selected.selected).toEqual(selected.expected);
+  });
+
   test("no blank tiles on canvas at max zoom", async () => {
     driver.get(urls.geographicMap);
     const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);

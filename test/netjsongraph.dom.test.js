@@ -332,9 +332,18 @@ describe("Test netjsongraph dom operate", () => {
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).toContain("21");
     expect(graph.gui.nodeLinkInfoContainer.innerHTML).not.toContain("33");
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("flex");
+    graph.activeHighlightedElements = [
+      {
+        key: "node:21",
+        type: "node",
+        data: {id: "21"},
+        action: {seriesIndex: 0, dataIndex: 0},
+      },
+    ];
     const closeBtn = document.querySelector(".njg-headerContainer .njg-closeButton");
     closeBtn.click();
     expect(graph.gui.nodeLinkInfoContainer.style.display).toEqual("none");
+    expect(graph.activeHighlightedElements).toEqual([]);
   });
 
   test("Click a link", () => {

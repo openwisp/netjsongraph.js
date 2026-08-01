@@ -269,6 +269,7 @@ class NetJSONGraphGUI {
 
     closeButton.onclick = () => {
       this.nodeLinkInfoContainer.style.display = "none";
+      this.self.utils.clearHighlight.call(this.self);
       if (
         this.metaInfoContainer === null ||
         this.metaInfoContainer.style.display === "none"
@@ -389,6 +390,7 @@ class NetJSONGraphGUI {
       // Restore the chart's own tooltip (we hid it while the popup was open).
       self.utils.setTooltipVisibility(self, true);
       self.utils.updateLabelVisibility(self, true);
+      self.utils.clearHighlight.call(self);
       if (
         self.config.bookmarkableActions &&
         self.config.bookmarkableActions.enabled &&

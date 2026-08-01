@@ -113,6 +113,67 @@ describe("Test netjsongraph render", () => {
   });
 });
 
+describe("highlight click handling", () => {
+  test("uses Ctrl and Meta clicks to append and toggle selection", () => {
+    const render = new NetJSONGraphRender();
+    const echarts = {
+      setOption: jest.fn(),
+      on: jest.fn(),
+    };
+    const highlightNode = jest.fn();
+    const mockSelf = {
+      config: {
+        echartsOption: {},
+        onClickElement: jest.fn(),
+        mapOptions: {},
+      },
+      echarts,
+      utils: {
+        addActionToUrl: jest.fn(),
+        clearHighlight: jest.fn(),
+        deepMergeObj: jest.fn((base, custom) => ({...base, ...custom})),
+        highlightLink: jest.fn(),
+        highlightNode,
+      },
+    };
+    render.echartsSetOption({}, mockSelf);
+    const node = {id: "node-1"};
+    mockSelf.echartsClickHandler({
+      componentSubType: "graph",
+      data: node,
+      dataType: "node",
+      event: {event: {ctrlKey: true}},
+      seriesIndex: 0,
+      dataIndex: 1,
+    });
+    mockSelf.echartsClickHandler({
+      componentSubType: "graph",
+      data: node,
+      dataType: "node",
+      event: {event: {metaKey: true}},
+      seriesIndex: 0,
+      dataIndex: 1,
+    });
+    expect(highlightNode).toHaveBeenNthCalledWith(1, node, {
+      showInfo: true,
+      append: true,
+      toggle: true,
+      seriesIndex: 0,
+      dataIndex: 1,
+      dataType: "node",
+    });
+    expect(highlightNode).toHaveBeenNthCalledWith(2, node, {
+      showInfo: true,
+      append: true,
+      toggle: true,
+      seriesIndex: 0,
+      dataIndex: 1,
+      dataType: "node",
+    });
+    expect(echarts.on).toHaveBeenCalledWith("click", mockSelf.echartsClickHandler);
+  });
+});
+
 describe("Test netjsongraph setConfig", () => {
   test("NetJSONGraphCore support dynamic modification of config parameters", () => {
     graph.setConfig({
@@ -932,11 +993,20 @@ describe("Test clustering", () => {
     });
     // Ensure base data exists to merge into
     map.data = {nodes: [], links: []};
+    map.activeHighlightedElements = [
+      {
+        key: "node:stale",
+        type: "node",
+        data: {id: "stale"},
+        action: {seriesIndex: 0, dataIndex: 0},
+      },
+    ];
     map.utils.appendData(data, map);
 
     // Ensure echarts.appendData was called since appendData now routes through
     // the NetJSON-only path.
     expect(map.echarts.appendData).toHaveBeenCalled();
+    expect(map.activeHighlightedElements).toEqual([]);
   });
 });
 
@@ -1409,7 +1479,7 @@ describe("graph label visibility and fallbacks", () => {
 });
 
 describe("highlight emphasis option generation", () => {
-  test("generateGraphOption includes node and link halo emphasis styles", () => {
+  test("generateGraphOption keeps shared emphasis on the graph series", () => {
     const render = new NetJSONGraphRender();
     const mockSelf = {
       config: {
@@ -1420,13 +1490,11 @@ describe("highlight emphasis option generation", () => {
             emphasis: {
               focus: "none",
               itemStyle: {
-                shadowBlur: 18,
-                shadowColor: "rgba(128, 128, 128, 0.5)",
+                borderWidth: 12,
+                borderOpacity: 0.25,
               },
               lineStyle: {
-                width: 9,
-                shadowBlur: 14,
-                shadowColor: "rgba(128, 128, 128, 0.5)",
+                width: 8,
               },
             },
           },
@@ -1440,13 +1508,13 @@ describe("highlight emphasis option generation", () => {
       utils: {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         getNodeStyle: jest.fn(() => ({
-          nodeStyleConfig: {},
+          nodeStyleConfig: {color: "#ffebc4"},
           nodeSizeConfig: 15,
-          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 15},
+          nodeEmphasisConfig: {},
         })),
         getLinkStyle: jest.fn(() => ({
           linkStyleConfig: {},
-          linkEmphasisConfig: {linkStyle: {}},
+          linkEmphasisConfig: {},
         })),
       },
     };
@@ -1459,31 +1527,38 @@ describe("highlight emphasis option generation", () => {
       mockSelf,
     );
 
+    expect(option.series[0].emphasis.itemStyle).toMatchObject({
+      borderWidth: 12,
+      borderOpacity: 0.25,
+    });
+    expect(option.series[0].emphasis.lineStyle).toMatchObject({
+      width: 8,
+    });
     expect(option.series[0].nodes[0].emphasis.itemStyle).toMatchObject({
-      shadowBlur: 18,
-      shadowColor: "rgba(128, 128, 128, 0.5)",
+      borderColor: "rgba(255, 235, 196, 0.25)",
+      borderWidth: 12,
     });
-    expect(option.series[0].links[0].emphasis.lineStyle).toMatchObject({
-      width: 9,
-      shadowBlur: 14,
-      shadowColor: "rgba(128, 128, 128, 0.5)",
-    });
+    expect(option.series[0].nodes[0].emphasis.itemStyle).not.toHaveProperty(
+      "borderOpacity",
+    );
+    expect(option.series[0].links[0].emphasis).toBeUndefined();
   });
 
-  test("generateMapOption includes node and link halo emphasis styles", () => {
+  test("generateMapOption keeps shared emphasis on map series", () => {
     const render = new NetJSONGraphRender();
     const mockSelf = {
       config: {
         mapOptions: {
           nodeConfig: {
             label: {},
+            cursor: "crosshair",
             nodeStyle: {},
             nodeSize: 17,
             emphasis: {
-              scale: 1,
+              scale: false,
               itemStyle: {
-                shadowBlur: 18,
-                shadowColor: "rgba(128, 128, 128, 0.5)",
+                borderWidth: 2,
+                borderOpacity: 0.5,
               },
             },
           },
@@ -1492,8 +1567,6 @@ describe("highlight emphasis option generation", () => {
               focus: "none",
               lineStyle: {
                 width: 8,
-                shadowBlur: 14,
-                shadowColor: "rgba(128, 128, 128, 0.5)",
               },
             },
           },
@@ -1508,12 +1581,13 @@ describe("highlight emphasis option generation", () => {
       utils: {
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         getNodeStyle: jest.fn(() => ({
+          nodeStyleConfig: {color: "#1566a9"},
           nodeSizeConfig: 17,
-          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 17},
+          nodeEmphasisConfig: {},
         })),
         getLinkStyle: jest.fn(() => ({
           linkStyleConfig: {},
-          linkEmphasisConfig: {linkStyle: {}},
+          linkEmphasisConfig: {},
         })),
       },
     };
@@ -1529,15 +1603,18 @@ describe("highlight emphasis option generation", () => {
       mockSelf,
     );
 
-    expect(option.series[0].data[0].emphasis.itemStyle).toMatchObject({
-      shadowBlur: 18,
-      shadowColor: "rgba(128, 128, 128, 0.5)",
+    expect(option.series[0].emphasis.itemStyle).toMatchObject({
+      borderWidth: 2,
     });
-    expect(option.series[1].data[0].emphasis.lineStyle).toMatchObject({
+    expect(option.series[0].cursor).toBe("crosshair");
+    expect(option.series[1].emphasis.lineStyle).toMatchObject({
       width: 8,
-      shadowBlur: 14,
-      shadowColor: "rgba(128, 128, 128, 0.5)",
     });
+    expect(option.series[0].data[0].emphasis.itemStyle).toMatchObject({
+      borderColor: "rgba(21, 102, 169, 0.5)",
+      borderWidth: 2,
+    });
+    expect(option.series[1].data[0].emphasis).toBeUndefined();
   });
 });
 

@@ -36,6 +36,52 @@ use([
  * - Manages node clustering and styling
  */
 class NetJSONGraphRender {
+  // Named and HSL colors require an explicit emphasis borderColor.
+  getColorWithOpacity(color, opacity) {
+    if (typeof color !== "string") {
+      return color;
+    }
+    const hex = color.match(/^#([\da-f]{3}|[\da-f]{6})$/i);
+    if (hex) {
+      const value = hex[1].length === 3 ? hex[1].replace(/(.)/g, "$1$1") : hex[1];
+      const [red, green, blue] = value
+        .match(/[\da-f]{2}/gi)
+        .map((part) => parseInt(part, 16));
+      return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+    }
+    const rgb = color.match(/^rgba?\(([^)]+)\)$/i);
+    if (rgb) {
+      return `rgba(${rgb[1].split(",").slice(0, 3).join(",")}, ${opacity})`;
+    }
+    return color;
+  }
+
+  getNodeEmphasisStyle(
+    nodeStyleConfig,
+    nodeEmphasisConfig = {},
+    defaultEmphasisStyle = {},
+  ) {
+    const {borderOpacity: defaultBorderOpacity = 0.5, ...defaultStyle} =
+      defaultEmphasisStyle;
+    const {borderOpacity: nodeBorderOpacity, ...nodeStyle} =
+      nodeEmphasisConfig.nodeStyle || {};
+    const borderColor =
+      nodeStyle.borderColor ||
+      defaultStyle.borderColor ||
+      this.getColorWithOpacity(
+        nodeStyleConfig && nodeStyleConfig.color,
+        nodeBorderOpacity === undefined ? defaultBorderOpacity : nodeBorderOpacity,
+      );
+    return {
+      nodeStyle: {
+        ...defaultStyle,
+        ...(borderColor ? {borderColor} : {}),
+        ...nodeStyle,
+      },
+      ...(nodeEmphasisConfig.nodeSize ? {nodeSize: nodeEmphasisConfig.nodeSize} : {}),
+    };
+  }
+
   /**
    * @function
    * @name echartsSetOption
@@ -96,29 +142,33 @@ class NetJSONGraphRender {
       configs.echartsOption,
     );
 
+    if (typeof self.utils.clearHighlight === "function") {
+      self.utils.clearHighlight.call(self);
+    }
     echartsLayer.setOption(self.utils.deepMergeObj(commonOption, customOption));
     if (self.echartsClickHandler && typeof echartsLayer.off === "function") {
       echartsLayer.off("click", self.echartsClickHandler);
     }
     self.echartsClickHandler = (params) => {
       self.utils.addActionToUrl(self, params);
+      const event = params.event && (params.event.event || params.event);
+      const append = Boolean(event && (event.ctrlKey || event.metaKey));
+      const highlightOptions = {
+        showInfo: true,
+        append,
+        toggle: append,
+        seriesIndex: params.seriesIndex,
+        dataIndex: params.dataIndex,
+      };
       if (params.componentSubType === "graph") {
         if (params.dataType === "edge") {
           self.utils.highlightLink(params.data, {
-            openTooltip: true,
-            showInfo: true,
-            event: params.event,
-            seriesIndex: params.seriesIndex,
-            dataIndex: params.dataIndex,
+            ...highlightOptions,
             dataType: "edge",
           });
         } else {
           self.utils.highlightNode(params.data, {
-            openTooltip: true,
-            showInfo: true,
-            event: params.event,
-            seriesIndex: params.seriesIndex,
-            dataIndex: params.dataIndex,
+            ...highlightOptions,
             dataType: "node",
           });
         }
@@ -126,11 +176,7 @@ class NetJSONGraphRender {
       }
       if (params.componentSubType === "lines") {
         self.utils.highlightLink(params.data.link, {
-          openTooltip: false,
-          showInfo: true,
-          event: params.event,
-          seriesIndex: params.seriesIndex,
-          dataIndex: params.dataIndex,
+          ...highlightOptions,
         });
         return;
       }
@@ -139,16 +185,11 @@ class NetJSONGraphRender {
           self.gui.loadNodePopup(params.data.node);
         }
         self.utils.highlightNode(params.data.node, {
-          openTooltip: true,
-          showInfo: true,
-          event: params.event,
-          seriesIndex: params.seriesIndex,
-          dataIndex: params.dataIndex,
+          ...highlightOptions,
         });
       }
     };
-    echartsLayer.on("click", self.echartsClickHandler, {passive: true});
-    self.utils.setupHighlightEventHandlers(self);
+    echartsLayer.on("click", self.echartsClickHandler);
 
     return echartsLayer;
   }
@@ -172,19 +213,21 @@ class NetJSONGraphRender {
       const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
-      const seriesEmphasis = (configs.graphConfig.series || {}).emphasis || {};
-
+      const emphasisConfig = this.getNodeEmphasisStyle(
+        nodeStyleConfig,
+        nodeEmphasisConfig,
+        (configs.graphConfig.series.emphasis || {}).itemStyle,
+      );
       nodeResult.itemStyle = nodeStyleConfig;
       nodeResult.symbolSize = nodeSizeConfig;
-      nodeResult.emphasis = {
-        ...seriesEmphasis,
-        focus: "none",
-        itemStyle: {
-          ...(seriesEmphasis.itemStyle || {}),
-          ...(nodeEmphasisConfig.nodeStyle || {}),
-        },
-        symbolSize: nodeEmphasisConfig.nodeSize,
-      };
+      if (Object.keys(emphasisConfig.nodeStyle).length || emphasisConfig.nodeSize) {
+        nodeResult.emphasis = {
+          ...(Object.keys(emphasisConfig.nodeStyle).length
+            ? {itemStyle: emphasisConfig.nodeStyle}
+            : {}),
+          ...(emphasisConfig.nodeSize ? {symbolSize: emphasisConfig.nodeSize} : {}),
+        };
+      }
       let resolvedName = "";
       if (typeof node.label === "string") {
         resolvedName = node.label;
@@ -206,16 +249,10 @@ class NetJSONGraphRender {
         configs,
         "graph",
       );
-      const seriesEmphasis = (configs.graphConfig.series || {}).emphasis || {};
       linkResult.lineStyle = linkStyleConfig;
-      linkResult.emphasis = {
-        ...seriesEmphasis,
-        focus: "none",
-        lineStyle: {
-          ...(seriesEmphasis.lineStyle || {}),
-          ...(linkEmphasisConfig.linkStyle || {}),
-        },
-      };
+      if (linkEmphasisConfig.linkStyle) {
+        linkResult.emphasis = {lineStyle: linkEmphasisConfig.linkStyle};
+      }
       return linkResult;
     });
 
@@ -249,10 +286,6 @@ class NetJSONGraphRender {
           : "";
     }
     baseGraphSeries.label = baseGraphLabel;
-    baseGraphSeries.emphasis = {
-      ...(baseGraphSeries.emphasis || {}),
-      focus: "none",
-    };
     const series = [
       {
         ...baseGraphSeries,
@@ -321,7 +354,16 @@ class NetJSONGraphRender {
         if (!location || !location.lng || !location.lat) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
-          const {nodeEmphasisConfig} = self.utils.getNodeStyle(node, configs, "map");
+          const {nodeStyleConfig, nodeEmphasisConfig} = self.utils.getNodeStyle(
+            node,
+            configs,
+            "map",
+          );
+          const emphasisConfig = this.getNodeEmphasisStyle(
+            nodeStyleConfig,
+            nodeEmphasisConfig,
+            (configs.mapOptions.nodeConfig.emphasis || {}).itemStyle,
+          );
 
           let nodeName = "";
           if (typeof node.label === "string") {
@@ -334,15 +376,18 @@ class NetJSONGraphRender {
           nodesData.push({
             name: nodeName,
             value: [location.lng, location.lat],
-            emphasis: {
-              ...(configs.mapOptions.nodeConfig.emphasis || {}),
-              focus: "none",
-              itemStyle: {
-                ...((configs.mapOptions.nodeConfig.emphasis || {}).itemStyle || {}),
-                ...(nodeEmphasisConfig.nodeStyle || {}),
-              },
-              symbolSize: nodeEmphasisConfig.nodeSize,
-            },
+            ...(Object.keys(emphasisConfig.nodeStyle).length || emphasisConfig.nodeSize
+              ? {
+                  emphasis: {
+                    ...(Object.keys(emphasisConfig.nodeStyle).length
+                      ? {itemStyle: emphasisConfig.nodeStyle}
+                      : {}),
+                    ...(emphasisConfig.nodeSize
+                      ? {symbolSize: emphasisConfig.nodeSize}
+                      : {}),
+                  },
+                }
+              : {}),
             node,
             _source: self.utils.fastDeepCopy(node),
           });
@@ -372,14 +417,9 @@ class NetJSONGraphRender {
             ],
           ],
           lineStyle: linkStyleConfig,
-          emphasis: {
-            ...(configs.mapOptions.linkConfig.emphasis || {}),
-            focus: "none",
-            lineStyle: {
-              ...((configs.mapOptions.linkConfig.emphasis || {}).lineStyle || {}),
-              ...(linkEmphasisConfig.linkStyle || {}),
-            },
-          },
+          ...(linkEmphasisConfig.linkStyle
+            ? {emphasis: {lineStyle: linkEmphasisConfig.linkStyle}}
+            : {}),
           link,
         });
       }
@@ -392,6 +432,7 @@ class NetJSONGraphRender {
         type: "scatter",
         name: "nodes",
         coordinateSystem: "leaflet",
+        cursor: configs.mapOptions.nodeConfig.cursor,
         data: nodesData,
         label: {
           ...(configs.mapOptions.nodeConfig.label || {}),
@@ -453,10 +494,7 @@ class NetJSONGraphRender {
             17
           );
         },
-        emphasis: {
-          ...(configs.mapOptions.nodeConfig.emphasis || {}),
-          focus: "none",
-        },
+        emphasis: configs.mapOptions.nodeConfig.emphasis,
       },
       Object.assign(configs.mapOptions.linkConfig, {
         id: "map-links",
@@ -706,6 +744,9 @@ class NetJSONGraphRender {
         };
 
         self.data = JSONData;
+        if (typeof self.utils.clearHighlight === "function") {
+          self.utils.clearHighlight.call(self);
+        }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         self.bboxData.nodes = [];
         self.bboxData.links = [];
@@ -737,6 +778,9 @@ class NetJSONGraphRender {
           nodes: JSONData.nodes.concat(nodes),
           links: JSONData.links.concat(links),
         };
+        if (typeof self.utils.clearHighlight === "function") {
+          self.utils.clearHighlight.call(self);
+        }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
@@ -792,6 +836,9 @@ class NetJSONGraphRender {
           clusters = nodeData.clusters;
           nonClusterNodes = nodeData.nonClusterNodes;
           nonClusterLinks = nodeData.nonClusterLinks;
+          if (typeof self.utils.clearHighlight === "function") {
+            self.utils.clearHighlight.call(self);
+          }
           self.echarts.setOption(
             self.utils.generateMapOption(
               {
@@ -805,6 +852,9 @@ class NetJSONGraphRender {
           );
         } else {
           // When above the threshold, show all nodes without clustering
+          if (typeof self.utils.clearHighlight === "function") {
+            self.utils.clearHighlight.call(self);
+          }
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
         self.utils.updateLabelVisibility(self, true);
@@ -833,6 +883,7 @@ class NetJSONGraphRender {
     }
 
     if (self.config.render === self.utils.mapRender) {
+      self.utils.clearHighlight.call(self);
       const opts = self.utils.generateMapOption(JSONData, self);
       opts.series.forEach((obj, index) => {
         self.echarts.appendData({seriesIndex: index, data: obj.data});

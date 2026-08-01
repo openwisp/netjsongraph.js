@@ -1070,20 +1070,6 @@ class NetJSONGraphUtil {
           (nodeConf && nodeConf.nodeSize) || {},
           node,
         );
-
-        const emphasisConf = nodeConf && nodeConf.emphasis;
-        if (emphasisConf) {
-          nodeEmphasisConfig = {
-            nodeStyle: this.generateStyle(
-              (emphasisConf && emphasisConf.nodeStyle) || {},
-              node,
-            ),
-            nodeSize: this.generateStyle(
-              (emphasisConf && emphasisConf.nodeSize) || {},
-              node,
-            ),
-          };
-        }
       } else {
         const seriesConf = config.graphConfig && config.graphConfig.series;
         nodeStyleConfig = this.generateStyle(
@@ -1094,21 +1080,6 @@ class NetJSONGraphUtil {
           (seriesConf && seriesConf.nodeSize) || {},
           node,
         );
-
-        const emphasisConf = seriesConf && seriesConf.emphasis;
-        if (emphasisConf) {
-          nodeEmphasisConfig = {
-            nodeStyle: this.generateStyle(
-              (emphasisConf && emphasisConf.itemStyle) || {},
-              node,
-            ),
-
-            nodeSize: this.generateStyle(
-              (emphasisConf && emphasisConf.symbolSize) || nodeSizeConfig || {},
-              node,
-            ),
-          };
-        }
       }
     }
 
@@ -1155,20 +1126,11 @@ class NetJSONGraphUtil {
     return `${link.source}~${link.target}`;
   }
 
-  getHighlightEvent(options = {}) {
-    return options.event && (options.event.event || options.event);
-  }
-
-  isMultiSelectHighlight(options = {}) {
-    const event = this.utils
-      ? this.utils.getHighlightEvent(options)
-      : this.getHighlightEvent(options);
-    return Boolean(options.multiSelect || options.append || (event && event.ctrlKey));
-  }
-
-  getHighlightKey(action) {
-    const dataType = action.dataType ? `:${action.dataType}` : "";
-    return `${action.seriesIndex}:${action.dataIndex}${dataType}`;
+  getHighlightKey(type, data) {
+    const utils = this.utils || this;
+    return type === "node"
+      ? `node:${data.id}`
+      : `link:${utils.getLinkId.call(this, data)}`;
   }
 
   dispatchHighlightAction(action, type) {
@@ -1196,27 +1158,18 @@ class NetJSONGraphUtil {
   }
 
   clearHighlight() {
-    if (!this.echarts || typeof this.echarts.dispatchAction !== "function") {
-      return;
-    }
-    const state = this.utils
-      ? this.utils.getHighlightState.call(this)
-      : this.getHighlightState();
+    const utils = this.utils || this;
+    const state = utils.getHighlightState.call(this);
     state.forEach((action) => {
-      const dispatch = this.utils
-        ? this.utils.dispatchHighlightAction.bind(this)
-        : this.dispatchHighlightAction.bind(this);
-      dispatch(action, "downplay");
+      if (this.echarts && typeof this.echarts.dispatchAction === "function") {
+        utils.dispatchHighlightAction.call(this, action.action, "downplay");
+      }
     });
-    if (this.hoverHighlightedElement) {
-      const dispatch = this.utils
-        ? this.utils.dispatchHighlightAction.bind(this)
-        : this.dispatchHighlightAction.bind(this);
-      dispatch(this.hoverHighlightedElement, "downplay");
-      this.hoverHighlightedElement = null;
-    }
     state.length = 0;
-    this.echarts.dispatchAction({type: "hideTip"});
+    if (this.echarts && typeof this.echarts.dispatchAction === "function") {
+      this.echarts.dispatchAction({type: "hideTip"});
+    }
+    return state;
   }
 
   getHighlightSeriesOptions() {
@@ -1227,283 +1180,118 @@ class NetJSONGraphUtil {
     return option && Array.isArray(option.series) ? option.series : [];
   }
 
-  resolveNodeHighlightActions(nodeData, options = {}) {
-    if (!nodeData || nodeData.id == null) {
-      return [];
-    }
-    if (options.seriesIndex != null && options.dataIndex != null) {
-      return [
-        {
-          seriesIndex: options.seriesIndex,
-          dataIndex: options.dataIndex,
-          dataType: options.dataType,
-        },
-      ];
-    }
-    const series = this.utils
-      ? this.utils.getHighlightSeriesOptions.call(this)
-      : this.getHighlightSeriesOptions();
-    const actions = [];
-    series.forEach((serie, seriesIndex) => {
-      if (!serie) {
-        return;
-      }
-      if (serie.type === "graph") {
-        const nodes = serie.nodes || serie.data || [];
-        const dataIndex = nodes.findIndex((item) => item && item.id === nodeData.id);
-        if (dataIndex !== -1) {
-          actions.push({seriesIndex, dataIndex, dataType: "node"});
-        }
-      } else if (serie.type === "scatter" || serie.type === "effectScatter") {
-        const data = serie.data || [];
-        const dataIndex = data.findIndex(
-          (item) => item && item.node && item.node.id === nodeData.id,
-        );
-        if (dataIndex !== -1) {
-          actions.push({seriesIndex, dataIndex});
-        }
-      }
-    });
-    return actions;
-  }
-
-  resolveLinkHighlightActions(linkData, options = {}) {
-    if (!linkData) {
-      return [];
-    }
-    if (options.seriesIndex != null && options.dataIndex != null) {
-      const action = {
-        seriesIndex: options.seriesIndex,
-        dataIndex: options.dataIndex,
-        dataType: options.dataType,
-      };
-      if (options.showTip === false) {
-        action.showTip = false;
-      }
-      return [action];
-    }
-    const linkId = this.utils
-      ? this.utils.getLinkId(linkData)
-      : this.getLinkId(linkData);
-    const series = this.utils
-      ? this.utils.getHighlightSeriesOptions.call(this)
-      : this.getHighlightSeriesOptions();
-    const actions = [];
-    series.forEach((serie, seriesIndex) => {
-      if (!serie) {
-        return;
-      }
-      if (serie.type === "graph") {
-        const links = serie.links || serie.edges || [];
-        const dataIndex = links.findIndex(
-          (item) =>
-            item &&
-            (this.utils ? this.utils.getLinkId(item) : this.getLinkId(item)) === linkId,
-        );
-        if (dataIndex !== -1) {
-          actions.push({seriesIndex, dataIndex, dataType: "edge"});
-        }
-      } else if (serie.type === "lines") {
-        const data = serie.data || [];
-        const dataIndex = data.findIndex(
-          (item) =>
-            item &&
-            item.link &&
-            (this.utils
-              ? this.utils.getLinkId(item.link)
-              : this.getLinkId(item.link)) === linkId,
-        );
-        if (dataIndex !== -1) {
-          actions.push({seriesIndex, dataIndex, showTip: false});
-        }
-      }
-    });
-    return actions;
-  }
-
-  dispatchHighlightActions(actions, options = {}) {
-    if (!this.echarts || typeof this.echarts.dispatchAction !== "function") {
-      return;
-    }
-    const multiSelect = this.utils
-      ? this.utils.isMultiSelectHighlight.call(this, options)
-      : this.isMultiSelectHighlight(options);
-    if (!multiSelect) {
-      const clear = this.utils
-        ? this.utils.clearHighlight.bind(this)
-        : this.clearHighlight.bind(this);
-      clear();
-    }
-    actions.forEach((action) => {
-      const dispatch = this.utils
-        ? this.utils.dispatchHighlightAction.bind(this)
-        : this.dispatchHighlightAction.bind(this);
-      dispatch(action, "highlight");
-      if (options.openTooltip && action.showTip !== false) {
-        this.echarts.dispatchAction({
-          type: "showTip",
-          seriesIndex: action.seriesIndex,
-          dataIndex: action.dataIndex,
-          ...(action.dataType ? {dataType: action.dataType} : {}),
-        });
-      }
-      const addActive = this.utils
-        ? this.utils.addActiveHighlight.bind(this)
-        : this.addActiveHighlight.bind(this);
-      addActive(action);
-    });
-  }
-
-  highlightNode(nodeData, options = {}) {
-    if (!nodeData || nodeData.id == null) {
-      return;
-    }
-    const resolveNode = this.utils
-      ? this.utils.resolveNodeHighlightActions.bind(this)
-      : this.resolveNodeHighlightActions.bind(this);
-    const actions = resolveNode(nodeData, options);
-    const dispatch = this.utils
-      ? this.utils.dispatchHighlightActions.bind(this)
-      : this.dispatchHighlightActions.bind(this);
-    dispatch(actions, options);
-    if (
-      options.showInfo &&
-      this.config &&
-      typeof this.config.onClickElement === "function"
-    ) {
-      this.config.onClickElement.call(this, "node", nodeData);
-    }
-  }
-
-  highlightLink(linkData, options = {}) {
-    const resolveLink = this.utils
-      ? this.utils.resolveLinkHighlightActions.bind(this)
-      : this.resolveLinkHighlightActions.bind(this);
-    const dispatch = this.utils
-      ? this.utils.dispatchHighlightActions.bind(this)
-      : this.dispatchHighlightActions.bind(this);
-    dispatch(resolveLink(linkData, options), options);
-    if (
-      options.showInfo &&
-      this.config &&
-      typeof this.config.onClickElement === "function"
-    ) {
-      this.config.onClickElement.call(this, "link", linkData);
-    }
-  }
-
-  isHighlightActive(action) {
-    const state = this.utils
-      ? this.utils.getHighlightState.call(this)
-      : this.getHighlightState();
-    const key = this.utils
-      ? this.utils.getHighlightKey(action)
-      : this.getHighlightKey(action);
-    return state.some((item) => item.key === key);
-  }
-
-  getHighlightActionFromParams(params) {
-    if (!params || params.seriesIndex == null || params.dataIndex == null) {
+  resolveHighlightAction(type, data, options = {}) {
+    if (!data || (type === "node" && data.id == null)) {
       return null;
     }
-    if (params.componentSubType === "graph") {
+    if (options.seriesIndex != null && options.dataIndex != null) {
       return {
-        seriesIndex: params.seriesIndex,
-        dataIndex: params.dataIndex,
-        dataType: params.dataType === "edge" ? "edge" : "node",
+        seriesIndex: options.seriesIndex,
+        dataIndex: options.dataIndex,
+        ...(options.dataType ? {dataType: options.dataType} : {}),
       };
     }
-    if (params.componentSubType === "lines") {
-      return {
-        seriesIndex: params.seriesIndex,
-        dataIndex: params.dataIndex,
-      };
-    }
-    if (
-      (params.componentSubType === "scatter" ||
-        params.componentSubType === "effectScatter") &&
-      params.data &&
-      !params.data.cluster
-    ) {
-      return {
-        seriesIndex: params.seriesIndex,
-        dataIndex: params.dataIndex,
-      };
+    const utils = this.utils || this;
+    const series = utils.getHighlightSeriesOptions.call(this);
+    for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex += 1) {
+      const serie = series[seriesIndex];
+      if (serie && type === "node" && serie.type === "graph") {
+        const nodes = serie.nodes || serie.data || [];
+        const dataIndex = nodes.findIndex((item) => item && item.id === data.id);
+        if (dataIndex !== -1) {
+          return {seriesIndex, dataIndex, dataType: "node"};
+        }
+      } else if (
+        serie &&
+        type === "node" &&
+        (serie.type === "scatter" || serie.type === "effectScatter")
+      ) {
+        const seriesData = serie.data || [];
+        const dataIndex = seriesData.findIndex(
+          (item) => item && item.node && item.node.id === data.id,
+        );
+        if (dataIndex !== -1) {
+          return {seriesIndex, dataIndex};
+        }
+      }
+      if (serie && type === "link" && serie.type === "graph") {
+        const linkId = utils.getLinkId.call(this, data);
+        const links = serie.links || serie.edges || [];
+        const dataIndex = links.findIndex(
+          (item) => item && utils.getLinkId.call(this, item) === linkId,
+        );
+        if (dataIndex !== -1) {
+          return {seriesIndex, dataIndex, dataType: "edge"};
+        }
+      } else if (serie && type === "link" && serie.type === "lines") {
+        const linkId = utils.getLinkId.call(this, data);
+        const seriesData = serie.data || [];
+        const dataIndex = seriesData.findIndex(
+          (item) =>
+            item && item.link && utils.getLinkId.call(this, item.link) === linkId,
+        );
+        if (dataIndex !== -1) {
+          return {seriesIndex, dataIndex};
+        }
+      }
     }
     return null;
   }
 
-  highlightHoveredElement(params) {
-    if (!this.echarts || typeof this.echarts.dispatchAction !== "function") {
-      return;
+  highlightElement(type, data, options = {}) {
+    if (!data || (type === "node" && data.id == null)) {
+      return this.activeHighlightedElements || [];
     }
-    const getAction = this.utils
-      ? this.utils.getHighlightActionFromParams.bind(this)
-      : this.getHighlightActionFromParams.bind(this);
-    const action = getAction(params);
+    const utils = this.utils || this;
+    const action = utils.resolveHighlightAction.call(this, type, data, options);
+    const state = utils.getHighlightState.call(this);
     if (!action) {
-      return;
+      return state;
     }
-    const dispatch = this.utils
-      ? this.utils.dispatchHighlightAction.bind(this)
-      : this.dispatchHighlightAction.bind(this);
-    dispatch(action, "highlight");
-    this.hoverHighlightedElement = action;
+    const key = utils.getHighlightKey.call(this, type, data);
+    const activeIndex = state.findIndex((item) => item.key === key);
+    if (options.toggle && activeIndex !== -1) {
+      if (this.echarts && typeof this.echarts.dispatchAction === "function") {
+        utils.dispatchHighlightAction.call(this, state[activeIndex].action, "downplay");
+      }
+      state.splice(activeIndex, 1);
+    } else {
+      if (!options.append) {
+        utils.clearHighlight.call(this);
+      }
+      if (this.echarts && typeof this.echarts.dispatchAction === "function") {
+        utils.dispatchHighlightAction.call(this, action, "highlight");
+        if (options.openTooltip) {
+          this.echarts.dispatchAction({
+            type: "showTip",
+            seriesIndex: action.seriesIndex,
+            dataIndex: action.dataIndex,
+            ...(action.dataType ? {dataType: action.dataType} : {}),
+          });
+        }
+      }
+      if (activeIndex === -1) {
+        state.push({key, type, data, action});
+      }
+    }
+    if (
+      options.showInfo &&
+      this.config &&
+      typeof this.config.onClickElement === "function"
+    ) {
+      this.config.onClickElement.call(this, type, data);
+    }
+    return state;
   }
 
-  downplayHoveredElement(params) {
-    if (!this.echarts || typeof this.echarts.dispatchAction !== "function") {
-      return;
-    }
-    const getAction = this.utils
-      ? this.utils.getHighlightActionFromParams.bind(this)
-      : this.getHighlightActionFromParams.bind(this);
-    const action = getAction(params) || this.hoverHighlightedElement;
-    if (!action) {
-      return;
-    }
-    const isActive = this.utils
-      ? this.utils.isHighlightActive.call(this, action)
-      : this.isHighlightActive(action);
-    if (!isActive) {
-      const dispatch = this.utils
-        ? this.utils.dispatchHighlightAction.bind(this)
-        : this.dispatchHighlightAction.bind(this);
-      dispatch(action, "downplay");
-    }
-    this.hoverHighlightedElement = null;
+  highlightNode(nodeData, options = {}) {
+    const utils = this.utils || this;
+    return utils.highlightElement.call(this, "node", nodeData, options);
   }
 
-  setupHighlightEventHandlers(self) {
-    if (!self.echarts || typeof self.echarts.on !== "function") {
-      return;
-    }
-    if (self.highlightHandlers) {
-      if (typeof self.echarts.off === "function") {
-        self.echarts.off("mouseover", self.highlightHandlers.mouseover);
-        self.echarts.off("mouseout", self.highlightHandlers.mouseout);
-      }
-      window.removeEventListener("keyup", self.highlightHandlers.keyup);
-    }
-    const mouseover = (params) => {
-      self.utils.highlightHoveredElement.call(self, params);
-    };
-    const mouseout = (params) => {
-      self.utils.downplayHoveredElement.call(self, params);
-    };
-    const keyup = (event) => {
-      if (
-        event.key === "Control" ||
-        event.code === "ControlLeft" ||
-        event.code === "ControlRight"
-      ) {
-        self.utils.clearHighlight.call(self);
-      }
-    };
-    self.echarts.on("mouseover", mouseover);
-    self.echarts.on("mouseout", mouseout);
-    window.addEventListener("keyup", keyup);
-    self.highlightHandlers = {mouseover, mouseout, keyup};
+  highlightLink(linkData, options = {}) {
+    const utils = this.utils || this;
+    return utils.highlightElement.call(this, "link", linkData, options);
   }
 
   /**
