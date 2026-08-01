@@ -1145,18 +1145,6 @@ class NetJSONGraphUtil {
     this.echarts.dispatchAction(payload);
   }
 
-  addActiveHighlight(action) {
-    const state = this.utils
-      ? this.utils.getHighlightState.call(this)
-      : this.getHighlightState();
-    const key = this.utils
-      ? this.utils.getHighlightKey(action)
-      : this.getHighlightKey(action);
-    if (!state.some((item) => item.key === key)) {
-      state.push({...action, key});
-    }
-  }
-
   clearHighlight() {
     const utils = this.utils || this;
     const state = utils.getHighlightState.call(this);

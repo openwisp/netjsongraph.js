@@ -119,8 +119,11 @@ describe("highlight click handling", () => {
     const echarts = {
       setOption: jest.fn(),
       on: jest.fn(),
+      off: jest.fn(),
     };
     const highlightNode = jest.fn();
+    const highlightLink = jest.fn();
+    const previousClickHandler = jest.fn();
     const mockSelf = {
       config: {
         echartsOption: {},
@@ -132,9 +135,10 @@ describe("highlight click handling", () => {
         addActionToUrl: jest.fn(),
         clearHighlight: jest.fn(),
         deepMergeObj: jest.fn((base, custom) => ({...base, ...custom})),
-        highlightLink: jest.fn(),
+        highlightLink,
         highlightNode,
       },
+      echartsClickHandler: previousClickHandler,
     };
     render.echartsSetOption({}, mockSelf);
     const node = {id: "node-1"};
@@ -145,6 +149,29 @@ describe("highlight click handling", () => {
       event: {event: {ctrlKey: true}},
       seriesIndex: 0,
       dataIndex: 1,
+    });
+    const link = {source: "node-1", target: "node-2"};
+    mockSelf.echartsClickHandler({
+      componentSubType: "graph",
+      data: link,
+      dataType: "edge",
+      event: {event: {}},
+      seriesIndex: 0,
+      dataIndex: 2,
+    });
+    mockSelf.echartsClickHandler({
+      componentSubType: "lines",
+      data: {link},
+      event: {event: {}},
+      seriesIndex: 1,
+      dataIndex: 3,
+    });
+    mockSelf.echartsClickHandler({
+      componentSubType: "scatter",
+      data: {node},
+      event: {event: {}},
+      seriesIndex: 2,
+      dataIndex: 4,
     });
     mockSelf.echartsClickHandler({
       componentSubType: "graph",
@@ -164,13 +191,46 @@ describe("highlight click handling", () => {
     });
     expect(highlightNode).toHaveBeenNthCalledWith(2, node, {
       showInfo: true,
+      append: false,
+      toggle: false,
+      seriesIndex: 2,
+      dataIndex: 4,
+    });
+    expect(highlightNode).toHaveBeenNthCalledWith(3, node, {
+      showInfo: true,
       append: true,
       toggle: true,
       seriesIndex: 0,
       dataIndex: 1,
       dataType: "node",
     });
+    expect(highlightLink).toHaveBeenNthCalledWith(1, link, {
+      showInfo: true,
+      append: false,
+      toggle: false,
+      seriesIndex: 0,
+      dataIndex: 2,
+      dataType: "edge",
+    });
+    expect(highlightLink).toHaveBeenNthCalledWith(2, link, {
+      showInfo: true,
+      append: false,
+      toggle: false,
+      seriesIndex: 1,
+      dataIndex: 3,
+    });
+    expect(echarts.off).toHaveBeenCalledWith("click", previousClickHandler);
     expect(echarts.on).toHaveBeenCalledWith("click", mockSelf.echartsClickHandler);
+  });
+
+  test("derives border opacity from hex and RGB fill colors", () => {
+    const render = new NetJSONGraphRender();
+    expect(render.getColorWithOpacity("#abc", 0.25)).toBe("rgba(170, 187, 204, 0.25)");
+    expect(render.getColorWithOpacity("rgb(21, 102, 169)", 0.5)).toBe(
+      "rgba(21, 102, 169, 0.5)",
+    );
+    expect(render.getColorWithOpacity("red", 0.5)).toBe("red");
+    expect(render.getColorWithOpacity(null, 0.5)).toBeNull();
   });
 });
 
