@@ -7254,9 +7254,9 @@ select-hose@^2.0.0:
   integrity sha512-mEugaLK+YfkijB4fx0e6kImuJdCIt2LxCRcbEYPqRGCs4F2ogyfZU5IAZRdjCP8JPq2AtdNoC/Dux63d9Kiryg==
 
 selenium-webdriver@^4.29.0:
-  version "4.45.0"
-  resolved "https://registry.yarnpkg.com/selenium-webdriver/-/selenium-webdriver-4.45.0.tgz#30789762c2c38529cf4912f5d8e7ab01324a9265"
-  integrity sha512-Cb2nqvJiwXVOtRTCYHX9D1FJR5+Ls7aL3Nev0t6n4CpXsQ//YGiiUmSCbvTDDeLtbV85SZ46qmLab4SIYKXWRw==
+  version "4.46.0"
+  resolved "https://registry.yarnpkg.com/selenium-webdriver/-/selenium-webdriver-4.46.0.tgz#5dab03f0f815a481ffbfa056e24de0db1f0020da"
+  integrity sha512-UlTkgnx9y+bf3QxFsrgUyMqC2oy1Yf+qcOs7xIC/XfsUPv/ow7Sicx6SJ7AeOn2/Z+xF1M8SLqyn983wipI82w==
   dependencies:
     "@bazel/runfiles" "^6.5.0"
     jszip "^3.10.1"
