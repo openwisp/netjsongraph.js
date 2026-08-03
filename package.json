@@ -20,7 +20,6 @@
     "minimatch": "3.1.5",
     "glob/minimatch": "9.0.8",
     "rimraf/minimatch": "9.0.8",
-    "path-to-regexp": "0.1.13",
     "picomatch": ">=2.3.2",
     "qs": ">=6.11.0",
     "serialize-javascript": ">=7.0.5",
