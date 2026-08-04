@@ -18,12 +18,25 @@ Core code lives in this repository root:
 
 If instructions conflict, repository config and CI workflows win first, docs next, and this file is supplemental.
 
+## Contributing Guidelines
+
+- Before editing, inspect the relevant implementation, tests, documentation, and configuration. Follow existing repository patterns and do not invent behavior or requirements.
+- Keep each contribution focused and change only the lines necessary for its goal. Do not include unrelated refactors, formatting churn, or generated and dependency-file changes unless explicitly required.
+- Add or update focused tests for every behavior change. Use test-driven development when the scope is very clear, such as bug fixes or narrowly scoped changes. For new features, tests may be added after implementation, but confirm they fail when key feature code is removed. When a test failure does not clearly state the expected outcome that was not met, add an explicit assertion message.
+- Run `openwisp-qa-format` and `yarn lint:fix` after each change.
+- Run the relevant targeted tests, builds, and documented QA checks, including `./run-qa-checks` when provided. Do not claim a change is complete when verification fails; report the failure or blocker.
+- When requirements, intended behavior, or an unexpected failure are unclear, stop and seek clarification instead of making speculative changes.
+- When starting work on a new issue, create a new branch from `master`. Use `issues/<issue-number>-<short-title>` for issue work; otherwise, use a short, descriptive branch name.
+- Commit messages must be descriptive and use past tense. Past tense is a writing guideline that agents and contributors must follow; it is not checked automatically. For issue work, use an allowed prefix and a capitalized, past-tense subject ending with `#<issue-number>`, for example `[fix] Fixed perennial "modified" state #213`. Repeat the issue reference in the body with `Fixes`, `Closes`, `Resolves`, or `Related to` as appropriate. Use `openwisp-commit --check` to validate the structural commit convention and `cz -n cz_openwisp info` to view the allowed prefixes and message structure.
+- Add an explanatory commit body only for substantial changes, new features, or non-obvious bug fixes. The releaser automatically publishes the subject of `[feature]`, `[change]`, `[change!]`, `[deps]`, and `[fix]` commits, including scoped variants, in the changelog. Write those subjects in clear, user-friendly language suitable for release notes.
+- Send new commits in response to review feedback instead of amending existing commits.
+
 ## Development Notes
 
 - Preserve public APIs, NetJSON compatibility, rendered graph behavior, browser compatibility, and build outputs unless explicitly required.
 - Be careful with performance on large graphs, map interactions, accessibility, dependency updates, and bundle size.
 - Avoid unnecessary blank lines inside functions and methods.
-- Update docs or examples when behavior, options, public APIs, setup steps, or supported versions change.
+- Update docs or examples when behavior, options, public APIs, setup steps, or supported versions change, including when a documented feature's behavior changes or a new user-facing feature is added.
 - Treat `dist/` and its built CSS, JavaScript, and assets as generated artifacts. Make source changes under `src/`, `public/`, or other tracked build inputs, not in `dist/`, other built assets, or dependency directories such as `node_modules/`.
 - Treat `src/css/` as the stylesheet source. Do not edit the copies in `dist/lib/css/`; rebuild them with `yarn build:full` when generated output is required.
 - Prefer short, precise names that rely on their nearest meaningful scope. Do not repeat a feature, domain object, or namespace already named by the containing module, class, or function. For example, prefer `EstimatedLocation.refresh()` over `EstimatedLocation.refreshEstimatedLocation()`. Repeat that context only when the name is used outside that scope or is needed to distinguish genuinely different concepts. When a concise name cannot express a necessary distinction, use a concise docstring to describe it rather than encoding it in an excessively long name.
@@ -31,9 +44,7 @@ If instructions conflict, repository config and CI workflows win first, docs nex
 
 ## Testing and QA
 
-- For bug fixes, write the regression test first, run it against the unfixed code, confirm it fails for the expected reason, then implement the fix.
 - Use `yarn test` for unit tests, `yarn coverage` for coverage, and the documented browser test flow for browser-specific behavior.
-- Run `openwisp-qa-format`, `yarn lint:fix`, and `./run-qa-checks` when available. Treat failures as blocking unless confirmed unrelated and reported.
 
 ## Security Notes
 
@@ -43,15 +54,3 @@ If instructions conflict, repository config and CI workflows win first, docs nex
 ## Troubleshooting
 
 - If documentation and CI commands differ, use CI for verification and report the exact documentation path, CI workflow path, and differing commands. Do not change the documentation until the user explicitly chooses one of these actions: update the named documentation file in the current change because the divergence was caused by that change, or leave it unchanged for a separate follow-up. Never decide that scope distinction independently.
-
-## Contributing Guidelines
-
-- Before editing, inspect the relevant implementation, tests, documentation, and configuration. Follow existing repository patterns and do not invent behavior or requirements.
-- Keep each contribution focused and change only the lines necessary for its goal. Do not include unrelated refactors, formatting churn, or generated and dependency-file changes unless explicitly required.
-- Add or update focused tests for every behavior change. For bug fixes, follow the regression-test rule above.
-- Run the relevant targeted tests, builds, and documented QA checks, including `./run-qa-checks` when provided. Do not claim a change is complete when verification fails; report the failure or blocker.
-- When requirements, intended behavior, or an unexpected failure are unclear, stop and seek clarification instead of making speculative changes.
-- When starting work on a new issue, create a new branch from `master`. Use `issues/<issue-number>-<short-title>` for issue work; otherwise, use a short, descriptive branch name.
-- Commit messages must be descriptive and use past tense. Past tense is a writing guideline that agents and contributors must follow; it is not checked automatically. For issue work, use an allowed prefix and a capitalized, past-tense subject ending with `#<issue-number>`, for example `[fix] Fixed perennial "modified" state #213`. Repeat the issue reference in the body with `Fixes`, `Closes`, `Resolves`, or `Related to` as appropriate. Use `openwisp-commit --check` to validate the structural commit convention and `cz -n cz_openwisp info` to view the allowed prefixes and message structure. If the repository's declared QA dependency predates these commands, install the development version with `pip install --upgrade "openwisp-utils[qa] @ https://github.com/openwisp/openwisp-utils/archive/refs/heads/master.tar.gz"` in the development environment.
-- Add an explanatory commit body only for substantial changes, new features, or non-obvious bug fixes. The releaser automatically publishes the subject of `[feature]`, `[change]`, `[change!]`, `[deps]`, and `[fix]` commits, including scoped variants, in the changelog. Write those subjects in clear, user-friendly language suitable for release notes.
-- Send new commits in response to review feedback instead of amending existing commits.
