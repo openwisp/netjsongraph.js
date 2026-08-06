@@ -45,6 +45,7 @@ If instructions conflict, repository config and CI workflows win first, docs nex
 ## Testing and QA
 
 - Use `yarn test` for unit tests, `yarn coverage` for coverage, and the documented browser test flow for browser-specific behavior.
+- Keep helpers and classes used by only one test method inside that method. Promote them to class or module scope only when genuinely reused.
 
 ## Security Notes
 
