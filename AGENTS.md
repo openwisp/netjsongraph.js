@@ -31,7 +31,7 @@ If instructions conflict, repository config and CI workflows win first, docs nex
 - Add an explanatory commit body only for substantial changes, new features, or non-obvious bug fixes. The releaser automatically publishes the subject of `[feature]`, `[change]`, `[change!]`, `[deps]`, and `[fix]` commits, including scoped variants, in the changelog. Write those subjects in clear, user-friendly language suitable for release notes.
 - Send new commits in response to review feedback instead of amending existing commits.
 
-## Development Notes
+## Development Rules
 
 - Preserve public APIs, NetJSON compatibility, rendered graph behavior, browser compatibility, and build outputs unless explicitly required.
 - Be careful with performance on large graphs, map interactions, accessibility, dependency updates, and bundle size.
@@ -47,7 +47,7 @@ If instructions conflict, repository config and CI workflows win first, docs nex
 - Use `yarn test` for unit tests, `yarn coverage` for coverage, and the documented browser test flow for browser-specific behavior.
 - Keep helpers and classes used by only one test method inside that method. Promote them to class or module scope only when genuinely reused.
 
-## Security Notes
+## Security Rules
 
 - Watch for unsafe dependency changes, DOM injection, unsafe URL handling, leaked secrets, and performance regressions from untrusted graph data.
 - Preserve validation and safe handling around NetJSON input, map tiles, external links, browser APIs, and generated assets.
