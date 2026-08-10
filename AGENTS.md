@@ -33,6 +33,7 @@ If instructions conflict, repository config and CI workflows win first, docs nex
 
 ## Development Rules
 
+- Follow the DRY principle: do not duplicate information or code across files.
 - Preserve public APIs, NetJSON compatibility, rendered graph behavior, browser compatibility, and build outputs unless explicitly required.
 - Be careful with performance on large graphs, map interactions, accessibility, dependency updates, and bundle size.
 - Avoid unnecessary blank lines inside functions and methods.
