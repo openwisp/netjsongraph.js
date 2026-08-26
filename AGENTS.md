@@ -36,6 +36,10 @@ If instructions conflict, repository config and CI workflows win first, docs nex
 - Follow the DRY principle: do not duplicate information or code across files.
 - Preserve public APIs, NetJSON compatibility, rendered graph behavior, browser compatibility, and build outputs unless explicitly required.
 - Be careful with performance on large graphs, map interactions, accessibility, dependency updates, and bundle size.
+- Load paginated API collections one page at a time, following the API's pagination link or cursor.
+- Do not fetch every page by default. Prefer normal page navigation when it meets the user need.
+- If infinite scrolling is necessary, define a maximum number of records or pages kept in browser memory.
+- Tests for code that consumes paginated APIs must cover loading a second page and detecting the end of the list.
 - Avoid unnecessary blank lines inside functions and methods.
 - Update docs or examples when behavior, options, public APIs, setup steps, or supported versions change, including when a documented feature's behavior changes or a new user-facing feature is added.
 - Do not edit `dist/` directly: change `src/`, `public/`, or other build inputs and regenerate it when required.
