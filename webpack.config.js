@@ -63,6 +63,10 @@ module.exports = (env, argv) => {
   const isDevelopment = !isProduction;
   const buildType = env && env.BUILD_TYPE ? env.BUILD_TYPE : "full";
   const isEchartsOnly = buildType === "echarts-only";
+  // Chrome drops the dev-server client websocket when history navigation moves
+  // a page into the Back-Forward Cache, which browser tests log as a console
+  // error, so the client is disabled while they run.
+  const hmrEnabled = !(env && env.HMR === "false");
 
   // Common configuration shared by both builds
   const commonConfig = {
@@ -129,8 +133,9 @@ module.exports = (env, argv) => {
       ],
       historyApiFallback: true,
       open: ["./index.html"],
-      hot: true,
-      client: {
+      hot: hmrEnabled,
+      liveReload: hmrEnabled,
+      client: hmrEnabled && {
         overlay: {
           errors: true,
           warnings: false,
