@@ -1,6 +1,64 @@
 Changelog
 =========
 
+Version 0.4.0 [2026-09-02]
+--------------------------
+
+Features
+~~~~~~~~
+
+- Added `bookmarkable URLs and browser history support
+  <https://github.com/openwisp/netjsongraph.js/issues/238>`_, allowing
+  specific map and graph views to be shared, bookmarked, and restored
+  through browser navigation.
+- Added `configurable Leaflet popups for geographic maps
+  <https://github.com/openwisp/netjsongraph.js/issues/402>`_.
+- Added `visual highlighting for nodes and links
+  <https://github.com/openwisp/netjsongraph.js/issues/163>`_, including
+  hover highlighting, Ctrl-click multi-selection, and utilities for
+  programmatic highlighting.
+- Added the `fragmentchange event for URL updates
+  <https://github.com/openwisp/netjsongraph.js/issues/551>`_, allowing
+  integrations to react to URL fragment changes and browser navigation.
+- Added `utils.moveNodeInRealTime()
+  <https://github.com/openwisp/netjsongraph.js/issues/443>`_.
+
+Changes
+~~~~~~~
+
+Other changes
++++++++++++++
+
+- Added `separate full and ECharts-only builds
+  <https://github.com/openwisp/netjsongraph.js/issues/392>`_, reducing
+  bundle size for projects which already provide Leaflet.
+
+  Leaflet is now an optional peer dependency. Projects using the
+  ECharts-only build must provide Leaflet separately.
+
+- Improved performance when processing large NetJSON datasets.
+
+Dependencies
+++++++++++++
+
+- Bumped ``echarts`` from ``^5.6.0`` to ``^6.1.0``.
+- Bumped ``kdbush`` from ``4.0.2`` to ``4.1.0``.
+- `Resolved dependency vulnerabilities
+  <https://github.com/openwisp/netjsongraph.js/issues/514>`_.
+
+Bugfixes
+~~~~~~~~
+
+- Fixed `overlap between node labels and overlays
+  <https://github.com/openwisp/netjsongraph.js/issues/454>`_ and improved
+  label visibility when tooltips are enabled.
+- Fixed `indoor overlay URL fragments being removed when closing popups
+  <https://github.com/openwisp/netjsongraph.js/issues/546>`_.
+- Enabled `wheel zoom outside the graph area
+  <https://github.com/openwisp/netjsongraph.js/issues/421>`_.
+- Enabled `Leaflet world copy jumping by default
+  <https://github.com/openwisp/netjsongraph.js/issues/373>`_.
+
 Version 0.3.0 [2025-10-27]
 --------------------------
 
