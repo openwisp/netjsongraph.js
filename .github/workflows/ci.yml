@@ -90,7 +90,7 @@ jobs:
 
       - name: Running Server (Dev)
         if: matrix.build-type == 'dev'
-        run: yarn start &
+        run: yarn dev:test &
 
       - name: Running Server (Dist)
         if: matrix.build-type == 'prod' || matrix.build-type == 'echarts-only'
