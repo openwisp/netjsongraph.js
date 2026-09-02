@@ -31,12 +31,20 @@ describe("getDriver", () => {
       chrome.Options.prototype,
       "setChromeBinaryPath",
     );
-    const setChromeService = jest.spyOn(Builder.prototype, "setChromeService");
+    const {ServiceBuilder} = chrome;
+    const serviceBuilder = jest
+      .spyOn(chrome, "ServiceBuilder")
+      .mockImplementation((path) => new ServiceBuilder(path));
+    const setChromeService = jest
+      .spyOn(Builder.prototype, "setChromeService")
+      .mockReturnThis();
 
     await getDriver();
 
     expect(setChromeBinaryPath).toHaveBeenCalledWith("/tmp/chrome");
-    expect(setChromeService).toHaveBeenCalledWith(expect.any(chrome.ServiceBuilder));
+    const [service] = setChromeService.mock.calls[0];
+    expect(service).toBeInstanceOf(ServiceBuilder);
+    expect(serviceBuilder).toHaveBeenCalledWith("/tmp/chromedriver");
   });
 
   test("uses Selenium defaults when no browser paths are configured", async () => {
