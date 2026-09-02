@@ -36,6 +36,7 @@
   "scripts": {
     "test": "jest --silent",
     "dev": "webpack serve --open --mode development",
+    "dev:test": "webpack serve --mode development --env HMR=false",
     "start": "yarn dev",
     "build": "yarn build:full",
     "build:full": "webpack --progress --mode production --env BUILD_TYPE=full",

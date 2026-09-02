@@ -206,11 +206,11 @@ For production use, ensure Leaflet is available locally or from a trusted CDN.
 
 The test suite includes browser tests, so **ensure that ChromeDriver is installed** before running them.
 
-Start the development server first:
+Browser tests require a development server. Run `yarn dev:test` to start webpack in development mode with HMR disabled, then keep it running while executing the browser tests in another terminal.
 
 ```
 # Required for Selenium browser tests
-yarn start
+yarn dev:test
 ```
 
 Then, in a separate terminal, run:
