@@ -99,18 +99,17 @@ jobs:
       - name: Wait for server to be ready
         run: npx wait-on http://localhost:8080
 
-      - name: Set up Chrome
+      - name: Set up Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v2
-
-      - name: Set up ChromeDriver
-        uses: nanasess/setup-chromedriver@v3
+        with:
+          chrome-version: stable
+          install-chromedriver: true
 
       - name: Check chrome and chromedriver version
         run: |
-          chrome --version
-          which chrome
-          chromedriver --version
-          which chromedriver
+          "${{ steps.setup-chrome.outputs.chrome-path }}" --version
+          "${{ steps.setup-chrome.outputs.chromedriver-path }}" --version
 
       - name: Unit tests
         if: matrix.build-type == 'dev'
@@ -118,6 +117,9 @@ jobs:
 
       - name: Browser tests
         # Test timeout set to 30 seconds in CI since it runs slower
+        env:
+          SE_CHROME: ${{ steps.setup-chrome.outputs.chrome-path }}
+          SE_CHROMEDRIVER: ${{ steps.setup-chrome.outputs.chromedriver-path }}
         run: yarn test --runInBand --testTimeout=30000 test/netjsongraph.browser.test.js
 
       - name: Coveralls
