@@ -22,7 +22,14 @@ export const getDriver = async () => {
     options.addArguments("--disable-dev-shm-usage");
     options.addArguments("--no-sandbox");
     options.addArguments("--remote-debugging-pipe");
-    return new Builder().forBrowser("chrome").setChromeOptions(options).build();
+    if (process.env.SE_CHROME) {
+      options.setChromeBinaryPath(process.env.SE_CHROME);
+    }
+    const builder = new Builder().forBrowser("chrome").setChromeOptions(options);
+    if (process.env.SE_CHROMEDRIVER) {
+      builder.setChromeService(new chrome.ServiceBuilder(process.env.SE_CHROMEDRIVER));
+    }
+    return builder.build();
   } catch (err) {
     console.error("Failed to initialize driver:", err);
     throw err;
