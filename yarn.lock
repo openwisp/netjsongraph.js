@@ -6656,7 +6656,7 @@ picocolors@^1.0.0, picocolors@^1.1.1:
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.1.1.tgz#3d321af3eab939b083c8f929a1d12cda81c26b6b"
   integrity sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==
 
-picomatch@>=2.3.2, picomatch@^2.0.4, picomatch@^2.3.1, picomatch@^4.0.2, picomatch@^4.0.3, picomatch@^4.0.4, picomatch@^4.0.5, picomatch@^4.0.7:
+picomatch@>=2.3.2, picomatch@^2.0.4, picomatch@^2.3.1, picomatch@^4.0.2, picomatch@^4.0.3, picomatch@^4.0.4, picomatch@^4.0.7:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.4.tgz#fd6f5e00a143086e074dffe4c924b8fb293b0589"
   integrity sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==
@@ -8093,9 +8093,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 webpack-bundle-analyzer@^5.2.0:
-  version "5.3.2"
-  resolved "https://registry.yarnpkg.com/webpack-bundle-analyzer/-/webpack-bundle-analyzer-5.3.2.tgz#f8ed8ff2efa89034d1e216d2b8581f0a5d5ac424"
-  integrity sha512-IagCa/GrdxSz+ba9OMgK7UCfQp97HtXbgjXu7ObcqmRo9PTp0d+24rgY+mIFOx7JPQ9bo6FGsqZhA55rYRZrrQ==
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/webpack-bundle-analyzer/-/webpack-bundle-analyzer-5.4.0.tgz#cccc3cac73a71d0ed41fc454abbd80ca02c69609"
+  integrity sha512-6OjsEFQIwcRT1nId/O7OyHjDvrE0JSFAef/XCwGarrf9MF5/CaD0lhDvoySbus57dYEdJ3vrRVj5F3i30c4ozw==
   dependencies:
     "@discoveryjs/json-ext" "^0.6.3"
     acorn "^8.0.4"
