@@ -786,6 +786,93 @@ describe("Chart Rendering Test", () => {
     expect(initialNodeCount).toBeGreaterThan(0);
   });
 
+  test("GeoJSON: polygons are hidden while they belong to a cluster", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.leaflet.polygonGeoJSON);",
+        ),
+      5000,
+      "Timed out waiting for the polygons to be drawn",
+    );
+    const getPolygons = async (zoom) => {
+      await driver.executeScript("window.map.leaflet.setZoom(arguments[0]);", zoom);
+      await driver.sleep(1000); // Wait for clustering to update
+      return driver.executeScript(`
+        const {leaflet, echarts, data} = window.map;
+        const name = (properties) => properties.country || properties.name;
+        const series = echarts.getOption().series.find((s) => s.type === "scatter");
+        const clusteredIds = new Set();
+        series.data
+          .filter((item) => item.cluster)
+          .forEach((cluster) => cluster.childNodes.forEach((n) => clusteredIds.add(n.id)));
+        const nodes = data.nodes.filter((n) => n.properties._featureType === "Polygon");
+        const hidden = [];
+        const shown = [];
+        leaflet.polygonGeoJSON.eachLayer((layer) =>
+          (leaflet.hasLayer(layer) ? shown : hidden).push(name(layer.feature.properties)),
+        );
+        return {
+          nodes: nodes.map((n) => name(n.properties)),
+          clustered: nodes.filter((n) => clusteredIds.has(n.id)).map((n) => name(n.properties)),
+          hidden,
+          shown,
+        };
+      `);
+    };
+    // At the lowest zoom the polygon of Austria is close to the points around
+    // it, while the MultiPolygon is far from any other feature.
+    const zoomedOut = await getPolygons(3);
+    // The MultiPolygon is represented by a single node
+    expect(zoomedOut.nodes).toEqual(["Austria", "Sample MultiPolygon"]);
+    expect(zoomedOut.clustered).toEqual(["Austria"]);
+    expect(zoomedOut.hidden).toEqual(["Austria"]);
+    expect(zoomedOut.shown).toEqual(["Sample MultiPolygon"]);
+    // Above disableClusteringAtLevel nothing is clustered
+    const zoomedIn = await getPolygons(7);
+    expect(zoomedIn.clustered).toEqual([]);
+    expect(zoomedIn.hidden).toEqual([]);
+    expect(zoomedIn.shown).toEqual(["Austria", "Sample MultiPolygon"]);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test("GeoJSON: clicking a polygon opens its popup and adds it to the URL", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.leaflet.polygonGeoJSON);",
+        ),
+      5000,
+      "Timed out waiting for the polygons to be drawn",
+    );
+    // Center the map on the node of the polygon, which lies within the
+    // polygon, at a zoom level at which nothing is clustered.
+    const nodeId = await driver.executeScript(`
+      const {leaflet, data} = window.map;
+      const node = data.nodes.find((n) => n.properties._featureType === "Polygon");
+      leaflet.setView([node.location.lat, node.location.lng], 7, {animate: false});
+      return node.id;
+    `);
+    await driver.sleep(1000);
+    const container = await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+    await driver.actions().move({origin: container}).click().perform();
+    const popup = await getElementByCss(driver, ".leaflet-popup", 2000);
+    expect(popup).not.toBeNull();
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    // The popup of the polygon is restored when the page is loaded again
+    await driver.navigate().refresh();
+    const restoredPopup = await getElementByCss(driver, ".leaflet-popup", 5000);
+    expect(restoredPopup).not.toBeNull();
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  }, 10000); // This test needs more time
+
   test("render geo map with leaflet plugins without console errors", async () => {
     await driver.get(urls.leafletPlugins);
     const leafletContainer = await getElementByCss(

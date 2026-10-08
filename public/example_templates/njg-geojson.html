@@ -18,14 +18,30 @@
     <script type="text/javascript">
       const map = new NetJSONGraph("../assets/data/geojson-sample.json", {
         render: "map",
+        // polygons are clustered together with points
+        clustering: true,
+        clusteringThreshold: 0,
+        disableClusteringAtLevel: 6,
+        // clicking a point or a polygon adds it to the URL
+        bookmarkableActions: {
+          enabled: true,
+          id: "geoJson",
+        },
         // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,
+          nodePopup: {
+            show: true,
+            config: {
+              closeOnClick: false,
+            },
+          },
         },
       });
 
       map.render();
+      window.map = map;
     </script>
   </body>
 </html>

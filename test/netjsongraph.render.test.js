@@ -3,6 +3,7 @@ import NetJSONGraphCore from "../src/js/netjsongraph.core";
 import NetJSONGraphRender from "../src/js/netjsongraph.render";
 import NetJSONGraphGUI from "../src/js/netjsongraph.gui";
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
+import {addPolygonOverlays} from "../src/js/netjsongraph.geojson";
 
 const createUpdateLabelVisibilityMock = () =>
   jest.fn((self, show) => new NetJSONGraphUtil().updateLabelVisibility(self, show));
@@ -1464,6 +1465,33 @@ describe("graph label visibility and fallbacks", () => {
     expect(names).toEqual(["L", "N", "n3"]);
   });
 
+  test("generateGraphOption leaves out the nodes which stand for polygons", () => {
+    const render = new NetJSONGraphRender();
+    const mockSelf = {
+      config: {graphConfig: {series: {layout: "force"}, baseOptions: {}}},
+      utils: {
+        getNodeStyle: jest.fn(() => ({
+          nodeStyleConfig: {},
+          nodeSizeConfig: 10,
+          nodeEmphasisConfig: {nodeStyle: {}, nodeSize: 12},
+        })),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+      },
+    };
+    const option = render.generateGraphOption(
+      {
+        nodes: [
+          {id: "point", properties: {_featureType: "Point"}},
+          {id: "area", properties: {_featureType: "Polygon"}},
+          {id: "plain"},
+        ],
+        links: [],
+      },
+      mockSelf,
+    );
+    expect(option.series[0].nodes.map((n) => n.id)).toEqual(["point", "plain"]);
+  });
+
   test("label formatter hides below threshold and shows above", () => {
     const render = new NetJSONGraphRender();
     const mockSelf = {
@@ -2116,6 +2144,257 @@ describe("mapRender clustering label visibility", () => {
     expect(series).toBeDefined();
     expect(series.label.show).toBe(true);
     expect(series.emphasis.label.show).toBe(false);
+  });
+});
+
+describe("mapRender hides clustered polygons", () => {
+  let geoJSONSpy;
+
+  afterEach(() => {
+    geoJSONSpy.mockRestore();
+  });
+
+  test("polygons follow the clusters across zoom levels", () => {
+    const capturedEvents = {};
+    const shown = new Set();
+    let layers;
+    geoJSONSpy = jest.spyOn(L, "geoJSON").mockImplementation((collection) => {
+      layers = collection.features.map((feature) => ({feature, on: jest.fn()}));
+      layers.forEach((layer) => shown.add(layer));
+      return {
+        addTo: jest.fn().mockReturnThis(),
+        getBounds: jest.fn(() => ({isValid: () => false, extend: jest.fn()})),
+        eachLayer: (callback) => layers.forEach(callback),
+      };
+    });
+    const mockLeaflet = {
+      on: jest.fn((event, handler) => {
+        capturedEvents[event] = handler;
+      }),
+      getZoom: jest.fn(() => 5),
+      getMinZoom: jest.fn(() => 1),
+      getMaxZoom: jest.fn(() => 18),
+      getPane: jest.fn(() => undefined),
+      createPane: jest.fn(() => ({style: {}})),
+      hasLayer: (layer) => shown.has(layer),
+      addLayer: (layer) => shown.add(layer),
+      removeLayer: (layer) => shown.delete(layer),
+    };
+    const area = {
+      id: "area",
+      _featureIndex: 0,
+      properties: {location: {lat: 1, lng: 1}},
+    };
+    const point = {id: "point", properties: {location: {lat: 1, lng: 1}}};
+    const makeCluster = jest.fn(() => ({
+      clusters: [{cluster: true, childNodes: [area, point]}],
+      nonClusterNodes: [],
+      nonClusterLinks: [],
+    }));
+    const mockSelf = {
+      type: "geojson",
+      config: {
+        geoOptions: {},
+        mapOptions: {},
+        mapTileConfig: [{}],
+        clustering: true,
+        clusteringThreshold: 0,
+        disableClusteringAtLevel: 8,
+        onClickElement: jest.fn(),
+      },
+      echarts: {
+        setOption: jest.fn(),
+        on: jest.fn(),
+        _api: {getCoordinateSystems: jest.fn(() => [{getLeaflet: () => mockLeaflet}])},
+      },
+      utils: {
+        deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({nodes: [area, point], links: []})),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        generateMapOption: jest.fn(() => ({series: []})),
+        echartsSetOption: jest.fn(),
+        makeCluster,
+        setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: jest.fn(),
+      },
+      event: {emit: jest.fn()},
+    };
+    const data = {
+      type: "FeatureCollection",
+      features: [
+        {type: "Feature", properties: {}, geometry: {type: "Polygon", coordinates: []}},
+      ],
+    };
+    new NetJSONGraphRender().mapRender(data, mockSelf);
+    expect(layers).toHaveLength(1);
+    expect(shown.size).toBe(0);
+
+    mockLeaflet.getZoom.mockReturnValue(9);
+    capturedEvents.zoomend();
+    expect(shown.has(layers[0])).toBe(true);
+
+    mockLeaflet.getZoom.mockReturnValue(5);
+    capturedEvents.zoomend();
+    expect(shown.size).toBe(0);
+
+    makeCluster.mockReturnValue({
+      clusters: [],
+      nonClusterNodes: [area, point],
+      nonClusterLinks: [],
+    });
+    capturedEvents.zoomend();
+    expect(shown.has(layers[0])).toBe(true);
+  });
+});
+
+describe("Polygon clicks are forwarded to ECharts", () => {
+  let geoJSONSpy;
+
+  afterEach(() => {
+    geoJSONSpy.mockRestore();
+  });
+
+  // Like Leaflet, calls onEachFeature for each feature of the collection
+  const mockGeoJSON = (clickHandlers) =>
+    jest.spyOn(L, "geoJSON").mockImplementation((collection, options) => {
+      collection.features.forEach((feature) => {
+        options.onEachFeature(feature, {
+          feature,
+          on: jest.fn((event, handler) => clickHandlers.push(handler)),
+        });
+      });
+      return {
+        addTo: jest.fn().mockReturnThis(),
+        getBounds: jest.fn(() => ({isValid: () => false, extend: jest.fn()})),
+        eachLayer: jest.fn(),
+      };
+    });
+  const polygon = (id) => ({
+    type: "Feature",
+    id,
+    properties: {name: id},
+    geometry: {type: "Polygon", coordinates: []},
+  });
+  const setUp = (geoOptions = {}) => {
+    const clickHandlers = [];
+    geoJSONSpy = mockGeoJSON(clickHandlers);
+    const node = {
+      id: "area",
+      label: "area",
+      location: {lat: 2, lng: 2},
+      properties: {name: "area", _featureType: "Polygon", location: {lat: 2, lng: 2}},
+      _featureIndex: 1,
+    };
+    const self = {
+      originalGeoJSON: {
+        features: [
+          {type: "Feature", id: "point", geometry: {type: "Point"}},
+          polygon("area"),
+          polygon("without-node"),
+        ],
+      },
+      data: {nodes: [{id: "point"}, node], links: []},
+      config: {geoOptions, onClickElement: jest.fn()},
+      leaflet: {
+        getPane: jest.fn(() => undefined),
+        createPane: jest.fn(() => ({style: {}})),
+      },
+      utils: {clearHighlight: jest.fn()},
+      echartsClickHandler: jest.fn(),
+    };
+    addPolygonOverlays(self);
+    return {self, node, clickHandlers};
+  };
+
+  test("clicking a polygon triggers the click handler with its node", () => {
+    const {self, node, clickHandlers} = setUp();
+    const originalEvent = {ctrlKey: false};
+    clickHandlers[0]({latlng: {lat: 3, lng: 1}, originalEvent});
+    expect(self.config.onClickElement).toHaveBeenCalledWith("Feature", {name: "area"});
+    expect(self.echartsClickHandler).toHaveBeenCalledTimes(1);
+    const [params] = self.echartsClickHandler.mock.calls[0];
+    expect(params.seriesType).toBe("scatter");
+    expect(params.componentSubType).toBe("scatter");
+    expect(params.event).toBe(originalEvent);
+    expect(params.data.node.id).toBe("area");
+    expect(params.data.node.label).toBe("area");
+    // The popup is anchored at the clicked position, the node keeps its own.
+    expect(params.data.node.location).toEqual({lat: 3, lng: 1});
+    expect(params.data.node.properties.location).toEqual({lat: 3, lng: 1});
+    expect(node.location).toEqual({lat: 2, lng: 2});
+    expect(node.properties.location).toEqual({lat: 2, lng: 2});
+    expect(self.utils.clearHighlight).toHaveBeenCalledTimes(1);
+  });
+
+  test("clicking a polygon which has no node is not forwarded", () => {
+    const {self, clickHandlers} = setUp();
+    expect(() => clickHandlers[1]({latlng: {lat: 3, lng: 1}})).not.toThrow();
+    expect(self.config.onClickElement).toHaveBeenCalledTimes(1);
+    expect(self.echartsClickHandler).not.toHaveBeenCalled();
+    expect(self.utils.clearHighlight).not.toHaveBeenCalled();
+  });
+
+  test("a custom geoOptions.onEachFeature replaces the default click handling", () => {
+    const onEachFeature = jest.fn();
+    const {clickHandlers} = setUp({onEachFeature});
+    expect(onEachFeature).toHaveBeenCalledTimes(2);
+    expect(clickHandlers).toHaveLength(0);
+  });
+
+  test("mapRender forwards polygon clicks by default", () => {
+    const clickHandlers = [];
+    geoJSONSpy = mockGeoJSON(clickHandlers);
+    const mockLeaflet = {
+      on: jest.fn(),
+      getZoom: jest.fn(() => 5),
+      getPane: jest.fn(() => undefined),
+      createPane: jest.fn(() => ({style: {}})),
+    };
+    const node = {
+      id: "area",
+      _featureIndex: 0,
+      location: {lat: 2, lng: 2},
+      properties: {location: {lat: 2, lng: 2}},
+    };
+    const mockSelf = {
+      type: "geojson",
+      config: {
+        geoOptions: {},
+        mapOptions: {},
+        mapTileConfig: [{}],
+        onClickElement: jest.fn(),
+      },
+      echarts: {
+        setOption: jest.fn(),
+        _api: {getCoordinateSystems: jest.fn(() => [{getLeaflet: () => mockLeaflet}])},
+      },
+      utils: {
+        deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
+        isGeoJSON: jest.fn(() => true),
+        geojsonToNetjson: jest.fn(() => ({nodes: [node], links: []})),
+        fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
+        generateMapOption: jest.fn(() => ({series: []})),
+        echartsSetOption: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
+        updateLabelVisibility: jest.fn(),
+        clearHighlight: jest.fn(),
+      },
+      event: {emit: jest.fn()},
+      echartsClickHandler: jest.fn(),
+    };
+    mockSelf.data = {nodes: [node], links: []};
+    new NetJSONGraphRender().mapRender(
+      {type: "FeatureCollection", features: [polygon("area")]},
+      mockSelf,
+    );
+    expect(clickHandlers).toHaveLength(1);
+    clickHandlers[0]({latlng: {lat: 3, lng: 1}});
+    expect(mockSelf.config.onClickElement).toHaveBeenCalledWith("Feature", {
+      name: "area",
+    });
+    expect(mockSelf.echartsClickHandler).toHaveBeenCalledTimes(1);
+    expect(mockSelf.echartsClickHandler.mock.calls[0][0].data.node.id).toBe("area");
   });
 });
 
