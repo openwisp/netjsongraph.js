@@ -361,7 +361,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Default**: `8`
 
-  The zoom level at which clustering is disabled. When the zoom level is greater than this value, all the clusters will be expanded.
+  The zoom level at which clustering is disabled. When the zoom level is greater than or equal to this value, all the clusters will be expanded.
 
 - `clusterRadius`
 
