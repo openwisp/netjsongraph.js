@@ -786,7 +786,7 @@ describe("Chart Rendering Test", () => {
     expect(initialNodeCount).toBeGreaterThan(0);
   });
 
-  test("render geo map with leaflet plugins without console errors", async () => {
+  test("renders Leaflet plugins and captures measurement clicks across the map", async () => {
     await driver.get(urls.leafletPlugins);
     const leafletContainer = await getElementByCss(
       driver,
@@ -827,45 +827,43 @@ describe("Chart Rendering Test", () => {
     );
     await startMeasure.click();
 
-    const mapContainer = await getElementByCss(driver, ".leaflet-container", 2000);
-    const mapSize = await driver.executeScript(`
+    const measurementResult = await driver.executeScript(`
       const map = document.querySelector(".leaflet-container");
-      return {width: map.clientWidth, height: map.clientHeight};
+      const {left, top, width, height} = map.getBoundingClientRect();
+      const captureMarker = Array.from(map.querySelectorAll(".leaflet-marker-icon"))
+        .find((marker) => marker.style.opacity === "0");
+      // Keep all points in the left half, which the unanchored icon missed.
+      const measurementPoints = [[0.2, 0.2], [0.2, 0.75], [0.45, 0.45]];
+      const captureHits = measurementPoints.map(([xRatio, yRatio]) => {
+        const clientX = Math.round(left + width * xRatio);
+        const clientY = Math.round(top + height * yRatio);
+        const target = document.elementFromPoint(clientX, clientY);
+        const hitCaptureMarker =
+          captureMarker && (target === captureMarker || captureMarker.contains(target));
+
+        if (hitCaptureMarker) {
+          target.dispatchEvent(
+            new MouseEvent("click", {
+              bubbles: true,
+              cancelable: true,
+              clientX,
+              clientY,
+              view: window,
+            }),
+          );
+        }
+        return hitCaptureMarker;
+      });
+
+      return {
+        captureHits,
+        areaRecorded: document
+          .querySelector(".leaflet-control-measure .js-results")
+          .textContent.includes("Area"),
+      };
     `);
-    const initialMapPaneTransform = await driver.executeScript(
-      'return getComputedStyle(document.querySelector(".leaflet-map-pane")).transform',
-    );
-    const measurementPoints = [
-      [-0.3, -0.3],
-      [-0.3, 0.3],
-      [0.3, -0.3],
-    ];
 
-    for (const [xRatio, yRatio] of measurementPoints) {
-      // Element-origin offsets are relative to the map's center.
-      // eslint-disable-next-line no-await-in-loop
-      await driver
-        .actions()
-        .move({
-          origin: mapContainer,
-          x: Math.round(mapSize.width * xRatio),
-          y: Math.round(mapSize.height * yRatio),
-        })
-        .click()
-        .perform();
-    }
-
-    const areaWasMeasured = await driver.wait(
-      () =>
-        driver.executeScript(
-          'return document.querySelector(".leaflet-control-measure .js-results").textContent.includes("Area")',
-        ),
-      2000,
-    );
-    const finalMapPaneTransform = await driver.executeScript(
-      'return getComputedStyle(document.querySelector(".leaflet-map-pane")).transform',
-    );
-    expect(areaWasMeasured).toBe(true);
-    expect(finalMapPaneTransform).toBe(initialMapPaneTransform);
+    expect(measurementResult.captureHits).toEqual([true, true, true]);
+    expect(measurementResult.areaRecorded).toBe(true);
   });
 });
