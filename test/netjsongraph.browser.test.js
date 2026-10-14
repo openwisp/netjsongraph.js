@@ -813,5 +813,59 @@ describe("Chart Rendering Test", () => {
     expect(drawSection).not.toBeNull();
     expect(drawPolylineBtn).not.toBeNull();
     expect(measureControl).not.toBeNull();
+
+    const measureToggle = await getElementByCss(
+      driver,
+      ".leaflet-control-measure .js-toggle",
+      2000,
+    );
+    await measureToggle.click();
+    const startMeasure = await getElementByCss(
+      driver,
+      ".leaflet-control-measure .js-start",
+      2000,
+    );
+    await startMeasure.click();
+
+    const mapContainer = await getElementByCss(driver, ".leaflet-container", 2000);
+    const mapSize = await driver.executeScript(`
+      const map = document.querySelector(".leaflet-container");
+      return {width: map.clientWidth, height: map.clientHeight};
+    `);
+    const initialMapPaneTransform = await driver.executeScript(
+      'return getComputedStyle(document.querySelector(".leaflet-map-pane")).transform',
+    );
+    const measurementPoints = [
+      [-0.3, -0.3],
+      [-0.3, 0.3],
+      [0.3, -0.3],
+    ];
+
+    for (const [xRatio, yRatio] of measurementPoints) {
+      // Element-origin offsets are relative to the map's center.
+      // eslint-disable-next-line no-await-in-loop
+      await driver
+        .actions()
+        .move({
+          origin: mapContainer,
+          x: Math.round(mapSize.width * xRatio),
+          y: Math.round(mapSize.height * yRatio),
+        })
+        .click()
+        .perform();
+    }
+
+    const areaWasMeasured = await driver.wait(
+      () =>
+        driver.executeScript(
+          'return document.querySelector(".leaflet-control-measure .js-results").textContent.includes("Area")',
+        ),
+      2000,
+    );
+    const finalMapPaneTransform = await driver.executeScript(
+      'return getComputedStyle(document.querySelector(".leaflet-map-pane")).transform',
+    );
+    expect(areaWasMeasured).toBe(true);
+    expect(finalMapPaneTransform).toBe(initialMapPaneTransform);
   });
 });
