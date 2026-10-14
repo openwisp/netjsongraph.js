@@ -1,4 +1,5 @@
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
+import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 
 // Mock Leaflet projection (minimal for pixel<->latlng)
 const mockLeaflet = {
@@ -66,6 +67,46 @@ describe("makeCluster cluster separation logic", () => {
     const px2 = mockLeaflet.latLngToContainerPoint(clusters[1].value);
     const dist = Math.sqrt((px1.x - px2.x) ** 2 + (px1.y - px2.y) ** 2);
     expect(dist).toBeGreaterThan(40); // Allow some tolerance
+  });
+
+  test("polygon nodes are clustered together with point nodes", () => {
+    const nodes = [
+      {id: "point", location: {lat: 1, lng: 1}, properties: {_featureType: "Point"}},
+      {id: "area", location: {lat: 1, lng: 1}, properties: {_featureType: "Polygon"}},
+      {id: "far", location: {lat: 5, lng: 5}, properties: {_featureType: "Polygon"}},
+      {
+        id: "line",
+        location: {lat: 1, lng: 1},
+        properties: {_featureType: "LineString"},
+      },
+    ];
+    const util = new NetJSONGraphUtil();
+    const {clusters, nonClusterNodes} = util.makeCluster(makeSelf({nodes}));
+    expect(clusters).toHaveLength(1);
+    expect(clusters[0].childNodes.map((n) => n.id)).toEqual(["point", "area"]);
+    expect(clusters[0].name).toBe(2);
+    expect(nonClusterNodes.map((n) => n.id).sort()).toEqual(["far", "line"]);
+  });
+
+  test("unclustered polygon nodes are not moved to avoid overlaps", () => {
+    // 20px from the cluster: outside clusterRadius (10px) but close enough
+    // for a marker to be pushed away from the cluster symbol.
+    const near = (featureType) => ({
+      id: "near",
+      location: {lat: 1, lng: 1.02},
+      properties: {_featureType: featureType},
+    });
+    const clustered = () => [
+      {id: "1", location: {lat: 1, lng: 1}, properties: {_featureType: "Point"}},
+      {id: "2", location: {lat: 1, lng: 1}, properties: {_featureType: "Point"}},
+    ];
+    const util = new NetJSONGraphUtil();
+    const area = near("Polygon");
+    util.makeCluster(makeSelf({nodes: [...clustered(), area]}));
+    expect(area.location).toEqual({lat: 1, lng: 1.02});
+    const point = near("Point");
+    util.makeCluster(makeSelf({nodes: [...clustered(), point]}));
+    expect(point.location.lng).toBeGreaterThan(1.02);
   });
 
   test("clusters at same location with one attribute are not offset", () => {
@@ -221,6 +262,41 @@ describe("Test URL fragment utilities", () => {
     expect(fragments.basicUsage).toBeDefined();
     expect(fragments.basicUsage.get("id")).toBe("basicUsage");
     expect(fragments.basicUsage.get("nodeId")).toBe("node1");
+  });
+
+  test("Test addActionToUrl adds a new fragment with nodeId for a polygon", () => {
+    const {nodes} = geojsonToNetjson({
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          id: "area1",
+          properties: {},
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [0, 0],
+                [4, 0],
+                [4, 4],
+                [0, 4],
+                [0, 0],
+              ],
+            ],
+          },
+        },
+      ],
+    });
+    const self = {
+      config: {
+        render: "map",
+        bookmarkableActions: {enabled: true, id: "geoMap"},
+      },
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeLinkIndex: {[nodes[0].id]: nodes[0]},
+    };
+    utils.addActionToUrl(self, {seriesType: "scatter", data: {node: nodes[0]}});
+    expect(utils.parseUrlFragments().geoMap.get("nodeId")).toBe("area1");
   });
 
   test("Test addActionToUrl adds a new fragment with nodeId for a link", () => {
