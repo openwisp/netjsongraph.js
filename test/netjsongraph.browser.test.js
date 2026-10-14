@@ -786,7 +786,7 @@ describe("Chart Rendering Test", () => {
     expect(initialNodeCount).toBeGreaterThan(0);
   });
 
-  test("render geo map with leaflet plugins without console errors", async () => {
+  test("renders Leaflet plugins and captures measurement clicks across the map", async () => {
     await driver.get(urls.leafletPlugins);
     const leafletContainer = await getElementByCss(
       driver,
@@ -813,5 +813,57 @@ describe("Chart Rendering Test", () => {
     expect(drawSection).not.toBeNull();
     expect(drawPolylineBtn).not.toBeNull();
     expect(measureControl).not.toBeNull();
+
+    const measureToggle = await getElementByCss(
+      driver,
+      ".leaflet-control-measure .js-toggle",
+      2000,
+    );
+    await measureToggle.click();
+    const startMeasure = await getElementByCss(
+      driver,
+      ".leaflet-control-measure .js-start",
+      2000,
+    );
+    await startMeasure.click();
+
+    const measurementResult = await driver.executeScript(`
+      const map = document.querySelector(".leaflet-container");
+      const {left, top, width, height} = map.getBoundingClientRect();
+      const captureMarker = Array.from(map.querySelectorAll(".leaflet-marker-icon"))
+        .find((marker) => marker.style.opacity === "0");
+      // Keep all points in the left half, which the unanchored icon missed.
+      const measurementPoints = [[0.2, 0.2], [0.2, 0.75], [0.45, 0.45]];
+      const captureHits = measurementPoints.map(([xRatio, yRatio]) => {
+        const clientX = Math.round(left + width * xRatio);
+        const clientY = Math.round(top + height * yRatio);
+        const target = document.elementFromPoint(clientX, clientY);
+        const hitCaptureMarker =
+          captureMarker && (target === captureMarker || captureMarker.contains(target));
+
+        if (hitCaptureMarker) {
+          target.dispatchEvent(
+            new MouseEvent("click", {
+              bubbles: true,
+              cancelable: true,
+              clientX,
+              clientY,
+              view: window,
+            }),
+          );
+        }
+        return hitCaptureMarker;
+      });
+
+      return {
+        captureHits,
+        areaRecorded: document
+          .querySelector(".leaflet-control-measure .js-results")
+          .textContent.includes("Area"),
+      };
+    `);
+
+    expect(measurementResult.captureHits).toEqual([true, true, true]);
+    expect(measurementResult.areaRecorded).toBe(true);
   });
 });
