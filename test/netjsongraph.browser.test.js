@@ -786,6 +786,33 @@ describe("Chart Rendering Test", () => {
     expect(initialNodeCount).toBeGreaterThan(0);
   });
 
+  test("updateNodeInRealTime: moves a clustered node without console errors", async () => {
+    await driver.get(urls.clustering);
+    await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+    const id = await driver.executeScript(() => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      const nodeId = series.data.find((d) => d.cluster).childNodes[0].id;
+      window.map.utils.updateNodeInRealTime(nodeId, {
+        location: {lat: -40, lng: -60},
+        label: "moved",
+      });
+      return nodeId;
+    });
+    await driver.sleep(500);
+    const entry = await driver.executeScript((nodeId) => {
+      const options = window.map.echarts.getOption();
+      const series = options.series.find((s) => s.type === "scatter");
+      return series.data.find((d) => d.node && d.node.id === nodeId);
+    }, id);
+    expect(entry.name).toBe("moved");
+    expect(entry.value[0]).toBeCloseTo(-60);
+    expect(entry.value[1]).toBeCloseTo(-40);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
   test("render geo map with leaflet plugins without console errors", async () => {
     await driver.get(urls.leafletPlugins);
     const leafletContainer = await getElementByCss(

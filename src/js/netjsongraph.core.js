@@ -210,10 +210,13 @@ class NetJSONGraphCore {
         },
       },
     );
-    if (typeof self.utils.moveNodeInRealTime === "function") {
-      self.utils.moveNodeInRealTime = self.utils.moveNodeInRealTime.bind(self);
-    }
-    ["highlightNode", "highlightLink", "clearHighlight"].forEach((method) => {
+    [
+      "moveNodeInRealTime",
+      "updateNodeInRealTime",
+      "highlightNode",
+      "highlightLink",
+      "clearHighlight",
+    ].forEach((method) => {
       if (typeof self.utils[method] === "function") {
         self.utils[method] = self.utils[method].bind(self);
       }

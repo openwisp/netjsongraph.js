@@ -1064,6 +1064,34 @@ moveNodeInRealTime(id, location)
 - `id` - the node id (string) to move.
 - `location` - `{lat: number, lng: number}`
 
+To change the label or properties of a node as well, use `updateNodeInRealTime`.
+It works with clustering enabled: nodes inside clusters can be updated too.
+A `properties.location` key is treated like `location`.
+
+```JS
+// .util.updateNodeInRealTime(nodeId, {location, label, properties})
+const result = map.utils.updateNodeInRealTime(id, {
+  location: {lat: 41.9, lng: 12.5},
+  label: "New name",
+  properties: {status: "ok"},
+});
+```
+
+- `location` - optional, `{lat: number, lng: number}`.
+- `label` - optional, the new node label.
+- `properties` - optional, merged into the existing node properties (keys not
+  listed are kept).
+
+It returns `{moved, renamed}`, telling whether the coordinates or the label
+changed, or `undefined` (with a console warning) if no node has that id.
+`moveNodeInRealTime(id, location)` is a shortcut for
+`updateNodeInRealTime(id, {location})`.
+
+The data is updated immediately, while the redraw is deferred and applies to
+map renders only: all the updates made within the same animation frame (e.g. a
+burst of websocket messages) cause one redraw. Clusters are recalculated only
+when coordinates or the `clusteringAttribute` value change.
+
 ### Contributing
 
 Refer to the [OpenWISP Contributing Guidelines](https://openwisp.io/docs/dev/developer/contributing.html).

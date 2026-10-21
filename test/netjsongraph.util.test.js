@@ -359,8 +359,51 @@ describe("Test URL fragment utilities", () => {
 });
 
 describe("Test move Node in Real Time", () => {
-  test("updates node location, properties, value and calls setOption", () => {
+  const mapRender = () => {};
+  const clusterConfig = {
+    render: mapRender,
+    clustering: true,
+    clusteringThreshold: 0,
+    clusteringAttribute: "status",
+    clusterRadius: 10,
+    nodeCategories: [],
+    mapOptions: {clusterConfig: {}},
+  };
+  // Mimics a rendered NetJSONGraph map; getOption returns copies like ECharts.
+  const createGraph = (nodes, {series = [], config = {}} = {}) => {
     const util = new NetJSONGraphUtil();
+    const graph = {
+      config,
+      data: {nodes, links: []},
+      leaflet: mockLeaflet,
+      nodeLinkIndex: Object.fromEntries(nodes.map((n) => [n.id, n])),
+      echarts: {
+        getOption: jest.fn(() => ({series: JSON.parse(JSON.stringify(series))})),
+        setOption: jest.fn(),
+      },
+      utils: {
+        mapRender,
+        makeCluster: util.makeCluster,
+        refreshClusters: jest.fn(),
+        clearHighlight: jest.fn(),
+      },
+    };
+    graph.utils.updateNodeInRealTime = util.updateNodeInRealTime.bind(graph);
+    graph.utils.moveNodeInRealTime = util.moveNodeInRealTime.bind(graph);
+    return graph;
+  };
+  const clusterIds = ({clusters}) =>
+    clusters.map((c) => c.childNodes.map((n) => n.id).sort());
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test("updates node location, properties, value and calls setOption", () => {
     const newLocation = {lat: 11, lng: 21};
     const node = {
       id: "node-1",
@@ -379,20 +422,10 @@ describe("Test move Node in Real Time", () => {
         ],
       },
     ];
-    const echarts = {
-      getOption: jest.fn(() => ({
-        series: JSON.parse(JSON.stringify(series)),
-      })),
-      setOption: jest.fn(),
-    };
-    const mapContext = {
-      echarts,
-      nodeLinkIndex: {
-        [node.id]: node,
-      },
-    };
+    const {echarts, utils} = createGraph([node], {series});
 
-    util.moveNodeInRealTime.call(mapContext, node.id, newLocation);
+    utils.moveNodeInRealTime(node.id, newLocation);
+    jest.runAllTimers();
     expect(echarts.getOption).toHaveBeenCalled();
     expect(echarts.setOption).toHaveBeenCalled();
     const calledArg = echarts.setOption.mock.calls[0][0];
@@ -405,6 +438,186 @@ describe("Test move Node in Real Time", () => {
     expect(updated.node.location).toEqual(newLocation);
     expect(updated.node.properties.location).toEqual(newLocation);
     expect(updated.value).toEqual([newLocation.lng, newLocation.lat]);
+  });
+
+  test("moves a node while cluster entries precede it in the series", () => {
+    const clustered = {id: "a", properties: {location: {lat: 1, lng: 1}}};
+    const node = {id: "b", properties: {location: {lat: 5, lng: 5}}};
+    const series = [
+      {
+        type: "scatter",
+        data: [
+          {cluster: true, value: [1, 1], childNodes: [clustered]},
+          {node, value: [5, 5]},
+        ],
+      },
+    ];
+    const graph = createGraph([clustered, node], {series, config: clusterConfig});
+    expect(() => graph.utils.moveNodeInRealTime("b", {lat: 6, lng: 6})).not.toThrow();
+    jest.runAllTimers();
+    expect(node.properties.location).toEqual({lat: 6, lng: 6});
+    expect(graph.utils.refreshClusters).toHaveBeenCalledWith(graph.data, graph);
+  });
+
+  test("moves a node across clusters and keeps it there on re-cluster", () => {
+    const nodes = ["a", "b", "c", "d"].map((id, i) => {
+      const lat = i < 2 ? 1 : 5;
+      return {id, properties: {location: {lat, lng: lat}}};
+    });
+    const graph = createGraph(nodes, {config: clusterConfig});
+    expect(clusterIds(graph.utils.makeCluster(graph))).toEqual([
+      ["a", "b"],
+      ["c", "d"],
+    ]);
+    const result = graph.utils.updateNodeInRealTime("a", {location: {lat: 5, lng: 5}});
+    jest.runAllTimers();
+    expect(result).toEqual({moved: true, renamed: false});
+    // highlights store series indexes, which re-clustering reorders
+    expect(graph.utils.clearHighlight).toHaveBeenCalledTimes(1);
+    expect(graph.utils.refreshClusters).toHaveBeenCalledTimes(1);
+    expect(graph.echarts.setOption).not.toHaveBeenCalled();
+    // refreshClusters runs makeCluster, which must not restore the old location
+    const {clusters, nonClusterNodes} = graph.utils.makeCluster(graph);
+    expect(clusterIds({clusters})).toEqual([["a", "c", "d"]]);
+    expect(clusters[0].value).toEqual([5, 5]);
+    expect(nonClusterNodes.map((n) => n.id)).toEqual(["b"]);
+    expect(nodes[0].properties.location).toEqual({lat: 5, lng: 5});
+  });
+
+  test("compares against the true position of an overlap-shifted marker", () => {
+    const nodes = [
+      {id: "a", properties: {location: {lat: 1, lng: 1}}},
+      {id: "b", properties: {location: {lat: 3, lng: 3}}},
+    ];
+    const graph = createGraph(nodes, {config: clusterConfig});
+    const target = {lat: 1, lng: 1.02};
+    graph.utils.updateNodeInRealTime("b", {location: target});
+    jest.runAllTimers();
+    // too far apart to cluster, too close for the markers not to overlap
+    graph.utils.makeCluster(graph);
+    expect(nodes[1].properties.location.lng).not.toBe(1.02);
+    expect(target).toEqual({lat: 1, lng: 1.02});
+    graph.utils.refreshClusters.mockClear();
+    expect(
+      graph.utils.updateNodeInRealTime("b", {location: {lat: 1, lng: 1.02}}),
+    ).toEqual({
+      moved: false,
+      renamed: false,
+    });
+    jest.runAllTimers();
+    expect(graph.utils.refreshClusters).not.toHaveBeenCalled();
+  });
+
+  test("re-clusters when the clustering attribute changes", () => {
+    const node = {id: "a", properties: {status: "ok", location: {lat: 1, lng: 1}}};
+    const graph = createGraph([node], {config: clusterConfig});
+    expect(graph.utils.updateNodeInRealTime("a", {properties: {status: "ok"}})).toEqual(
+      {moved: false, renamed: false},
+    );
+    jest.runAllTimers();
+    expect(graph.utils.refreshClusters).not.toHaveBeenCalled();
+    graph.utils.updateNodeInRealTime("a", {properties: {status: "critical"}});
+    jest.runAllTimers();
+    expect(graph.utils.refreshClusters).toHaveBeenCalledTimes(1);
+  });
+
+  test("updates only the label of a visible node without re-clustering", () => {
+    const node = {id: "e", label: "old", properties: {location: {lat: 9, lng: 9}}};
+    const series = [
+      {
+        type: "scatter",
+        data: [
+          {cluster: true, value: [1, 1], childNodes: []},
+          {node, name: "old", value: [9, 9]},
+        ],
+      },
+    ];
+    const graph = createGraph([node], {series, config: clusterConfig});
+    expect(graph.utils.updateNodeInRealTime("e", {label: "new"})).toEqual({
+      moved: false,
+      renamed: true,
+    });
+    jest.runAllTimers();
+    expect(graph.utils.refreshClusters).not.toHaveBeenCalled();
+    expect(graph.echarts.setOption).toHaveBeenCalledTimes(1);
+    const [cluster, entry] = graph.echarts.setOption.mock.calls[0][0].series[0].data;
+    expect(cluster.cluster).toBe(true);
+    expect(entry.name).toBe("new");
+    expect(entry.node).toBe(node);
+    expect(entry.value).toEqual([9, 9]);
+  });
+
+  test("redraws once for the updates of one animation frame", () => {
+    const nodes = [
+      {id: "a", properties: {location: {lat: 1, lng: 1}}},
+      {id: "b", properties: {location: {lat: 2, lng: 2}}},
+    ];
+    const series = [
+      {type: "scatter", data: nodes.map((node) => ({node, value: [1, 1]}))},
+    ];
+    const {echarts, utils} = createGraph(nodes, {series});
+    utils.updateNodeInRealTime("a", {location: {lat: 3, lng: 3}});
+    utils.updateNodeInRealTime("b", {label: "B"});
+    utils.updateNodeInRealTime("a", {location: {lat: 4, lng: 4}});
+    jest.runAllTicks();
+    expect(echarts.setOption).not.toHaveBeenCalled();
+    jest.advanceTimersToNextFrame();
+    expect(echarts.setOption).toHaveBeenCalledTimes(1);
+    const [a, b] = echarts.setOption.mock.calls[0][0].series[0].data;
+    expect(a.value).toEqual([4, 4]);
+    expect(b.name).toBe("B");
+    utils.updateNodeInRealTime("b", {label: "C"});
+    jest.advanceTimersToNextFrame();
+    expect(echarts.setOption).toHaveBeenCalledTimes(2);
+  });
+
+  test("treats properties.location like location", () => {
+    const node = {id: "a", properties: {location: {lat: 1, lng: 1}}};
+    const graph = createGraph([node], {config: clusterConfig});
+    graph.utils.makeCluster(graph);
+    expect(node).toHaveProperty("_origLocation", {lat: 1, lng: 1});
+    const properties = {location: {lat: 2, lng: 2}, status: "ok"};
+    expect(graph.utils.updateNodeInRealTime("a", {properties})).toEqual({
+      moved: true,
+      renamed: false,
+    });
+    expect(node).not.toHaveProperty("_origLocation");
+    expect(node.location).toEqual({lat: 2, lng: 2});
+    expect(node.properties).toEqual({location: {lat: 2, lng: 2}, status: "ok"});
+    expect(node.properties.location).not.toBe(properties.location);
+    graph.utils.makeCluster(graph);
+    expect(properties).toEqual({location: {lat: 2, lng: 2}, status: "ok"});
+  });
+
+  test("merges properties without dropping existing keys", () => {
+    const node = {id: "a", properties: {status: "ok", clients: 2}};
+    const {utils} = createGraph([node]);
+    expect(utils.updateNodeInRealTime("a", {properties: {status: "problem"}})).toEqual({
+      moved: false,
+      renamed: false,
+    });
+    expect(node.properties).toEqual({status: "problem", clients: 2});
+  });
+
+  test("warns and returns undefined for an unknown node", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const {echarts, utils} = createGraph([]);
+    expect(utils.updateNodeInRealTime("missing", {label: "x"})).toBeUndefined();
+    jest.runAllTimers();
+    expect(warn).toHaveBeenCalledWith(
+      'updateNodeInRealTime: Node with id "missing" not found',
+    );
+    expect(echarts.setOption).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  test("warns when there is no scatter series to redraw", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const {utils} = createGraph([{id: "a"}], {series: [{type: "graph", data: []}]});
+    utils.updateNodeInRealTime("a", {label: "x"});
+    jest.runAllTimers();
+    expect(warn).toHaveBeenCalledWith("updateNodeInRealTime: No scatter series found");
+    warn.mockRestore();
   });
 });
 

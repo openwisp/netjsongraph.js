@@ -1609,44 +1609,89 @@ class NetJSONGraphUtil {
   }
 
   moveNodeInRealTime(id, location) {
-    if (!this.echarts || typeof this.echarts.getOption !== "function") {
-      console.warn("moveNodeInRealTime: ECharts instance not ready");
-      return;
+    return this.utils.updateNodeInRealTime(id, {location});
+  }
+
+  /**
+   * @function
+   * @name updateNodeInRealTime
+   * Updates the location, label and/or properties of a node. Redraws are
+   * batched: all updates made within one animation frame cause one redraw.
+   *
+   * @this  {object}   NetJSONGraph object
+   * @param {string}   id       Node id
+   * @param {object}   update   `{location, label, properties}`, all optional;
+   *                            `properties` is merged into the existing ones
+   * @return {object}  `{moved, renamed}`, or `undefined` if the node is unknown
+   */
+  updateNodeInRealTime(id, {location, label, properties} = {}) {
+    const node = this.nodeLinkIndex && this.nodeLinkIndex[id];
+    if (!node) {
+      console.warn(`updateNodeInRealTime: Node with id "${id}" not found`);
+      return undefined;
     }
-    const options = this.echarts.getOption();
-    if (!options || !Array.isArray(options.series)) {
-      console.warn("moveNodeInRealTime: No series data available");
-      return;
+    const attr = this.config.clusteringAttribute;
+    const prevAttr = attr && node.properties && node.properties[attr];
+    const {location: propLocation, ...rest} = properties || {};
+    const target = location || propLocation;
+    node.properties = Object.assign(node.properties || {}, rest);
+    const prev = node._origLocation || node.properties.location || node.location || {};
+    const moved =
+      Boolean(target) && (target.lat !== prev.lat || target.lng !== prev.lng);
+    const renamed = label !== undefined && label !== node.label;
+    if (moved) {
+      // copied because makeCluster shifts overlapping markers in place
+      node.location = {lat: target.lat, lng: target.lng};
+      node.properties.location = node.location;
+      // makeCluster restores coordinates from _origLocation on every pass
+      delete node._origLocation;
     }
-    const series = options.series.find(
-      (s) => s.type === "scatter" || s.type === "effectScatter",
-    );
-    if (!series) {
-      console.warn(`moveNodeInRealTime: No scatter series found`);
-      return;
+    if (renamed) {
+      node.label = label;
     }
-    const dataIndex = series.data.findIndex((d) => d.node.id === id);
-    if (dataIndex === -1) {
-      console.warn(`moveNodeInRealTime: Node with id "${id}" not found`);
-      return;
+    if (!this.pendingUpdate) {
+      this.pendingUpdate = {ids: new Set(), regroup: false};
+      requestAnimationFrame(() => {
+        const {ids, regroup} = this.pendingUpdate;
+        this.pendingUpdate = null;
+        if (
+          regroup &&
+          this.config.render === this.utils.mapRender &&
+          this.config.clustering &&
+          this.config.clusteringThreshold < this.data.nodes.length
+        ) {
+          if (typeof this.utils.clearHighlight === "function") {
+            this.utils.clearHighlight.call(this);
+          }
+          this.utils.refreshClusters(this.data, this);
+          return;
+        }
+        const options = this.echarts?.getOption();
+        const series = options?.series?.find(
+          (s) => s.type === "scatter" || s.type === "effectScatter",
+        );
+        if (!series) {
+          console.warn("updateNodeInRealTime: No scatter series found");
+          return;
+        }
+        series.data.forEach((entry) => {
+          if (entry.node && ids.has(entry.node.id)) {
+            const n = this.nodeLinkIndex[entry.node.id];
+            entry.node = n;
+            entry.value = [n.properties.location.lng, n.properties.location.lat];
+            if (typeof n.label === "string") {
+              entry.name = n.label;
+            }
+          }
+        });
+        this.echarts.setOption({series: options.series});
+      });
     }
-    const entry = series.data[dataIndex];
-    const {node} = entry;
-    node.location = location;
-    if (!node.properties) {
-      console.warn(`moveNodeInRealTime: Node properties not found`);
-      return;
+    this.pendingUpdate.ids.add(id);
+    if (moved || (attr && node.properties[attr] !== prevAttr)) {
+      this.pendingUpdate.regroup = true;
     }
-    node.properties.location = location;
-    entry.value = [location.lng, location.lat];
-    this.nodeLinkIndex[id].location = location;
-    if (!this.nodeLinkIndex[id].properties) {
-      return;
-    }
-    this.nodeLinkIndex[id].properties.location = location;
-    this.echarts.setOption({
-      series: options.series,
-    });
+    return {moved, renamed};
   }
 
   updateLabelVisibility(self, show) {
