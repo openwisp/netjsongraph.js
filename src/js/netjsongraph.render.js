@@ -791,27 +791,7 @@ class NetJSONGraphRender {
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
     ) {
-      let {clusters, nonClusterNodes, nonClusterLinks} = self.utils.makeCluster(self);
-
-      // Only show clusters if we're below the disableClusteringAtLevel
-      if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
-        clusters = [];
-        nonClusterNodes = JSONData.nodes;
-        nonClusterLinks = JSONData.links;
-      }
-
-      self.echarts.setOption(
-        self.utils.generateMapOption(
-          {
-            ...JSONData,
-            nodes: nonClusterNodes,
-            links: nonClusterLinks,
-          },
-          self,
-          clusters,
-        ),
-      );
-      self.utils.updateLabelVisibility(self, true);
+      self.utils.refreshClusters(JSONData, self);
 
       self.echarts.on("click", (params) => {
         if (
@@ -831,33 +811,10 @@ class NetJSONGraphRender {
 
       // Ensure zoom handler consistently applies the same clustering logic
       self.leaflet.on("zoomend", () => {
-        if (self.leaflet.getZoom() < self.config.disableClusteringAtLevel) {
-          const nodeData = self.utils.makeCluster(self);
-          clusters = nodeData.clusters;
-          nonClusterNodes = nodeData.nonClusterNodes;
-          nonClusterLinks = nodeData.nonClusterLinks;
-          if (typeof self.utils.clearHighlight === "function") {
-            self.utils.clearHighlight.call(self);
-          }
-          self.echarts.setOption(
-            self.utils.generateMapOption(
-              {
-                ...JSONData,
-                nodes: nonClusterNodes,
-                links: nonClusterLinks,
-              },
-              self,
-              clusters,
-            ),
-          );
-        } else {
-          // When above the threshold, show all nodes without clustering
-          if (typeof self.utils.clearHighlight === "function") {
-            self.utils.clearHighlight.call(self);
-          }
-          self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        if (typeof self.utils.clearHighlight === "function") {
+          self.utils.clearHighlight.call(self);
         }
-        self.utils.updateLabelVisibility(self, true);
+        self.utils.refreshClusters(JSONData, self);
       });
     }
 
@@ -866,6 +823,32 @@ class NetJSONGraphRender {
     self.event.emit("onReady");
     self.event.emit("renderArray");
     self.event.emit("applyUrlFragmentState");
+  }
+
+  /**
+   * @function
+   * @name refreshClusters
+   * Redraws the map with nearby nodes clustered, or with every node
+   * once zoomed in past `disableClusteringAtLevel`.
+   *
+   * @param  {object}  JSONData  Render data
+   * @param  {object}  self      NetJSONGraph object
+   *
+   */
+  refreshClusters(JSONData, self) {
+    let data = JSONData;
+    let clusters = [];
+    if (self.leaflet.getZoom() <= self.config.disableClusteringAtLevel) {
+      const result = self.utils.makeCluster(self);
+      clusters = result.clusters;
+      data = {
+        ...JSONData,
+        nodes: result.nonClusterNodes,
+        links: result.nonClusterLinks,
+      };
+    }
+    self.echarts.setOption(self.utils.generateMapOption(data, self, clusters));
+    self.utils.updateLabelVisibility(self, true);
   }
 
   /**

@@ -2066,6 +2066,7 @@ describe("mapRender clustering label visibility", () => {
       event: {emit: jest.fn()},
     };
     renderInstance = new NetJSONGraphRender();
+    mockSelf.utils.refreshClusters = renderInstance.refreshClusters;
   });
 
   // Helper: find the last setOption call that carries the updateLabelVisibility signature
