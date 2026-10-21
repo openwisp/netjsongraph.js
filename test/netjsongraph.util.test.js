@@ -589,6 +589,24 @@ describe("Test move Node in Real Time", () => {
     expect(properties).toEqual({location: {lat: 2, lng: 2}, status: "ok"});
   });
 
+  test("ignores invalid coordinates but applies the rest of the update", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const node = {id: "a", properties: {location: {lat: 1, lng: 1}}};
+    const graph = createGraph([node], {config: clusterConfig});
+    graph.utils.makeCluster(graph);
+    const result = graph.utils.updateNodeInRealTime("a", {
+      location: {lat: NaN, lng: 5},
+      label: "x",
+    });
+    expect(result).toEqual({moved: false, renamed: true});
+    expect(warn).toHaveBeenCalledWith(
+      'updateNodeInRealTime: Invalid location for node "a" ignored',
+    );
+    expect(node).toHaveProperty("_origLocation", {lat: 1, lng: 1});
+    expect(node.label).toBe("x");
+    warn.mockRestore();
+  });
+
   test("merges properties without dropping existing keys", () => {
     const node = {id: "a", properties: {status: "ok", clients: 2}};
     const {utils} = createGraph([node]);

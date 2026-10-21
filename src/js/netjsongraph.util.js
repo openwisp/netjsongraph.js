@@ -1655,10 +1655,15 @@ class NetJSONGraphUtil {
     const prevAttr = attr && node.properties && node.properties[attr];
     const {location: propLocation, ...rest} = properties || {};
     const target = location || propLocation;
+    const validTarget =
+      target && Number.isFinite(target.lat) && Number.isFinite(target.lng);
+    if (target && !validTarget) {
+      console.warn(`updateNodeInRealTime: Invalid location for node "${id}" ignored`);
+    }
     node.properties = Object.assign(node.properties || {}, rest);
     const prev = node._origLocation || node.properties.location || node.location || {};
     const moved =
-      Boolean(target) && (target.lat !== prev.lat || target.lng !== prev.lng);
+      Boolean(validTarget) && (target.lat !== prev.lat || target.lng !== prev.lng);
     const renamed = label !== undefined && label !== node.label;
     if (moved) {
       // copied because makeCluster shifts overlapping markers in place
