@@ -666,6 +666,27 @@ class NetJSONGraphUtil {
 
   /**
    * @function
+   * @name buildNodeLinkIndex
+   * Builds a lookup map for quick access to node or link data: node ids are
+   * the keys for nodes and "source~target" for links. This avoids repeated
+   * traversal when restoring state from URL fragments or updating a node.
+   *
+   * @param  {object}  JSONData  NetJSON data
+   * @return {object}  index
+   */
+  buildNodeLinkIndex(JSONData) {
+    const index = Object.create(null);
+    JSONData.nodes.forEach((node) => {
+      index[node.id] = node;
+    });
+    JSONData.links.forEach((link) => {
+      index[`${link.source}~${link.target}`] = link;
+    });
+    return index;
+  }
+
+  /**
+   * @function
    * @name updateMetadata
    *
    * @this  {object}   NetJSONGraph object

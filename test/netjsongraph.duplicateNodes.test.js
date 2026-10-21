@@ -1,5 +1,6 @@
 const {dealJSONData, operations} = require("../src/js/netjsonWorker");
 const NetJSONGraphRender = require("../src/js/netjsongraph.render").default;
+const NetJSONGraphUtil = require("../src/js/netjsongraph.util").default;
 
 // Test data for duplicate node handling
 const duplicateNodeTestData = new Map([
@@ -175,10 +176,14 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     // Mock self object with initial data
     const self = {
       data: JSON.parse(JSON.stringify(initialData)),
+      utils: {buildNodeLinkIndex: NetJSONGraphUtil.prototype.buildNodeLinkIndex},
     };
 
     // Call the mergeData function with our mock self and new data
     netJSONGraphRender.mergeData(newData, self);
+    expect(self.nodeLinkIndex.node3).toBe(
+      self.data.nodes.find((node) => node.id === "node3"),
+    );
 
     // Ensure that adding a duplicate node does not result in multiple entries.
     expect(self.data.nodes.filter((node) => node.id === "test1").length).toBe(
@@ -213,6 +218,7 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
       data: JSON.parse(JSON.stringify(corruptData)),
       utils: {
         mergeData: netJSONGraphRender.mergeData,
+        buildNodeLinkIndex: NetJSONGraphUtil.prototype.buildNodeLinkIndex,
         render: jest.fn(),
         deduplicateNodesById: operations.deduplicateNodesById,
       },

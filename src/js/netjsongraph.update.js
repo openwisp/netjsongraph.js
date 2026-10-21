@@ -184,7 +184,9 @@ class NetJSONGraphUpdate extends NetJSONGraphUtil {
    */
   overrideData(JSONData, self) {
     self.data = JSONData;
-    if (!self.utils.isNetJSON(self.data)) {
+    if (self.utils.isNetJSON(self.data)) {
+      self.nodeLinkIndex = self.utils.buildNodeLinkIndex(self.data);
+    } else {
       self.leaflet.geoJSON.removeFrom(self.leaflet);
     }
     self.utils.render();

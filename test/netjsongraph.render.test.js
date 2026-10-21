@@ -315,6 +315,19 @@ describe("Test netjsongraph JSONDataUpdate", () => {
       false,
     );
   });
+  test("Rebuilds the node and link index when data is overridden", () => {
+    const data = {
+      nodes: [{id: "n1"}, {id: "n2"}],
+      links: [{source: "n1", target: "n2"}],
+    };
+    return graph.utils.JSONDataUpdate.call(graph, data, true, false).then(() => {
+      expect(graph.nodeLinkIndex).toEqual({
+        n1: data.nodes[0],
+        n2: data.nodes[1],
+        "n1~n2": data.links[0],
+      });
+    });
+  });
   test("Update metadata false test.", () => {
     graph.setConfig({
       metadata: false,

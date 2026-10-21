@@ -944,6 +944,7 @@ class NetJSONGraphRender {
       nodes,
       links,
     });
+    self.nodeLinkIndex = self.utils.buildNodeLinkIndex(self.data);
   }
 }
 
