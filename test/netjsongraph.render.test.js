@@ -580,6 +580,14 @@ describe("Test netjsongraph GeoJSON properties", () => {
       expect(map.data).toEqual(newGeoJSON);
     });
   });
+
+  test("Clears the node index when GeoJSON data replaces it", () => {
+    map.nodeLinkIndex = {stale: {id: "stale"}};
+    const newGeoJSON = {type: "FeatureCollection", features: []};
+    return map.utils.JSONDataUpdate.call(map, newGeoJSON, true).then(() => {
+      expect(Object.keys(map.nodeLinkIndex)).toEqual([]);
+    });
+  });
 });
 
 describe("Test when invalid data is passed", () => {
@@ -1388,6 +1396,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
         echartsSetOption: jest.fn((opt) => mockSelf.echarts.setOption(opt)),
         deepMergeObj: jest.fn((a, b) => ({...a, ...b})),
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [{id: "n1"}], links: []})),
+        buildNodeLinkIndex: NetJSONGraphUtil.prototype.buildNodeLinkIndex,
         fastDeepCopy: jest.fn((obj) => JSON.parse(JSON.stringify(obj))),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
@@ -1434,6 +1443,20 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
     expect(mockSelf.echarts.setOption).toHaveBeenCalledTimes(3);
     // Data should now include the fetched node
     expect(mockSelf.data.nodes.some((n) => n.id === "n1")).toBe(true);
+  });
+
+  test("moveend keeps the node index in sync with bbox nodes", async () => {
+    mockSelf.hasMoreData = true;
+    mockLeaflet.getZoom.mockReturnValue(5);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    mockSelf.data = {nodes: [], links: []};
+    await capturedEvents.moveend();
+    expect(mockSelf.nodeLinkIndex.n1).toBe(mockSelf.data.nodes[0]);
+    // zooming out again removes the bbox nodes
+    mockLeaflet.getZoom.mockReturnValue(1);
+    await capturedEvents.moveend();
+    expect(mockSelf.data.nodes).toEqual([]);
+    expect(mockSelf.nodeLinkIndex.n1).toBeUndefined();
   });
 });
 

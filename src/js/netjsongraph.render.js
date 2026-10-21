@@ -744,6 +744,7 @@ class NetJSONGraphRender {
         };
 
         self.data = JSONData;
+        self.nodeLinkIndex = self.utils.buildNodeLinkIndex(self.data);
         if (typeof self.utils.clearHighlight === "function") {
           self.utils.clearHighlight.call(self);
         }
@@ -783,6 +784,7 @@ class NetJSONGraphRender {
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         self.data = JSONData;
+        self.nodeLinkIndex = self.utils.buildNodeLinkIndex(self.data);
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
       }
