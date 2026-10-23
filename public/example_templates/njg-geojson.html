@@ -13,6 +13,14 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <style>
+      .njg-container .leaflet-popup-tip-container {
+        bottom: -3.5%;
+      }
+      .njg-container .leaflet-popup-tip {
+        box-shadow: none;
+      }
+    </style>
   </head>
   <body>
     <script type="text/javascript">
@@ -35,6 +43,9 @@
             show: true,
             config: {
               closeOnClick: false,
+              autoPan: true,
+              autoPanPadding: [25, 25],
+              offset: [-8, -8],
             },
           },
         },

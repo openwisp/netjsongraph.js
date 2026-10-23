@@ -296,7 +296,7 @@ describe("Test URL fragment utilities", () => {
       nodeLinkIndex: {[nodes[0].id]: nodes[0]},
     };
     utils.addActionToUrl(self, {seriesType: "scatter", data: {node: nodes[0]}});
-    expect(utils.parseUrlFragments().geoMap.get("nodeId")).toBe("area1");
+    expect(utils.parseUrlFragments().geoMap.get("nodeId")).toBe("polygon_area1");
   });
 
   test("Test addActionToUrl adds a new fragment with nodeId for a link", () => {

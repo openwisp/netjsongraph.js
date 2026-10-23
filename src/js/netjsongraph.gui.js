@@ -127,7 +127,7 @@ class NetJSONGraphGUI {
     headerContainer.classList.add("njg-headerContainer");
     closeButton.classList.add("njg-closeButton");
     this.nodeLinkInfoContainer.style.display = "flex";
-    header.innerHTML = `${type} Info`;
+    header.textContent = `${type} Info`;
     closeButton.innerHTML = " &#x2715;";
 
     // Key label normalization to improve readability
@@ -167,7 +167,7 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = formatKeyLabel(key);
+          k.textContent = formatKeyLabel(key);
           v.innerHTML = "[]";
           item.appendChild(k);
           item.appendChild(v);
@@ -183,10 +183,8 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = formatKeyLabel(key);
-          v.innerHTML = val
-            .map((x) => (typeof x === "string" ? x.replace(/\n/g, "<br/>") : String(x)))
-            .join("<br/>");
+          k.textContent = formatKeyLabel(key);
+          v.textContent = val.map((x) => String(x)).join("\n");
           item.appendChild(k);
           item.appendChild(v);
           parent.appendChild(item);
@@ -232,7 +230,7 @@ class NetJSONGraphGUI {
         hk.setAttribute("class", "njg-keyLabel");
         const hv = document.createElement("span");
         hv.setAttribute("class", "njg-valueLabel");
-        hk.innerHTML = formatKeyLabel(key);
+        hk.textContent = formatKeyLabel(key);
         hv.innerHTML = "";
         headerItem.appendChild(hk);
         headerItem.appendChild(hv);
@@ -252,10 +250,8 @@ class NetJSONGraphGUI {
       keyLabel.setAttribute("class", "njg-keyLabel");
       const valueLabel = document.createElement("span");
       valueLabel.setAttribute("class", "njg-valueLabel");
-      keyLabel.innerHTML = formatKeyLabel(key);
-      const displayVal =
-        typeof val === "string" ? val.replace(/\n/g, "<br/>") : String(val);
-      valueLabel.innerHTML = displayVal;
+      keyLabel.textContent = formatKeyLabel(key);
+      valueLabel.textContent = String(val);
       infoItems.appendChild(keyLabel);
       infoItems.appendChild(valueLabel);
       parent.appendChild(infoItems);

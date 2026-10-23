@@ -816,6 +816,7 @@ class NetJSONGraphUtil {
         key === "clients" ||
         key === "_source" ||
         key === "_generatedIdentity" ||
+        key === "_featureIndex" ||
         key === "local_addresses" ||
         key === "linkCount"
       ) {
@@ -1016,9 +1017,7 @@ class NetJSONGraphUtil {
           const time = this.dateParse({dateString: val});
           linkInfo[key] = time;
         } else {
-          const displayVal =
-            typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
-          linkInfo[key.replace(/_/g, " ")] = displayVal;
+          linkInfo[key.replace(/_/g, " ")] = val;
         }
       });
     }
