@@ -25,13 +25,18 @@ export function geojsonToNetjson(geojson) {
 
   // Always create a new node and return its id. Features that are Points are
   // independent locations, so they must never be merged with another node.
-  const createNode = (coord, baseProps = {}) => {
+  const createNode = (coord, baseProps = {}, idSuffix = null) => {
     // If the data source specifies an identifier (or label) keep it public,
     // otherwise generate an internal id and flag it so UI layers can hide it.
     const providedId = baseProps.id || baseProps.node_id || null;
     const displayLabel = baseProps.label || baseProps.name || providedId || null;
 
-    const newId = providedId ? String(providedId) : `gjn_${nodes.length}`;
+    // A MultiPoint creates several nodes from one feature, so its explicit id
+    // gets a suffix to keep every graph id unique. The original id stays in
+    // properties.id.
+    const newId = providedId
+      ? `${providedId}${idSuffix === null ? "" : `_${idSuffix}`}`
+      : `gjn_${nodes.length}`;
     const generatedIdentity = !providedId;
 
     const node = {
@@ -89,7 +94,9 @@ export function geojsonToNetjson(geojson) {
         createNode(coordinates, {...props, _featureType: "Point"});
         break;
       case "MultiPoint":
-        coordinates.forEach((pt) => createNode(pt, {...props, _featureType: "Point"}));
+        coordinates.forEach((pt, index) =>
+          createNode(pt, {...props, _featureType: "Point"}, index),
+        );
         break;
       case "LineString":
         // Tag nodes coming from line geometries

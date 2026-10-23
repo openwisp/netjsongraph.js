@@ -74,6 +74,31 @@ describe("geojsonToNetjson conversion", () => {
       expect(new Set(result.nodes.map((n) => n.id)).size).toBe(3);
     });
 
+    test("MultiPoint with an explicit id gives every point a unique graph id", () => {
+      const result = geojsonToNetjson(
+        collection({
+          type: "Feature",
+          id: "mp",
+          properties: {},
+          geometry: {
+            type: "MultiPoint",
+            coordinates: [
+              [1, 2],
+              [1, 2],
+              [3, 4],
+            ],
+          },
+        }),
+      );
+      expect(result.nodes).toHaveLength(3);
+      expect(new Set(result.nodes.map((n) => n.id)).size).toBe(3);
+      // the original feature id is kept in properties and as the label
+      result.nodes.forEach((n) => {
+        expect(n.properties.id).toBe("mp");
+        expect(n.label).toBe("mp");
+      });
+    });
+
     test("a Point on a line vertex stays its own node", () => {
       const result = geojsonToNetjson(
         collection(
