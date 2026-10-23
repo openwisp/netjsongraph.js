@@ -130,7 +130,8 @@ export function geojsonToNetjson(geojson) {
 
     // If the data source specifies an identifier (or label) keep it public,
     // otherwise generate an internal id and flag it so UI layers can hide it.
-    const providedId = baseProps.id ?? baseProps.node_id ?? null;
+    const present = (value) => (value === "" ? null : value);
+    const providedId = present(baseProps.id) ?? present(baseProps.node_id) ?? null;
     const hasId = providedId !== null;
     const displayLabel =
       baseProps.label || baseProps.name || (hasId ? String(providedId) : null);
