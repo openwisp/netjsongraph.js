@@ -10,7 +10,11 @@ import {install as GraphicComponent} from "echarts/lib/component/graphic/install
 import {install as SVGRenderer} from "echarts/lib/renderer/installSVGRenderer";
 import {install as CanvasRenderer} from "echarts/lib/renderer/installCanvasRenderer";
 import getLeaflet from "./leaflet-loader";
-import {addPolygonOverlays} from "./netjsongraph.geojson";
+import {
+  addPolygonOverlays,
+  clickPolygonNode,
+  updatePolygonOverlays,
+} from "./netjsongraph.geojson";
 
 use([
   GraphChart,
@@ -209,7 +213,12 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
-    const nodes = JSONData.nodes.map((node) => {
+    // Polygons can only be drawn on maps: the nodes which stand for them are left out
+    const drawableNodes = JSONData.nodes.filter(
+      // eslint-disable-next-line no-underscore-dangle
+      (node) => !(node.properties && node.properties._featureType === "Polygon"),
+    );
+    const nodes = drawableNodes.map((node) => {
       const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
@@ -659,11 +668,12 @@ class NetJSONGraphRender {
         pointToLayer: (feature, latlng) =>
           circleMarker(latlng, self.config.geoOptions.style),
         onEachFeature: (feature, layer) => {
-          layer.on("click", () => {
+          layer.on("click", (event) => {
             const properties = {
               ...feature.properties,
             };
             self.config.onClickElement.call(self, "Feature", properties);
+            clickPolygonNode(self, feature, event);
           });
         },
       },
@@ -676,7 +686,7 @@ class NetJSONGraphRender {
     // a separate L.geoJSON layer. This allows for displaying geographical
     // areas like parks or districts alongside the network topology.
     if (self.originalGeoJSON) {
-      addPolygonOverlays(self);
+      addPolygonOverlays(self, JSONData.nodes);
       // Auto-fit view to encompass ALL geometries (polygons + nodes)
       let bounds = null;
 
@@ -748,6 +758,8 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        // The chart is redrawn without clusters, hence no polygon may stay hidden
+        updatePolygonOverlays(self, []);
         self.bboxData.nodes = [];
         self.bboxData.links = [];
       };
@@ -782,6 +794,7 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        updatePolygonOverlays(self, []);
         self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
@@ -794,7 +807,7 @@ class NetJSONGraphRender {
       let {clusters, nonClusterNodes, nonClusterLinks} = self.utils.makeCluster(self);
 
       // Only show clusters if we're below the disableClusteringAtLevel
-      if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
+      if (self.leaflet.getZoom() >= self.config.disableClusteringAtLevel) {
         clusters = [];
         nonClusterNodes = JSONData.nodes;
         nonClusterLinks = JSONData.links;
@@ -811,6 +824,7 @@ class NetJSONGraphRender {
           clusters,
         ),
       );
+      updatePolygonOverlays(self, clusters);
       self.utils.updateLabelVisibility(self, true);
 
       self.echarts.on("click", (params) => {
@@ -852,11 +866,13 @@ class NetJSONGraphRender {
           );
         } else {
           // When above the threshold, show all nodes without clustering
+          clusters = [];
           if (typeof self.utils.clearHighlight === "function") {
             self.utils.clearHighlight.call(self);
           }
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         }
+        updatePolygonOverlays(self, clusters);
         self.utils.updateLabelVisibility(self, true);
       });
     }

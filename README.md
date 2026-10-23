@@ -361,7 +361,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Default**: `8`
 
-  The zoom level at which clustering is disabled. When the zoom level is greater than this value, all the clusters will be expanded.
+  The zoom level at which clustering is disabled. When the zoom level is greater than or equal to this value, all the clusters will be expanded.
 
 - `clusterRadius`
 
@@ -692,7 +692,7 @@ To keep the codebase clean we extracted all GeoJSON‐specific helpers into
 - `geojsonToNetjson(geojson)` – converts any GeoJSON _FeatureCollection_ into
   NetJSON nodes & links (supports Points, LineStrings, Polygons, Multi\* and
   GeometryCollections).
-- `addPolygonOverlays(self)` – draws Polygon / MultiPolygon features on a
+- `addPolygonOverlays(self, nodes)` – draws Polygon / MultiPolygon features on a
   dedicated Leaflet pane so they sit beneath the ECharts overlay but above the
   tile layer.
 
@@ -707,6 +707,50 @@ const netjson = geojsonToNetjson(myGeoJSON);
 
 No action is required for most users; these changes simply make the internal
 flow clearer and easier to maintain.
+
+### Polygons
+
+Each Polygon and MultiPolygon feature of the collection is represented by a
+node, which is not drawn: the feature itself is drawn as a filled shape by
+Leaflet, while its node takes part in clustering, popups and bookmarks like
+the nodes of points.
+
+- **Position**: the node is placed inside the shape, at its centroid if the
+  centroid lies within it (otherwise, e.g. for a U-shaped area, in the middle
+  of the widest span of the shape at the latitude of the centroid). The node
+  of a MultiPolygon is placed inside its largest polygon.
+- **Identity**: the node takes the `id` of the feature prefixed with
+  `polygon_` (e.g. `polygon_42`), hence it never takes the id of a point
+  sharing it. Its label is the `label` property of the feature, otherwise
+  its `name` property, otherwise its original `id`. When several
+  polygons share an `id`, the later ones receive a numbered suffix
+  (`polygon_42_2`, `polygon_42_3`, …) and a warning is logged. Features
+  without an `id` receive a generated one (`gjn_polygon_0`,
+  `gjn_polygon_1`, …), which depends on the order of the polygons in the
+  collection; give your features an `id` to keep their bookmarks stable.
+- **Clustering**: when `clustering` is enabled, polygon nodes are clustered
+  together with the nodes of points, following `clusterRadius`,
+  `clusteringThreshold`, `clusteringAttribute` and `disableClusteringAtLevel`.
+  While a polygon belongs to a cluster its shape is hidden, and it appears
+  again when the cluster is expanded by zooming in.
+- **Clicks, popups and bookmarks**: clicking a shape calls `onClickElement`
+  with the type `"Feature"` and the properties of the feature, opens the
+  `mapOptions.nodePopup` popup (if enabled) at the clicked position and, if
+  `bookmarkableActions` is enabled, adds the id of its node to the URL
+  fragment. Opening such a URL centers the map on the node (see
+  `zoomOnRestore`), opens its popup and calls `onClickElement` with the type
+  `"node"`.
+- **`maxPointsFetched`**: polygon nodes count towards this limit like any
+  other node; the shapes of polygons whose node is left out are not drawn.
+- **Graph mode**: polygon nodes are left out when the data is rendered as a
+  network graph.
+- Polygons nested in a GeometryCollection are neither drawn nor represented
+  by a node.
+
+**Custom `geoOptions.onEachFeature`**: providing your own `onEachFeature` in
+`geoOptions` replaces the default one, including the forwarding of clicks
+described above. Clicks on shapes then no longer open popups, update the URL
+fragment or call `onClickElement`; your function has to handle them.
 
 ## Automatic Cluster Overlap Prevention
 
