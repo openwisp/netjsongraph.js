@@ -350,11 +350,11 @@ describe("Test netjsongraph gui", () => {
     });
     map.setUtils();
     map.data = data;
-    map.nodeLinkIndex = {[id]: data.nodes[0]};
+    map.nodeLinkIndex = {[data.nodes[0].id]: data.nodes[0]};
     map.gui.sideBar = map.gui.createSideBar();
     map.gui.nodeLinkInfoContainer = map.gui.createNodeLinkInfoContainer();
     map.gui.metaInfoContainer = map.gui.createMetaInfoContainer();
-    window.location.hash = `#id=geo&nodeId=${encodeURIComponent(id)}`;
+    window.location.hash = `#id=geo&nodeId=${encodeURIComponent(data.nodes[0].id)}`;
 
     map.utils.applyUrlFragmentState(map);
 
