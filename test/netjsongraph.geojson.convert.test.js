@@ -1,6 +1,11 @@
 import fs from "fs";
 import path from "path";
-import {geojsonToNetjson, updatePolygonOverlays} from "../src/js/netjsongraph.geojson";
+import L from "leaflet";
+import {
+  addPolygonOverlays,
+  geojsonToNetjson,
+  updatePolygonOverlays,
+} from "../src/js/netjsongraph.geojson";
 
 describe("geojsonToNetjson conversion", () => {
   const samplePath = path.join(__dirname, "../public/assets/data/geojson-sample.json");
@@ -45,10 +50,10 @@ describe("geojsonToNetjson polygon nodes", () => {
     [west, south],
   ];
 
-  test("Polygon becomes a single node which keeps id and label", () => {
+  test("Polygon becomes a single node with a prefixed id and its label", () => {
     const nodes = convert(polygon([square(0, 0, 4)], {id: "area-1"}));
     expect(nodes).toHaveLength(1);
-    expect(nodes[0].id).toBe("area-1");
+    expect(nodes[0].id).toBe("polygon_area-1");
     expect(nodes[0].label).toBe("Area");
     // eslint-disable-next-line no-underscore-dangle
     expect(nodes[0].properties._featureType).toBe("Polygon");
@@ -91,7 +96,7 @@ describe("geojsonToNetjson polygon nodes", () => {
       },
     });
     expect(nodes).toHaveLength(1);
-    expect(nodes[0].id).toBe("multi");
+    expect(nodes[0].id).toBe("polygon_multi");
     expect(nodes[0].location).toEqual({lng: 12, lat: 12});
   });
 
@@ -103,8 +108,8 @@ describe("geojsonToNetjson polygon nodes", () => {
       geometry: {type: "Point", coordinates: [2, 2]},
     };
     const area = polygon([square(0, 0, 4)], {id: "area"});
-    expect(convert(point, area).map((n) => n.id)).toEqual(["point", "area"]);
-    expect(convert(area, point).map((n) => n.id)).toEqual(["area", "point"]);
+    expect(convert(point, area).map((n) => n.id)).toEqual(["point", "polygon_area"]);
+    expect(convert(area, point).map((n) => n.id)).toEqual(["polygon_area", "point"]);
   });
 
   test("polygon node records the position of its feature", () => {
@@ -149,6 +154,79 @@ describe("geojsonToNetjson polygon nodes", () => {
     expect(nodes).toHaveLength(1);
     expect(nodes[0].location).toEqual({lng: 1, lat: 1});
   });
+
+  test("polygons do not change the generated ids of points and lines", () => {
+    const nodes = convert(
+      polygon([square(0, 0, 4)]),
+      {
+        type: "Feature",
+        properties: {name: "Station"},
+        geometry: {type: "Point", coordinates: [10, 10]},
+      },
+      polygon([square(20, 20, 4)]),
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "LineString",
+          coordinates: [
+            [30, 30],
+            [31, 31],
+          ],
+        },
+      },
+    );
+    const ids = Object.fromEntries(
+      nodes.map((node) => [`${node.location.lng},${node.location.lat}`, node.id]),
+    );
+    expect(ids["10,10"]).toBe("gjn_0");
+    expect(ids["30,30"]).toBe("gjn_1");
+    expect(ids["31,31"]).toBe("gjn_2");
+    expect(ids["2,2"]).toBe("gjn_polygon_0");
+    expect(ids["22,22"]).toBe("gjn_polygon_1");
+  });
+
+  test("polygons never share the id of another node", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const point = {
+      type: "Feature",
+      id: 42,
+      properties: {},
+      geometry: {type: "Point", coordinates: [10, 10]},
+    };
+    const area = polygon([square(0, 0, 4)], {id: 42, properties: {}});
+    [convert(point, area, area), convert(area, point, area)].forEach((nodes) => {
+      // eslint-disable-next-line no-underscore-dangle
+      expect(nodes.find((node) => node._featureIndex === undefined).id).toBe("42");
+      expect(nodes.map((node) => node.id).sort()).toEqual([
+        "42",
+        "polygon_42",
+        "polygon_42_2",
+      ]);
+      expect(nodes.map((node) => node.label)).toEqual(["42", "42", "42"]);
+    });
+    expect(warn).toHaveBeenCalledWith(
+      'Node id "polygon_42" is taken, hence "polygon_42_2" is used.',
+    );
+    warn.mockRestore();
+  });
+
+  test.each(["Polygon", "MultiPolygon"])("%s keeps the id 0 in any order", (type) => {
+    const rings = [square(0, 0, 4)];
+    const zero = {
+      type: "Feature",
+      id: 0,
+      properties: {},
+      geometry: {type, coordinates: type === "Polygon" ? rings : [rings]},
+    };
+    const [alone] = convert(zero);
+    const [, behind] = convert(polygon([square(20, 20, 4)]), zero);
+    [alone, behind].forEach((node) => {
+      expect(node.id).toBe("polygon_0");
+      // eslint-disable-next-line no-underscore-dangle
+      expect(node._generatedIdentity).toBe(false);
+    });
+  });
 });
 
 describe("updatePolygonOverlays", () => {
@@ -189,5 +267,56 @@ describe("updatePolygonOverlays", () => {
   test("does nothing when there are no polygon overlays", () => {
     expect(() => updatePolygonOverlays({leaflet: {}}, [cluster({})])).not.toThrow();
     expect(() => updatePolygonOverlays({}, [])).not.toThrow();
+  });
+});
+
+describe("addPolygonOverlays on a rerender", () => {
+  test("replaces the polygons of the previous render", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const map = L.map(container, {center: [0.5, 0.5], zoom: 5});
+    const node = {id: "area", _featureIndex: 0};
+    const self = {
+      originalGeoJSON: {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            id: "area",
+            properties: {},
+            geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [0, 0],
+                  [1, 0],
+                  [1, 1],
+                  [0, 1],
+                  [0, 0],
+                ],
+              ],
+            },
+          },
+        ],
+      },
+      leaflet: map,
+      config: {geoOptions: {}, onClickElement: jest.fn()},
+    };
+    const polygonsOnMap = () => {
+      let count = 0;
+      map.eachLayer((layer) => {
+        if (layer.feature && layer.feature.geometry.type === "Polygon") {
+          count += 1;
+        }
+      });
+      return count;
+    };
+    addPolygonOverlays(self, [node]);
+    addPolygonOverlays(self, [node]);
+    expect(polygonsOnMap()).toBe(1);
+    updatePolygonOverlays(self, [{childNodes: [node]}]);
+    expect(polygonsOnMap()).toBe(0);
+    map.remove();
+    document.body.removeChild(container);
   });
 });

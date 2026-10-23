@@ -686,7 +686,7 @@ class NetJSONGraphRender {
     // a separate L.geoJSON layer. This allows for displaying geographical
     // areas like parks or districts alongside the network topology.
     if (self.originalGeoJSON) {
-      addPolygonOverlays(self);
+      addPolygonOverlays(self, JSONData.nodes);
       // Auto-fit view to encompass ALL geometries (polygons + nodes)
       let bounds = null;
 
@@ -758,6 +758,8 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        // The chart is redrawn without clusters, hence no polygon may stay hidden
+        updatePolygonOverlays(self, []);
         self.bboxData.nodes = [];
         self.bboxData.links = [];
       };
@@ -792,6 +794,7 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        updatePolygonOverlays(self, []);
         self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
