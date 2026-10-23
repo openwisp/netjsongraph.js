@@ -721,7 +721,8 @@ the nodes of points.
   of a MultiPolygon is placed inside its largest polygon.
 - **Identity**: the node takes the `id` of the feature prefixed with
   `polygon_` (e.g. `polygon_42`), hence it never takes the id of a point
-  sharing it, while its label keeps the original `id`. When several
+  sharing it. Its label is the `label` property of the feature, otherwise
+  its `name` property, otherwise its original `id`. When several
   polygons share an `id`, the later ones receive a numbered suffix
   (`polygon_42_2`, `polygon_42_3`, …) and a warning is logged. Features
   without an `id` receive a generated one (`gjn_polygon_0`,

@@ -211,6 +211,23 @@ describe("geojsonToNetjson polygon nodes", () => {
     warn.mockRestore();
   });
 
+  test("an empty id is treated as missing", () => {
+    const point = (x, properties = {}) => ({
+      type: "Feature",
+      id: "",
+      properties,
+      geometry: {type: "Point", coordinates: [x, x]},
+    });
+    const nodes = convert(
+      point(10),
+      point(20, {node_id: "dev-1"}),
+      polygon([square(0, 0, 4)], {id: ""}),
+    );
+    expect(nodes.map((node) => node.id)).toEqual(["gjn_0", "dev-1", "gjn_polygon_0"]);
+    // eslint-disable-next-line no-underscore-dangle
+    expect(nodes.map((node) => node._generatedIdentity)).toEqual([true, false, true]);
+  });
+
   test.each(["Polygon", "MultiPolygon"])("%s keeps the id 0 in any order", (type) => {
     const rings = [square(0, 0, 4)];
     const zero = {
