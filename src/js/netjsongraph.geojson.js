@@ -114,6 +114,9 @@ export function geojsonToNetjson(geojson) {
 
   // Coordinate string → node id (deduplication across features)
   const coordMap = new Map();
+  // Polygons have their own sequence of generated ids, hence they do not
+  // shift the generated ids of the other nodes, which may be bookmarked.
+  let polygonCount = 0;
 
   // A node which stands for a polygon receives the position of its feature
   // in the collection (polygonIndex) and is never merged with other nodes,
@@ -127,11 +130,20 @@ export function geojsonToNetjson(geojson) {
 
     // If the data source specifies an identifier (or label) keep it public,
     // otherwise generate an internal id and flag it so UI layers can hide it.
-    const providedId = baseProps.id || baseProps.node_id || null;
-    const displayLabel = baseProps.label || baseProps.name || providedId || null;
+    const providedId = baseProps.id ?? baseProps.node_id ?? null;
+    const hasId = providedId !== null;
+    const displayLabel =
+      baseProps.label || baseProps.name || (hasId ? String(providedId) : null);
 
-    const newId = providedId ? String(providedId) : `gjn_${nodes.length}`;
-    const generatedIdentity = !providedId;
+    let newId;
+    if (hasId) {
+      newId = dedupe ? String(providedId) : `polygon_${providedId}`;
+    } else {
+      newId = dedupe
+        ? `gjn_${nodes.length - polygonCount}`
+        : `gjn_polygon_${polygonCount}`;
+    }
+    const generatedIdentity = !hasId;
 
     const node = {
       id: newId,
@@ -147,6 +159,8 @@ export function geojsonToNetjson(geojson) {
     nodes.push(node);
     if (dedupe) {
       coordMap.set(key, newId);
+    } else {
+      polygonCount += 1;
     }
     return newId;
   };
@@ -220,6 +234,25 @@ export function geojsonToNetjson(geojson) {
     handleGeometry(feature.geometry, baseProps, index);
   });
 
+  const usedIds = new Set(
+    // eslint-disable-next-line no-underscore-dangle
+    nodes.filter((node) => node._featureIndex === undefined).map((node) => node.id),
+  );
+  nodes.forEach((node) => {
+    // eslint-disable-next-line no-underscore-dangle
+    if (node._featureIndex === undefined) {
+      return;
+    }
+    const {id} = node;
+    for (let n = 2; usedIds.has(node.id); n += 1) {
+      node.id = `${id}_${n}`;
+    }
+    if (node.id !== id) {
+      console.warn(`Node id "${id}" is taken, hence "${node.id}" is used.`);
+    }
+    usedIds.add(node.id);
+  });
+
   return {nodes, links};
 }
 
@@ -234,11 +267,7 @@ export function geojsonToNetjson(geojson) {
  * @param {Object} event    Leaflet mouse event
  */
 export function clickPolygonNode(self, feature, event) {
-  const index = self.originalGeoJSON.features.indexOf(feature);
-  const node = ((self.data && self.data.nodes) || []).find(
-    // eslint-disable-next-line no-underscore-dangle
-    (n) => n._featureIndex === index,
-  );
+  const node = self.polygonNodes && self.polygonNodes.get(feature);
   if (!node || typeof self.echartsClickHandler !== "function") {
     return;
   }
@@ -268,9 +297,20 @@ export function clickPolygonNode(self, feature, event) {
  * It attaches the resulting layer to `self.leaflet.polygonGeoJSON` so that
  * callers can later remove / update it if needed.
  *
+ * Only polygons whose node is among `nodes` are drawn, as the others were
+ * dropped by `maxPointsFetched` and could not be clustered, opened or
+ * bookmarked.
+ *
  * @param {Object} self   NetJSONGraph instance (provides leaflet + config)
+ * @param {Array}  nodes  Nodes of the converted data
  */
-export function addPolygonOverlays(self) {
+export function addPolygonOverlays(self, nodes = (self.data && self.data.nodes) || []) {
+  // A previous render left its group on the map, out of reach of clustering
+  if (self.leaflet && self.leaflet.polygonGeoJSON) {
+    self.leaflet.removeLayer(self.leaflet.polygonGeoJSON);
+    delete self.leaflet.polygonGeoJSON;
+  }
+  delete self.polygonNodes;
   if (!self.originalGeoJSON || !Array.isArray(self.originalGeoJSON.features)) {
     return; // nothing to do
   }
@@ -282,8 +322,17 @@ export function addPolygonOverlays(self) {
   const {geoJSON} = L;
 
   const map = self.leaflet; // Leaflet map instance
+  // Lets clickPolygonNode find the node of a clicked feature without a search
+  self.polygonNodes = new Map(
+    nodes
+      // eslint-disable-next-line no-underscore-dangle
+      .filter((node) => node._featureIndex !== undefined)
+      // eslint-disable-next-line no-underscore-dangle
+      .map((node) => [self.originalGeoJSON.features[node._featureIndex], node]),
+  );
   const polygonFeatures = self.originalGeoJSON.features.filter(
     (f) =>
+      self.polygonNodes.has(f) &&
       f &&
       f.geometry &&
       (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"),
@@ -330,14 +379,6 @@ export function addPolygonOverlays(self) {
           leafletStyle.weight = echartsStyle.borderWidth;
         }
         return leafletStyle;
-      },
-      onEachFeature: (feature, layer) => {
-        layer.on("click", (event) => {
-          // Re-emit GeoJSON feature click using existing callback for uniformity
-          const properties = feature.properties || {};
-          self.config.onClickElement.call(self, "Feature", properties);
-          clickPolygonNode(self, feature, event);
-        });
       },
       ...self.config.geoOptions,
     },
