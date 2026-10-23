@@ -19,15 +19,13 @@ export function geojsonToNetjson(geojson) {
     return {nodes, links};
   }
 
-  // Coordinate string → node id (deduplication across features)
+  // Coordinate string → node id. Only used for the vertices of LineString /
+  // MultiLineString features, so that lines which meet share one node.
   const coordMap = new Map();
 
+  // Always create a new node and return its id. Features that are Points are
+  // independent locations, so they must never be merged with another node.
   const createNode = (coord, baseProps = {}) => {
-    const key = `${coord[0]},${coord[1]}`;
-    if (coordMap.has(key)) {
-      return coordMap.get(key); // reuse existing node id
-    }
-
     // If the data source specifies an identifier (or label) keep it public,
     // otherwise generate an internal id and flag it so UI layers can hide it.
     const providedId = baseProps.id || baseProps.node_id || null;
@@ -47,6 +45,17 @@ export function geojsonToNetjson(geojson) {
       _generatedIdentity: generatedIdentity, // internal marker – not shown to users
     };
     nodes.push(node);
+    return newId;
+  };
+
+  // Return the node id for a line vertex: reuse the node already created for
+  // the same coordinates by a line, or create (and remember) a new one.
+  const getVertexNode = (coord, baseProps = {}) => {
+    const key = `${coord[0]},${coord[1]}`;
+    if (coordMap.has(key)) {
+      return coordMap.get(key); // reuse existing node id
+    }
+    const newId = createNode(coord, baseProps);
     coordMap.set(key, newId);
     return newId;
   };
@@ -57,14 +66,14 @@ export function geojsonToNetjson(geojson) {
 
   const processCoordsSeq = (coords, props, closeRing = false) => {
     for (let i = 0; i < coords.length - 1; i += 1) {
-      const a = createNode(coords[i], props);
-      const b = createNode(coords[i + 1], props);
+      const a = getVertexNode(coords[i], props);
+      const b = getVertexNode(coords[i + 1], props);
       addEdge(a, b, props);
     }
     if (closeRing && coords.length > 2) {
       // close the polygon ring (ensure topology correctness)
-      const first = createNode(coords[0], props);
-      const last = createNode(coords[coords.length - 1], props);
+      const first = getVertexNode(coords[0], props);
+      const last = getVertexNode(coords[coords.length - 1], props);
       addEdge(last, first, props);
     }
   };
