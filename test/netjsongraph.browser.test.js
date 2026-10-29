@@ -862,15 +862,23 @@ describe("Chart Rendering Test", () => {
         'return getComputedStyle(document.querySelector(".leaflet-map-pane")).transform',
       );
     const clickMeasurementPoint = async (xRatio, yRatio) => {
-      await driver
-        .actions()
-        .move({
-          origin: "viewport",
-          x: Math.round(mapBounds.left + mapBounds.width * xRatio),
-          y: Math.round(mapBounds.top + mapBounds.height * yRatio),
-        })
-        .click()
-        .perform();
+      const clientX = Math.round(mapBounds.left + mapBounds.width * xRatio);
+      const clientY = Math.round(mapBounds.top + mapBounds.height * yRatio);
+      // Selenium rejects direct clicks on the intentionally transparent marker.
+      await driver.executeScript(
+        `
+          const target = document.elementFromPoint(arguments[0], arguments[1]);
+          target.dispatchEvent(new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+            clientX: arguments[0],
+            clientY: arguments[1],
+            view: window,
+          }));
+        `,
+        clientX,
+        clientY,
+      );
     };
     const initialMapPaneTransform = await getMapPaneTransform();
     await clickMeasurementPoint(0.2, 0.2);
