@@ -16,8 +16,59 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
-      .njg-container .leaflet-control-zoom {
-        top: 55px;
+      .njg-container .leaflet-control-measure {
+        margin-top: 0 !important;
+      }
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip-container {
+        bottom: -3.5%;
+      }
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip {
+        box-shadow: none;
+      }
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-content {
+        box-sizing: border-box;
+        padding: 8px 10px;
+      }
+      .njg-container .leaflet-measure-resultpopup p {
+        overflow-wrap: anywhere;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px 12px;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks li {
+        display: block;
+        margin: 0;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a.zoomto,
+      .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup {
+        display: inline-flex;
+        align-items: center;
+        min-height: 16px;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup {
+        color: #c62828;
+        background-image: none;
+        position: relative;
+      }
+      .njg-container
+        .leaflet-measure-resultpopup
+        .tasks
+        a.deletemarkup::before {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 12px;
+        height: 12px;
+        background-color: currentColor;
+        content: "";
+        transform: translateY(-50%);
+        -webkit-mask: url("../lib/css/assets/trash.png") center / contain
+          no-repeat;
+        mask: url("../lib/css/assets/trash.png") center / contain no-repeat;
       }
     </style>
   </head>
@@ -114,7 +165,19 @@
 
             editableLayers.addLayer(layer);
           });
-          L.control.measure({}).addTo(map);
+          L.control
+            .measure({
+              popupOptions: {
+                className: "leaflet-measure-resultpopup",
+                closeOnClick: false,
+                autoPan: true,
+                autoPanPadding: [25, 25],
+                offset: [-8, -8],
+                maxWidth: 320,
+              },
+              position: "bottomleft",
+            })
+            .addTo(map);
         },
       });
       graph.render();
