@@ -34,28 +34,6 @@
 .leaflet-measure-resultpopup .tasks li:last-child {
   margin-right: 0;
 }
-.leaflet-measure-resultpopup {
-  max-width: calc(100vw - 40px);
-}
-.leaflet-measure-resultpopup .leaflet-popup-content {
-  box-sizing: border-box;
-  width: min(320px, calc(100vw - 80px));
-  max-width: 100%;
-  padding: 6px 0 6px 6px;
-}
-.leaflet-measure-resultpopup p {
-  overflow-wrap: anywhere;
-}
-.leaflet-measure-resultpopup .tasks {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px 12px;
-}
-.leaflet-measure-resultpopup .tasks li {
-  display: block;
-  margin: 0;
-}
 .leaflet-control-measure .coorddivider,
 .leaflet-measure-resultpopup .coorddivider {
   color: #999;
