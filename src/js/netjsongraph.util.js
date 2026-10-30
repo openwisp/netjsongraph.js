@@ -342,14 +342,17 @@ class NetJSONGraphUtil {
    */
   makeCluster(self) {
     // Separate original nodes from those eligible for clustering.
-    // Only Point features (or nodes without an explicit _featureType flag) should be clustered.
+    // Point features (or nodes without an explicit _featureType flag) and the
+    // nodes which stand for Polygon features should be clustered.
     const {nodes: allNodes, links} = self.data;
 
-    const clusterableNodes = (n) =>
+    const isPoint = (n) =>
       !(n.properties && n.properties._featureType) ||
       n.properties._featureType === "Point";
+    const clusterableNodes = (n) =>
+      isPoint(n) || n.properties._featureType === "Polygon";
 
-    // Candidates for clustering (Points) and nodes to always stay unclustered (e.g. LineString endpoints).
+    // Candidates for clustering and nodes to always stay unclustered (e.g. LineString endpoints).
     const nodes = allNodes.filter(clusterableNodes);
     const nonClusterNodes = allNodes.filter((n) => !clusterableNodes(n));
     const nonClusterLinks = [];
@@ -587,7 +590,8 @@ class NetJSONGraphUtil {
           c.value = [lng, lat];
         },
       })),
-      ...nonClusterNodes.filter(clusterableNodes).map((n) => ({
+      // Polygons are not drawn as markers, hence they do not push others away
+      ...nonClusterNodes.filter(isPoint).map((n) => ({
         ref: n,
         isCluster: false,
         count: 1,
@@ -812,6 +816,7 @@ class NetJSONGraphUtil {
         key === "clients" ||
         key === "_source" ||
         key === "_generatedIdentity" ||
+        key === "_featureIndex" ||
         key === "local_addresses" ||
         key === "linkCount"
       ) {
@@ -1012,9 +1017,7 @@ class NetJSONGraphUtil {
           const time = this.dateParse({dateString: val});
           linkInfo[key] = time;
         } else {
-          const displayVal =
-            typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
-          linkInfo[key.replace(/_/g, " ")] = displayVal;
+          linkInfo[key.replace(/_/g, " ")] = val;
         }
       });
     }
