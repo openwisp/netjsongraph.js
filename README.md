@@ -696,6 +696,11 @@ To keep the codebase clean we extracted all GeoJSON‐specific helpers into
   dedicated Leaflet pane so they sit beneath the ECharts overlay but above the
   tile layer.
 
+Point and MultiPoint features always become separate nodes, even when they
+share the exact same coordinates, so each keeps its own id, label and
+properties. LineString and MultiLineString vertices still share a node where
+lines meet.
+
 If you used `map.utils.geojsonToNetjson` the public API is unchanged – it now
 forwards to the new helper.
 

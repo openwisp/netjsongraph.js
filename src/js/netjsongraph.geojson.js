@@ -3,6 +3,15 @@ import getLeaflet from "./leaflet-loader";
  * Dedicated GeoJSON utilities for netjsongraph.js.
  */
 
+// Start with the feature properties, then keep the top-level GeoJSON feature
+// id (location primary-key) if present.
+const getFeatureProps = (feature) => ({
+  ...((feature && feature.properties) || {}),
+  ...(feature && feature.id !== undefined && feature.id !== null
+    ? {id: feature.id}
+    : {}),
+});
+
 /**
  * Convert a GeoJSON FeatureCollection into a NetJSON-style object
  * (nodes / links arrays) so that the rest of the rendering pipeline can work
@@ -19,21 +28,57 @@ export function geojsonToNetjson(geojson) {
     return {nodes, links};
   }
 
-  // Coordinate string → node id (deduplication across features)
+  // Coordinate string → node id. Only used for the vertices of LineString /
+  // MultiLineString features, so that lines which meet share one node.
   const coordMap = new Map();
 
-  const createNode = (coord, baseProps = {}) => {
-    const key = `${coord[0]},${coord[1]}`;
-    if (coordMap.has(key)) {
-      return coordMap.get(key); // reuse existing node id
+  // Every explicit id in the collection, collected up front so that a
+  // suffixed MultiPoint id never takes an id another feature already uses,
+  // even when that feature comes later (e.g. MultiPoint "mp" and Point "mp_0").
+  // The ids are read from the same props, with the same fallback, that
+  // createNode uses, so the reserved id is exactly the id the node gets.
+  const usedIds = new Set();
+  geojson.features.forEach((feature) => {
+    const props = getFeatureProps(feature);
+    const explicitId = props.id || props.node_id;
+    if (explicitId) {
+      usedIds.add(String(explicitId));
     }
+  });
 
+  // Return the first `${base}_${n}` (n >= start) not used by any other node.
+  // Each base resumes from its last suffix, since the lower ones are taken.
+  const nextSuffix = new Map();
+  const uniqueSuffixedId = (base, start) => {
+    let n = Math.max(start, nextSuffix.get(base) || 0);
+    while (usedIds.has(`${base}_${n}`)) {
+      n += 1;
+    }
+    const id = `${base}_${n}`;
+    usedIds.add(id);
+    nextSuffix.set(base, n + 1);
+    return id;
+  };
+
+  // Always create a new node and return its id. Features that are Points are
+  // independent locations, so they must never be merged with another node.
+  const createNode = (coord, baseProps = {}, idSuffix = null) => {
     // If the data source specifies an identifier (or label) keep it public,
     // otherwise generate an internal id and flag it so UI layers can hide it.
     const providedId = baseProps.id || baseProps.node_id || null;
     const displayLabel = baseProps.label || baseProps.name || providedId || null;
 
-    const newId = providedId ? String(providedId) : `gjn_${nodes.length}`;
+    // A MultiPoint creates several nodes from one feature, so its explicit id
+    // gets a suffix that no other feature uses, keeping every graph id unique.
+    // The original id stays in properties.id and in the label.
+    let newId;
+    if (!providedId) {
+      newId = uniqueSuffixedId("gjn", nodes.length);
+    } else if (idSuffix === null) {
+      newId = providedId;
+    } else {
+      newId = uniqueSuffixedId(providedId, idSuffix);
+    }
     const generatedIdentity = !providedId;
 
     const node = {
@@ -47,6 +92,17 @@ export function geojsonToNetjson(geojson) {
       _generatedIdentity: generatedIdentity, // internal marker – not shown to users
     };
     nodes.push(node);
+    return newId;
+  };
+
+  // Return the node id for a line vertex: reuse the node already created for
+  // the same coordinates by a line, or create (and remember) a new one.
+  const getVertexNode = (coord, baseProps = {}) => {
+    const key = `${coord[0]},${coord[1]}`;
+    if (coordMap.has(key)) {
+      return coordMap.get(key); // reuse existing node id
+    }
+    const newId = createNode(coord, baseProps);
     coordMap.set(key, newId);
     return newId;
   };
@@ -57,14 +113,14 @@ export function geojsonToNetjson(geojson) {
 
   const processCoordsSeq = (coords, props, closeRing = false) => {
     for (let i = 0; i < coords.length - 1; i += 1) {
-      const a = createNode(coords[i], props);
-      const b = createNode(coords[i + 1], props);
+      const a = getVertexNode(coords[i], props);
+      const b = getVertexNode(coords[i + 1], props);
       addEdge(a, b, props);
     }
     if (closeRing && coords.length > 2) {
       // close the polygon ring (ensure topology correctness)
-      const first = createNode(coords[0], props);
-      const last = createNode(coords[coords.length - 1], props);
+      const first = getVertexNode(coords[0], props);
+      const last = getVertexNode(coords[coords.length - 1], props);
       addEdge(last, first, props);
     }
   };
@@ -80,7 +136,9 @@ export function geojsonToNetjson(geojson) {
         createNode(coordinates, {...props, _featureType: "Point"});
         break;
       case "MultiPoint":
-        coordinates.forEach((pt) => createNode(pt, {...props, _featureType: "Point"}));
+        coordinates.forEach((pt, index) =>
+          createNode(pt, {...props, _featureType: "Point"}, index),
+        );
         break;
       case "LineString":
         // Tag nodes coming from line geometries
@@ -104,14 +162,7 @@ export function geojsonToNetjson(geojson) {
   };
 
   geojson.features.forEach((feature) => {
-    // Start with existing properties, then add top-level Feature info we want to preserve.
-    const baseProps = {
-      ...(feature.properties || {}),
-      // Preserve original GeoJSON feature id (location primary-key) if present.
-      ...(feature.id !== undefined && feature.id !== null ? {id: feature.id} : {}),
-    };
-
-    handleGeometry(feature.geometry, baseProps);
+    handleGeometry(feature.geometry, getFeatureProps(feature));
   });
 
   return {nodes, links};
