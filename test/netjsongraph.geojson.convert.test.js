@@ -92,6 +92,7 @@ describe("geojsonToNetjson conversion", () => {
       );
       expect(result.nodes).toHaveLength(3);
       expect(new Set(result.nodes.map((n) => n.id)).size).toBe(3);
+      expect(result.nodes.map((n) => n.id)).toEqual(["mp_0", "mp_1", "mp_2"]);
       // the original feature id is kept in properties and as the label
       result.nodes.forEach((n) => {
         expect(n.properties.id).toBe("mp");

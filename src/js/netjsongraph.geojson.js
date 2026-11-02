@@ -70,7 +70,9 @@ export function geojsonToNetjson(geojson) {
 
     // A MultiPoint creates several nodes from one feature, so its explicit id
     // gets a suffix that no other feature uses, keeping every graph id unique.
-    // The original id stays in properties.id and in the label.
+    // The original id stays in properties.id, or in properties.node_id when
+    // the feature only has node_id. The label is label or name when set,
+    // otherwise the original id.
     let newId;
     if (!providedId) {
       newId = uniqueSuffixedId("gjn", nodes.length);
