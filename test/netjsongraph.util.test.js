@@ -389,6 +389,31 @@ describe("Test URL fragment utilities", () => {
     expect(mockOnClick).toHaveBeenCalledWith("node", node);
   });
 
+  test("applyUrlFragmentState shows a polygon as when its shape is clicked", () => {
+    const mockOnClick = jest.fn();
+    const node = {
+      id: "polygon_area",
+      location: {lat: 1, lng: 1},
+      properties: {_featureType: "Polygon", _featureIndex: 1, name: "Area"},
+    };
+    const self = {
+      config: {
+        render: "map",
+        bookmarkableActions: {enabled: true, id: "geo"},
+        mapOptions: {nodeConfig: {type: "scatter"}},
+        onClickElement: mockOnClick,
+      },
+      originalGeoJSON: {
+        features: [{properties: {name: "Point"}}, {properties: {name: "Area"}}],
+      },
+      nodeLinkIndex: {polygon_area: node},
+      utils,
+    };
+    window.location.hash = "#id=geo&nodeId=polygon_area";
+    utils.applyUrlFragmentState(self);
+    expect(mockOnClick).toHaveBeenCalledWith("Feature", {name: "Area"});
+  });
+
   test("Test applyUrlFragmentState runs only after onReady completes", async () => {
     const recorder = [];
     const emitter = {

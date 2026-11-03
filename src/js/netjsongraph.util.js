@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import KDBush from "kdbush";
-import {geojsonToNetjson as convertGeojson} from "./netjsongraph.geojson";
+import {geojsonToNetjson as convertGeojson, isPolygon} from "./netjsongraph.geojson";
 
 /**
  * @class
@@ -731,8 +731,13 @@ class NetJSONGraphUtil {
       }
     });
 
-    metaDataObj.nodes = metadata.nodes.length;
+    // The nodes of polygons are not drawn, hence they are counted apart
+    const polygons = metadata.nodes.filter(isPolygon).length;
+    metaDataObj.nodes = metadata.nodes.length - polygons;
     metaDataObj.links = metadata.links.length;
+    if (polygons) {
+      metaDataObj.polygons = polygons;
+    }
     return metaDataObj;
   }
 
@@ -816,7 +821,6 @@ class NetJSONGraphUtil {
         key === "clients" ||
         key === "_source" ||
         key === "_generatedIdentity" ||
-        key === "_featureIndex" ||
         key === "local_addresses" ||
         key === "linkCount"
       ) {
@@ -832,7 +836,7 @@ class NetJSONGraphUtil {
     // dataset-specific keys show up automatically. Nested structures are preserved.
     if (source.properties && this.isObject(source.properties)) {
       Object.keys(source.properties).forEach((key) => {
-        if (key === "clients") {
+        if (key === "clients" || key === "_featureIndex" || key === "_featureType") {
           return;
         }
         const val = normalizeValue(key, source.properties[key]);
@@ -1577,7 +1581,15 @@ class NetJSONGraphUtil {
       self.gui.loadNodePopup(node);
     }
     if (typeof self.config.onClickElement === "function") {
-      self.config.onClickElement.call(self, source && target ? "link" : "node", node);
+      const feature =
+        isPolygon(node) &&
+        // eslint-disable-next-line no-underscore-dangle
+        self.originalGeoJSON?.features[node.properties._featureIndex];
+      if (feature) {
+        self.config.onClickElement.call(self, "Feature", {...feature.properties});
+      } else {
+        self.config.onClickElement.call(self, source && target ? "link" : "node", node);
+      }
     }
   }
 
