@@ -104,6 +104,7 @@
         <p>Current zoom: <strong></strong></p>`;
       const zoom = info.querySelector("strong");
       map.render();
+      document.body.appendChild(info);
       // Required for selenium tests
       window.map = map;
     </script>

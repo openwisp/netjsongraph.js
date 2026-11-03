@@ -396,6 +396,7 @@ describe("Test URL fragment utilities", () => {
       location: {lat: 1, lng: 1},
       properties: {_featureType: "Polygon", _featureIndex: 1, name: "Area"},
     };
+    const features = [{properties: {name: "Point"}}, {properties: {name: "Area"}}];
     const self = {
       config: {
         render: "map",
@@ -403,15 +404,41 @@ describe("Test URL fragment utilities", () => {
         mapOptions: {nodeConfig: {type: "scatter"}},
         onClickElement: mockOnClick,
       },
-      originalGeoJSON: {
-        features: [{properties: {name: "Point"}}, {properties: {name: "Area"}}],
-      },
+      originalGeoJSON: {features},
+      polygonNodes: new Map([[features[1], node]]),
       nodeLinkIndex: {polygon_area: node},
       utils,
     };
     window.location.hash = "#id=geo&nodeId=polygon_area";
     utils.applyUrlFragmentState(self);
     expect(mockOnClick).toHaveBeenCalledWith("Feature", {name: "Area"});
+  });
+
+  test("applyUrlFragmentState ignores a polygon left from replaced data", () => {
+    const mockOnClick = jest.fn();
+    const node = {
+      id: "polygon_old",
+      location: {lat: 1, lng: 1},
+      properties: {_featureType: "Polygon", _featureIndex: 0, name: "Old"},
+    };
+    // The data has been replaced: another polygon is now at the same index
+    const feature = {properties: {name: "New"}};
+    const self = {
+      config: {
+        render: "map",
+        bookmarkableActions: {enabled: true, id: "geo"},
+        mapOptions: {nodeConfig: {type: "scatter"}},
+        onClickElement: mockOnClick,
+      },
+      originalGeoJSON: {features: [feature]},
+      polygonNodes: new Map([[feature, {id: "polygon_new"}]]),
+      nodeLinkIndex: {polygon_old: node},
+      utils,
+    };
+    window.location.hash = "#id=geo&nodeId=polygon_old";
+    utils.applyUrlFragmentState(self);
+    expect(mockOnClick).toHaveBeenCalledWith("node", node);
+    expect(mockOnClick).not.toHaveBeenCalledWith("Feature", {name: "New"});
   });
 
   test("Test applyUrlFragmentState runs only after onReady completes", async () => {
