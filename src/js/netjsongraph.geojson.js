@@ -74,9 +74,9 @@ const interiorPoint = ({type, coordinates}) => {
   if (!rings) {
     return null;
   }
-  const [first] = rings[0];
+  const first = rings[0][0].slice(0, 2);
   if (!outer.area) {
-    return [first[0], first[1]];
+    return first;
   }
   const [x, y] = outer.centroid;
   const xs = crossings(rings, y);
@@ -93,8 +93,26 @@ const interiorPoint = ({type, coordinates}) => {
       middle = (xs[i] + xs[i + 1]) / 2;
     }
   }
-  return middle === null ? [first[0], first[1]] : [middle, y];
+  return middle === null ? first : [middle, y];
 };
+
+/**
+ * An empty identifier counts as absent.
+ *
+ * @param {*} value  Identifier of a feature
+ * @return {*}
+ */
+const present = (value) => (value === "" ? null : value);
+
+/**
+ * Whether a node stands for a polygon. The type is set by the conversion,
+ * unlike the other properties, which may come from the data.
+ *
+ * @param {Object} node  Node of the converted data
+ * @return {boolean}
+ */
+// eslint-disable-next-line no-underscore-dangle
+export const isPolygon = (node) => node.properties?._featureType === "Polygon";
 
 /**
  * Convert a GeoJSON FeatureCollection into a NetJSON-style object
@@ -118,52 +136,42 @@ export function geojsonToNetjson(geojson) {
   // shift the generated ids of the other nodes, which may be bookmarked.
   let polygonCount = 0;
 
-  // A node which stands for a polygon receives the position of its feature
-  // in the collection (polygonIndex) and is never merged with other nodes,
-  // which may share its position by chance.
-  const createNode = (coord, baseProps = {}, polygonIndex = null) => {
-    const key = `${coord[0]},${coord[1]}`;
-    const dedupe = polygonIndex === null;
-    if (dedupe && coordMap.has(key)) {
-      return coordMap.get(key); // reuse existing node id
-    }
-
+  const addNode = (coord, baseProps, idPrefix, generatedId) => {
     // If the data source specifies an identifier (or label) keep it public,
     // otherwise generate an internal id and flag it so UI layers can hide it.
-    const present = (value) => (value === "" ? null : value);
     const providedId = present(baseProps.id) ?? present(baseProps.node_id) ?? null;
     const hasId = providedId !== null;
     const displayLabel =
       baseProps.label || baseProps.name || (hasId ? String(providedId) : null);
-
-    let newId;
-    if (hasId) {
-      newId = dedupe ? String(providedId) : `polygon_${providedId}`;
-    } else {
-      newId = dedupe
-        ? `gjn_${nodes.length - polygonCount}`
-        : `gjn_polygon_${polygonCount}`;
-    }
-    const generatedIdentity = !hasId;
-
-    const node = {
-      id: newId,
+    const id = hasId ? `${idPrefix}${providedId}` : generatedId;
+    nodes.push({
+      id,
       ...(displayLabel ? {label: String(displayLabel)} : {}),
       location: {lng: coord[0], lat: coord[1]},
       properties: {
         ...baseProps,
         location: {lng: coord[0], lat: coord[1]},
       },
-      _generatedIdentity: generatedIdentity, // internal marker – not shown to users
-      ...(dedupe ? {} : {_featureIndex: polygonIndex}),
-    };
-    nodes.push(node);
-    if (dedupe) {
-      coordMap.set(key, newId);
-    } else {
-      polygonCount += 1;
+      _generatedIdentity: !hasId, // internal marker – not shown to users
+    });
+    return id;
+  };
+
+  const createNode = (coord, baseProps = {}) => {
+    const key = `${coord[0]},${coord[1]}`;
+    if (coordMap.has(key)) {
+      return coordMap.get(key); // reuse existing node id
     }
-    return newId;
+    const id = addNode(coord, baseProps, "", `gjn_${nodes.length - polygonCount}`);
+    coordMap.set(key, id);
+    return id;
+  };
+
+  // A polygon's node is never merged with other nodes, which may share its
+  // position by chance.
+  const createPolygonNode = (coord, baseProps) => {
+    addNode(coord, baseProps, "polygon_", `gjn_polygon_${polygonCount}`);
+    polygonCount += 1;
   };
 
   const addEdge = (sourceId, targetId, props = {}) => {
@@ -212,7 +220,11 @@ export function geojsonToNetjson(geojson) {
         // hence they have no index and get no node.
         const point = index === null ? null : interiorPoint(geometry);
         if (point) {
-          createNode(point, {...props, _featureType: "Polygon"}, index);
+          createPolygonNode(point, {
+            ...props,
+            _featureType: "Polygon",
+            _featureIndex: index,
+          });
         }
         break;
       }
@@ -236,12 +248,10 @@ export function geojsonToNetjson(geojson) {
   });
 
   const usedIds = new Set(
-    // eslint-disable-next-line no-underscore-dangle
-    nodes.filter((node) => node._featureIndex === undefined).map((node) => node.id),
+    nodes.filter((node) => !isPolygon(node)).map((node) => node.id),
   );
   nodes.forEach((node) => {
-    // eslint-disable-next-line no-underscore-dangle
-    if (node._featureIndex === undefined) {
+    if (!isPolygon(node)) {
       return;
     }
     const {id} = node;
@@ -268,7 +278,7 @@ export function geojsonToNetjson(geojson) {
  * @param {Object} event    Leaflet mouse event
  */
 export function clickPolygonNode(self, feature, event) {
-  const node = self.polygonNodes && self.polygonNodes.get(feature);
+  const node = self.polygonNodes?.get(feature);
   if (!node || typeof self.echartsClickHandler !== "function") {
     return;
   }
@@ -305,9 +315,9 @@ export function clickPolygonNode(self, feature, event) {
  * @param {Object} self   NetJSONGraph instance (provides leaflet + config)
  * @param {Array}  nodes  Nodes of the converted data
  */
-export function addPolygonOverlays(self, nodes = (self.data && self.data.nodes) || []) {
+export function addPolygonOverlays(self, nodes = self.data?.nodes || []) {
   // A previous render left its group on the map, out of reach of clustering
-  if (self.leaflet && self.leaflet.polygonGeoJSON) {
+  if (self.leaflet?.polygonGeoJSON) {
     self.leaflet.removeLayer(self.leaflet.polygonGeoJSON);
     delete self.leaflet.polygonGeoJSON;
   }
@@ -325,18 +335,14 @@ export function addPolygonOverlays(self, nodes = (self.data && self.data.nodes) 
   const map = self.leaflet; // Leaflet map instance
   // Lets clickPolygonNode find the node of a clicked feature without a search
   self.polygonNodes = new Map(
-    nodes
+    nodes.filter(isPolygon).map((node) => [
       // eslint-disable-next-line no-underscore-dangle
-      .filter((node) => node._featureIndex !== undefined)
-      // eslint-disable-next-line no-underscore-dangle
-      .map((node) => [self.originalGeoJSON.features[node._featureIndex], node]),
+      self.originalGeoJSON.features[node.properties._featureIndex],
+      node,
+    ]),
   );
-  const polygonFeatures = self.originalGeoJSON.features.filter(
-    (f) =>
-      self.polygonNodes.has(f) &&
-      f &&
-      f.geometry &&
-      (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"),
+  const polygonFeatures = self.originalGeoJSON.features.filter((f) =>
+    self.polygonNodes.has(f),
   );
 
   if (!polygonFeatures.length) {
@@ -396,25 +402,34 @@ export function addPolygonOverlays(self, nodes = (self.data && self.data.nodes) 
  * @param {Array}  clusters  Clusters currently displayed on the map
  */
 export function updatePolygonOverlays(self, clusters = []) {
-  const overlays = self.leaflet && self.leaflet.polygonGeoJSON;
+  const overlays = self.leaflet?.polygonGeoJSON;
   if (!overlays || typeof overlays.eachLayer !== "function") {
     return;
   }
   const clustered = new Set();
   clusters.forEach((cluster) => {
     cluster.childNodes.forEach((node) => {
-      // eslint-disable-next-line no-underscore-dangle
-      if (node._featureIndex !== undefined) {
+      if (isPolygon(node)) {
         // eslint-disable-next-line no-underscore-dangle
-        clustered.add(self.originalGeoJSON.features[node._featureIndex]);
+        clustered.add(self.originalGeoJSON.features[node.properties._featureIndex]);
       }
     });
   });
+  let readded = false;
   overlays.eachLayer((layer) => {
     if (clustered.has(layer.feature)) {
       self.leaflet.removeLayer(layer);
     } else if (!self.leaflet.hasLayer(layer)) {
       self.leaflet.addLayer(layer);
+      readded = true;
     }
   });
+  if (readded) {
+    // A re-added layer is drawn on top, so restore the order of the features
+    overlays.eachLayer((layer) => {
+      if (self.leaflet.hasLayer(layer)) {
+        layer.bringToFront();
+      }
+    });
+  }
 }

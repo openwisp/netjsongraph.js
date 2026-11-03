@@ -759,7 +759,7 @@ class NetJSONGraphRender {
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
         // The chart is redrawn without clusters, hence no polygon may stay hidden
-        updatePolygonOverlays(self, []);
+        updatePolygonOverlays(self);
         self.bboxData.nodes = [];
         self.bboxData.links = [];
       };
@@ -794,7 +794,7 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-        updatePolygonOverlays(self, []);
+        updatePolygonOverlays(self);
         self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
@@ -864,15 +864,15 @@ class NetJSONGraphRender {
               clusters,
             ),
           );
+          updatePolygonOverlays(self, clusters);
         } else {
           // When above the threshold, show all nodes without clustering
-          clusters = [];
           if (typeof self.utils.clearHighlight === "function") {
             self.utils.clearHighlight.call(self);
           }
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+          updatePolygonOverlays(self);
         }
-        updatePolygonOverlays(self, clusters);
         self.utils.updateLabelVisibility(self, true);
       });
     }

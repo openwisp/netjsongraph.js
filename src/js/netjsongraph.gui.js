@@ -78,8 +78,8 @@ class NetJSONGraphGUI {
     metaInfoContainer.classList.add("njg-metaInfoContainer");
     const closeButton = document.createElement("span");
     closeButton.classList.add("njg-closeButton");
-    header.innerHTML = "Info";
-    closeButton.innerHTML = " &#x2715;";
+    header.textContent = "Info";
+    closeButton.textContent = " \u2715";
     header.appendChild(closeButton);
     metaInfoContainer.appendChild(header);
     metaInfoContainer.appendChild(metadataContainer);
@@ -128,7 +128,7 @@ class NetJSONGraphGUI {
     closeButton.classList.add("njg-closeButton");
     this.nodeLinkInfoContainer.style.display = "flex";
     header.textContent = `${type} Info`;
-    closeButton.innerHTML = " &#x2715;";
+    closeButton.textContent = " \u2715";
 
     // Key label normalization to improve readability
     const formatKeyLabel = (k) => {
@@ -168,7 +168,7 @@ class NetJSONGraphGUI {
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
           k.textContent = formatKeyLabel(key);
-          v.innerHTML = "[]";
+          v.textContent = "[]";
           item.appendChild(k);
           item.appendChild(v);
           parent.appendChild(item);
@@ -184,7 +184,7 @@ class NetJSONGraphGUI {
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
           k.textContent = formatKeyLabel(key);
-          v.textContent = val.map((x) => String(x)).join("\n");
+          v.textContent = val.map(String).join("\n");
           item.appendChild(k);
           item.appendChild(v);
           parent.appendChild(item);
@@ -212,8 +212,8 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = "Location";
-          v.innerHTML = `${Math.round(val.lat * 1000) / 1000}, ${
+          k.textContent = "Location";
+          v.textContent = `${Math.round(val.lat * 1000) / 1000}, ${
             Math.round(val.lng * 1000) / 1000
           }`;
           item.appendChild(k);
@@ -231,7 +231,7 @@ class NetJSONGraphGUI {
         const hv = document.createElement("span");
         hv.setAttribute("class", "njg-valueLabel");
         hk.textContent = formatKeyLabel(key);
-        hv.innerHTML = "";
+        hv.textContent = "";
         headerItem.appendChild(hk);
         headerItem.appendChild(hv);
         parent.appendChild(headerItem);

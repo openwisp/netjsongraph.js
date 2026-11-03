@@ -124,7 +124,7 @@ describe("geojsonToNetjson polygon nodes", () => {
       polygon([square(5, 5, 2)]),
     );
     // eslint-disable-next-line no-underscore-dangle
-    expect(nodes.map((n) => n._featureIndex)).toEqual([undefined, 1, 2]);
+    expect(nodes.map((n) => n.properties._featureIndex)).toEqual([undefined, 1, 2]);
   });
 
   test("polygons nested in a GeometryCollection get no node", () => {
@@ -197,7 +197,7 @@ describe("geojsonToNetjson polygon nodes", () => {
     const area = polygon([square(0, 0, 4)], {id: 42, properties: {}});
     [convert(point, area, area), convert(area, point, area)].forEach((nodes) => {
       // eslint-disable-next-line no-underscore-dangle
-      expect(nodes.find((node) => node._featureIndex === undefined).id).toBe("42");
+      expect(nodes.find((n) => n.properties._featureIndex === undefined).id).toBe("42");
       expect(nodes.map((node) => node.id).sort()).toEqual([
         "42",
         "polygon_42",
@@ -249,7 +249,10 @@ describe("geojsonToNetjson polygon nodes", () => {
 describe("updatePolygonOverlays", () => {
   const setUp = () => {
     const features = [{id: "point"}, {id: "area-1"}, {id: "area-2"}];
-    const layers = [{feature: features[1]}, {feature: features[2]}];
+    const layers = [
+      {feature: features[1], bringToFront: jest.fn()},
+      {feature: features[2], bringToFront: jest.fn()},
+    ];
     const shown = new Set(layers);
     const self = {
       originalGeoJSON: {features},
@@ -263,19 +266,22 @@ describe("updatePolygonOverlays", () => {
     return {self, layers, shown};
   };
   const cluster = (...childNodes) => ({childNodes});
+  const polygonNode = (index) => ({
+    properties: {_featureType: "Polygon", _featureIndex: index},
+  });
 
   test("hides only the polygons which belong to a cluster", () => {
     const {self, layers, shown} = setUp();
-    updatePolygonOverlays(self, [cluster({id: "point"}, {_featureIndex: 1})]);
+    updatePolygonOverlays(self, [cluster({id: "point"}, polygonNode(1))]);
     expect([...shown]).toEqual([layers[1]]);
     expect(self.leaflet.addLayer).not.toHaveBeenCalled();
   });
 
   test("shows the polygons again when their cluster is gone", () => {
     const {self, layers, shown} = setUp();
-    updatePolygonOverlays(self, [cluster({_featureIndex: 1}, {_featureIndex: 2})]);
+    updatePolygonOverlays(self, [cluster(polygonNode(1), polygonNode(2))]);
     expect(shown.size).toBe(0);
-    updatePolygonOverlays(self, [cluster({id: "point"}, {_featureIndex: 2})]);
+    updatePolygonOverlays(self, [cluster({id: "point"}, polygonNode(2))]);
     expect([...shown]).toEqual([layers[0]]);
     updatePolygonOverlays(self);
     expect(shown.size).toBe(2);
@@ -292,7 +298,10 @@ describe("addPolygonOverlays on a rerender", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
     const map = L.map(container, {center: [0.5, 0.5], zoom: 5});
-    const node = {id: "area", _featureIndex: 0};
+    const node = {
+      id: "area",
+      properties: {_featureType: "Polygon", _featureIndex: 0},
+    };
     const self = {
       originalGeoJSON: {
         type: "FeatureCollection",
@@ -333,6 +342,57 @@ describe("addPolygonOverlays on a rerender", () => {
     expect(polygonsOnMap()).toBe(1);
     updatePolygonOverlays(self, [{childNodes: [node]}]);
     expect(polygonsOnMap()).toBe(0);
+    map.remove();
+    document.body.removeChild(container);
+  });
+
+  test("keeps the order of the polygons when one is shown again", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const map = L.map(container, {center: [35, -30], zoom: 7});
+    const square = (id, west, south, size) => ({
+      type: "Feature",
+      id,
+      properties: {},
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [west, south],
+            [west + size, south],
+            [west + size, south + size],
+            [west, south + size],
+            [west, south],
+          ],
+        ],
+      },
+    });
+    const nodes = [0, 1].map((index) => ({
+      properties: {_featureType: "Polygon", _featureIndex: index},
+    }));
+    const self = {
+      originalGeoJSON: {
+        type: "FeatureCollection",
+        // A small polygon inside a big one, e.g. a building inside a campus
+        features: [square("big", -31, 34, 2), square("small", -29.6, 35.4, 0.4)],
+      },
+      leaflet: map,
+      config: {geoOptions: {}, onClickElement: jest.fn()},
+    };
+    const drawOrder = () => {
+      const layers = [];
+      self.leaflet.polygonGeoJSON.eachLayer((layer) => layers.push(layer));
+      const layerOf = new Map(layers.map((layer) => [layer.getElement(), layer]));
+      return [...map.getPane("njg-polygons").querySelectorAll("path")].map(
+        (element) => layerOf.get(element).feature.id,
+      );
+    };
+    addPolygonOverlays(self, nodes);
+    expect(drawOrder()).toEqual(["big", "small"]);
+    updatePolygonOverlays(self, [{childNodes: [nodes[0]]}]);
+    expect(drawOrder()).toEqual(["small"]);
+    updatePolygonOverlays(self, []);
+    expect(drawOrder()).toEqual(["big", "small"]);
     map.remove();
     document.body.removeChild(container);
   });
