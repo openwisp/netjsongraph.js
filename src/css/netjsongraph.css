@@ -304,6 +304,7 @@
 .njg-container .njg-valueLabel {
   flex: 1 1 50%;
   word-break: break-word;
+  white-space: pre-line;
 }
 
 .njg-container .njg-metaDataItems,
