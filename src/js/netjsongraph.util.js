@@ -1585,7 +1585,9 @@ class NetJSONGraphUtil {
         isPolygon(node) &&
         // eslint-disable-next-line no-underscore-dangle
         self.originalGeoJSON?.features[node.properties._featureIndex];
-      if (feature) {
+      // The node may be left from data that has been replaced since, its index
+      // then points to another feature
+      if (feature && self.polygonNodes?.get(feature)?.id === node.id) {
         self.config.onClickElement.call(self, "Feature", {...feature.properties});
       } else {
         self.config.onClickElement.call(self, source && target ? "link" : "node", node);
