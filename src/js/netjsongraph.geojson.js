@@ -49,6 +49,7 @@ export function geojsonToNetjson(geojson) {
   // Return the first `${base}_${n}` (n >= start) not used by any other node.
   // Each base resumes from its last suffix, since the lower ones are taken.
   const nextSuffix = new Map();
+  const nodeIds = new Set();
   const uniqueSuffixedId = (base, start) => {
     let n = Math.max(start, nextSuffix.get(base) || 0);
     while (usedIds.has(`${base}_${n}`)) {
@@ -74,13 +75,19 @@ export function geojsonToNetjson(geojson) {
     // The original id stays in properties.id, or in properties.node_id when
     // properties.id is missing or falsy, such as 0. The label is label or
     // name when set, otherwise the explicit id without any MultiPoint suffix.
+    // eslint-disable-next-line no-underscore-dangle
+    const isPoint = baseProps._featureType === "Point";
     let newId;
     if (!providedId) {
       newId = uniqueSuffixedId("gjn", nodes.length);
-    } else if (idSuffix === null) {
-      newId = String(providedId);
-    } else {
+    } else if (idSuffix !== null) {
       newId = uniqueSuffixedId(providedId, idSuffix);
+    } else if (isPoint && nodeIds.has(String(providedId))) {
+      // A second Point with the same id (e.g. in one GeometryCollection)
+      // gets a suffix too, so it is not dropped as a duplicate node.
+      newId = uniqueSuffixedId(providedId, 1);
+    } else {
+      newId = String(providedId);
     }
     const generatedIdentity = !providedId;
 
@@ -95,6 +102,7 @@ export function geojsonToNetjson(geojson) {
       _generatedIdentity: generatedIdentity, // internal marker – not shown to users
     };
     nodes.push(node);
+    nodeIds.add(newId);
     return newId;
   };
 

@@ -208,6 +208,25 @@ describe("geojsonToNetjson conversion", () => {
       expect(result.links[0].target).toBe(result.links[1].source);
     });
 
+    test("Points sharing one feature id in a GeometryCollection get unique ids", () => {
+      const result = geojsonToNetjson(
+        collection({
+          type: "Feature",
+          id: "gc",
+          properties: {},
+          geometry: {
+            type: "GeometryCollection",
+            geometries: [
+              {type: "Point", coordinates: [3, 3]},
+              {type: "Point", coordinates: [3, 3]},
+            ],
+          },
+        }),
+      );
+      expect(result.nodes.map((n) => n.id)).toEqual(["gc", "gc_1"]);
+      expect(result.nodes.map((n) => n.properties.id)).toEqual(["gc", "gc"]);
+    });
+
     test("numeric feature ids become string node ids", () => {
       const result = geojsonToNetjson(collection(point([1, 1], {}, 7)));
       expect(result.nodes[0].id).toBe("7");
