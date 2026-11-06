@@ -3,10 +3,7 @@ import path from "path";
 import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 
 describe("geojsonToNetjson conversion", () => {
-  const samplePath = path.join(
-    __dirname,
-    "../public/assets/data/geojson-sample.json",
-  );
+  const samplePath = path.join(__dirname, "../public/assets/data/geojson-sample.json");
   const sample = JSON.parse(fs.readFileSync(samplePath, "utf-8"));
   const {nodes, links} = geojsonToNetjson(sample);
 
