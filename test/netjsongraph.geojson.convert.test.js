@@ -3,7 +3,10 @@ import path from "path";
 import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 
 describe("geojsonToNetjson conversion", () => {
-  const samplePath = path.join(__dirname, "../public/assets/data/geojson-sample.json");
+  const samplePath = path.join(
+    __dirname,
+    "../public/assets/data/geojson-sample.json",
+  );
   const sample = JSON.parse(fs.readFileSync(samplePath, "utf-8"));
   const {nodes, links} = geojsonToNetjson(sample);
 
@@ -203,6 +206,11 @@ describe("geojsonToNetjson conversion", () => {
       expect(result.nodes).toHaveLength(3);
       expect(result.links).toHaveLength(2);
       expect(result.links[0].target).toBe(result.links[1].source);
+    });
+
+    test("numeric feature ids become string node ids", () => {
+      const result = geojsonToNetjson(collection(point([1, 1], {}, 7)));
+      expect(result.nodes[0].id).toBe("7");
     });
 
     test("Points without ids get unique generated gjn_ ids", () => {

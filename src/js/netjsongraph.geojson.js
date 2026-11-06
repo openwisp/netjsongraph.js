@@ -66,7 +66,8 @@ export function geojsonToNetjson(geojson) {
     // If the data source specifies an identifier (or label) keep it public,
     // otherwise generate an internal id and flag it so UI layers can hide it.
     const providedId = baseProps.id || baseProps.node_id || null;
-    const displayLabel = baseProps.label || baseProps.name || providedId || null;
+    const displayLabel =
+      baseProps.label || baseProps.name || providedId || null;
 
     // A MultiPoint creates several nodes from one feature, so its explicit id
     // gets a suffix that no other feature uses, keeping every graph id unique.
@@ -77,7 +78,7 @@ export function geojsonToNetjson(geojson) {
     if (!providedId) {
       newId = uniqueSuffixedId("gjn", nodes.length);
     } else if (idSuffix === null) {
-      newId = providedId;
+      newId = String(providedId);
     } else {
       newId = uniqueSuffixedId(providedId, idSuffix);
     }
@@ -144,7 +145,11 @@ export function geojsonToNetjson(geojson) {
         break;
       case "LineString":
         // Tag nodes coming from line geometries
-        processCoordsSeq(coordinates, {...props, _featureType: "LineString"}, false);
+        processCoordsSeq(
+          coordinates,
+          {...props, _featureType: "LineString"},
+          false,
+        );
         break;
       case "MultiLineString":
         coordinates.forEach((line) =>
