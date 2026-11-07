@@ -48,6 +48,8 @@ export function geojsonToNetjson(geojson) {
 
   // Return the first `${base}_${n}` (n >= start) not used by any other node.
   // Each base resumes from its last suffix, since the lower ones are taken.
+  // usedIds holds every id that is reserved or taken; nodeIds holds only the
+  // ids already given to a node, to detect a repeated Point id.
   const nextSuffix = new Map();
   const nodeIds = new Set();
   const uniqueSuffixedId = (base, start) => {
@@ -69,11 +71,12 @@ export function geojsonToNetjson(geojson) {
     const providedId = baseProps.id || baseProps.node_id || null;
     const displayLabel = baseProps.label || baseProps.name || providedId || null;
 
-    // A MultiPoint creates several nodes from one feature, so its explicit id
-    // gets a suffix that no other feature uses, keeping every graph id unique.
-    // The original id stays in properties.id, or in properties.node_id when
-    // properties.id is missing or falsy, such as 0. The label is label or
-    // name when set, otherwise the explicit id without any MultiPoint suffix.
+    // A MultiPoint or a line creates several nodes from one feature, so its
+    // explicit id gets a suffix that no other feature uses, keeping every
+    // graph id unique. The original id stays in properties.id, or in
+    // properties.node_id when properties.id is missing or falsy, such as 0.
+    // The label is label or name when set, otherwise the explicit id without
+    // any suffix.
     // eslint-disable-next-line no-underscore-dangle
     const isPoint = baseProps._featureType === "Point";
     let newId;
@@ -106,13 +109,15 @@ export function geojsonToNetjson(geojson) {
   };
 
   // Return the node id for a line vertex: reuse the node already created for
-  // the same coordinates by a line, or create (and remember) a new one.
+  // the same coordinates by a line, or create (and remember) a new one. A new
+  // vertex of a line with an explicit id gets a suffixed id, so the vertices
+  // of one line, or a vertex and a Point with that id, never share an id.
   const getVertexNode = (coord, baseProps = {}) => {
     const key = `${coord[0]},${coord[1]}`;
     if (coordMap.has(key)) {
       return coordMap.get(key); // reuse existing node id
     }
-    const newId = createNode(coord, baseProps);
+    const newId = createNode(coord, baseProps, 0);
     coordMap.set(key, newId);
     return newId;
   };

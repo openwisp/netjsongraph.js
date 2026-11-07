@@ -205,6 +205,48 @@ describe("geojsonToNetjson conversion", () => {
       expect(result.links[0].target).toBe(result.links[1].source);
     });
 
+    test("a line with an explicit id gives each vertex a unique id", () => {
+      const result = geojsonToNetjson(
+        collection(
+          line(
+            [
+              [0, 0],
+              [1, 1],
+              [2, 2],
+            ],
+            {id: "l1"},
+          ),
+        ),
+      );
+      const ids = result.nodes.map((n) => n.id);
+      expect(ids).toEqual(["l1_0", "l1_1", "l1_2"]);
+      expect(result.nodes.map((n) => n.properties.id)).toEqual(["l1", "l1", "l1"]);
+      expect(result.links).toHaveLength(2);
+      result.links.forEach((l) => expect(l.source).not.toBe(l.target));
+    });
+
+    test("a Point before a line vertex with the same id stays separate", () => {
+      const result = geojsonToNetjson(
+        collection(
+          point([1, 1], {name: "Before the line"}, "x"),
+          line(
+            [
+              [1, 1],
+              [2, 2],
+            ],
+            {id: "x"},
+          ),
+        ),
+      );
+      const ids = result.nodes.map((n) => n.id);
+      expect(result.nodes).toHaveLength(3);
+      expect(new Set(ids).size).toBe(3);
+      expect(result.nodes.filter((n) => n.id === "x")).toHaveLength(1);
+      expect(result.links).toHaveLength(1);
+      expect(result.links[0].source).not.toBe(result.links[0].target);
+      expect([result.links[0].source, result.links[0].target]).not.toContain("x");
+    });
+
     test("Points sharing one feature id in a GeometryCollection get unique ids", () => {
       const result = geojsonToNetjson(
         collection({
