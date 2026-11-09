@@ -1116,6 +1116,7 @@ describe("Chart Rendering Test", () => {
       .release()
       .perform();
     expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
+    expect(await driver.executeScript("return L.Browser.touch")).toBe(true);
     await driver.sendDevToolsCommand("Emulation.setTouchEmulationEnabled", {
       enabled: true,
       maxTouchPoints: 1,
