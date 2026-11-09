@@ -1,3 +1,4 @@
+import {until} from "selenium-webdriver";
 import {
   getElementByCss,
   getElementByXpath,
@@ -814,32 +815,39 @@ describe("Chart Rendering Test", () => {
     expect(drawPolylineBtn).not.toBeNull();
     expect(measureControl).not.toBeNull();
 
-    const measureToggle = await getElementByCss(
-      driver,
-      ".leaflet-control-measure .js-toggle",
-      2000,
-    );
-    await measureToggle.click();
+    await driver.wait(until.elementIsVisible(measureControl), 2000);
+    await driver.actions().move({origin: measureControl}).perform();
     const startMeasure = await getElementByCss(
       driver,
       ".leaflet-control-measure .js-start",
       2000,
     );
+    await driver.wait(
+      until.elementIsVisible(startMeasure),
+      2000,
+      "Start measurement link did not become visible after expanding the control",
+    );
+    await driver.wait(until.elementIsEnabled(startMeasure), 2000);
     await startMeasure.click();
 
     const mapBounds = await driver.executeScript(`
       const map = document.querySelector(".leaflet-container");
       const {left, top, width, height} = map.getBoundingClientRect();
+      const sidebar = document.querySelector(".njg-sideBar:not(.hidden)");
+      const visibleLeft = sidebar
+        ? Math.max(left, sidebar.getBoundingClientRect().right)
+        : left;
+      const visibleWidth = left + width - visibleLeft;
       const captureMarker = Array.from(map.querySelectorAll(".leaflet-marker-icon")).find(
         (marker) => marker.style.opacity === "0",
       );
       const measurementPoints = [
         [0.2, 0.2],
-        [0.2, 0.75],
+        [0.2, 0.55],
         [0.75, 0.45],
       ];
       const captureHits = measurementPoints.map(([xRatio, yRatio]) => {
-        const clientX = Math.round(left + width * xRatio);
+        const clientX = Math.round(visibleLeft + visibleWidth * xRatio);
         const clientY = Math.round(top + height * yRatio);
         const target = document.elementFromPoint(clientX, clientY);
         return (
@@ -847,13 +855,22 @@ describe("Chart Rendering Test", () => {
         );
       });
       const edgeTarget = document.elementFromPoint(
-        Math.round(left + 5),
+        Math.round(visibleLeft + 5),
         Math.round(top + height / 2),
       );
       const edgeCaptureHit =
         captureMarker &&
         (edgeTarget === captureMarker || captureMarker.contains(edgeTarget));
-      return {left, top, width, height, captureHits, edgeCaptureHit};
+      return {
+        left,
+        top,
+        width,
+        height,
+        visibleLeft,
+        visibleWidth,
+        captureHits,
+        edgeCaptureHit,
+      };
     `);
     expect(mapBounds.captureHits).toEqual([true, true, true]);
     expect(mapBounds.edgeCaptureHit).toBe(true);
@@ -862,7 +879,9 @@ describe("Chart Rendering Test", () => {
         'return getComputedStyle(document.querySelector(".leaflet-map-pane")).transform',
       );
     const clickMeasurementPoint = async (xRatio, yRatio) => {
-      const clientX = Math.round(mapBounds.left + mapBounds.width * xRatio);
+      const clientX = Math.round(
+        mapBounds.visibleLeft + mapBounds.visibleWidth * xRatio,
+      );
       const clientY = Math.round(mapBounds.top + mapBounds.height * yRatio);
       // Selenium rejects direct clicks on the intentionally transparent marker.
       await driver.executeScript(
@@ -883,7 +902,7 @@ describe("Chart Rendering Test", () => {
     const initialMapPaneTransform = await getMapPaneTransform();
     await clickMeasurementPoint(0.2, 0.2);
     expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
-    await clickMeasurementPoint(0.2, 0.75);
+    await clickMeasurementPoint(0.2, 0.55);
     await clickMeasurementPoint(0.75, 0.45);
     expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
     const areaWasMeasured = await driver.executeScript(
@@ -892,7 +911,7 @@ describe("Chart Rendering Test", () => {
     expect(areaWasMeasured).toBe(true);
 
     const edgePoint = {
-      x: Math.round(mapBounds.left + 5),
+      x: Math.round(mapBounds.visibleLeft + 5),
       y: Math.round(mapBounds.top + mapBounds.height / 2),
     };
     await driver
