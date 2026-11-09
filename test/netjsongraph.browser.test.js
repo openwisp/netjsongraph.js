@@ -883,21 +883,11 @@ describe("Chart Rendering Test", () => {
         mapBounds.visibleLeft + mapBounds.visibleWidth * xRatio,
       );
       const clientY = Math.round(mapBounds.top + mapBounds.height * yRatio);
-      // Selenium rejects direct clicks on the intentionally transparent marker.
-      await driver.executeScript(
-        `
-          const target = document.elementFromPoint(arguments[0], arguments[1]);
-          target.dispatchEvent(new MouseEvent("click", {
-            bubbles: true,
-            cancelable: true,
-            clientX: arguments[0],
-            clientY: arguments[1],
-            view: window,
-          }));
-        `,
-        clientX,
-        clientY,
-      );
+      await driver
+        .actions()
+        .move({origin: "viewport", x: clientX, y: clientY})
+        .click()
+        .perform();
     };
     const initialMapPaneTransform = await getMapPaneTransform();
     await clickMeasurementPoint(0.2, 0.2);
@@ -921,6 +911,29 @@ describe("Chart Rendering Test", () => {
       .move({origin: "pointer", x: 30, y: 0})
       .release()
       .perform();
+    expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
+    await driver.sendDevToolsCommand("Emulation.setTouchEmulationEnabled", {
+      enabled: true,
+      maxTouchPoints: 1,
+    });
+    try {
+      await driver.sendDevToolsCommand("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [{x: edgePoint.x, y: edgePoint.y, id: 0}],
+      });
+      await driver.sendDevToolsCommand("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{x: edgePoint.x + 30, y: edgePoint.y, id: 0}],
+      });
+      await driver.sendDevToolsCommand("Input.dispatchTouchEvent", {
+        type: "touchEnd",
+        touchPoints: [],
+      });
+    } finally {
+      await driver.sendDevToolsCommand("Emulation.setTouchEmulationEnabled", {
+        enabled: false,
+      });
+    }
     expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
   });
 });
