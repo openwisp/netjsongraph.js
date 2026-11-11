@@ -902,6 +902,12 @@ describe("Chart Rendering Test", () => {
       x: Math.round(mapBounds.visibleLeft + 5),
       y: Math.round(mapBounds.top + mapBounds.height / 2),
     };
+    await driver.executeScript(`
+      window.__measurementMoveEnded = false;
+      window.map.leaflet.once("moveend", () => {
+        window.__measurementMoveEnded = true;
+      });
+    `);
     await driver
       .actions()
       .move({origin: "viewport", ...edgePoint})
@@ -913,6 +919,11 @@ describe("Chart Rendering Test", () => {
       async () => (await getMeasurementState()).transform !== initialState.transform,
       2000,
       "Dragging the map during measurement did not pan it",
+    );
+    await driver.wait(
+      () => driver.executeScript("return window.__measurementMoveEnded"),
+      5000,
+      "Leaflet did not finish panning after the drag",
     );
     const stateAfterDrag = await getMeasurementState();
     expect(stateAfterDrag.results).toBe(stateAfterFirstPoint.results);
