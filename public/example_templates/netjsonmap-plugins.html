@@ -16,18 +16,15 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
-      .njg-container .leaflet-control-measure {
-        margin-top: 0 !important;
-      }
       .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip-container {
-        bottom: -3.5%;
+        bottom: -20px;
       }
       .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip {
         box-shadow: none;
       }
       .njg-container .leaflet-measure-resultpopup .leaflet-popup-content {
         box-sizing: border-box;
-        padding: 8px 10px;
+        padding: 18px;
       }
       .njg-container .leaflet-measure-resultpopup p {
         overflow-wrap: anywhere;
@@ -36,7 +33,7 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        align-items: center;
+        align-items: baseline;
         gap: 8px 12px;
       }
       .njg-container .leaflet-measure-resultpopup .tasks li {
@@ -50,22 +47,23 @@
         min-height: 16px;
       }
       .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup {
+        display: inline;
+        padding-left: 0;
         color: #c62828;
         background-image: none;
-        position: relative;
       }
       .njg-container
         .leaflet-measure-resultpopup
         .tasks
         a.deletemarkup::before {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        width: 12px;
-        height: 12px;
+        position: static;
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 6px;
         background-color: currentColor;
         content: "";
-        transform: translateY(-50%);
+        vertical-align: baseline;
         -webkit-mask: url("../lib/css/assets/trash.png") center / contain
           no-repeat;
         mask: url("../lib/css/assets/trash.png") center / contain no-repeat;
@@ -169,10 +167,8 @@
             .measure({
               popupOptions: {
                 className: "leaflet-measure-resultpopup",
-                closeOnClick: false,
                 autoPan: true,
                 autoPanPadding: [25, 25],
-                offset: [-8, -8],
                 maxWidth: 320,
               },
               position: "bottomleft",

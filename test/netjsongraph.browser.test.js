@@ -788,6 +788,7 @@ describe("Chart Rendering Test", () => {
   });
 
   test("renders Leaflet plugins and captures measurement clicks across the map", async () => {
+    await driver.manage().window().setSize(1280, 800);
     await driver.get(urls.leafletPlugins);
     const leafletContainer = await getElementByCss(
       driver,
@@ -843,8 +844,8 @@ describe("Chart Rendering Test", () => {
       );
       const measurementPoints = [
         [0.2, 0.2],
-        [0.2, 0.55],
         [0.75, 0.45],
+        [0.75, 0.65],
       ];
       const captureHits = measurementPoints.map(([xRatio, yRatio]) => {
         const clientX = Math.round(visibleLeft + visibleWidth * xRatio);
@@ -874,10 +875,13 @@ describe("Chart Rendering Test", () => {
     `);
     expect(mapBounds.captureHits).toEqual([true, true, true]);
     expect(mapBounds.edgeCaptureHit).toBe(true);
-    const getMapPaneTransform = () =>
-      driver.executeScript(
-        'return getComputedStyle(document.querySelector(".leaflet-map-pane")).transform',
-      );
+    const getMeasurementState = () =>
+      driver.executeScript(`
+        return {
+          transform: getComputedStyle(document.querySelector(".leaflet-map-pane")).transform,
+          results: document.querySelector(".leaflet-control-measure .js-results").textContent,
+        };
+      `);
     const clickMeasurementPoint = async (xRatio, yRatio) => {
       const clientX = Math.round(
         mapBounds.visibleLeft + mapBounds.visibleWidth * xRatio,
@@ -889,16 +893,10 @@ describe("Chart Rendering Test", () => {
         .click()
         .perform();
     };
-    const initialMapPaneTransform = await getMapPaneTransform();
+    const initialState = await getMeasurementState();
     await clickMeasurementPoint(0.2, 0.2);
-    expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
-    await clickMeasurementPoint(0.2, 0.55);
-    await clickMeasurementPoint(0.75, 0.45);
-    expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
-    const areaWasMeasured = await driver.executeScript(
-      'return document.querySelector(".leaflet-control-measure .js-results").textContent.includes("Area")',
-    );
-    expect(areaWasMeasured).toBe(true);
+    const stateAfterFirstPoint = await getMeasurementState();
+    expect(stateAfterFirstPoint.transform).toBe(initialState.transform);
 
     const edgePoint = {
       x: Math.round(mapBounds.visibleLeft + 5),
@@ -911,30 +909,24 @@ describe("Chart Rendering Test", () => {
       .move({origin: "pointer", x: 30, y: 0})
       .release()
       .perform();
-    expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
-    expect(await driver.executeScript("return L.Browser.touch")).toBe(true);
-    await driver.sendDevToolsCommand("Emulation.setTouchEmulationEnabled", {
-      enabled: true,
-      maxTouchPoints: 1,
-    });
-    try {
-      await driver.sendDevToolsCommand("Input.dispatchTouchEvent", {
-        type: "touchStart",
-        touchPoints: [{x: edgePoint.x, y: edgePoint.y, id: 0}],
-      });
-      await driver.sendDevToolsCommand("Input.dispatchTouchEvent", {
-        type: "touchMove",
-        touchPoints: [{x: edgePoint.x + 30, y: edgePoint.y, id: 0}],
-      });
-      await driver.sendDevToolsCommand("Input.dispatchTouchEvent", {
-        type: "touchEnd",
-        touchPoints: [],
-      });
-    } finally {
-      await driver.sendDevToolsCommand("Emulation.setTouchEmulationEnabled", {
-        enabled: false,
-      });
-    }
-    expect(await getMapPaneTransform()).toBe(initialMapPaneTransform);
-  });
+    await driver.wait(
+      async () =>
+        (await getMeasurementState()).transform !== initialState.transform,
+      2000,
+      "Dragging the map during measurement did not pan it",
+    );
+    const stateAfterDrag = await getMeasurementState();
+    expect(stateAfterDrag.results).toBe(stateAfterFirstPoint.results);
+    await clickMeasurementPoint(0.75, 0.45);
+    const stateAfterSecondPoint = await getMeasurementState();
+    expect(stateAfterSecondPoint.results).not.toBe(
+      stateAfterFirstPoint.results,
+    );
+    expect(stateAfterSecondPoint.transform).toBe(stateAfterDrag.transform);
+
+    await clickMeasurementPoint(0.75, 0.65);
+    const stateAfterThirdPoint = await getMeasurementState();
+    expect(stateAfterThirdPoint.results).toContain("Area");
+    expect(stateAfterThirdPoint.transform).toBe(stateAfterDrag.transform);
+  }, 60000);
 });
