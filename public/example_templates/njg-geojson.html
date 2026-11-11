@@ -13,19 +13,46 @@
     <!-- theme can be easily customized via css -->
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
+    <style>
+      .njg-container .leaflet-popup-tip-container {
+        bottom: -3.5%;
+      }
+      .njg-container .leaflet-popup-tip {
+        box-shadow: none;
+      }
+    </style>
   </head>
   <body>
     <script type="text/javascript">
       const map = new NetJSONGraph("../assets/data/geojson-sample.json", {
         render: "map",
+        // polygons are clustered together with points
+        clustering: true,
+        clusteringThreshold: 0,
+        disableClusteringAtLevel: 6,
+        // clicking a point or a polygon adds it to the URL
+        bookmarkableActions: {
+          enabled: true,
+          id: "geoJson",
+        },
         // set map initial state.
         mapOptions: {
           center: [46.86764405052012, 19.675998687744144],
           zoom: 5,
+          nodePopup: {
+            show: true,
+            config: {
+              closeOnClick: false,
+              autoPan: true,
+              autoPanPadding: [25, 25],
+              offset: [-8, -8],
+            },
+          },
         },
       });
 
       map.render();
+      window.map = map;
     </script>
   </body>
 </html>

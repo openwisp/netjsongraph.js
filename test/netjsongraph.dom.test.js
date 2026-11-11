@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 import NetJSONGraphCore from "../src/js/netjsongraph.core";
 import NetJSONGraphGUI from "../src/js/netjsongraph.gui";
+import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 
 const graph = new NetJSONGraphCore({
   type: "NetworkGraph",
@@ -311,6 +312,99 @@ describe("Test netjsongraph gui", () => {
     graph.gui.init();
     expect(graph.gui.controls).not.toBe(null);
     expect(graph.gui.renderModeSelector).not.toBe(null);
+  });
+
+  test("Restoring a polygon bookmark shows markup in its id, keys and values as text", () => {
+    const id = '<b data-injected="true">Area</b>';
+    const data = geojsonToNetjson({
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          id,
+          properties: {
+            name: "Area",
+            "<i data-injected>key</i>": "<b data-injected>value</b>",
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [0, 0],
+                [1, 0],
+                [1, 1],
+                [0, 1],
+                [0, 0],
+              ],
+            ],
+          },
+        },
+      ],
+    });
+    const map = new NetJSONGraphCore(data);
+    map.event = map.utils.createEvent();
+    map.gui = new NetJSONGraphGUI(map);
+    map.setConfig({
+      render: "map",
+      bookmarkableActions: {enabled: true, id: "geo"},
+    });
+    map.setUtils();
+    map.data = data;
+    map.nodeLinkIndex = {[data.nodes[0].id]: data.nodes[0]};
+    map.gui.sideBar = map.gui.createSideBar();
+    map.gui.nodeLinkInfoContainer = map.gui.createNodeLinkInfoContainer();
+    map.gui.metaInfoContainer = map.gui.createMetaInfoContainer();
+    window.location.hash = `#id=geo&nodeId=${encodeURIComponent(data.nodes[0].id)}`;
+
+    map.utils.applyUrlFragmentState(map);
+
+    const container = map.gui.nodeLinkInfoContainer;
+    expect(container.querySelector("[data-injected]")).toBe(null);
+    const keys = [...container.querySelectorAll(".njg-keyLabel")];
+    expect(keys.map((key) => key.textContent)).toContain("<i data-injected>key</i>");
+    const values = [...container.querySelectorAll(".njg-valueLabel")].map(
+      (value) => value.textContent,
+    );
+    expect(values).toContain(id);
+    expect(values).toContain("<b data-injected>value</b>");
+    window.location.hash = "";
+  });
+
+  test.each([
+    [
+      "node",
+      {id: "A", properties: {"<i data-injected>key</i>": "<b data-injected>value</b>"}},
+    ],
+    [
+      "link",
+      {
+        source: "A",
+        target: "B",
+        properties: {"<i data-injected>key</i>": "<b data-injected>value</b>"},
+      },
+    ],
+  ])("Clicking a %s shows markup in its keys and values as text", (type, element) => {
+    const data = {nodes: [{id: "A"}, {id: "B"}], links: []};
+    const map = new NetJSONGraphCore(data);
+    map.event = map.utils.createEvent();
+    map.gui = new NetJSONGraphGUI(map);
+    map.setConfig({});
+    map.setUtils();
+    map.data = data;
+    map.gui.sideBar = map.gui.createSideBar();
+    map.gui.nodeLinkInfoContainer = map.gui.createNodeLinkInfoContainer();
+    map.gui.metaInfoContainer = map.gui.createMetaInfoContainer();
+
+    map.config.onClickElement.call(map, type, element);
+
+    const container = map.gui.nodeLinkInfoContainer;
+    expect(container.querySelector("[data-injected]")).toBe(null);
+    const keys = [...container.querySelectorAll(".njg-keyLabel")];
+    expect(keys.map((key) => key.textContent)).toContain("<i data-injected>key</i>");
+    const values = [...container.querySelectorAll(".njg-valueLabel")];
+    expect(values.map((value) => value.textContent)).toContain(
+      "<b data-injected>value</b>",
+    );
   });
 });
 describe("Test netjsongraph dom operate", () => {

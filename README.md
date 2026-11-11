@@ -361,7 +361,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Default**: `8`
 
-  The zoom level at which clustering is disabled. When the zoom level is greater than this value, all the clusters will be expanded.
+  The zoom level at which clustering is disabled. When the zoom level is greater than or equal to this value, all the clusters will be expanded.
 
 - `clusterRadius`
 
@@ -692,7 +692,7 @@ To keep the codebase clean we extracted all GeoJSON‐specific helpers into
 - `geojsonToNetjson(geojson)` – converts any GeoJSON _FeatureCollection_ into
   NetJSON nodes & links (supports Points, LineStrings, Polygons, Multi\* and
   GeometryCollections).
-- `addPolygonOverlays(self)` – draws Polygon / MultiPolygon features on a
+- `addPolygonOverlays(self, nodes)` – draws Polygon / MultiPolygon features on a
   dedicated Leaflet pane so they sit beneath the ECharts overlay but above the
   tile layer.
 
@@ -705,8 +705,29 @@ import {geojsonToNetjson} from "netjsongraph/src/js/netjsongraph.geojson";
 const netjson = geojsonToNetjson(myGeoJSON);
 ```
 
+The output includes a node for each Polygon and MultiPolygon feature, with the
+`_featureType: "Polygon"` and `_featureIndex` properties. These nodes have no
+shape: netjsongraph.js draws the shapes from the original GeoJSON.
+
 No action is required for most users; these changes simply make the internal
 flow clearer and easier to maintain.
+
+### Polygons
+
+Each Polygon and MultiPolygon feature is drawn by Leaflet and represented by a
+hidden node, which takes part in clustering, popups and bookmarks like the nodes
+of points.
+
+- The node id is the `id` of the feature prefixed with `polygon_` (e.g.
+  `polygon_42`).
+- While its node belongs to a cluster, the shape is hidden.
+- Clicking a shape calls `onClickElement` with the type `"Feature"`, opens the
+  popup (if enabled) and updates the URL fragment (if `bookmarkableActions` is
+  enabled).
+- Polygon nodes are left out in graph mode.
+
+A custom `geoOptions.onEachFeature` replaces this click handling, so it has to
+handle clicks on shapes itself.
 
 ## Automatic Cluster Overlap Prevention
 

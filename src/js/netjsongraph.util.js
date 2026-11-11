@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import KDBush from "kdbush";
-import {geojsonToNetjson as convertGeojson} from "./netjsongraph.geojson";
+import {geojsonToNetjson as convertGeojson, isPolygon} from "./netjsongraph.geojson";
 
 /**
  * @class
@@ -342,14 +342,16 @@ class NetJSONGraphUtil {
    */
   makeCluster(self) {
     // Separate original nodes from those eligible for clustering.
-    // Only Point features (or nodes without an explicit _featureType flag) should be clustered.
+    // Point features (or nodes without an explicit _featureType flag) and the
+    // nodes which stand for Polygon features should be clustered.
     const {nodes: allNodes, links} = self.data;
 
-    const clusterableNodes = (n) =>
+    const isPoint = (n) =>
       !(n.properties && n.properties._featureType) ||
       n.properties._featureType === "Point";
+    const clusterableNodes = (n) => isPoint(n) || isPolygon(n);
 
-    // Candidates for clustering (Points) and nodes to always stay unclustered (e.g. LineString endpoints).
+    // Candidates for clustering and nodes to always stay unclustered (e.g. LineString endpoints).
     const nodes = allNodes.filter(clusterableNodes);
     const nonClusterNodes = allNodes.filter((n) => !clusterableNodes(n));
     const nonClusterLinks = [];
@@ -587,7 +589,8 @@ class NetJSONGraphUtil {
           c.value = [lng, lat];
         },
       })),
-      ...nonClusterNodes.filter(clusterableNodes).map((n) => ({
+      // Polygons are not drawn as markers, hence they do not push others away
+      ...nonClusterNodes.filter(isPoint).map((n) => ({
         ref: n,
         isCluster: false,
         count: 1,
@@ -727,8 +730,13 @@ class NetJSONGraphUtil {
       }
     });
 
-    metaDataObj.nodes = metadata.nodes.length;
+    // The nodes of polygons are not drawn, hence they are counted apart
+    const polygons = metadata.nodes.filter(isPolygon).length;
+    metaDataObj.nodes = metadata.nodes.length - polygons;
     metaDataObj.links = metadata.links.length;
+    if (polygons) {
+      metaDataObj.polygons = polygons;
+    }
     return metaDataObj;
   }
 
@@ -827,7 +835,7 @@ class NetJSONGraphUtil {
     // dataset-specific keys show up automatically. Nested structures are preserved.
     if (source.properties && this.isObject(source.properties)) {
       Object.keys(source.properties).forEach((key) => {
-        if (key === "clients") {
+        if (key === "clients" || key === "_featureIndex" || key === "_featureType") {
           return;
         }
         const val = normalizeValue(key, source.properties[key]);
@@ -1012,9 +1020,7 @@ class NetJSONGraphUtil {
           const time = this.dateParse({dateString: val});
           linkInfo[key] = time;
         } else {
-          const displayVal =
-            typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
-          linkInfo[key.replace(/_/g, " ")] = displayVal;
+          linkInfo[key.replace(/_/g, " ")] = val;
         }
       });
     }
@@ -1574,7 +1580,17 @@ class NetJSONGraphUtil {
       self.gui.loadNodePopup(node);
     }
     if (typeof self.config.onClickElement === "function") {
-      self.config.onClickElement.call(self, source && target ? "link" : "node", node);
+      const feature =
+        isPolygon(node) &&
+        // eslint-disable-next-line no-underscore-dangle
+        self.originalGeoJSON?.features[node.properties._featureIndex];
+      // The node may be left from data that has been replaced since, its index
+      // then points to another feature
+      if (feature && self.polygonNodes?.get(feature)?.id === node.id) {
+        self.config.onClickElement.call(self, "Feature", {...feature.properties});
+      } else {
+        self.config.onClickElement.call(self, source && target ? "link" : "node", node);
+      }
     }
   }
 

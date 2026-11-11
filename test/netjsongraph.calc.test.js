@@ -347,6 +347,15 @@ describe("Test netjsongraph function utils", () => {
     });
   });
 
+  test("Count the polygons apart from the nodes in the metadata", () => {
+    const polygon = {properties: {_featureType: "Polygon", _featureIndex: 0}};
+    const metadata = util.getMetadata({
+      nodes: [polygon, polygon, {properties: {_featureType: "Point"}}],
+      links: [],
+    });
+    expect(metadata).toEqual({nodes: 1, links: 0, polygons: 2});
+  });
+
   test("Generate the style of a node or a link", () => {
     let style = {
       color: "red",
