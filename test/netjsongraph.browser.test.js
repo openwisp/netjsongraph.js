@@ -797,8 +797,20 @@ describe("Chart Rendering Test", () => {
       "Timed out waiting for the polygons to be drawn",
     );
     const getPolygons = async (zoom) => {
-      await driver.executeScript("window.map.leaflet.setZoom(arguments[0]);", zoom);
-      await driver.sleep(1000); // Wait for clustering to update
+      // Without animation the clusters are redrawn before setZoom returns
+      await driver.executeScript(
+        "window.map.leaflet.setZoom(arguments[0], {animate: false});",
+        zoom,
+      );
+      await driver.wait(
+        () =>
+          driver.executeScript(
+            "return window.map.leaflet.getZoom() === arguments[0];",
+            zoom,
+          ),
+        5000,
+        `Timed out waiting for zoom ${zoom}`,
+      );
       return driver.executeScript(`
         const {leaflet, echarts, data} = window.map;
         const name = (properties) => properties.country || properties.name;
@@ -857,7 +869,18 @@ describe("Chart Rendering Test", () => {
       leaflet.setView([node.location.lat, node.location.lng], 7, {animate: false});
       return node.id;
     `);
-    await driver.sleep(1000);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          `const {leaflet, polygonNodes} = window.map;
+          return leaflet.getZoom() === 7 && leaflet.polygonGeoJSON.getLayers().some(
+            (layer) => leaflet.hasLayer(layer) && polygonNodes.get(layer.feature).id === arguments[0],
+          );`,
+          nodeId,
+        ),
+      5000,
+      "Timed out waiting for the polygon to be shown at zoom 7",
+    );
     const container = await getElementByCss(driver, ".ec-extension-leaflet", 2000);
     await driver.actions().move({origin: container}).click().perform();
     const popup = await getElementByCss(driver, ".leaflet-popup", 2000);
