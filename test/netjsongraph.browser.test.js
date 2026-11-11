@@ -28,7 +28,8 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} =
+      await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Basic usage");
     expect(consoleErrors.length).toBe(0);
@@ -48,7 +49,8 @@ describe("Chart Rendering Test", () => {
       driver,
       ".ec-extension-leaflet .leaflet-overlay-pane canvas",
     );
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} =
+      await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Geographic map");
     const consoleErrors = await captureConsoleErrors(driver);
@@ -78,7 +80,11 @@ describe("Chart Rendering Test", () => {
 
   test("no blank tiles on canvas at max zoom", async () => {
     driver.get(urls.geographicMap);
-    const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
+    const zoomIn = await getElementByCss(
+      driver,
+      ".leaflet-control-zoom-in",
+      2000,
+    );
     let click = 0;
     while (click < 50) {
       // eslint-disable-next-line no-await-in-loop
@@ -100,7 +106,8 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const floorplanImage = getElementByCss(driver, "leaflet-image-layer");
     const consoleErrors = await captureConsoleErrors(driver);
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} =
+      await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Indoor map");
     printConsoleErrors(consoleErrors);
@@ -116,18 +123,25 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     /* eslint-disable no-unused-vars */
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} =
+      await getRenderedNodesAndLinksCount(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
     expect(canvas).not.toBeNull();
     const canvasHeight = await driver.executeScript(
       "return graph.echarts.getRenderedCanvas().height",
     );
-    const windowHeight = await driver.executeScript("return window.innerHeight");
+    const windowHeight = await driver.executeScript(
+      "return window.innerHeight",
+    );
     expect(canvasHeight).not.toBe(0);
     expect(canvasHeight).toBe(windowHeight);
-    const nodesCount = await driver.executeScript("return graph.data.nodes.length");
-    const linksCount = await driver.executeScript("return graph.data.links.length");
+    const nodesCount = await driver.executeScript(
+      "return graph.data.nodes.length",
+    );
+    const linksCount = await driver.executeScript(
+      "return graph.data.links.length",
+    );
     expect(nodesCount).toBe(6);
     expect(linksCount).toBe(7);
   });
@@ -145,12 +159,18 @@ describe("Chart Rendering Test", () => {
     const canvasHeight = await driver.executeScript(
       "return graph.echarts.getRenderedCanvas().height",
     );
-    const windowHeight = await driver.executeScript("return window.innerHeight");
+    const windowHeight = await driver.executeScript(
+      "return window.innerHeight",
+    );
     expect(canvasHeight).not.toBe(0);
     expect(canvasHeight).toBe(windowHeight);
 
-    const nodesCount = await driver.executeScript("return graph.data.nodes.length");
-    const linksCount = await driver.executeScript("return graph.data.links.length");
+    const nodesCount = await driver.executeScript(
+      "return graph.data.nodes.length",
+    );
+    const linksCount = await driver.executeScript(
+      "return graph.data.links.length",
+    );
     expect(nodesCount).toBe(4);
     expect(linksCount).toBe(3);
 
@@ -228,7 +248,9 @@ describe("Chart Rendering Test", () => {
   });
 
   test("bookmarkableActions: render Geographic map example with url fragments for a node", async () => {
-    await driver.get(`${urls.geographicMap}#id=geographicMap&nodeId=172.16.169.1`);
+    await driver.get(
+      `${urls.geographicMap}#id=geographicMap&nodeId=172.16.169.1`,
+    );
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     const sideBar = await getElementByCss(driver, ".njg-sideBar", 2000);
@@ -279,7 +301,8 @@ describe("Chart Rendering Test", () => {
     const canvas = await getElementByCss(driver, "canvas", 2000);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
-    const {nodesRendered, linksRendered} = await getRenderedNodesAndLinksCount(driver);
+    const {nodesRendered, linksRendered} =
+      await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent, linksPresent} =
       await getPresentNodesAndLinksCount("Geographic map");
     expect(consoleErrors.length).toBe(0);
@@ -287,21 +310,37 @@ describe("Chart Rendering Test", () => {
     expect(nodesRendered).toBe(nodesPresent);
     expect(linksRendered).toBe(linksPresent);
 
-    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    await driver.executeScript(
+      'window._geoMap.utils.triggerOnClick("172.16.171.15");',
+    );
     let currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).toContain("172.16.171.15");
-    const floorplanBtn = await getElementByCss(driver, ".njg-popup-button", 2000);
+    const floorplanBtn = await getElementByCss(
+      driver,
+      ".njg-popup-button",
+      2000,
+    );
     expect(floorplanBtn).not.toBeNull();
     // Use JS click to avoid Leaflet popup click interception in Chrome
     await driver.executeScript("arguments[0].click();", floorplanBtn);
     // wait for overlay to open and render indoor map
     await driver.sleep(500);
-    let indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    let indoorContainer = await getElementByCss(
+      driver,
+      "#indoormap-container",
+      2000,
+    );
     const indoorCanvas = await getElementByCss(driver, "canvas", 2000);
-    const floorplanImage = await getElementByCss(driver, ".leaflet-image-layer", 2000);
+    const floorplanImage = await getElementByCss(
+      driver,
+      ".leaflet-image-layer",
+      2000,
+    );
     const indoorConsoleErrors = await captureConsoleErrors(driver);
-    const {nodesRendered: indoorNodesRendered, linksRendered: indoorLinksRendered} =
-      await getRenderedNodesAndLinksCount(driver);
+    const {
+      nodesRendered: indoorNodesRendered,
+      linksRendered: indoorLinksRendered,
+    } = await getRenderedNodesAndLinksCount(driver);
     const {nodesPresent: indoorNodesPresent, linksPresent: indoorLinksPresent} =
       await getPresentNodesAndLinksCount("Indoor map");
     printConsoleErrors(indoorConsoleErrors);
@@ -311,13 +350,19 @@ describe("Chart Rendering Test", () => {
     expect(floorplanImage).not.toBeNull();
     expect(indoorNodesRendered).toBe(indoorNodesPresent);
     expect(indoorLinksRendered).toBe(indoorLinksPresent);
-    await driver.executeScript('window._indoorMap.utils.triggerOnClick("node_2");');
+    await driver.executeScript(
+      'window._indoorMap.utils.triggerOnClick("node_2");',
+    );
     currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).toContain("node_2");
     const closeBtn = await getElementByCss(driver, "#indoormap-close");
     expect(closeBtn).not.toBeNull();
     await closeBtn.click();
-    indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    indoorContainer = await getElementByCss(
+      driver,
+      "#indoormap-container",
+      2000,
+    );
     expect(indoorContainer).toBeNull();
   });
 
@@ -346,12 +391,21 @@ describe("Chart Rendering Test", () => {
         return originalRemove(type, listener, options);
       };
     `);
-    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
-    const floorplanBtn = await getElementByCss(driver, ".njg-popup-button", 2000);
+    await driver.executeScript(
+      'window._geoMap.utils.triggerOnClick("172.16.171.15");',
+    );
+    const floorplanBtn = await getElementByCss(
+      driver,
+      ".njg-popup-button",
+      2000,
+    );
     await driver.executeScript("arguments[0].click();", floorplanBtn);
     const closeBtn = await getElementByCss(driver, "#indoormap-close", 2000);
     await driver.wait(
-      () => driver.executeScript("return window._popstateTracker.added.length > 0;"),
+      () =>
+        driver.executeScript(
+          "return window._popstateTracker.added.length > 0;",
+        ),
       2000,
     );
     await closeBtn.click();
@@ -385,8 +439,14 @@ describe("Chart Rendering Test", () => {
         return originalDecode.call(this);
       };
     `);
-    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
-    const floorplanBtn = await getElementByCss(driver, ".njg-popup-button", 2000);
+    await driver.executeScript(
+      'window._geoMap.utils.triggerOnClick("172.16.171.15");',
+    );
+    const floorplanBtn = await getElementByCss(
+      driver,
+      ".njg-popup-button",
+      2000,
+    );
     await driver.executeScript("arguments[0].click();", floorplanBtn);
     const closeBtn = await getElementByCss(driver, "#indoormap-close", 2000);
     await driver.wait(
@@ -403,7 +463,10 @@ describe("Chart Rendering Test", () => {
     `);
     await driver.sleep(500);
     const currentUrl = await driver.getCurrentUrl();
-    const indoorContainer = await getElementByCss(driver, "#indoormap-container");
+    const indoorContainer = await getElementByCss(
+      driver,
+      "#indoormap-container",
+    );
     expect(currentUrl).not.toContain("id=indoorMap");
     expect(indoorContainer).toBeNull();
   });
@@ -411,7 +474,11 @@ describe("Chart Rendering Test", () => {
   test("bookmarkableActions: test url fragments for nodes", async () => {
     await driver.get(`${urls.indoorMapOverlay}#id=geoMap&nodeId=172.16.177.33`);
     const canvas = await getElementByCss(driver, "canvas", 2000);
-    const indoorContainer = await getElementByCss(driver, ".njg-popup-button", 2000);
+    const indoorContainer = await getElementByCss(
+      driver,
+      ".njg-popup-button",
+      2000,
+    );
     const node = await getElementByXpath(
       driver,
       "//span[@class='njg-tooltip-value' and text()='172.16.177.33']",
@@ -430,7 +497,9 @@ describe("Chart Rendering Test", () => {
     await driver.get(urls.indoorMapOverlay);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     expect(canvas).not.toBeNull();
-    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    await driver.executeScript(
+      'window._geoMap.utils.triggerOnClick("172.16.171.15");',
+    );
     const popupCloseBtn = await getElementByCss(
       driver,
       ".leaflet-popup-close-button",
@@ -452,7 +521,9 @@ describe("Chart Rendering Test", () => {
     await driver.get(urls.indoorMapOverlay);
     const canvas = await getElementByCss(driver, "canvas", 2000);
     expect(canvas).not.toBeNull();
-    await driver.executeScript('window._geoMap.utils.triggerOnClick("172.16.171.15");');
+    await driver.executeScript(
+      'window._geoMap.utils.triggerOnClick("172.16.171.15");',
+    );
     let currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).toContain("172.16.171.15");
     let node = await getElementByXpath(
@@ -462,14 +533,24 @@ describe("Chart Rendering Test", () => {
     );
     let nodeId = await node.getAttribute("textContent");
     expect(nodeId).toBe("172.16.171.15");
-    const floorplanBtn = await getElementByCss(driver, ".njg-popup-button", 2000);
+    const floorplanBtn = await getElementByCss(
+      driver,
+      ".njg-popup-button",
+      2000,
+    );
     expect(floorplanBtn).not.toBeNull();
     await driver.executeScript("arguments[0].click();", floorplanBtn);
     // wait for overlay to open and render indoor map
     await driver.sleep(500);
-    let indoorContainer = await getElementByCss(driver, "#indoormap-container", 2000);
+    let indoorContainer = await getElementByCss(
+      driver,
+      "#indoormap-container",
+      2000,
+    );
     expect(indoorContainer).not.toBeNull();
-    await driver.executeScript('window._indoorMap.utils.triggerOnClick("node_2");');
+    await driver.executeScript(
+      'window._indoorMap.utils.triggerOnClick("node_2");',
+    );
     currentUrl = await driver.getCurrentUrl();
     expect(currentUrl).toContain("node_2");
     await driver.get("http://0.0.0.0:8080");
@@ -756,7 +837,11 @@ describe("Chart Rendering Test", () => {
       return series ? series.data.length : 0;
     `);
     // Zoom in to disable clustering (at higher zoom levels)
-    const zoomIn = await getElementByCss(driver, ".leaflet-control-zoom-in", 2000);
+    const zoomIn = await getElementByCss(
+      driver,
+      ".leaflet-control-zoom-in",
+      2000,
+    );
     let click = 0;
     while (click < 10) {
       // eslint-disable-next-line no-await-in-loop
@@ -795,8 +880,16 @@ describe("Chart Rendering Test", () => {
       ".ec-extension-leaflet",
       2000,
     );
-    const drawToolbar = await getElementByCss(driver, ".leaflet-draw-toolbar", 2000);
-    const drawSection = await getElementByCss(driver, ".leaflet-draw-section", 2000);
+    const drawToolbar = await getElementByCss(
+      driver,
+      ".leaflet-draw-toolbar",
+      2000,
+    );
+    const drawSection = await getElementByCss(
+      driver,
+      ".leaflet-draw-section",
+      2000,
+    );
     const drawPolylineBtn = await getElementByCss(
       driver,
       ".leaflet-draw-draw-polyline",
