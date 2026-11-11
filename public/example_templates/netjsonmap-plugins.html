@@ -16,8 +16,57 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
-      .njg-container .leaflet-control-zoom {
-        top: 55px;
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip-container {
+        bottom: -20px;
+      }
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip {
+        box-shadow: none;
+      }
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-content {
+        box-sizing: border-box;
+        padding: 18px;
+      }
+      .njg-container .leaflet-measure-resultpopup p {
+        overflow-wrap: anywhere;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 8px 12px;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks li {
+        display: block;
+        margin: 0;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a.zoomto,
+      .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup {
+        display: inline-flex;
+        align-items: center;
+        min-height: 16px;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup {
+        display: inline;
+        padding-left: 0;
+        color: #c62828;
+        background-image: none;
+      }
+      .njg-container
+        .leaflet-measure-resultpopup
+        .tasks
+        a.deletemarkup::before {
+        position: static;
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 6px;
+        background-color: currentColor;
+        content: "";
+        vertical-align: baseline;
+        -webkit-mask: url("../lib/css/assets/trash.png") center / contain
+          no-repeat;
+        mask: url("../lib/css/assets/trash.png") center / contain no-repeat;
       }
     </style>
   </head>
@@ -114,10 +163,22 @@
 
             editableLayers.addLayer(layer);
           });
-          L.control.measure({}).addTo(map);
+          L.control
+            .measure({
+              popupOptions: {
+                className: "leaflet-measure-resultpopup",
+                autoPan: true,
+                autoPanPadding: [25, 25],
+                maxWidth: 320,
+              },
+              position: "bottomleft",
+            })
+            .addTo(map);
         },
       });
       graph.render();
+      // required for selenium browser tests
+      window.map = graph;
     </script>
   </body>
 </html>

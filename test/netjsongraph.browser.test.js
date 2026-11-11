@@ -1,3 +1,4 @@
+import {until} from "selenium-webdriver";
 import {
   getElementByCss,
   getElementByXpath,
@@ -786,7 +787,8 @@ describe("Chart Rendering Test", () => {
     expect(initialNodeCount).toBeGreaterThan(0);
   });
 
-  test("render geo map with leaflet plugins without console errors", async () => {
+  test("renders Leaflet plugins and captures measurement clicks across the map", async () => {
+    await driver.manage().window().setSize(1280, 800);
     await driver.get(urls.leafletPlugins);
     const leafletContainer = await getElementByCss(
       driver,
@@ -813,5 +815,126 @@ describe("Chart Rendering Test", () => {
     expect(drawSection).not.toBeNull();
     expect(drawPolylineBtn).not.toBeNull();
     expect(measureControl).not.toBeNull();
-  });
+
+    await driver.wait(until.elementIsVisible(measureControl), 2000);
+    await driver.actions().move({origin: measureControl}).perform();
+    const startMeasure = await getElementByCss(
+      driver,
+      ".leaflet-control-measure .js-start",
+      2000,
+    );
+    await driver.wait(
+      until.elementIsVisible(startMeasure),
+      2000,
+      "Start measurement link did not become visible after expanding the control",
+    );
+    await driver.wait(until.elementIsEnabled(startMeasure), 2000);
+    await startMeasure.click();
+
+    const mapBounds = await driver.executeScript(`
+      const map = document.querySelector(".leaflet-container");
+      const {left, top, width, height} = map.getBoundingClientRect();
+      const sidebar = document.querySelector(".njg-sideBar:not(.hidden)");
+      const visibleLeft = sidebar
+        ? Math.max(left, sidebar.getBoundingClientRect().right)
+        : left;
+      const visibleWidth = left + width - visibleLeft;
+      const captureMarker = Array.from(map.querySelectorAll(".leaflet-marker-icon")).find(
+        (marker) => marker.style.opacity === "0",
+      );
+      const measurementPoints = [
+        [0.2, 0.2],
+        [0.75, 0.45],
+        [0.75, 0.65],
+      ];
+      const captureHits = measurementPoints.map(([xRatio, yRatio]) => {
+        const clientX = Math.round(visibleLeft + visibleWidth * xRatio);
+        const clientY = Math.round(top + height * yRatio);
+        const target = document.elementFromPoint(clientX, clientY);
+        return (
+          captureMarker && (target === captureMarker || captureMarker.contains(target))
+        );
+      });
+      const edgeTarget = document.elementFromPoint(
+        Math.round(visibleLeft + 5),
+        Math.round(top + height / 2),
+      );
+      const edgeCaptureHit =
+        captureMarker &&
+        (edgeTarget === captureMarker || captureMarker.contains(edgeTarget));
+      return {
+        left,
+        top,
+        width,
+        height,
+        visibleLeft,
+        visibleWidth,
+        captureHits,
+        edgeCaptureHit,
+      };
+    `);
+    expect(mapBounds.captureHits).toEqual([true, true, true]);
+    expect(mapBounds.edgeCaptureHit).toBe(true);
+    const getMeasurementState = () =>
+      driver.executeScript(`
+        return {
+          transform: getComputedStyle(document.querySelector(".leaflet-map-pane")).transform,
+          results: document.querySelector(".leaflet-control-measure .js-results").textContent,
+        };
+      `);
+    const clickMeasurementPoint = async (xRatio, yRatio) => {
+      const clientX = Math.round(
+        mapBounds.visibleLeft + mapBounds.visibleWidth * xRatio,
+      );
+      const clientY = Math.round(mapBounds.top + mapBounds.height * yRatio);
+      await driver
+        .actions()
+        .move({origin: "viewport", x: clientX, y: clientY})
+        .click()
+        .perform();
+    };
+    const initialState = await getMeasurementState();
+    await clickMeasurementPoint(0.2, 0.2);
+    const stateAfterFirstPoint = await getMeasurementState();
+    expect(stateAfterFirstPoint.transform).toBe(initialState.transform);
+
+    const edgePoint = {
+      x: Math.round(mapBounds.visibleLeft + 5),
+      y: Math.round(mapBounds.top + mapBounds.height / 2),
+    };
+    await driver.executeScript(`
+      window.__measurementMoveEnded = false;
+      window.map.leaflet.once("moveend", () => {
+        window.__measurementMoveEnded = true;
+      });
+    `);
+    await driver
+      .actions()
+      .move({origin: "viewport", ...edgePoint})
+      .press()
+      .move({origin: "pointer", x: 30, y: 0})
+      .release()
+      .perform();
+    await driver.wait(
+      async () => (await getMeasurementState()).transform !== initialState.transform,
+      2000,
+      "Dragging the map during measurement did not pan it",
+    );
+    await driver.wait(
+      () => driver.executeScript("return window.__measurementMoveEnded"),
+      5000,
+      "Leaflet did not finish panning after the drag",
+    );
+    const stateAfterDrag = await getMeasurementState();
+    expect(stateAfterDrag.results).toBe(stateAfterFirstPoint.results);
+    await clickMeasurementPoint(0.75, 0.45);
+    const stateAfterSecondPoint = await getMeasurementState();
+    expect(stateAfterSecondPoint.results).not.toBe(stateAfterFirstPoint.results);
+    expect(stateAfterSecondPoint.transform).toBe(stateAfterDrag.transform);
+
+    await clickMeasurementPoint(0.75, 0.65);
+    const stateAfterThirdPoint = await getMeasurementState();
+    expect(stateAfterThirdPoint.results).toContain("Area");
+    expect(stateAfterThirdPoint.transform).toBe(stateAfterDrag.transform);
+  }, 60000);
 });
