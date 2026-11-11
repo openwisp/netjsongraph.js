@@ -705,6 +705,13 @@ import {geojsonToNetjson} from "netjsongraph/src/js/netjsongraph.geojson";
 const netjson = geojsonToNetjson(myGeoJSON);
 ```
 
+The output includes a node for each Polygon and MultiPolygon feature, with the
+`_featureType: "Polygon"` and `_featureIndex` (the position of the feature in
+the collection) properties. These nodes have no shape: netjsongraph.js draws the
+shapes from the original GeoJSON (see [Polygons](#polygons)). If you use the
+output as plain NetJSON, you may want to leave them out, e.g. with
+`nodes.filter((node) => node.properties._featureType !== "Polygon")`.
+
 No action is required for most users; these changes simply make the internal
 flow clearer and easier to maintain.
 

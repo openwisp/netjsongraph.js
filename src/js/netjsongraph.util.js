@@ -349,8 +349,7 @@ class NetJSONGraphUtil {
     const isPoint = (n) =>
       !(n.properties && n.properties._featureType) ||
       n.properties._featureType === "Point";
-    const clusterableNodes = (n) =>
-      isPoint(n) || n.properties._featureType === "Polygon";
+    const clusterableNodes = (n) => isPoint(n) || isPolygon(n);
 
     // Candidates for clustering and nodes to always stay unclustered (e.g. LineString endpoints).
     const nodes = allNodes.filter(clusterableNodes);

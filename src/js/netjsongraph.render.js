@@ -13,6 +13,7 @@ import getLeaflet from "./leaflet-loader";
 import {
   addPolygonOverlays,
   clickPolygonNode,
+  isPolygon,
   updatePolygonOverlays,
 } from "./netjsongraph.geojson";
 
@@ -214,10 +215,7 @@ class NetJSONGraphRender {
     const categories = [];
     const configs = self.config;
     // Polygons can only be drawn on maps: the nodes which stand for them are left out
-    const drawableNodes = JSONData.nodes.filter(
-      // eslint-disable-next-line no-underscore-dangle
-      (node) => !(node.properties && node.properties._featureType === "Polygon"),
-    );
+    const drawableNodes = JSONData.nodes.filter((node) => !isPolygon(node));
     const nodes = drawableNodes.map((node) => {
       const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
