@@ -718,7 +718,8 @@ nodes of points.
 - **Position**: the node is placed inside the shape, at its centroid if the
   centroid lies within it (otherwise, e.g. for a U-shaped area, in the middle of
   the widest span of the shape at the latitude of the centroid). The node of a
-  MultiPolygon is placed inside its largest polygon.
+  MultiPolygon is placed inside its polygon with the largest area, holes
+  excluded.
 - **Identity**: the node takes the `id` of the feature (otherwise its `id` or
   `node_id` property) prefixed with `polygon_` (e.g. `polygon_42`), hence it
   never takes the id of a point sharing it. Its label is the `label` property of
@@ -737,8 +738,9 @@ nodes of points.
   the type `"Feature"` and the properties of the feature, opens the
   `mapOptions.nodePopup` popup (if enabled) at the clicked position and, if
   `bookmarkableActions` is enabled, adds the id of its node to the URL fragment.
-  Opening such a URL centers the map on the node (see `zoomOnRestore`), opens
-  its popup and calls `onClickElement` the same way as a click.
+  Opening such a URL centers the map on the node if `zoomOnRestore` is enabled,
+  opens its popup (if enabled) and calls `onClickElement` the same way as a
+  click.
 - **`maxPointsFetched`**: polygon nodes count towards this limit like any other
   node; the shapes of polygons whose node is left out are not drawn.
 - **Graph mode**: polygon nodes are left out when the data is rendered as a

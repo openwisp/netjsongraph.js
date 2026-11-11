@@ -85,6 +85,13 @@ describe("geojsonToNetjson polygon nodes", () => {
     expect(location).toEqual({lng: 1, lat: 3});
   });
 
+  test("node of a polygon with a hole lies at the centroid of its filled area", () => {
+    // The hole in the lower left corner moves the centroid up and right
+    const [{location}] = convert(polygon([square(0, 0, 6), square(0.5, 0.5, 2)]));
+    expect(location.lng).toBeCloseTo(3.1875);
+    expect(location.lat).toBeCloseTo(3.1875);
+  });
+
   test("MultiPolygon becomes a single node within its largest polygon", () => {
     const nodes = convert({
       type: "Feature",
@@ -98,6 +105,20 @@ describe("geojsonToNetjson polygon nodes", () => {
     expect(nodes).toHaveLength(1);
     expect(nodes[0].id).toBe("polygon_multi");
     expect(nodes[0].location).toEqual({lng: 12, lat: 12});
+  });
+
+  test("MultiPolygon node excludes the holes when comparing its polygons", () => {
+    // The first polygon has the larger outer ring, but its hole leaves it
+    // a smaller area than the second polygon.
+    const [{location}] = convert({
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "MultiPolygon",
+        coordinates: [[square(0, 0, 6), square(0.5, 0.5, 5)], [square(10, 10, 4)]],
+      },
+    });
+    expect(location).toEqual({lng: 12, lat: 12});
   });
 
   test("polygon node is not merged with a point at the same position", () => {

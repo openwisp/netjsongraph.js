@@ -52,7 +52,7 @@ const crossings = (rings, y) => {
  * The centroid is preferred, but it can fall outside concave polygons or
  * inside holes. In that case the middle of the widest stretch of polygon
  * on the horizontal line through the centroid is returned. A MultiPolygon
- * is represented by its largest polygon.
+ * is represented by its polygon with the largest area, holes excluded.
  *
  * @param {Object} geometry  GeoJSON Polygon or MultiPolygon geometry
  * @return {Array|null}  [lng, lat], null if the geometry has no positions
@@ -60,25 +60,41 @@ const crossings = (rings, y) => {
 const interiorPoint = ({type, coordinates}) => {
   const polygons = type === "Polygon" ? [coordinates] : coordinates;
   let rings = null;
-  let outer = null;
+  let filled = null;
   (polygons || []).forEach((polygon) => {
     if (!Array.isArray(polygon) || !Array.isArray(polygon[0]) || !polygon[0].length) {
       return;
     }
-    const measured = measureRing(polygon[0]);
-    if (!outer || Math.abs(measured.area) > Math.abs(outer.area)) {
-      outer = measured;
+    // The holes are subtracted from the area and from its moments, which
+    // give the centroid of the filled shape
+    const shape = {area: 0, x: 0, y: 0};
+    polygon.forEach((ring, i) => {
+      if (!Array.isArray(ring) || !ring.length) {
+        return;
+      }
+      const {area, centroid} = measureRing(ring);
+      if (!area) {
+        return;
+      }
+      const weight = i ? -Math.abs(area) : Math.abs(area);
+      shape.area += weight;
+      shape.x += weight * centroid[0];
+      shape.y += weight * centroid[1];
+    });
+    if (!rings || shape.area > filled.area) {
       rings = polygon;
+      filled = shape;
     }
   });
   if (!rings) {
     return null;
   }
   const first = rings[0][0].slice(0, 2);
-  if (!outer.area) {
+  if (filled.area <= 0) {
     return first;
   }
-  const [x, y] = outer.centroid;
+  const x = filled.x / filled.area;
+  const y = filled.y / filled.area;
   const xs = crossings(rings, y);
   // Crossings alternate between entering and leaving the polygon,
   // holes included, hence each consecutive pair delimits an inner stretch.
