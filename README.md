@@ -706,59 +706,28 @@ const netjson = geojsonToNetjson(myGeoJSON);
 ```
 
 The output includes a node for each Polygon and MultiPolygon feature, with the
-`_featureType: "Polygon"` and `_featureIndex` (the position of the feature in
-the collection) properties. These nodes have no shape: netjsongraph.js draws the
-shapes from the original GeoJSON (see [Polygons](#polygons)). If you use the
-output as plain NetJSON, you may want to leave them out, e.g. with
-`nodes.filter((node) => node.properties._featureType !== "Polygon")`.
+`_featureType: "Polygon"` and `_featureIndex` properties. These nodes have no
+shape: netjsongraph.js draws the shapes from the original GeoJSON.
 
 No action is required for most users; these changes simply make the internal
 flow clearer and easier to maintain.
 
 ### Polygons
 
-Each Polygon and MultiPolygon feature of the collection is represented by a
-node, which is not drawn: the feature itself is drawn as a filled shape by
-Leaflet, while its node takes part in clustering, popups and bookmarks like the
-nodes of points.
+Each Polygon and MultiPolygon feature is drawn by Leaflet and represented by a
+hidden node, which takes part in clustering, popups and bookmarks like the nodes
+of points.
 
-- **Position**: the node is placed inside the shape, at its centroid if the
-  centroid lies within it (otherwise, e.g. for a U-shaped area, in the middle of
-  the widest span of the shape at the latitude of the centroid). The node of a
-  MultiPolygon is placed inside its polygon with the largest area, holes
-  excluded.
-- **Identity**: the node takes the `id` of the feature (otherwise its `id` or
-  `node_id` property) prefixed with `polygon_` (e.g. `polygon_42`), hence it
-  never takes the id of a point sharing it. Its label is the `label` property of
-  the feature, otherwise its `name` property, otherwise its original `id`. When
-  several polygons share an `id`, the later ones receive a numbered suffix
-  (`polygon_42_2`, `polygon_42_3`, …) and a warning is logged. Features without
-  any of these receive a generated one (`gjn_polygon_0`, `gjn_polygon_1`, …),
-  which depends on the order of the polygons in the collection; give your
-  features an `id` to keep their bookmarks stable.
-- **Clustering**: when `clustering` is enabled, polygon nodes are clustered
-  together with the nodes of points, following `clusterRadius`,
-  `clusteringThreshold`, `clusteringAttribute` and `disableClusteringAtLevel`.
-  While a polygon belongs to a cluster its shape is hidden, and it appears again
-  when the cluster is expanded by zooming in.
-- **Clicks, popups and bookmarks**: clicking a shape calls `onClickElement` with
-  the type `"Feature"` and the properties of the feature, opens the
-  `mapOptions.nodePopup` popup (if enabled) at the clicked position and, if
-  `bookmarkableActions` is enabled, adds the id of its node to the URL fragment.
-  Opening such a URL centers the map on the node if `zoomOnRestore` is enabled,
-  opens its popup (if enabled) and calls `onClickElement` the same way as a
-  click.
-- **`maxPointsFetched`**: polygon nodes count towards this limit like any other
-  node; the shapes of polygons whose node is left out are not drawn.
-- **Graph mode**: polygon nodes are left out when the data is rendered as a
-  network graph.
-- Polygons nested in a GeometryCollection are neither drawn nor represented by a
-  node.
+- The node id is the `id` of the feature prefixed with `polygon_` (e.g.
+  `polygon_42`).
+- While its node belongs to a cluster, the shape is hidden.
+- Clicking a shape calls `onClickElement` with the type `"Feature"`, opens the
+  popup (if enabled) and updates the URL fragment (if `bookmarkableActions` is
+  enabled).
+- Polygon nodes are left out in graph mode.
 
-**Custom `geoOptions.onEachFeature`**: providing your own `onEachFeature` in
-`geoOptions` replaces the default one, including the forwarding of clicks
-described above. Clicks on shapes then no longer open popups, update the URL
-fragment or call `onClickElement`; your function has to handle them.
+A custom `geoOptions.onEachFeature` replaces this click handling, so it has to
+handle clicks on shapes itself.
 
 ## Automatic Cluster Overlap Prevention
 
