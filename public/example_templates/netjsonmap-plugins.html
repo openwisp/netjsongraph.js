@@ -24,16 +24,33 @@
       }
       .njg-container .leaflet-measure-resultpopup .leaflet-popup-content {
         box-sizing: border-box;
+        margin: 0;
         padding: 18px;
       }
+      .njg-container .leaflet-measure-resultpopup h3 {
+        margin: 0 0 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+        color: #222;
+        font-size: 16px;
+        font-weight: 600;
+      }
       .njg-container .leaflet-measure-resultpopup p {
+        margin: 0;
         overflow-wrap: anywhere;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .njg-container .leaflet-measure-resultpopup p + p {
+        margin-top: 10px;
       }
       .njg-container .leaflet-measure-resultpopup .tasks {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
         align-items: baseline;
+        margin-top: 14px;
+        padding-top: 12px;
         gap: 8px 12px;
       }
       .njg-container .leaflet-measure-resultpopup .tasks li {
@@ -47,7 +64,8 @@
         min-height: 16px;
       }
       .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup {
-        display: inline;
+        display: inline-flex;
+        align-items: center;
         padding-left: 0;
         color: #c62828;
         background-image: none;
@@ -58,6 +76,7 @@
         a.deletemarkup::before {
         position: static;
         display: inline-block;
+        flex: 0 0 auto;
         width: 10px;
         height: 10px;
         margin-right: 6px;
@@ -165,6 +184,8 @@
           });
           L.control
             .measure({
+              activeColor: "#f57c00",
+              completedColor: "#f57c00",
               popupOptions: {
                 className: "leaflet-measure-resultpopup",
                 autoPan: true,

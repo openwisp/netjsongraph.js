@@ -1096,12 +1096,9 @@ describe("Chart Rendering Test", () => {
         .move({origin: "viewport", x: clientX, y: clientY})
         .click()
         .perform();
+      return {x: clientX, y: clientY};
     };
     const initialState = await getMeasurementState();
-    await clickMeasurementPoint(0.2, 0.2);
-    const stateAfterFirstPoint = await getMeasurementState();
-    expect(stateAfterFirstPoint.transform).toBe(initialState.transform);
-
     const edgePoint = {
       x: Math.round(mapBounds.visibleLeft + 5),
       y: Math.round(mapBounds.top + mapBounds.height / 2),
@@ -1130,7 +1127,11 @@ describe("Chart Rendering Test", () => {
       "Leaflet did not finish panning after the drag",
     );
     const stateAfterDrag = await getMeasurementState();
-    expect(stateAfterDrag.results).toBe(stateAfterFirstPoint.results);
+    expect(stateAfterDrag.results).toBe(initialState.results);
+    const firstPoint = await clickMeasurementPoint(0.2, 0.2);
+    const stateAfterFirstPoint = await getMeasurementState();
+    expect(stateAfterFirstPoint.results).not.toBe(initialState.results);
+    expect(stateAfterFirstPoint.transform).toBe(stateAfterDrag.transform);
     await clickMeasurementPoint(0.75, 0.45);
     const stateAfterSecondPoint = await getMeasurementState();
     expect(stateAfterSecondPoint.results).not.toBe(stateAfterFirstPoint.results);
@@ -1140,5 +1141,36 @@ describe("Chart Rendering Test", () => {
     const stateAfterThirdPoint = await getMeasurementState();
     expect(stateAfterThirdPoint.results).toContain("Area");
     expect(stateAfterThirdPoint.transform).toBe(stateAfterDrag.transform);
+    const activeAreaFill = await driver.executeScript(
+      'return getComputedStyle(document.querySelector(".layer-measurearea")).fill',
+    );
+    expect(activeAreaFill).toBe("rgb(245, 124, 0)");
+    await driver
+      .actions()
+      .move({origin: "viewport", ...firstPoint})
+      .click()
+      .perform();
+    const completedArea = await driver.executeScript(`
+      const popup = document.querySelector(".leaflet-measure-resultpopup");
+      const area = document.querySelector(".layer-measure-resultarea");
+      return {
+        popupText: popup && popup.textContent,
+        popupPadding:
+          popup &&
+          getComputedStyle(
+            popup.querySelector(".leaflet-popup-content"),
+          ).padding,
+        popupMargin:
+          popup &&
+          getComputedStyle(
+            popup.querySelector(".leaflet-popup-content"),
+          ).margin,
+        areaFill: area && getComputedStyle(area).fill,
+      };
+    `);
+    expect(completedArea.popupText).toContain("Area measurement");
+    expect(completedArea.popupPadding).toBe("18px");
+    expect(completedArea.popupMargin).toBe("0px");
+    expect(completedArea.areaFill).toBe("rgb(245, 124, 0)");
   }, 60000);
 });
