@@ -910,11 +910,26 @@ describe("Chart Rendering Test", () => {
         );
         await driver.executeScript(`
         window.map.config.showMapLabelsAtZoom = false;
+        window.map.echarts.setOption({
+          tooltip: {show: false},
+          media: [{query: {minWidth: 0}, option: {tooltip: {show: false}}}],
+        });
         window.map.utils.updateLabelVisibility(window.map, true);
-        window.map.echarts.setOption({tooltip: {show: false}});
       `);
+        expect(
+          await driver.executeScript(
+            "return window.map.echarts.getOption().tooltip[0].show;",
+          ),
+        ).toBe(false);
         await driver.actions().move({origin: container, x: 20, y: 0}).perform();
-        expect(await hoverState()).toEqual({tooltip: false, label: false});
+        await driver.wait(
+          async () => {
+            const state = await hoverState();
+            return !state.tooltip && !state.label;
+          },
+          5000,
+          "Disabled polygon labels and tooltips should stay hidden",
+        );
       } finally {
         await driver.manage().window().setRect({width: 1200, height: 800});
       }

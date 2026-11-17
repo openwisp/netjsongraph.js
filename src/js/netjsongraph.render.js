@@ -890,7 +890,15 @@ class NetJSONGraphRender {
 
     if (self.config.render === self.utils.mapRender) {
       self.utils.clearHighlight.call(self);
+      const polygonIndices = self.polygonDataIndices;
       const opts = self.utils.generateMapOption(JSONData, self);
+      if (polygonIndices && (polygonIndices.size || self.polygonDataIndices.size)) {
+        const offset = self.echarts.getModel().getSeriesByIndex(0).getData().count();
+        self.polygonDataIndices.forEach((index, id) => {
+          polygonIndices.set(id, offset + index);
+        });
+        self.polygonDataIndices = polygonIndices;
+      }
       opts.series.forEach((obj, index) => {
         self.echarts.appendData({seriesIndex: index, data: obj.data});
       });

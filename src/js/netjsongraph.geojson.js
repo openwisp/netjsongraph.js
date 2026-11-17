@@ -411,10 +411,12 @@ export function addPolygonOverlays(self, nodes = self.data?.nodes || []) {
             return;
           }
           const target = {seriesIndex: 0, dataIndex};
-          self.echarts.dispatchAction({
-            type: active ? "highlight" : "downplay",
-            ...target,
-          });
+          if (!active || self.config.showMapLabelsAtZoom !== false) {
+            self.echarts.dispatchAction({
+              type: active ? "highlight" : "downplay",
+              ...target,
+            });
+          }
           self.echarts.dispatchAction(
             active ? {type: "showTip", ...target} : {type: "hideTip"},
           );

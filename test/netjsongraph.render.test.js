@@ -2475,6 +2475,32 @@ describe("Polygon clicks are forwarded to ECharts", () => {
     render.generateMapOption({nodes: [], links: []}, self);
     expect(self.polygonDataIndices.has(area.id)).toBe(false);
   });
+
+  test("appending map data preserves polygon hover indices", () => {
+    const render = new NetJSONGraphRender();
+    const self = new NetJSONGraphCore({nodes: [], links: []});
+    const polygon = (id) => ({
+      id,
+      properties: {_featureType: "Polygon", location: {lng: 1, lat: 1}},
+    });
+    const first = polygon("first");
+    const second = polygon("second");
+    render.generateMapOption({nodes: [first], links: []}, self);
+    self.config.render = self.utils.mapRender;
+    self.echarts = {
+      appendData: jest.fn(),
+      getModel: () => ({getSeriesByIndex: () => ({getData: () => ({count: () => 3})})}),
+    };
+    self.utils.clearHighlight = jest.fn();
+    self.utils.generateMapOption = render.generateMapOption.bind(render);
+    self.utils.mergeData = jest.fn();
+    self.config.afterUpdate = jest.fn();
+    render.appendData({nodes: [second], links: []}, self);
+    expect([...self.polygonDataIndices]).toEqual([
+      ["first", 0],
+      ["second", 3],
+    ]);
+  });
 });
 
 describe("Test nodePopup on node and link click", () => {
