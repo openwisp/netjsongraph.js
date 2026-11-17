@@ -691,8 +691,8 @@ class NetJSONGraphUtil {
         keyLabel.setAttribute("class", "njg-keyLabel");
         const valueLabel = document.createElement("span");
         valueLabel.setAttribute("class", "njg-valueLabel");
-        keyLabel.innerHTML = key;
-        valueLabel.innerHTML = metaData[key];
+        keyLabel.textContent = key;
+        valueLabel.textContent = metaData[key];
         metaDataItems.appendChild(keyLabel);
         metaDataItems.appendChild(valueLabel);
         metadataContainer.appendChild(metaDataItems);
