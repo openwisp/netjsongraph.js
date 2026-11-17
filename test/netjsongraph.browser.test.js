@@ -851,6 +851,76 @@ describe("Chart Rendering Test", () => {
     expect(consoleErrors.length).toBe(0);
   });
 
+  test.each([1200, 800])(
+    "GeoJSON: polygon hover follows point controls at width %i",
+    async (width) => {
+      await driver.manage().window().setRect({width, height: 800});
+      try {
+        await driver.get(urls.geoJson);
+        await driver.wait(
+          () =>
+            driver.executeScript(
+              "return Boolean(window.map?.leaflet?.polygonGeoJSON);",
+            ),
+          5000,
+          "Timed out waiting for polygon overlays",
+        );
+        const label = await driver.executeScript(`
+        const {leaflet, data} = window.map;
+        const node = data.nodes.find((n) => n.properties.country === "Austria");
+        leaflet.setView([node.location.lat, node.location.lng], 7, {animate: false});
+        window.map.config.showMapLabelsAtZoom = 13;
+        window.map.utils.updateLabelVisibility(window.map, true);
+        return node.label || node.id;
+      `);
+        const container = await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+        await driver.actions().move({origin: container, x: 20, y: 0}).perform();
+        const hoverState = () =>
+          driver.executeScript(
+            `
+        const {echarts} = window.map;
+        const tooltip = document.querySelector(".njg-tooltip");
+        return {
+          tooltip: Boolean(tooltip && getComputedStyle(tooltip).visibility !== "hidden" &&
+            getComputedStyle(tooltip).display !== "none" && tooltip.textContent.includes("Austria")),
+          label: echarts.getZr().storage.getDisplayList().some(
+            (element) => element.type === "tspan" && element.style.text === arguments[0] && !element.ignore,
+          ),
+        };
+      `,
+            label,
+          );
+        await driver.wait(
+          async () => {
+            const state = await hoverState();
+            return width > 850 ? state.tooltip : state.label;
+          },
+          5000,
+          "Hovering the polygon should show the same tooltip or label as a point",
+        );
+        expect(await hoverState()).toEqual({tooltip: width > 850, label: width <= 850});
+        await driver.actions().move({origin: container, x: 250, y: 0}).perform();
+        await driver.wait(
+          async () => {
+            const state = await hoverState();
+            return !state.tooltip && !state.label;
+          },
+          5000,
+          "Polygon hover information should disappear on mouseout",
+        );
+        await driver.executeScript(`
+        window.map.config.showMapLabelsAtZoom = false;
+        window.map.utils.updateLabelVisibility(window.map, true);
+        window.map.echarts.setOption({tooltip: {show: false}});
+      `);
+        await driver.actions().move({origin: container, x: 20, y: 0}).perform();
+        expect(await hoverState()).toEqual({tooltip: false, label: false});
+      } finally {
+        await driver.manage().window().setRect({width: 1200, height: 800});
+      }
+    },
+  );
+
   test("GeoJSON: clicking a polygon opens its popup and adds it to the URL", async () => {
     await driver.get(urls.geoJson);
     await driver.wait(
@@ -867,6 +937,12 @@ describe("Chart Rendering Test", () => {
       const {leaflet, data} = window.map;
       const node = data.nodes.find((n) => n.properties._featureType === "Polygon");
       leaflet.setView([node.location.lat, node.location.lng], 7, {animate: false});
+      const onClick = window.map.config.onClickElement;
+      window.polygonClicks = [];
+      window.map.config.onClickElement = function(type, data) {
+        window.polygonClicks.push({type, data});
+        onClick.call(this, type, data);
+      };
       return node.id;
     `);
     await driver.wait(
@@ -885,6 +961,9 @@ describe("Chart Rendering Test", () => {
     await driver.actions().move({origin: container}).click().perform();
     const popup = await getElementByCss(driver, ".leaflet-popup", 2000);
     expect(popup).not.toBeNull();
+    expect(await driver.executeScript("return window.polygonClicks;")).toEqual([
+      {type: "Feature", data: {country: "Austria"}},
+    ]);
     expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
     // The popup of the polygon is restored when the page is loaded again
     await driver.navigate().refresh();

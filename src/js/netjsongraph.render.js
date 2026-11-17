@@ -12,7 +12,6 @@ import {install as CanvasRenderer} from "echarts/lib/renderer/installCanvasRende
 import getLeaflet from "./leaflet-loader";
 import {
   addPolygonOverlays,
-  clickPolygonNode,
   isPolygon,
   updatePolygonOverlays,
 } from "./netjsongraph.geojson";
@@ -186,10 +185,18 @@ class NetJSONGraphRender {
         return;
       }
       if (params.data && !params.data.cluster) {
+        const {node} = params.data;
         if (configs.mapOptions?.nodePopup?.show) {
-          self.gui.loadNodePopup(params.data.node);
+          self.gui.loadNodePopup(node);
         }
-        self.utils.highlightNode(params.data.node, {
+        if (isPolygon(node)) {
+          self.config.onClickElement.call(self, "Feature", {
+            // eslint-disable-next-line no-underscore-dangle
+            ...self.originalGeoJSON.features[node.properties._featureIndex].properties,
+          });
+          return;
+        }
+        self.utils.highlightNode(node, {
           ...highlightOptions,
         });
       }
@@ -334,6 +341,7 @@ class NetJSONGraphRender {
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
     let nodesData = [];
+    self.polygonDataIndices = new Map();
 
     nodes.forEach((node) => {
       if (node.properties) {
@@ -343,13 +351,14 @@ class NetJSONGraphRender {
         }
       }
 
-      // Non-Point geometries should not become scatter markers, but we still need them for lines
+      // Polygon anchors share ECharts labels/tooltips with points, without a marker.
       if (
         node.properties &&
         // eslint-disable-next-line no-underscore-dangle
         node.properties._featureType &&
         // eslint-disable-next-line no-underscore-dangle
-        node.properties._featureType !== "Point"
+        node.properties._featureType !== "Point" &&
+        !isPolygon(node)
       ) {
         return; // skip marker push only
       }
@@ -358,7 +367,7 @@ class NetJSONGraphRender {
       } else {
         const {location} = node.properties;
 
-        if (!location || !location.lng || !location.lat) {
+        if (!location || location.lng == null || location.lat == null) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
           const {nodeStyleConfig, nodeEmphasisConfig} = self.utils.getNodeStyle(
@@ -380,9 +389,13 @@ class NetJSONGraphRender {
           } else if (node.id !== undefined && node.id !== null) {
             nodeName = String(node.id);
           }
+          if (isPolygon(node)) {
+            self.polygonDataIndices.set(node.id, nodesData.length);
+          }
           nodesData.push({
             name: nodeName,
             value: [location.lng, location.lat],
+            ...(isPolygon(node) ? {symbolSize: 0} : {}),
             ...(Object.keys(emphasisConfig.nodeStyle).length || emphasisConfig.nodeSize
               ? {
                   emphasis: {
@@ -633,7 +646,7 @@ class NetJSONGraphRender {
     if (!L) {
       throw new Error("Leaflet api is not loaded");
     }
-    const {circleMarker, latLngBounds} = L;
+    const {latLngBounds} = L;
 
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
@@ -661,28 +674,7 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
-    self.config.geoOptions = self.utils.deepMergeObj(
-      {
-        pointToLayer: (feature, latlng) =>
-          circleMarker(latlng, self.config.geoOptions.style),
-        onEachFeature: (feature, layer) => {
-          layer.on("click", (event) => {
-            const properties = {
-              ...feature.properties,
-            };
-            self.config.onClickElement.call(self, "Feature", properties);
-            clickPolygonNode(self, feature, event);
-          });
-        },
-      },
-      self.config.geoOptions,
-    );
-
-    // Render Polygon and MultiPolygon features from the original GeoJSON data.
-    // While nodes (Points) and links (LineStrings) are handled by ECharts,
-    // polygon features are rendered directly onto the Leaflet map using
-    // a separate L.geoJSON layer. This allows for displaying geographical
-    // areas like parks or districts alongside the network topology.
+    // Leaflet draws the shapes; ECharts handles their labels and interactions.
     if (self.originalGeoJSON) {
       addPolygonOverlays(self, JSONData.nodes);
       // Auto-fit view to encompass ALL geometries (polygons + nodes)

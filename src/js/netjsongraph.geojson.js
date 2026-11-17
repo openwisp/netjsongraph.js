@@ -293,7 +293,7 @@ export function geojsonToNetjson(geojson) {
  * @param {Object} feature  GeoJSON feature of the clicked polygon
  * @param {Object} event    Leaflet mouse event
  */
-export function clickPolygonNode(self, feature, event) {
+function clickPolygonNode(self, feature, event) {
   const node = self.polygonNodes?.get(feature);
   if (!node || typeof self.echartsClickHandler !== "function") {
     return;
@@ -402,6 +402,26 @@ export function addPolygonOverlays(self, nodes = self.data?.nodes || []) {
           leafletStyle.weight = echartsStyle.borderWidth;
         }
         return leafletStyle;
+      },
+      onEachFeature: (feature, layer) => {
+        const node = self.polygonNodes.get(feature);
+        const hover = (active) => {
+          const dataIndex = self.polygonDataIndices?.get(node.id);
+          if (dataIndex === undefined) {
+            return;
+          }
+          const target = {seriesIndex: 0, dataIndex};
+          self.echarts.dispatchAction({
+            type: active ? "highlight" : "downplay",
+            ...target,
+          });
+          self.echarts.dispatchAction(
+            active ? {type: "showTip", ...target} : {type: "hideTip"},
+          );
+        };
+        layer.on("click", (event) => clickPolygonNode(self, feature, event));
+        layer.on("mouseover", () => hover(true));
+        layer.on("mouseout", () => hover(false));
       },
       ...self.config.geoOptions,
     },

@@ -2181,7 +2181,11 @@ const renderPolygonMap = ({
     collection.features.forEach((feature) => {
       const layer = {
         feature,
-        on: jest.fn((event, handler) => clickHandlers.push(handler)),
+        on: jest.fn((event, handler) => {
+          if (event === "click") {
+            clickHandlers.push(handler);
+          }
+        }),
         bringToFront: jest.fn(),
       };
       layers.push(layer);
@@ -2364,7 +2368,7 @@ describe("mapRender hides clustered polygons", () => {
 
 describe("Polygon clicks are forwarded to ECharts", () => {
   afterEach(() => {
-    L.geoJSON.mockRestore();
+    jest.restoreAllMocks();
   });
 
   const setUp = (geoOptions = {}) => {
@@ -2403,7 +2407,6 @@ describe("Polygon clicks are forwarded to ECharts", () => {
     const {self, node, clickHandlers} = setUp();
     const originalEvent = {ctrlKey: false};
     clickHandlers[0]({latlng: {lat: 3, lng: 1}, originalEvent});
-    expect(self.config.onClickElement).toHaveBeenCalledWith("Feature", {name: "area"});
     expect(self.echartsClickHandler).toHaveBeenCalledTimes(1);
     const [params] = self.echartsClickHandler.mock.calls[0];
     expect(params.seriesType).toBe("scatter");
@@ -2424,6 +2427,53 @@ describe("Polygon clicks are forwarded to ECharts", () => {
     const {clickHandlers} = setUp({onEachFeature});
     expect(onEachFeature).toHaveBeenCalledTimes(1);
     expect(clickHandlers).toHaveLength(0);
+  });
+
+  test("polygon hover uses the same ECharts label and tooltip as points", () => {
+    const {self} = setUp();
+    self.polygonDataIndices = new Map([["area", 1]]);
+    self.echarts.dispatchAction = jest.fn();
+    const layer = L.geoJSON.mock.calls[0][1];
+    const handlers = {};
+    layer.onEachFeature(self.originalGeoJSON.features[1], {
+      on: (event, handler) => {
+        handlers[event] = handler;
+      },
+    });
+    expect(handlers.mouseover).toBeInstanceOf(Function);
+    handlers.mouseover();
+    expect(self.echarts.dispatchAction.mock.calls.map(([action]) => action)).toEqual([
+      {type: "highlight", seriesIndex: 0, dataIndex: 1},
+      {type: "showTip", seriesIndex: 0, dataIndex: 1},
+    ]);
+    handlers.mouseout();
+    expect(self.echarts.dispatchAction).toHaveBeenLastCalledWith({type: "hideTip"});
+    expect(self.echarts.dispatchAction).toHaveBeenCalledWith({
+      type: "downplay",
+      seriesIndex: 0,
+      dataIndex: 1,
+    });
+    self.polygonDataIndices.clear();
+    self.echarts.dispatchAction.mockClear();
+    handlers.mouseover();
+    expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
+  });
+
+  test("polygon label anchors have no visible marker and allow zero coordinates", () => {
+    const render = new NetJSONGraphRender();
+    const self = new NetJSONGraphCore({nodes: [], links: []});
+    const area = {
+      id: "polygon_area",
+      label: "Area",
+      properties: {_featureType: "Polygon", location: {lng: 0, lat: 0}},
+    };
+    const option = render.generateMapOption({nodes: [area], links: []}, self);
+    expect(option.series[0].data).toEqual([
+      expect.objectContaining({node: area, name: "Area", symbolSize: 0}),
+    ]);
+    expect(self.polygonDataIndices.get(area.id)).toBe(0);
+    render.generateMapOption({nodes: [], links: []}, self);
+    expect(self.polygonDataIndices.has(area.id)).toBe(false);
   });
 });
 
