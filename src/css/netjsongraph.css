@@ -348,6 +348,7 @@
   align-items: center;
   flex-wrap: wrap;
   flex-basis: 60%;
+  white-space: pre-line;
 }
 
 .njg-container .njg-headerContainer {

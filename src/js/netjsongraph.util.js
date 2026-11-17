@@ -881,8 +881,8 @@ class NetJSONGraphUtil {
     keyLabel.setAttribute("class", "njg-tooltip-key");
     const valueLabel = document.createElement("span");
     valueLabel.setAttribute("class", "njg-tooltip-value");
-    keyLabel.innerHTML = key;
-    valueLabel.innerHTML = value;
+    keyLabel.textContent = key;
+    valueLabel.textContent = value;
     item.appendChild(keyLabel);
     item.appendChild(valueLabel);
     return item;
@@ -937,7 +937,7 @@ class NetJSONGraphUtil {
     }
     if (node.local_addresses) {
       container.appendChild(
-        this.createTooltipItem("Local Addresses", node.local_addresses.join("<br/>")),
+        this.createTooltipItem("Local Addresses", node.local_addresses.join("\n")),
       );
     }
     return container;
@@ -971,10 +971,8 @@ class NetJSONGraphUtil {
           const time = this.dateParse({dateString: val});
           container.appendChild(this.createTooltipItem("time", time));
         } else {
-          const displayVal =
-            typeof val === "string" ? val.replace(/\n/g, "<br/>") : val;
           container.appendChild(
-            this.createTooltipItem(`${key.replace(/_/g, " ")}`, displayVal),
+            this.createTooltipItem(`${key.replace(/_/g, " ")}`, val),
           );
         }
       });

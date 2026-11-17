@@ -67,6 +67,28 @@ describe("Test netjsongraph utils dom functions", () => {
     );
   });
 
+  test("Node and link tooltips render untrusted keys and values as text", () => {
+    const markup = '<img src=x onerror="alert(1)">';
+    const node = {
+      id: markup,
+      label: markup,
+      properties: {[markup]: `${markup}\nsecond line`},
+      local_addresses: [markup, "192.168.0.1"],
+    };
+    const link = {source: markup, target: "target", properties: node.properties};
+    [
+      graph.utils.getNodeTooltipInfo(node),
+      graph.utils.getLinkTooltipInfo(link),
+    ].forEach((tooltip) => {
+      expect(tooltip.querySelector("img")).toBeNull();
+      expect(tooltip.textContent).toContain(`${markup}\nsecond line`);
+      expect(tooltip.querySelectorAll(".njg-tooltip-key")[2].textContent).toBe(markup);
+    });
+    expect(graph.utils.getNodeTooltipInfo(node).textContent).toContain(
+      `${markup}\n192.168.0.1`,
+    );
+  });
+
   test("Create a tooltip element for node info ", () => {
     const node = {
       label: "test",
