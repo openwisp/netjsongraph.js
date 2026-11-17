@@ -78,8 +78,8 @@ class NetJSONGraphGUI {
     metaInfoContainer.classList.add("njg-metaInfoContainer");
     const closeButton = document.createElement("span");
     closeButton.classList.add("njg-closeButton");
-    header.innerHTML = "Info";
-    closeButton.innerHTML = " &#x2715;";
+    header.textContent = "Info";
+    closeButton.textContent = " \u2715";
     header.appendChild(closeButton);
     metaInfoContainer.appendChild(header);
     metaInfoContainer.appendChild(metadataContainer);
@@ -127,8 +127,8 @@ class NetJSONGraphGUI {
     headerContainer.classList.add("njg-headerContainer");
     closeButton.classList.add("njg-closeButton");
     this.nodeLinkInfoContainer.style.display = "flex";
-    header.innerHTML = `${type} Info`;
-    closeButton.innerHTML = " &#x2715;";
+    header.textContent = `${type} Info`;
+    closeButton.textContent = " \u2715";
 
     // Key label normalization to improve readability
     const formatKeyLabel = (k) => {
@@ -167,8 +167,8 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = formatKeyLabel(key);
-          v.innerHTML = "[]";
+          k.textContent = formatKeyLabel(key);
+          v.textContent = "[]";
           item.appendChild(k);
           item.appendChild(v);
           parent.appendChild(item);
@@ -183,10 +183,8 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = formatKeyLabel(key);
-          v.innerHTML = val
-            .map((x) => (typeof x === "string" ? x.replace(/\n/g, "<br/>") : String(x)))
-            .join("<br/>");
+          k.textContent = formatKeyLabel(key);
+          v.textContent = val.map(String).join("\n");
           item.appendChild(k);
           item.appendChild(v);
           parent.appendChild(item);
@@ -214,8 +212,8 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = "Location";
-          v.innerHTML = `${Math.round(val.lat * 1000) / 1000}, ${
+          k.textContent = "Location";
+          v.textContent = `${Math.round(val.lat * 1000) / 1000}, ${
             Math.round(val.lng * 1000) / 1000
           }`;
           item.appendChild(k);
@@ -232,8 +230,8 @@ class NetJSONGraphGUI {
         hk.setAttribute("class", "njg-keyLabel");
         const hv = document.createElement("span");
         hv.setAttribute("class", "njg-valueLabel");
-        hk.innerHTML = formatKeyLabel(key);
-        hv.innerHTML = "";
+        hk.textContent = formatKeyLabel(key);
+        hv.textContent = "";
         headerItem.appendChild(hk);
         headerItem.appendChild(hv);
         parent.appendChild(headerItem);
@@ -252,10 +250,8 @@ class NetJSONGraphGUI {
       keyLabel.setAttribute("class", "njg-keyLabel");
       const valueLabel = document.createElement("span");
       valueLabel.setAttribute("class", "njg-valueLabel");
-      keyLabel.innerHTML = formatKeyLabel(key);
-      const displayVal =
-        typeof val === "string" ? val.replace(/\n/g, "<br/>") : String(val);
-      valueLabel.innerHTML = displayVal;
+      keyLabel.textContent = formatKeyLabel(key);
+      valueLabel.textContent = String(val);
       infoItems.appendChild(keyLabel);
       infoItems.appendChild(valueLabel);
       parent.appendChild(infoItems);

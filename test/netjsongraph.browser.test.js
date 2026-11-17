@@ -786,6 +786,210 @@ describe("Chart Rendering Test", () => {
     expect(initialNodeCount).toBeGreaterThan(0);
   });
 
+  test("GeoJSON: polygons are hidden while they belong to a cluster", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.leaflet.polygonGeoJSON);",
+        ),
+      5000,
+      "Timed out waiting for the polygons to be drawn",
+    );
+    const getPolygons = async (zoom) => {
+      // Without animation the clusters are redrawn before setZoom returns
+      await driver.executeScript(
+        "window.map.leaflet.setZoom(arguments[0], {animate: false});",
+        zoom,
+      );
+      await driver.wait(
+        () =>
+          driver.executeScript(
+            "return window.map.leaflet.getZoom() === arguments[0];",
+            zoom,
+          ),
+        5000,
+        `Timed out waiting for zoom ${zoom}`,
+      );
+      return driver.executeScript(`
+        const {leaflet, echarts, data} = window.map;
+        const name = (properties) => properties.country || properties.name;
+        const series = echarts.getOption().series.find((s) => s.type === "scatter");
+        const clusteredIds = new Set();
+        series.data
+          .filter((item) => item.cluster)
+          .forEach((cluster) => cluster.childNodes.forEach((n) => clusteredIds.add(n.id)));
+        const nodes = data.nodes.filter((n) => n.properties._featureType === "Polygon");
+        const hidden = [];
+        const shown = [];
+        leaflet.polygonGeoJSON.eachLayer((layer) =>
+          (leaflet.hasLayer(layer) ? shown : hidden).push(name(layer.feature.properties)),
+        );
+        return {
+          nodes: nodes.map((n) => name(n.properties)),
+          clustered: nodes.filter((n) => clusteredIds.has(n.id)).map((n) => name(n.properties)),
+          hidden,
+          shown,
+        };
+      `);
+    };
+    // At the lowest zoom the polygon of Austria is close to the points around
+    // it, while the MultiPolygon is far from any other feature.
+    const zoomedOut = await getPolygons(3);
+    // The MultiPolygon is represented by a single node
+    expect(zoomedOut.nodes).toEqual(["Austria", "Sample MultiPolygon"]);
+    expect(zoomedOut.clustered).toEqual(["Austria"]);
+    expect(zoomedOut.hidden).toEqual(["Austria"]);
+    expect(zoomedOut.shown).toEqual(["Sample MultiPolygon"]);
+    // Above disableClusteringAtLevel nothing is clustered
+    const zoomedIn = await getPolygons(7);
+    expect(zoomedIn.clustered).toEqual([]);
+    expect(zoomedIn.hidden).toEqual([]);
+    expect(zoomedIn.shown).toEqual(["Austria", "Sample MultiPolygon"]);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test.each([1200, 800])(
+    "GeoJSON: polygon hover follows point controls at width %i",
+    async (width) => {
+      await driver.manage().window().setRect({width, height: 800});
+      try {
+        await driver.get(urls.geoJson);
+        await driver.wait(
+          () =>
+            driver.executeScript(
+              "return Boolean(window.map?.leaflet?.polygonGeoJSON);",
+            ),
+          5000,
+          "Timed out waiting for polygon overlays",
+        );
+        const label = await driver.executeScript(`
+        const {leaflet, data} = window.map;
+        const node = data.nodes.find((n) => n.properties.country === "Austria");
+        leaflet.setView([node.location.lat, node.location.lng], 7, {animate: false});
+        window.map.config.showMapLabelsAtZoom = 13;
+        window.map.utils.updateLabelVisibility(window.map, true);
+        return node.label || node.id;
+      `);
+        const container = await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+        await driver.actions().move({origin: container, x: 20, y: 0}).perform();
+        const hoverState = () =>
+          driver.executeScript(
+            `
+        const {echarts} = window.map;
+        const tooltip = document.querySelector(".njg-tooltip");
+        return {
+          tooltip: Boolean(tooltip && getComputedStyle(tooltip).visibility !== "hidden" &&
+            getComputedStyle(tooltip).display !== "none" && tooltip.textContent.includes("Austria")),
+          label: echarts.getZr().storage.getDisplayList().some(
+            (element) => element.type === "tspan" && element.style.text === arguments[0] && !element.ignore,
+          ),
+        };
+      `,
+            label,
+          );
+        await driver.wait(
+          async () => {
+            const state = await hoverState();
+            return width > 850 ? state.tooltip : state.label;
+          },
+          5000,
+          "Hovering the polygon should show the same tooltip or label as a point",
+        );
+        expect(await hoverState()).toEqual({tooltip: width > 850, label: width <= 850});
+        await driver.actions().move({origin: container, x: 250, y: 0}).perform();
+        await driver.wait(
+          async () => {
+            const state = await hoverState();
+            return !state.tooltip && !state.label;
+          },
+          5000,
+          "Polygon hover information should disappear on mouseout",
+        );
+        await driver.executeScript(`
+        window.map.config.showMapLabelsAtZoom = false;
+        window.map.echarts.setOption({
+          tooltip: {show: false},
+          media: [{query: {minWidth: 0}, option: {tooltip: {show: false}}}],
+        });
+        window.map.utils.updateLabelVisibility(window.map, true);
+      `);
+        expect(
+          await driver.executeScript(
+            "return window.map.echarts.getOption().tooltip[0].show;",
+          ),
+        ).toBe(false);
+        await driver.actions().move({origin: container, x: 20, y: 0}).perform();
+        await driver.wait(
+          async () => {
+            const state = await hoverState();
+            return !state.tooltip && !state.label;
+          },
+          5000,
+          "Disabled polygon labels and tooltips should stay hidden",
+        );
+      } finally {
+        await driver.manage().window().setRect({width: 1200, height: 800});
+      }
+    },
+  );
+
+  test("GeoJSON: clicking a polygon opens its popup and adds it to the URL", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.leaflet.polygonGeoJSON);",
+        ),
+      5000,
+      "Timed out waiting for the polygons to be drawn",
+    );
+    // Center the map on the node of the polygon, which lies within the
+    // polygon, at a zoom level at which nothing is clustered.
+    const nodeId = await driver.executeScript(`
+      const {leaflet, data} = window.map;
+      const node = data.nodes.find((n) => n.properties._featureType === "Polygon");
+      leaflet.setView([node.location.lat, node.location.lng], 7, {animate: false});
+      const onClick = window.map.config.onClickElement;
+      window.polygonClicks = [];
+      window.map.config.onClickElement = function(type, data) {
+        window.polygonClicks.push({type, data});
+        onClick.call(this, type, data);
+      };
+      return node.id;
+    `);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          `const {leaflet, polygonNodes} = window.map;
+          return leaflet.getZoom() === 7 && leaflet.polygonGeoJSON.getLayers().some(
+            (layer) => leaflet.hasLayer(layer) && polygonNodes.get(layer.feature).id === arguments[0],
+          );`,
+          nodeId,
+        ),
+      5000,
+      "Timed out waiting for the polygon to be shown at zoom 7",
+    );
+    const container = await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+    await driver.actions().move({origin: container}).click().perform();
+    const popup = await getElementByCss(driver, ".leaflet-popup", 2000);
+    expect(popup).not.toBeNull();
+    expect(await driver.executeScript("return window.polygonClicks;")).toEqual([
+      {type: "Feature", data: {country: "Austria"}},
+    ]);
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    // The popup of the polygon is restored when the page is loaded again
+    await driver.navigate().refresh();
+    const restoredPopup = await getElementByCss(driver, ".leaflet-popup", 5000);
+    expect(restoredPopup).not.toBeNull();
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  }, 10000); // This test needs more time
+
   test("render geo map with leaflet plugins without console errors", async () => {
     await driver.get(urls.leafletPlugins);
     const leafletContainer = await getElementByCss(

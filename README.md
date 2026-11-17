@@ -361,7 +361,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Default**: `8`
 
-  The zoom level at which clustering is disabled. When the zoom level is greater than this value, all the clusters will be expanded.
+  The zoom level at which clustering is disabled. When the zoom level is greater than or equal to this value, all the clusters will be expanded.
 
 - `clusterRadius`
 
@@ -681,23 +681,9 @@ The number of dots rendered around a node is determined by the `clients` field i
 
 ## GeoJSON handling
 
-netjsongraph.js will now **always** convert GeoJSON input into an internal
-NetJSON‐like structure (`nodes` / `links`). The original GeoJSON object is kept
-in memory only to render non‐point geometries (Polygons & Multipolygons) as
-filled shapes on the Leaflet basemap.
-
-To keep the codebase clean we extracted all GeoJSON‐specific helpers into
-`src/js/netjsongraph.geojson.js`:
-
-- `geojsonToNetjson(geojson)` – converts any GeoJSON _FeatureCollection_ into
-  NetJSON nodes & links (supports Points, LineStrings, Polygons, Multi\* and
-  GeometryCollections).
-- `addPolygonOverlays(self)` – draws Polygon / MultiPolygon features on a
-  dedicated Leaflet pane so they sit beneath the ECharts overlay but above the
-  tile layer.
-
-If you used `map.utils.geojsonToNetjson` the public API is unchanged – it now
-forwards to the new helper.
+GeoJSON FeatureCollections are converted into NetJSON nodes and links. The
+original GeoJSON is kept to draw Polygon and MultiPolygon shapes with Leaflet.
+To convert data directly, use `map.utils.geojsonToNetjson` or import the helper:
 
 ```js
 import {geojsonToNetjson} from "netjsongraph/src/js/netjsongraph.geojson";
@@ -705,8 +691,26 @@ import {geojsonToNetjson} from "netjsongraph/src/js/netjsongraph.geojson";
 const netjson = geojsonToNetjson(myGeoJSON);
 ```
 
-No action is required for most users; these changes simply make the internal
-flow clearer and easier to maintain.
+The output includes a node for each Polygon and MultiPolygon feature, with the
+`_featureType: "Polygon"` and `_featureIndex` properties. These nodes have no
+shape: netjsongraph.js draws the shapes from the original GeoJSON.
+
+### Polygons
+
+Each Polygon and MultiPolygon feature is drawn by Leaflet and represented by a
+node without a visible marker. It shares point-node labels, tooltips, clustering,
+popups and bookmarks. Label visibility uses `showMapLabelsAtZoom`, and hover
+information follows the same ECharts tooltip settings as points.
+
+- When the feature provides an `id`, its node id is prefixed with `polygon_` (e.g.
+  `polygon_42`).
+- While its node belongs to a cluster, the shape is hidden.
+- Clicking a shape calls `onClickElement` with the type `"Feature"`, opens the
+  popup (if enabled) and updates the URL fragment (if `bookmarkableActions` is
+  enabled).
+- Polygon nodes are left out in graph mode.
+
+A custom `geoOptions.onEachFeature` replaces the default click and hover handlers.
 
 ## Automatic Cluster Overlap Prevention
 

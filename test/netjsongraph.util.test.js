@@ -1,4 +1,5 @@
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
+import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 
 // Mock Leaflet projection (minimal for pixel<->latlng)
 const mockLeaflet = {
@@ -66,6 +67,46 @@ describe("makeCluster cluster separation logic", () => {
     const px2 = mockLeaflet.latLngToContainerPoint(clusters[1].value);
     const dist = Math.sqrt((px1.x - px2.x) ** 2 + (px1.y - px2.y) ** 2);
     expect(dist).toBeGreaterThan(40); // Allow some tolerance
+  });
+
+  test("polygon nodes are clustered together with point nodes", () => {
+    const nodes = [
+      {id: "point", location: {lat: 1, lng: 1}, properties: {_featureType: "Point"}},
+      {id: "area", location: {lat: 1, lng: 1}, properties: {_featureType: "Polygon"}},
+      {id: "far", location: {lat: 5, lng: 5}, properties: {_featureType: "Polygon"}},
+      {
+        id: "line",
+        location: {lat: 1, lng: 1},
+        properties: {_featureType: "LineString"},
+      },
+    ];
+    const util = new NetJSONGraphUtil();
+    const {clusters, nonClusterNodes} = util.makeCluster(makeSelf({nodes}));
+    expect(clusters).toHaveLength(1);
+    expect(clusters[0].childNodes.map((n) => n.id)).toEqual(["point", "area"]);
+    expect(clusters[0].name).toBe(2);
+    expect(nonClusterNodes.map((n) => n.id).sort()).toEqual(["far", "line"]);
+  });
+
+  test("unclustered polygon nodes are not moved to avoid overlaps", () => {
+    // 20px from the cluster: outside clusterRadius (10px) but close enough
+    // for a marker to be pushed away from the cluster symbol.
+    const near = (featureType) => ({
+      id: "near",
+      location: {lat: 1, lng: 1.02},
+      properties: {_featureType: featureType},
+    });
+    const clustered = () => [
+      {id: "1", location: {lat: 1, lng: 1}, properties: {_featureType: "Point"}},
+      {id: "2", location: {lat: 1, lng: 1}, properties: {_featureType: "Point"}},
+    ];
+    const util = new NetJSONGraphUtil();
+    const area = near("Polygon");
+    util.makeCluster(makeSelf({nodes: [...clustered(), area]}));
+    expect(area.location).toEqual({lat: 1, lng: 1.02});
+    const point = near("Point");
+    util.makeCluster(makeSelf({nodes: [...clustered(), point]}));
+    expect(point.location.lng).toBeGreaterThan(1.02);
   });
 
   test("clusters at same location with one attribute are not offset", () => {
@@ -223,6 +264,41 @@ describe("Test URL fragment utilities", () => {
     expect(fragments.basicUsage.get("nodeId")).toBe("node1");
   });
 
+  test("Test addActionToUrl adds a new fragment with nodeId for a polygon", () => {
+    const {nodes} = geojsonToNetjson({
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          id: "area1",
+          properties: {},
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [0, 0],
+                [4, 0],
+                [4, 4],
+                [0, 4],
+                [0, 0],
+              ],
+            ],
+          },
+        },
+      ],
+    });
+    const self = {
+      config: {
+        render: "map",
+        bookmarkableActions: {enabled: true, id: "geoMap"},
+      },
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeLinkIndex: {[nodes[0].id]: nodes[0]},
+    };
+    utils.addActionToUrl(self, {seriesType: "scatter", data: {node: nodes[0]}});
+    expect(utils.parseUrlFragments().geoMap.get("nodeId")).toBe("polygon_area1");
+  });
+
   test("Test addActionToUrl adds a new fragment with nodeId for a link", () => {
     const link = {source: "node1", target: "node2"};
     const self = {
@@ -311,6 +387,58 @@ describe("Test URL fragment utilities", () => {
     utils.applyUrlFragmentState(self);
     expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 6);
     expect(mockOnClick).toHaveBeenCalledWith("node", node);
+  });
+
+  test("applyUrlFragmentState shows a polygon as when its shape is clicked", () => {
+    const mockOnClick = jest.fn();
+    const node = {
+      id: "polygon_area",
+      location: {lat: 1, lng: 1},
+      properties: {_featureType: "Polygon", _featureIndex: 1, name: "Area"},
+    };
+    const features = [{properties: {name: "Point"}}, {properties: {name: "Area"}}];
+    const self = {
+      config: {
+        render: "map",
+        bookmarkableActions: {enabled: true, id: "geo"},
+        mapOptions: {nodeConfig: {type: "scatter"}},
+        onClickElement: mockOnClick,
+      },
+      originalGeoJSON: {features},
+      polygonNodes: new Map([[features[1], node]]),
+      nodeLinkIndex: {polygon_area: node},
+      utils,
+    };
+    window.location.hash = "#id=geo&nodeId=polygon_area";
+    utils.applyUrlFragmentState(self);
+    expect(mockOnClick).toHaveBeenCalledWith("Feature", {name: "Area"});
+  });
+
+  test("applyUrlFragmentState ignores a polygon left from replaced data", () => {
+    const mockOnClick = jest.fn();
+    const node = {
+      id: "polygon_old",
+      location: {lat: 1, lng: 1},
+      properties: {_featureType: "Polygon", _featureIndex: 0, name: "Old"},
+    };
+    // The data has been replaced: another polygon is now at the same index
+    const feature = {properties: {name: "New"}};
+    const self = {
+      config: {
+        render: "map",
+        bookmarkableActions: {enabled: true, id: "geo"},
+        mapOptions: {nodeConfig: {type: "scatter"}},
+        onClickElement: mockOnClick,
+      },
+      originalGeoJSON: {features: [feature]},
+      polygonNodes: new Map([[feature, {id: "polygon_new"}]]),
+      nodeLinkIndex: {polygon_old: node},
+      utils,
+    };
+    window.location.hash = "#id=geo&nodeId=polygon_old";
+    utils.applyUrlFragmentState(self);
+    expect(mockOnClick).toHaveBeenCalledWith("node", node);
+    expect(mockOnClick).not.toHaveBeenCalledWith("Feature", {name: "New"});
   });
 
   test("Test applyUrlFragmentState runs only after onReady completes", async () => {
