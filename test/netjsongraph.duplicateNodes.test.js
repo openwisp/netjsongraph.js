@@ -1,4 +1,4 @@
-const {dealJSONData, operations} = require("../src/js/netjsonWorker");
+const {dealJSONData} = require("../src/js/netjsonWorker");
 const NetJSONGraphRender = require("../src/js/netjsongraph.render").default;
 
 // Test data for duplicate node handling
@@ -195,7 +195,7 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     expect(self.data.links.length).toBe(expected.finalLinkCount);
   });
 
-  test("addData should apply extra deduplication safeguard", () => {
+  test("addData should deduplicate existing nodes before rendering", () => {
     // Get test data
     const testCase = duplicateNodeTestData.get("addDataDeduplication");
     const {corruptData} = testCase;
@@ -205,16 +205,12 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
     // Create an instance of NetJSONGraphRender
     const netJSONGraphRender = new NetJSONGraphRender();
 
-    // Mock the render function
-    netJSONGraphRender.render = jest.fn();
-
     // Mock self object with corrupt initial data
     const self = {
       data: JSON.parse(JSON.stringify(corruptData)),
       utils: {
         mergeData: netJSONGraphRender.mergeData,
         render: jest.fn(),
-        deduplicateNodesById: operations.deduplicateNodesById,
       },
       config: {
         afterUpdate: jest.fn(),
@@ -231,5 +227,6 @@ describe("NetJSONGraph Duplicate Node ID Handling", () => {
 
     // Verify total node count
     expect(self.data.nodes.length).toBe(expected.finalNodeCount);
+    expect(self.utils.render).toHaveBeenCalledTimes(1);
   });
 });
