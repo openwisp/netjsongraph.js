@@ -1,3 +1,6 @@
+import {Key} from "selenium-webdriver";
+import searchResult from "../public/assets/data/netjsonAppendData/1.json";
+import appendResult from "../public/assets/data/netjsonAppendData/2.json";
 import {
   getElementByCss,
   getElementByXpath,
@@ -57,6 +60,44 @@ describe("Chart Rendering Test", () => {
     expect(canvases.length).toBeGreaterThan(0);
     expect(nodesRendered).toBe(nodesPresent);
     expect(linksRendered).toBe(linksPresent);
+  });
+
+  test("Search elements replaces and appends results using the button and Enter", async () => {
+    await driver.get(urls.searchElements);
+    const input = await getElementByCss(driver, ".njg-searchInput", 2000);
+    const button = await getElementByCss(driver, ".njg-searchBtn");
+    const waitForCounts = async (nodes, links) => {
+      await driver.wait(
+        async () => {
+          const {nodesRendered, linksRendered} =
+            await getRenderedNodesAndLinksCount(driver);
+          return nodesRendered === nodes && linksRendered === links;
+        },
+        3000,
+        `Expected the graph to show ${nodes} nodes and ${links} links`,
+      );
+    };
+    const {nodesPresent, linksPresent} =
+      await getPresentNodesAndLinksCount("Search elements");
+    await waitForCounts(nodesPresent, linksPresent);
+
+    await input.sendKeys("test");
+    await button.click();
+    await waitForCounts(searchResult.nodes.length, searchResult.links.length);
+
+    await input.clear();
+    await input.sendKeys("appendData", Key.ENTER);
+    await waitForCounts(
+      searchResult.nodes.length + appendResult.nodes.length,
+      searchResult.links.length + appendResult.links.length,
+    );
+
+    await driver.navigate().back();
+    await waitForCounts(searchResult.nodes.length, searchResult.links.length);
+
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors).toHaveLength(0);
   });
 
   test("keep selections after modifier release", async () => {
