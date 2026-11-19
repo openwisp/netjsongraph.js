@@ -1,4 +1,5 @@
-import {until} from "selenium-webdriver";
+import {By, until} from "selenium-webdriver";
+import {Origin, Pointer} from "selenium-webdriver/lib/input";
 import {
   getElementByCss,
   getElementByXpath,
@@ -1099,8 +1100,9 @@ describe("Chart Rendering Test", () => {
       return {x: clientX, y: clientY};
     };
     const initialState = await getMeasurementState();
+    const stateBeforeDrag = await getMeasurementState();
     const edgePoint = {
-      x: Math.round(mapBounds.visibleLeft + 5),
+      x: Math.round(mapBounds.left + mapBounds.width - 5),
       y: Math.round(mapBounds.top + mapBounds.height / 2),
     };
     await driver.executeScript(`
@@ -1113,7 +1115,7 @@ describe("Chart Rendering Test", () => {
       .actions()
       .move({origin: "viewport", ...edgePoint})
       .press()
-      .move({origin: "pointer", x: 30, y: 0})
+      .move({origin: "pointer", x: -30, y: 0, duration: 250})
       .release()
       .perform();
     await driver.wait(
@@ -1127,10 +1129,10 @@ describe("Chart Rendering Test", () => {
       "Leaflet did not finish panning after the drag",
     );
     const stateAfterDrag = await getMeasurementState();
-    expect(stateAfterDrag.results).toBe(initialState.results);
+    expect(stateAfterDrag.results).toBe(stateBeforeDrag.results);
     const firstPoint = await clickMeasurementPoint(0.2, 0.2);
     const stateAfterFirstPoint = await getMeasurementState();
-    expect(stateAfterFirstPoint.results).not.toBe(initialState.results);
+    expect(stateAfterFirstPoint.results).not.toBe(stateAfterDrag.results);
     expect(stateAfterFirstPoint.transform).toBe(stateAfterDrag.transform);
     await clickMeasurementPoint(0.75, 0.45);
     const stateAfterSecondPoint = await getMeasurementState();
@@ -1155,6 +1157,12 @@ describe("Chart Rendering Test", () => {
       const area = document.querySelector(".layer-measure-resultarea");
       return {
         popupText: popup && popup.textContent,
+        resultRows: popup
+          ? Array.from(popup.querySelectorAll(".measure-result-row"), (row) => ({
+              label: row.querySelector("strong").textContent.trim(),
+              value: row.querySelector("span").textContent.trim(),
+            }))
+          : [],
         popupPadding:
           popup &&
           getComputedStyle(
@@ -1168,9 +1176,84 @@ describe("Chart Rendering Test", () => {
         areaFill: area && getComputedStyle(area).fill,
       };
     `);
+    if (completedArea.popupText === null) {
+      throw new Error("Closing the area did not open its result popup");
+    }
     expect(completedArea.popupText).toContain("Area measurement");
-    expect(completedArea.popupPadding).toBe("18px");
+    expect(completedArea.resultRows.map((row) => row.label)).toEqual([
+      "Area",
+      "Perimeter",
+    ]);
+    expect(completedArea.resultRows.every((row) => row.value.length > 0)).toBe(
+      true,
+    );
+    expect(completedArea.popupPadding).toBe("12px 18px");
     expect(completedArea.popupMargin).toBe("0px");
     expect(completedArea.areaFill).toBe("rgb(245, 124, 0)");
   }, 60000);
+
+  test("touch taps add a measurement point without panning the map", async () => {
+    const touchDriver = await getDriver({mobileEmulation: true});
+    try {
+      await touchDriver.get(urls.leafletPlugins);
+      await touchDriver.wait(
+        until.elementLocated(By.css(".leaflet-control-measure .js-start")),
+        5000,
+      );
+      await touchDriver.executeScript(
+        'document.querySelector(".leaflet-control-measure .js-start").click()',
+      );
+
+      const touchStateBefore = await touchDriver.executeScript(`
+        const map = document.querySelector(".leaflet-container");
+        const {left, top, width, height} = map.getBoundingClientRect();
+        return {
+          x: Math.round(left + width / 2),
+          y: Math.round(top + height / 2),
+          transform: getComputedStyle(
+            document.querySelector(".leaflet-map-pane"),
+          ).transform,
+          vertexCount: document.querySelectorAll(".layer-measurevertex").length,
+        };
+      `);
+      const finger = new Pointer("measurement touch", Pointer.Type.TOUCH);
+      await touchDriver
+        .actions()
+        .insert(
+          finger,
+          finger.move({
+            origin: Origin.VIEWPORT,
+            x: touchStateBefore.x,
+            y: touchStateBefore.y,
+            duration: 0,
+          }),
+          finger.press(),
+          finger.release(),
+        )
+        .perform();
+      await touchDriver.wait(
+        async () =>
+          (await touchDriver.executeScript(
+            'return document.querySelectorAll(".layer-measurevertex").length',
+          )) ===
+          touchStateBefore.vertexCount + 1,
+        5000,
+        "Touch tap did not add a measurement point",
+      );
+      const touchStateAfter = await touchDriver.executeScript(`
+        return {
+          transform: getComputedStyle(
+            document.querySelector(".leaflet-map-pane"),
+          ).transform,
+          vertexCount: document.querySelectorAll(".layer-measurevertex").length,
+        };
+      `);
+      expect(touchStateAfter.vertexCount).toBe(
+        touchStateBefore.vertexCount + 1,
+      );
+      expect(touchStateAfter.transform).toBe(touchStateBefore.transform);
+    } finally {
+      await tearDown(touchDriver);
+    }
+  }, 30000);
 });
