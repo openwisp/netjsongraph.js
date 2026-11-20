@@ -578,7 +578,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   1. id – A prefix used to uniquely identify the map.
   2. nodeId – The ID of the selected node, or sourceNodeId~targetNodeId in case of a link.
 
-  The `zoomOnRestore` option determines whether the map should automatically adjust its zoom level when the state is applied, and `zoomLevel` specifies the zoom level to use when this behavior is enabled. These options are relevant for Leaflet-based maps and allow finer control over how the map view is restored from a bookmarked URL.
+  The `zoomOnRestore` option determines whether the map should automatically adjust its zoom level when the state is applied, and `zoomLevel` specifies the zoom level to use when this behavior is enabled. When `clustering` is enabled, the map zooms to at least `disableClusteringAtLevel`, so that the restored node is not hidden in a cluster. These options are relevant for Leaflet-based maps and allow finer control over how the map view is restored from a bookmarked URL.
 
   This feature allows you to create shareable and restorable map or graph states using URL fragments. When this feature is enabled, the URL updates automatically whenever you click a node or a link in your NetJSONGraph visualization. This makes it easy to share a specific view, restore it later, or navigate between different states using the browser’s back and forward buttons.
 

@@ -1482,6 +1482,11 @@ class NetJSONGraphUtil {
       console.error("nodeId not found in nodeLinkIndex lookup.");
       return;
     }
+    // Clicking the element which is already open, e.g. another part of the
+    // same MultiPolygon, must not add a duplicate history entry
+    if (fragments[id]?.get("nodeId") === String(nodeId)) {
+      return;
+    }
     if (!fragments[id]) {
       fragments[id] = new URLSearchParams();
       fragments[id].set("id", id);
@@ -1551,7 +1556,7 @@ class NetJSONGraphUtil {
       (self.config.mapOptions &&
         self.config.mapOptions.nodeConfig &&
         self.config.mapOptions.nodeConfig.type);
-    const {location, cluster} = node || {};
+    const {location} = node || {};
     // Center the map view when returning from a bookmark.
     // We only do this when:
     // - zoomOnRestore is enabled,
@@ -1565,11 +1570,12 @@ class NetJSONGraphUtil {
       location != null
     ) {
       const center = [location.lat, location.lng];
-      const zoom =
-        cluster != null
-          ? self.config.disableClusteringAtLevel
-          : self.config.bookmarkableActions.zoomLevel ||
-            self.config.showMapLabelsAtZoom;
+      const {clustering, disableClusteringAtLevel} = self.config;
+      let zoom =
+        self.config.bookmarkableActions.zoomLevel || self.config.showMapLabelsAtZoom;
+      if (clustering) {
+        zoom = Math.max(zoom, disableClusteringAtLevel);
+      }
       if (self.leaflet) {
         self.leaflet.setView(center, zoom);
       }

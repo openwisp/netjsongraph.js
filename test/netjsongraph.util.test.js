@@ -389,6 +389,69 @@ describe("Test URL fragment utilities", () => {
     expect(mockOnClick).toHaveBeenCalledWith("node", node);
   });
 
+  test("Test addActionToUrl does not add a history entry for the open node", () => {
+    window.location.hash = "id=geo&nodeId=node1";
+    const self = {
+      config: {
+        render: "graph",
+        bookmarkableActions: {enabled: true, id: "geo"},
+      },
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeLinkIndex: {node1: {id: "node1"}},
+    };
+    const pushState = jest.spyOn(window.history, "pushState");
+    utils.addActionToUrl(self, {dataType: "node", data: {id: "node1"}});
+    expect(pushState).not.toHaveBeenCalled();
+    pushState.mockRestore();
+  });
+
+  test("Test addActionToUrl does not add a history entry for an open numeric id", () => {
+    window.location.hash = "id=geo&nodeId=1";
+    const self = {
+      config: {
+        render: "graph",
+        bookmarkableActions: {enabled: true, id: "geo"},
+      },
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeLinkIndex: {1: {id: 1}},
+    };
+    const pushState = jest.spyOn(window.history, "pushState");
+    utils.addActionToUrl(self, {dataType: "node", data: {id: 1}});
+    expect(pushState).not.toHaveBeenCalled();
+    pushState.mockRestore();
+  });
+
+  test("applyUrlFragmentState zooms past clustering when clustering is on", () => {
+    const mockSetView = jest.fn();
+    const node = {id: "n1", location: {lat: 12.1, lng: 77.5}, cluster: null};
+    const self = {
+      config: {
+        render: "map",
+        clustering: true,
+        disableClusteringAtLevel: 15,
+        bookmarkableActions: {
+          enabled: true,
+          id: "geo",
+          zoomLevel: 10,
+          zoomOnRestore: true,
+        },
+        mapOptions: {nodeConfig: {type: "scatter"}},
+      },
+      nodeLinkIndex: {n1: node},
+      leaflet: {setView: mockSetView},
+      utils,
+    };
+    window.location.hash = "#id=geo&nodeId=n1";
+    utils.applyUrlFragmentState(self);
+    expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 15);
+    node.cluster = 0;
+    utils.applyUrlFragmentState(self);
+    expect(mockSetView).toHaveBeenLastCalledWith([12.1, 77.5], 15);
+    self.config.bookmarkableActions.zoomLevel = 17;
+    utils.applyUrlFragmentState(self);
+    expect(mockSetView).toHaveBeenLastCalledWith([12.1, 77.5], 17);
+  });
+
   test("applyUrlFragmentState shows a polygon as when its shape is clicked", () => {
     const mockOnClick = jest.fn();
     const node = {
