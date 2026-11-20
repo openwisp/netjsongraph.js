@@ -1158,10 +1158,13 @@ describe("Chart Rendering Test", () => {
       return {
         popupText: popup && popup.textContent,
         resultRows: popup
-          ? Array.from(popup.querySelectorAll(".measure-result-row"), (row) => ({
-              label: row.querySelector("strong").textContent.trim(),
-              value: row.querySelector("span").textContent.trim(),
-            }))
+          ? Array.from(
+              popup.querySelectorAll(".measure-result-row"),
+              (row) => ({
+                label: row.querySelector("strong").textContent.trim(),
+                value: row.querySelector("span").textContent.trim(),
+              }),
+            )
           : [],
         popupPadding:
           popup &&
@@ -1173,6 +1176,13 @@ describe("Chart Rendering Test", () => {
           getComputedStyle(
             popup.querySelector(".leaflet-popup-content"),
           ).margin,
+        popupBounds: popup && (() => {
+          const {left, top, width, height} = popup.getBoundingClientRect();
+          return {
+            x: Math.round(left + width / 2),
+            y: Math.round(top + height / 2),
+          };
+        })(),
         areaFill: area && getComputedStyle(area).fill,
       };
     `);
@@ -1184,12 +1194,40 @@ describe("Chart Rendering Test", () => {
       "Area",
       "Perimeter",
     ]);
-    expect(completedArea.resultRows.every((row) => row.value.length > 0)).toBe(
-      true,
-    );
+    expect(completedArea.resultRows.every((row) => row.value.length > 0)).toBe(true);
     expect(completedArea.popupPadding).toBe("12px 18px");
     expect(completedArea.popupMargin).toBe("0px");
     expect(completedArea.areaFill).toBe("rgb(245, 124, 0)");
+
+    const verticesBeforeNextMeasurement = await driver.executeScript(
+      'return document.querySelectorAll(".layer-measurevertex").length',
+    );
+    await driver.executeScript(
+      'document.querySelector(".leaflet-control-measure .js-start").click()',
+    );
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          'return document.querySelector(".leaflet-measure-resultpopup") === null',
+        ),
+      2000,
+      "Starting a new measurement did not close the previous result popup",
+    );
+    await driver
+      .actions()
+      .move({origin: "viewport", ...completedArea.popupBounds})
+      .click()
+      .perform();
+    await driver.wait(
+      () =>
+        driver
+          .executeScript(
+            'return document.querySelectorAll(".layer-measurevertex").length',
+          )
+          .then((count) => count === verticesBeforeNextMeasurement + 1),
+      2000,
+      "Clicking the previous popup location did not add a measurement point",
+    );
   }, 60000);
 
   test("touch taps add a measurement point without panning the map", async () => {
@@ -1248,9 +1286,7 @@ describe("Chart Rendering Test", () => {
           vertexCount: document.querySelectorAll(".layer-measurevertex").length,
         };
       `);
-      expect(touchStateAfter.vertexCount).toBe(
-        touchStateBefore.vertexCount + 1,
-      );
+      expect(touchStateAfter.vertexCount).toBe(touchStateBefore.vertexCount + 1);
       expect(touchStateAfter.transform).toBe(touchStateBefore.transform);
     } finally {
       await tearDown(touchDriver);

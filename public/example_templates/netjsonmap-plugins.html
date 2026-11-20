@@ -241,6 +241,7 @@
 
             editableLayers.addLayer(layer);
           });
+          map.on("measurestart", () => map.closePopup());
           L.control
             .measure({
               activeColor: "#f57c00",
