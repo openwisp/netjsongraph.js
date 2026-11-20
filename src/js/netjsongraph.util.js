@@ -1484,7 +1484,7 @@ class NetJSONGraphUtil {
     }
     // Clicking the element which is already open, e.g. another part of the
     // same MultiPolygon, must not add a duplicate history entry
-    if (fragments[id]?.get("nodeId") === nodeId) {
+    if (fragments[id]?.get("nodeId") === String(nodeId)) {
       return;
     }
     if (!fragments[id]) {
@@ -1558,7 +1558,7 @@ class NetJSONGraphUtil {
       (self.config.mapOptions &&
         self.config.mapOptions.nodeConfig &&
         self.config.mapOptions.nodeConfig.type);
-    const {location, cluster} = node || {};
+    const {location} = node || {};
     // Center the map view when returning from a bookmark.
     // We only do this when:
     // - zoomOnRestore is enabled,
@@ -1575,9 +1575,7 @@ class NetJSONGraphUtil {
       const {clustering, disableClusteringAtLevel} = self.config;
       let zoom =
         self.config.bookmarkableActions.zoomLevel || self.config.showMapLabelsAtZoom;
-      if (cluster != null) {
-        zoom = disableClusteringAtLevel;
-      } else if (clustering) {
+      if (clustering) {
         zoom = Math.max(zoom, disableClusteringAtLevel);
       }
       if (self.leaflet) {
