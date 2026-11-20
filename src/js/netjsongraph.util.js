@@ -1482,6 +1482,11 @@ class NetJSONGraphUtil {
       console.error("nodeId not found in nodeLinkIndex lookup.");
       return;
     }
+    // Clicking the element which is already open, e.g. another part of the
+    // same MultiPolygon, must not add a duplicate history entry
+    if (fragments[id]?.get("nodeId") === nodeId) {
+      return;
+    }
     if (!fragments[id]) {
       fragments[id] = new URLSearchParams();
       fragments[id].set("id", id);
@@ -1567,11 +1572,14 @@ class NetJSONGraphUtil {
       location != null
     ) {
       const center = [location.lat, location.lng];
-      const zoom =
-        cluster != null
-          ? self.config.disableClusteringAtLevel
-          : self.config.bookmarkableActions.zoomLevel ||
-            self.config.showMapLabelsAtZoom;
+      const {clustering, disableClusteringAtLevel} = self.config;
+      let zoom =
+        self.config.bookmarkableActions.zoomLevel || self.config.showMapLabelsAtZoom;
+      if (cluster != null) {
+        zoom = disableClusteringAtLevel;
+      } else if (clustering) {
+        zoom = Math.max(zoom, disableClusteringAtLevel);
+      }
       if (self.leaflet) {
         self.leaflet.setView(center, zoom);
       }
