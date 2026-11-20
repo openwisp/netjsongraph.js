@@ -96,7 +96,9 @@ Switch between different tile providers and styles.
 
 [![Leaflet plugins](docs/gifs/netjsonmap-plugins.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-plugins.html)
 
-Use draw/measure and other Leaflet plugins in map mode.
+Use draw/measure and other Leaflet plugins in map mode. The measurement tool
+allows map dragging while measuring, closes a completed area by clicking its
+first point.
 
 ### Search elements
 

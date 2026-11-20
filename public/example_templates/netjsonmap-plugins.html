@@ -16,8 +16,135 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
-      .njg-container .leaflet-control-zoom {
-        top: 55px;
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip {
+        box-shadow: none;
+        width: 14px;
+        height: 8px;
+        margin: 0;
+        padding: 0;
+        transform: none;
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+      }
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip-container {
+        width: 14px;
+        margin-left: -7px;
+      }
+      .njg-container
+        .leaflet-control-measure
+        .leaflet-control-measure-interaction {
+        padding-top: 0;
+      }
+      .njg-container .leaflet-measure-resultpopup .leaflet-popup-content {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 12px 18px;
+      }
+      .njg-container .leaflet-measure-resultpopup h3 {
+        margin: 0 0 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+        color: #222;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .njg-container .leaflet-control-measure .startprompt h3 {
+        margin-bottom: 12px;
+      }
+      .njg-container .leaflet-measure-resultpopup p {
+        margin: 0;
+        overflow-wrap: anywhere;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .njg-container .leaflet-measure-resultpopup p + p {
+        margin-top: 10px;
+      }
+      .njg-container .leaflet-measure-resultpopup .measure-result-values {
+        display: grid;
+        gap: 10px;
+      }
+      .njg-container .leaflet-measure-resultpopup .measure-result-row {
+        display: grid;
+        grid-template-columns: max-content max-content;
+        column-gap: 12px;
+        align-items: baseline;
+      }
+      .njg-container .leaflet-measure-resultpopup .measure-result-row strong {
+        color: #222;
+        font-weight: 600;
+      }
+      .njg-container .leaflet-measure-resultpopup .measure-result-row span {
+        overflow-wrap: anywhere;
+      }
+      .njg-container
+        .leaflet-measure-resultpopup
+        .measure-result-row
+        + .measure-result-row {
+        margin-top: 0;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-top: 8px;
+        padding-top: 2px;
+        gap: 4px 12px;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks li {
+        display: block;
+        margin: 0;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a.zoomto,
+      .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup {
+        display: inline-flex;
+        align-items: center;
+        min-height: 29px;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup {
+        padding-left: 0;
+        color: #c62828;
+        background-image: none;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a:focus-visible {
+        border-radius: 3px;
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a.zoomto:hover,
+      .njg-container
+        .leaflet-measure-resultpopup
+        .tasks
+        a.zoomto:focus-visible {
+        color: #3740a8;
+        opacity: 1;
+        text-decoration: underline;
+      }
+      .njg-container .leaflet-measure-resultpopup .tasks a.deletemarkup:hover,
+      .njg-container
+        .leaflet-measure-resultpopup
+        .tasks
+        a.deletemarkup:focus-visible {
+        color: #8e0000;
+        opacity: 1;
+        text-decoration: underline;
+      }
+      .njg-container
+        .leaflet-measure-resultpopup
+        .tasks
+        a.deletemarkup::before {
+        position: static;
+        display: inline-block;
+        flex: 0 0 auto;
+        width: 10px;
+        height: 10px;
+        margin-right: 6px;
+        background-color: currentColor;
+        content: "";
+        vertical-align: baseline;
+        -webkit-mask: url("../lib/css/assets/trash.png") center / contain
+          no-repeat;
+        mask: url("../lib/css/assets/trash.png") center / contain no-repeat;
       }
     </style>
   </head>
@@ -114,10 +241,25 @@
 
             editableLayers.addLayer(layer);
           });
-          L.control.measure({}).addTo(map);
+          map.on("measurestart", () => map.closePopup());
+          L.control
+            .measure({
+              activeColor: "#f57c00",
+              completedColor: "#f57c00",
+              popupOptions: {
+                className: "leaflet-measure-resultpopup",
+                autoPan: true,
+                autoPanPadding: [25, 25],
+                maxWidth: 320,
+              },
+              position: "bottomleft",
+            })
+            .addTo(map);
         },
       });
       graph.render();
+      // required for selenium browser tests
+      window.map = graph;
     </script>
   </body>
 </html>
