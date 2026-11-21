@@ -154,6 +154,8 @@ class NetJSONGraphRender {
       echartsLayer.off("click", self.echartsClickHandler);
     }
     self.echartsClickHandler = (params) => {
+      const popupSelection = {};
+      self.popupSelection = popupSelection;
       const event = params.event && (params.event.event || params.event);
       const append = Boolean(event && (event.ctrlKey || event.metaKey));
       if (
@@ -214,7 +216,11 @@ class NetJSONGraphRender {
           if (!isPolygon(node)) {
             // Let Leaflet process the same click before opening the popup, so
             // it cannot immediately close it or hide the click from listeners.
-            setTimeout(() => self.gui.loadNodePopup(node), 0);
+            setTimeout(() => {
+              if (self.popupSelection === popupSelection) {
+                self.gui.loadNodePopup(node);
+              }
+            }, 0);
           } else {
             self.gui.loadNodePopup(node);
           }

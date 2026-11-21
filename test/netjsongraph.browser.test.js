@@ -1645,6 +1645,33 @@ describe("Chart Rendering Test", () => {
     );
     expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
   });
+
+  test("a deferred point popup does not replace a newer polygon popup", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    const polygonId = await driver.executeScript(`
+      const graph = window.map;
+      const point = graph.data.nodes.find((item) => item.properties._featureType === "Point");
+      const polygon = graph.data.nodes.find((item) => item.properties._featureType === "Polygon");
+      graph.config.mapOptions.nodePopup.content = (node) => node.id;
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node: point}, seriesIndex: 0, dataIndex: 0});
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node: polygon}, seriesIndex: 0, dataIndex: 0});
+      return polygon.id;
+    `);
+    await driver.sleep(100);
+    expect(
+      await driver.executeScript(
+        "return window.map.leaflet.currentPopup.getContent();",
+      ),
+    ).toBe(polygonId);
+  });
 });
 
 describe("Control colors", () => {
