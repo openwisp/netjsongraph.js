@@ -393,7 +393,6 @@
 .njg-container .default-popup {
   width: max-content;
   max-width: 100%;
-  padding: 18px;
 }
 .njg-container .default-popup .njg-tooltip-item {
   display: flex;
@@ -426,6 +425,8 @@
 
 .njg-container .leaflet-popup-content {
   margin: 0;
+  padding: 28px 18px 18px;
+  box-sizing: border-box;
 }
 
 .njg-container .leaflet-popup-content-wrapper {
