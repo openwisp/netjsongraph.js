@@ -313,6 +313,8 @@ class NetJSONGraphGUI {
    */
   async loadNodePopup(node) {
     const {self} = this;
+    // A programmatic popup takes precedence over a queued point click.
+    self.popupSelection = null;
     if (!self.leaflet) {
       console.error("Leaflet map not available. Cannot load popup.");
       return;

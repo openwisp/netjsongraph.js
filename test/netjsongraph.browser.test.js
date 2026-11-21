@@ -1703,6 +1703,55 @@ describe("Chart Rendering Test", () => {
     expect(result.overlap).toBe(false);
     expect(result.width).toBeLessThanOrEqual(180);
   });
+
+  test("a deferred point popup does not replace a programmatically opened popup", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    const secondId = await driver.executeScript(`
+      const graph = window.map;
+      const [first, second] = graph.data.nodes.filter((item) => item.properties._featureType === "Point");
+      graph.config.mapOptions.nodePopup.content = (node) => node.id;
+      graph.config.onClickElement = () => graph.gui.loadNodePopup(second);
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node: first}, seriesIndex: 0, dataIndex: 0});
+      return second.id;
+    `);
+    await driver.sleep(100);
+    expect(
+      await driver.executeScript(
+        "return window.map.leaflet.currentPopup.getContent();",
+      ),
+    ).toBe(secondId);
+  });
+
+  test("browser navigation cancels a deferred point popup", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    await driver.executeScript(`
+      const graph = window.map;
+      const node = graph.data.nodes.find((item) => item.properties._featureType === "Point");
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node}, seriesIndex: 0, dataIndex: 0});
+      window.history.replaceState({}, "", window.location.pathname);
+      graph.utils.applyUrlFragmentState(graph);
+    `);
+    await driver.sleep(100);
+    expect(
+      await driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+    ).toBe(false);
+  });
 });
 
 describe("Control colors", () => {
