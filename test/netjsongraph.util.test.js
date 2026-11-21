@@ -389,7 +389,7 @@ describe("Test URL fragment utilities", () => {
     expect(mockOnClick).toHaveBeenCalledWith("node", node);
   });
 
-  test("Test addActionToUrl does not add a history entry for the open node", () => {
+  test("addActionToUrl does not add a history entry when clicking the open node", () => {
     window.location.hash = "id=geo&nodeId=node1";
     const self = {
       config: {
@@ -405,7 +405,7 @@ describe("Test URL fragment utilities", () => {
     pushState.mockRestore();
   });
 
-  test("Test addActionToUrl does not add a history entry for an open numeric id", () => {
+  test("addActionToUrl does not add a history entry when the open node has a numeric ID", () => {
     window.location.hash = "id=geo&nodeId=1";
     const self = {
       config: {
@@ -421,7 +421,7 @@ describe("Test URL fragment utilities", () => {
     pushState.mockRestore();
   });
 
-  test("applyUrlFragmentState zooms past clustering when clustering is on", () => {
+  test("applyUrlFragmentState zooms in enough to show a restored node when clustering is enabled", () => {
     const mockSetView = jest.fn();
     const node = {id: "n1", location: {lat: 12.1, lng: 77.5}, cluster: null};
     const self = {
