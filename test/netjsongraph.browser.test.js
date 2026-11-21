@@ -1334,6 +1334,52 @@ describe("Chart Rendering Test", () => {
     expect(narrow.mapWidth).toBe(180);
     expect(narrow.width).toBeLessThanOrEqual(180);
   });
+
+  test("hover tooltip fits its content and narrow map containers", async () => {
+    await driver.manage().window().setRect({width: 1200, height: 800});
+    await driver.get(urls.clustering);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "Cluster map was not ready",
+    );
+    await driver.executeScript(`
+      const node = window.map.data.nodes.find((item) => item.properties.name === "Critical Node 23");
+      window.map.leaflet.setView([node.location.lat, node.location.lng], 18, {animate: false});
+    `);
+    const measure = async (width) =>
+      driver.executeScript(
+        `
+        const container = document.querySelector(".njg-container");
+        container.style.width = arguments[0] + "px";
+        window.map.echarts.resize();
+        window.map.echarts.setOption({tooltip: {show: true}, media: [{query: {minWidth: 0}, option: {tooltip: {show: true}}}]});
+        const series = window.map.echarts.getOption().series;
+        const seriesIndex = series.findIndex((item) => item.type === "scatter" && item.data.some((point) => point.node && point.node.properties.name === "Critical Node 23"));
+        const dataIndex = series[seriesIndex].data.findIndex((point) => point.node && point.node.properties.name === "Critical Node 23");
+        window.map.echarts.dispatchAction({type: "showTip", seriesIndex, dataIndex});
+        const tooltip = container.querySelector(".njg-tooltip");
+        const rows = [...tooltip.querySelectorAll(".njg-tooltip-item")];
+        const label = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "label");
+        const country = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "country");
+        const labelValue = label.querySelector(".njg-tooltip-value").getBoundingClientRect();
+        const key = country.querySelector(".njg-tooltip-key").getBoundingClientRect();
+        const value = country.querySelector(".njg-tooltip-value").getBoundingClientRect();
+        return {width: tooltip.getBoundingClientRect().width, valueHeight: labelValue.height, gap: value.left - key.right};
+      `,
+        width,
+      );
+    const wide = await measure(800);
+    expect(wide.valueHeight).toBeLessThanOrEqual(22);
+    expect(wide.gap).toBeGreaterThanOrEqual(4);
+    expect(wide.width).toBeLessThanOrEqual(320);
+    const narrow = await measure(180);
+    expect(narrow.width).toBeLessThanOrEqual(180);
+    expect(narrow.gap).toBeGreaterThanOrEqual(4);
+  });
 });
 
 describe("Control colors", () => {

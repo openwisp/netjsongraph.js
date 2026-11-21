@@ -318,6 +318,24 @@
 
 .njg-container .njg-tooltip {
   user-select: text !important;
+  max-width: min(300px, calc(100% - 20px));
+}
+
+.njg-container .njg-tooltip-inner {
+  width: max-content;
+  max-width: 100%;
+}
+
+.njg-container .njg-tooltip .njg-tooltip-item {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.njg-container .njg-tooltip .njg-tooltip-key,
+.njg-container .njg-tooltip .njg-tooltip-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .njg-container.njg-hide-tooltip .njg-tooltip {
