@@ -1494,13 +1494,49 @@ describe("Chart Rendering Test", () => {
     ).toBe(true);
     expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
     expect(await driver.executeScript("return window.mapClickCount;")).toBe(1);
+    await driver.actions().move({origin: container}).click().perform();
+    await driver.sleep(300);
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    expect(
+      await driver.executeScript(
+        "return window.map.activeHighlightedElements.map((item) => item.key);",
+      ),
+    ).toContain(`node:${nodeId}`);
+    const secondId = await driver.executeScript(
+      `
+      const node = window.map.data.nodes.find((item) => item.properties._featureType === "Point" && item.id !== arguments[0]);
+      window.map.leaflet.setView([node.location.lat, node.location.lng], 8, {animate: false});
+      return node.id;
+    `,
+      nodeId,
+    );
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          `
+        return window.map.echarts.getOption().series.some((series) =>
+          series.type === "scatter" && series.data.some((item) => item.node && item.node.id === arguments[0] && !item.cluster));
+      `,
+          secondId,
+        ),
+      5000,
+      "Second point was not visible",
+    );
+    await driver.actions().move({origin: container}).click().perform();
+    await driver.sleep(300);
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${secondId}`);
+    expect(
+      await driver.executeScript(
+        "return window.map.activeHighlightedElements.map((item) => item.key);",
+      ),
+    ).toContain(`node:${secondId}`);
     await driver.actions().move({origin: container, x: 300, y: 200}).click().perform();
     await driver.wait(
       () => driver.executeScript("return !window.map.leaflet.currentPopup;"),
       5000,
       "Clicking the map did not close the popup",
     );
-    expect(await driver.executeScript("return window.mapClickCount;")).toBe(2);
+    expect(await driver.executeScript("return window.mapClickCount;")).toBe(4);
   });
 
   test("touching a point opens its popup and releases map dragging", async () => {

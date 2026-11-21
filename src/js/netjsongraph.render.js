@@ -154,6 +154,19 @@ class NetJSONGraphRender {
       echartsLayer.off("click", self.echartsClickHandler);
     }
     self.echartsClickHandler = (params) => {
+      if (
+        params.componentSubType !== "graph" &&
+        params.componentSubType !== "lines" &&
+        params.data &&
+        !params.data.cluster &&
+        !isPolygon(params.data.node) &&
+        configs.mapOptions?.nodePopup?.show &&
+        self.leaflet?.currentPopup
+      ) {
+        // Closing the old popup clears its highlight and bookmark. Do this
+        // before selecting the clicked point so its new state is preserved.
+        self.leaflet.currentPopup.remove();
+      }
       self.utils.addActionToUrl(self, params);
       const event = params.event && (params.event.event || params.event);
       const append = Boolean(event && (event.ctrlKey || event.metaKey));
