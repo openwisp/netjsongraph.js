@@ -691,6 +691,11 @@ import {geojsonToNetjson} from "netjsongraph/src/js/netjsongraph.geojson";
 const netjson = geojsonToNetjson(myGeoJSON);
 ```
 
+Point and MultiPoint features always become separate nodes, even when they
+share the exact same coordinates, so each keeps its own id, label and
+properties. LineString and MultiLineString vertices still share a node where
+lines meet.
+
 The output includes a node for each Polygon and MultiPolygon feature, with the
 `_featureType: "Polygon"` and `_featureIndex` properties. These nodes have no
 shape: netjsongraph.js draws the shapes from the original GeoJSON.
