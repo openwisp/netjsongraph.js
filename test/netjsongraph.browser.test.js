@@ -1479,6 +1479,51 @@ describe("Chart Rendering Test", () => {
       "Clicking the map did not close the popup",
     );
   });
+
+  test("touching a point opens its popup and releases map dragging", async () => {
+    const touchDriver = await getDriver({mobileEmulation: true});
+    try {
+      await touchDriver.get(urls.geoJson);
+      await touchDriver.wait(
+        () =>
+          touchDriver.executeScript(
+            "return Boolean(window.map && window.map.leaflet && window.map.data);",
+          ),
+        5000,
+        "GeoJSON map was not ready",
+      );
+      const point = await touchDriver.executeScript(`
+        const node = window.map.data.nodes.find((item) => item.properties._featureType === "Point");
+        window.map.gui.sideBar.classList.add("hidden");
+        window.map.leaflet.setView([node.location.lat, node.location.lng], 8, {animate: false});
+        window.touchEndCount = 0;
+        document.addEventListener("touchend", () => { window.touchEndCount += 1; });
+        const rect = window.map.leaflet.getContainer().getBoundingClientRect();
+        return {x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2)};
+      `);
+      const finger = new Pointer("node touch", Pointer.Type.TOUCH);
+      await touchDriver
+        .actions()
+        .insert(
+          finger,
+          finger.move({origin: Origin.VIEWPORT, x: point.x, y: point.y, duration: 0}),
+          finger.press(),
+          finger.release(),
+        )
+        .perform();
+      await touchDriver.sleep(400);
+      const state = await touchDriver.executeScript(`
+        return {
+          popup: Boolean(window.map.leaflet.currentPopup),
+          touchEndCount: window.touchEndCount,
+          dragging: Boolean(window.L.Draggable._dragging),
+        };
+      `);
+      expect(state).toEqual({popup: true, touchEndCount: 1, dragging: false});
+    } finally {
+      await tearDown(touchDriver);
+    }
+  }, 30000);
 });
 
 describe("Control colors", () => {

@@ -386,9 +386,10 @@ class NetJSONGraphGUI {
       const fallbackSize = self.config.mapOptions.nodeConfig.nodeSize;
       const nodeSize =
         typeof nodeSizeConfig === "object" ? fallbackSize : nodeSizeConfig;
+      const height = (size) => Number(Array.isArray(size) ? size[1] : size) || 0;
       const markerSize = Math.max(
-        Number(nodeSize) || 17,
-        Number(nodeEmphasisConfig.nodeSize) || 0,
+        height(nodeSize) || 17,
+        height(nodeEmphasisConfig.nodeSize),
       );
       // Leaflet cannot infer the size of an ECharts marker; leave room for the
       // marker and the popup tip so neither can intercept clicks on the node.

@@ -189,7 +189,11 @@ class NetJSONGraphRender {
         if (configs.mapOptions?.nodePopup?.show) {
           // A point click also reaches Leaflet's map click handler, which
           // otherwise closes the popup immediately after ECharts opens it.
-          if (!isPolygon(node) && typeof event?.stopPropagation === "function") {
+          if (!isPolygon(node) && event?.type === "touchend") {
+            // Keep touchend bubbling so Leaflet can finish dragging, while
+            // preventing the compatibility click from closing the popup.
+            event.preventDefault();
+          } else if (!isPolygon(node) && typeof event?.stopPropagation === "function") {
             event.stopPropagation();
           }
           self.gui.loadNodePopup(node);
