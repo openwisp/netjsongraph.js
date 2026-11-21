@@ -16,6 +16,38 @@
     <link href="../lib/css/netjsongraph-theme.css" rel="stylesheet" />
     <link href="../lib/css/netjsongraph.css" rel="stylesheet" />
     <style type="text/css">
+      .njg-container .leaflet-draw-toolbar-top {
+        margin-bottom: 10px;
+      }
+      .njg-container .leaflet-draw-actions a {
+        background-color: #333;
+        color: #fff;
+      }
+      .njg-container .leaflet-draw-actions a:hover,
+      .njg-container .leaflet-draw-actions a:focus-visible {
+        background-color: #555;
+      }
+      .njg-container .leaflet-draw-tooltip {
+        margin-left: 11px;
+        margin-top: -25px;
+        padding: 5px 10px;
+        pointer-events: none;
+      }
+      .njg-container .leaflet-draw-tooltip-single {
+        margin-top: -16px;
+      }
+      .njg-container .leaflet-draw-tooltip:not(.leaflet-error-draw-tooltip) {
+        background: #333;
+      }
+      .njg-container
+        .leaflet-draw-tooltip:not(.leaflet-error-draw-tooltip)::before {
+        border-right-color: #333;
+      }
+      .njg-container
+        .leaflet-container:has(.leaflet-draw:hover)
+        .leaflet-draw-tooltip {
+        display: none;
+      }
       .njg-container .leaflet-measure-resultpopup .leaflet-popup-tip {
         box-shadow: none;
         width: 14px;
@@ -49,6 +81,9 @@
       }
       .njg-container .leaflet-control-measure .startprompt h3 {
         margin-bottom: 12px;
+      }
+      .njg-container .leaflet-control-measure .tasks {
+        text-align: left;
       }
       .njg-container .leaflet-measure-resultpopup p {
         margin: 0;
@@ -106,11 +141,18 @@
         color: #c62828;
         background-image: none;
       }
+      .njg-container .leaflet-control-measure .tasks a:focus-visible,
       .njg-container .leaflet-measure-resultpopup .tasks a:focus-visible {
         border-radius: 3px;
         outline: 2px solid currentColor;
         outline-offset: 2px;
       }
+      .njg-container .leaflet-control-measure .tasks a,
+      .njg-container .leaflet-measure-resultpopup .tasks a.zoomto {
+        color: #5e66cc;
+      }
+      .njg-container .leaflet-control-measure .tasks a:hover,
+      .njg-container .leaflet-control-measure .tasks a:focus-visible,
       .njg-container .leaflet-measure-resultpopup .tasks a.zoomto:hover,
       .njg-container
         .leaflet-measure-resultpopup
@@ -188,6 +230,7 @@
           */
           let map = this.leaflet,
             editableLayers = new L.FeatureGroup(),
+            measurementColor = "#f57c00",
             // Plugin related configuration
             MyCustomMarker = L.Icon.extend({
               options: {
@@ -201,7 +244,7 @@
               draw: {
                 polyline: {
                   shapeOptions: {
-                    color: "#f357a1",
+                    color: measurementColor,
                     weight: 3,
                   },
                 },
@@ -212,12 +255,22 @@
                     message: "<strong>Oh snap!<strong> you can't draw that!", // Message that will show when intersect
                   },
                   shapeOptions: {
-                    color: "#bada55",
+                    color: measurementColor,
                   },
                 },
-                circle: true, // Turns off this drawing tool
+                circle: {
+                  shapeOptions: {
+                    color: measurementColor,
+                  },
+                },
+                circlemarker: {
+                  shapeOptions: {
+                    color: measurementColor,
+                  },
+                },
                 rectangle: {
                   shapeOptions: {
+                    color: measurementColor,
                     clickable: false,
                   },
                 },
@@ -244,8 +297,8 @@
           map.on("measurestart", () => map.closePopup());
           L.control
             .measure({
-              activeColor: "#f57c00",
-              completedColor: "#f57c00",
+              activeColor: measurementColor,
+              completedColor: measurementColor,
               popupOptions: {
                 className: "leaflet-measure-resultpopup",
                 autoPan: true,
