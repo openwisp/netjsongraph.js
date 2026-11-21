@@ -328,7 +328,7 @@
 
 .njg-container .njg-tooltip .njg-tooltip-item {
   display: grid;
-  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  grid-template-columns: fit-content(40%) minmax(0, 1fr);
   gap: 8px;
 }
 
@@ -414,6 +414,18 @@
   overflow-wrap: anywhere;
   word-break: normal;
   color: black;
+}
+
+.njg-container .leaflet-popup {
+  margin-bottom: 0;
+}
+
+.njg-container .leaflet-popup-content {
+  margin: 0;
+}
+
+.njg-container .leaflet-popup-content-wrapper {
+  padding: 0;
 }
 
 .njg-container .leaflet-popup-tip {

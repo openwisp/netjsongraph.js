@@ -1296,6 +1296,11 @@ describe("Chart Rendering Test", () => {
   test("node popup fits its content and narrow map containers", async () => {
     await driver.get(urls.indoorMapOverlay);
     expect(await getElementByCss(driver, ".leaflet-container", 5000)).not.toBeNull();
+    await driver.executeScript(`
+      const leafletStyles = document.createElement("style");
+      leafletStyles.textContent = ".leaflet-popup-content { margin: 13px 24px 13px 20px; } .leaflet-popup-content-wrapper { padding: 1px; }";
+      document.head.appendChild(leafletStyles);
+    `);
     const measurePopup = async (width) =>
       driver.executeScript(
         `
@@ -1379,6 +1384,19 @@ describe("Chart Rendering Test", () => {
     const narrow = await measure(180);
     expect(narrow.width).toBeLessThanOrEqual(180);
     expect(narrow.gap).toBeGreaterThanOrEqual(4);
+    await measure(800);
+    const longKey = await driver.executeScript(`
+      const tooltip = document.querySelector(".njg-tooltip");
+      const row = window.map.utils.createTooltipItem("a_very_long_property_name_that_has_no_natural_breaks", "Readable value");
+      tooltip.querySelector(".njg-tooltip-inner").appendChild(row);
+      const key = row.querySelector(".njg-tooltip-key").getBoundingClientRect();
+      const value = row.querySelector(".njg-tooltip-value").getBoundingClientRect();
+      const tooltipRect = tooltip.getBoundingClientRect();
+      return {valueWidth: value.width, gap: value.left - key.right, overflow: value.right - tooltipRect.right};
+    `);
+    expect(longKey.valueWidth).toBeGreaterThanOrEqual(50);
+    expect(longKey.gap).toBeGreaterThanOrEqual(4);
+    expect(longKey.overflow).toBeLessThanOrEqual(0);
   });
 
   test("node popup points to the marker without covering it", async () => {
