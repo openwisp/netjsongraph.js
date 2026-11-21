@@ -372,6 +372,11 @@ class NetJSONGraphGUI {
       Object.entries(popupConfigInput).filter(([, value]) => value != null),
     );
 
+    // Leaflet does not limit its default popup width to the map container.
+    // Leave room at the edges, but preserve an explicit caller-provided width.
+    if (popupConfig.maxWidth == null) {
+      popupConfig.maxWidth = Math.max(50, Math.min(300, self.leaflet.getSize().x - 20));
+    }
     const popup = window.L.popup({
       ...popupConfig,
     })

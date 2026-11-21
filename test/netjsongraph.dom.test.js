@@ -817,6 +817,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -853,6 +854,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -895,6 +897,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     });
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: {remove: jest.fn()},
       currentPopupRequest: null,
       once: jest.fn(),
@@ -931,6 +934,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -953,6 +957,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -988,6 +993,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1032,6 +1038,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1070,6 +1077,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1088,6 +1096,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1114,6 +1123,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1146,6 +1156,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1184,6 +1195,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     });
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1248,6 +1260,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
 
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),

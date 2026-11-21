@@ -369,6 +369,8 @@
 }
 
 .njg-container .default-popup {
+  width: max-content;
+  max-width: 100%;
   padding: 18px;
 }
 .njg-container .default-popup .njg-tooltip-item {
@@ -394,6 +396,40 @@
   overflow-wrap: anywhere;
   word-break: normal;
   color: black;
+}
+
+.njg-container .leaflet-popup-tip {
+  box-shadow: none;
+  width: 14px;
+  height: 8px;
+  margin: 0;
+  padding: 0;
+  transform: none;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.njg-container .leaflet-popup-tip-container {
+  width: 14px;
+  margin-left: -7px;
+}
+
+.njg-container .default-popup .njg-popup-button-container {
+  text-align: center;
+}
+
+.njg-container .default-popup .njg-popup-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  background-color: black;
+  color: white;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.njg-container .default-popup .njg-popup-button:hover,
+.njg-container .default-popup .njg-popup-button:focus-visible {
+  background-color: rgb(85, 85, 85);
 }
 
 @media only screen and (max-width: 850px) {

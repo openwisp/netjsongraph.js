@@ -1292,6 +1292,48 @@ describe("Chart Rendering Test", () => {
       await tearDown(touchDriver);
     }
   }, 30000);
+
+  test("node popup fits its content and narrow map containers", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    expect(await getElementByCss(driver, ".leaflet-container", 5000)).not.toBeNull();
+    const measurePopup = async (width) =>
+      driver.executeScript(
+        `
+        const mapWidth = arguments[0];
+        const container = document.querySelector(".njg-container");
+        container.style.width = mapWidth + "px";
+        window._geoMap.echarts.resize();
+        window._geoMap.leaflet.invalidateSize();
+        return window._geoMap.gui.loadNodePopup({
+          name: "Node 9",
+          id: "node_9",
+          label: "Node 9",
+          location: {lat: 0.10986321, lng: -1.15356445},
+        }).then(() => {
+        const popup = window._geoMap.leaflet.currentPopup.getElement();
+        const rows = [...popup.querySelectorAll(".njg-tooltip-item")];
+          return {
+          width: popup.getBoundingClientRect().width,
+          mapWidth: window._geoMap.leaflet.getSize().x,
+          labelHeight: rows[0].querySelector(".njg-tooltip-key").getBoundingClientRect()
+            .height,
+          valueHeight: rows[0]
+            .querySelector(".njg-tooltip-value")
+            .getBoundingClientRect().height,
+          };
+        });
+      `,
+        width,
+      );
+    const wide = await measurePopup(800);
+    expect(wide.width).toBeGreaterThanOrEqual(200);
+    expect(wide.width).toBeLessThanOrEqual(320);
+    expect(wide.labelHeight).toBeLessThan(22);
+    expect(wide.valueHeight).toBeLessThan(22);
+    const narrow = await measurePopup(180);
+    expect(narrow.mapWidth).toBe(180);
+    expect(narrow.width).toBeLessThanOrEqual(180);
+  });
 });
 
 describe("Control colors", () => {
