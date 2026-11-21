@@ -599,6 +599,7 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, self) {
+    self.el.classList.remove("njg-map");
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
     window.onresize = () => {
       self.echarts.resize();
@@ -651,6 +652,7 @@ class NetJSONGraphRender {
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
+    self.el.classList.add("njg-map");
 
     // Accept both NetJSON and GeoJSON inputs. If GeoJSON is detected,
     // deep-copy it for polygon overlays and convert the working copy to

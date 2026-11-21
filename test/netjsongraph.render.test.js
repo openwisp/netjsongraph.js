@@ -1172,6 +1172,18 @@ describe("Test disableClusteringAtLevel: 0", () => {
     // No polygon features supplied, so no GeoJSON layer should be added
     expect(mockGeoJSONLayer.addTo).not.toHaveBeenCalled();
   });
+
+  test("updates the control theme when switching between map and graph", () => {
+    mockSelf.leaflet.getZoom.mockReturnValue(1);
+    mockSelf.utils.generateGraphOption = jest.fn(() => ({series: []}));
+    Object.assign(mockSelf.utils, {_propagateGraphZoom: jest.fn()});
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    expect(mockSelf.el.classList.contains("njg-map")).toBe(true);
+    renderInstance.graphRender({nodes: [], links: []}, mockSelf);
+    expect(mockSelf.el.classList.contains("njg-map")).toBe(false);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    expect(mockSelf.el.classList.contains("njg-map")).toBe(true);
+  });
 });
 
 describe("Test leaflet zoomend handler and zoom control state", () => {
@@ -1329,6 +1341,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
     jest.spyOn(L, "geoJSON").mockImplementation(() => mockPolygonLayer);
 
     mockSelf = {
+      el: document.createElement("div"),
       type: "geojson",
       data: {
         type: "FeatureCollection",
@@ -1551,6 +1564,7 @@ describe("graph label visibility and fallbacks", () => {
     const handlers = {};
     let zoom = 0.5;
     const mockSelf = {
+      el: document.createElement("div"),
       utils: {
         generateGraphOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
@@ -1785,6 +1799,7 @@ describe("map series ids and name fallbacks", () => {
       getBounds: jest.fn(() => ({})),
     };
     const mockSelf = {
+      el: document.createElement("div"),
       type: "geojson",
       data: {type: "FeatureCollection", features: []},
       config: {
@@ -1845,6 +1860,7 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
       _zoomAnimated: false,
     };
     mockSelf = {
+      el: document.createElement("div"),
       type: "geojson",
       data: {type: "FeatureCollection", features: []},
       config: {
@@ -2053,6 +2069,7 @@ describe("mapRender clustering label visibility", () => {
       _zoomAnimated: false,
     };
     mockSelf = {
+      el: document.createElement("div"),
       type: "geojson",
       data: {type: "FeatureCollection", features: []},
       config: {
@@ -2213,6 +2230,7 @@ const renderPolygonMap = ({
     ...leafletOverrides,
   };
   const self = {
+    el: document.createElement("div"),
     type: "geojson",
     config: {
       geoOptions: {},
