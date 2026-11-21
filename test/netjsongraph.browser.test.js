@@ -1408,6 +1408,14 @@ describe("Chart Rendering Test", () => {
     expect(longKey.gap).toBeGreaterThanOrEqual(4);
     expect(longKey.overflow).toBeLessThanOrEqual(0);
     expect(longKey.keyOverflow).toBeLessThanOrEqual(0);
+    const multiline = await driver.executeScript(`
+      const tooltip = document.querySelector(".njg-tooltip");
+      const row = window.map.utils.createTooltipItem("addresses", "first\\nsecond");
+      tooltip.querySelector(".njg-tooltip-inner").appendChild(row);
+      const value = row.querySelector(".njg-tooltip-value");
+      return {height: value.getBoundingClientRect().height, lineHeight: parseFloat(getComputedStyle(value).lineHeight)};
+    `);
+    expect(multiline.height).toBeGreaterThanOrEqual(multiline.lineHeight * 2);
   });
 
   test("node popup points to the marker without covering it", async () => {

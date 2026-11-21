@@ -384,10 +384,9 @@ class NetJSONGraphGUI {
         "map",
       );
       const fallbackSize = self.config.mapOptions.nodeConfig.nodeSize;
+      // Match the map renderer's fallback for object-valued category sizes.
       const nodeSize =
-        typeof nodeSizeConfig === "object" && !Array.isArray(nodeSizeConfig)
-          ? fallbackSize
-          : nodeSizeConfig;
+        typeof nodeSizeConfig === "object" ? fallbackSize : nodeSizeConfig;
       const height = (size) => Number(Array.isArray(size) ? size[1] : size) || 0;
       const baseSize = Math.max(
         height(nodeSize) || 17,

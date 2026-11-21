@@ -336,6 +336,9 @@
 .njg-container .njg-tooltip .njg-tooltip-value {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.njg-container .njg-tooltip .njg-tooltip-key {
   white-space: normal;
 }
 
