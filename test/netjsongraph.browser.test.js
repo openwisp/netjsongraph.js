@@ -1418,6 +1418,49 @@ describe("Chart Rendering Test", () => {
     expect(position.contentBottom).toBeLessThanOrEqual(position.markerTop);
     expect(position.tipPointerEvents).toBe("none");
   });
+
+  test("GeoJSON point click keeps the popup open until the map is clicked", async () => {
+    await driver.manage().window().setRect({width: 1400, height: 900});
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    const nodeId = await driver.executeScript(`
+      const node = window.map.data.nodes.find((item) => item.properties._featureType === "Point");
+      window.map.leaflet.setView([node.location.lat, node.location.lng], 8, {animate: false});
+      return node.id;
+    `);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          `
+        return window.map.echarts.getOption().series.some((series) =>
+          series.type === "scatter" && series.data.some((item) => item.node && item.node.id === arguments[0] && !item.cluster));
+      `,
+          nodeId,
+        ),
+      5000,
+      "Point was not visible",
+    );
+    const container = await getElementByCss(driver, ".ec-extension-leaflet", 5000);
+    await driver.actions().move({origin: container}).click().perform();
+    await driver.sleep(300);
+    expect(
+      await driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+    ).toBe(true);
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    await driver.actions().move({origin: container, x: 300, y: 200}).click().perform();
+    await driver.wait(
+      () => driver.executeScript("return !window.map.leaflet.currentPopup;"),
+      5000,
+      "Clicking the map did not close the popup",
+    );
+  });
 });
 
 describe("Control colors", () => {

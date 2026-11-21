@@ -187,6 +187,11 @@ class NetJSONGraphRender {
       if (params.data && !params.data.cluster) {
         const {node} = params.data;
         if (configs.mapOptions?.nodePopup?.show) {
+          // A point click also reaches Leaflet's map click handler, which
+          // otherwise closes the popup immediately after ECharts opens it.
+          if (!isPolygon(node) && typeof event?.stopPropagation === "function") {
+            event.stopPropagation();
+          }
           self.gui.loadNodePopup(node);
         }
         if (isPolygon(node)) {
