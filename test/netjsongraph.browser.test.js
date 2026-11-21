@@ -1,4 +1,4 @@
-import {By, until} from "selenium-webdriver";
+import {By, Key, until} from "selenium-webdriver";
 import {Origin, Pointer} from "selenium-webdriver/lib/input";
 import {
   getElementByCss,
@@ -1495,7 +1495,11 @@ describe("Chart Rendering Test", () => {
     expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
     expect(await driver.executeScript("return window.mapClickCount;")).toBe(1);
     await driver.actions().move({origin: container}).click().perform();
-    await driver.sleep(300);
+    await driver.wait(
+      () => driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+      5000,
+      "Repeat click did not reopen the popup",
+    );
     expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
     expect(
       await driver.executeScript(
@@ -1522,14 +1526,35 @@ describe("Chart Rendering Test", () => {
       5000,
       "Second point was not visible",
     );
-    await driver.actions().move({origin: container}).click().perform();
-    await driver.sleep(300);
+    await driver
+      .actions()
+      .move({origin: container})
+      .keyDown(Key.CONTROL)
+      .click()
+      .keyUp(Key.CONTROL)
+      .perform();
+    await driver.wait(
+      () => driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+      5000,
+      "Second point did not open a popup",
+    );
     expect(await driver.getCurrentUrl()).toContain(`nodeId=${secondId}`);
     expect(
       await driver.executeScript(
         "return window.map.activeHighlightedElements.map((item) => item.key);",
       ),
     ).toContain(`node:${secondId}`);
+    expect(
+      await driver.executeScript(
+        "return window.map.activeHighlightedElements.map((item) => item.key);",
+      ),
+    ).toContain(`node:${nodeId}`);
+    await driver.navigate().back();
+    await driver.wait(
+      async () => (await driver.getCurrentUrl()).includes(`nodeId=${nodeId}`),
+      5000,
+      "Back did not restore the previous node bookmark",
+    );
     await driver.actions().move({origin: container, x: 300, y: 200}).click().perform();
     await driver.wait(
       () => driver.executeScript("return !window.map.leaflet.currentPopup;"),
@@ -1591,6 +1616,35 @@ describe("Chart Rendering Test", () => {
       await tearDown(touchDriver);
     }
   }, 30000);
+
+  test("a failed older popup request cannot clear a newer point bookmark", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    const nodeId = await driver.executeScript(`
+      const graph = window.map;
+      const [first, second] = graph.data.nodes.filter((item) => item.properties._featureType === "Point");
+      let rejectFirst;
+      graph.config.mapOptions.nodePopup.content = () => new Promise((resolve, reject) => { rejectFirst = reject; });
+      graph.gui.loadNodePopup(first);
+      graph.config.mapOptions.nodePopup.content = () => "Second point";
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node: second}, seriesIndex: 0, dataIndex: 0});
+      rejectFirst(new Error("old request failed"));
+      return second.id;
+    `);
+    await driver.wait(
+      () => driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+      5000,
+      "New popup did not open",
+    );
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+  });
 });
 
 describe("Control colors", () => {

@@ -154,6 +154,8 @@ class NetJSONGraphRender {
       echartsLayer.off("click", self.echartsClickHandler);
     }
     self.echartsClickHandler = (params) => {
+      const event = params.event && (params.event.event || params.event);
+      const append = Boolean(event && (event.ctrlKey || event.metaKey));
       if (
         params.componentSubType !== "graph" &&
         params.componentSubType !== "lines" &&
@@ -161,15 +163,24 @@ class NetJSONGraphRender {
         !params.data.cluster &&
         !isPolygon(params.data.node) &&
         configs.mapOptions?.nodePopup?.show &&
-        self.leaflet?.currentPopup
+        self.leaflet
       ) {
-        // Closing the old popup clears its highlight and bookmark. Do this
-        // before selecting the clicked point so its new state is preserved.
-        self.leaflet.currentPopup.remove();
+        // Supersede pending content immediately, before the deferred loader
+        // starts, so an older failure cannot clear the new bookmark.
+        self.leaflet.currentPopupRequest = null;
+        if (self.leaflet.currentPopup) {
+          // Replacement is not a user close: retain selection and history.
+          const previousPopup = self.leaflet.currentPopup;
+          self.leaflet.currentPopup = null;
+          previousPopup.remove();
+          if (!append) {
+            self.utils.clearHighlight.call(self);
+          }
+          self.utils.setTooltipVisibility(self, true);
+          self.utils.updateLabelVisibility(self, true);
+        }
       }
       self.utils.addActionToUrl(self, params);
-      const event = params.event && (params.event.event || params.event);
-      const append = Boolean(event && (event.ctrlKey || event.metaKey));
       const highlightOptions = {
         showInfo: true,
         append,
