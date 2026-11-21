@@ -377,6 +377,23 @@ class NetJSONGraphGUI {
     if (popupConfig.maxWidth == null) {
       popupConfig.maxWidth = Math.max(50, Math.min(300, self.leaflet.getSize().x - 20));
     }
+    if (popupConfig.offset == null) {
+      const {nodeSizeConfig, nodeEmphasisConfig} = self.utils.getNodeStyle(
+        node,
+        self.config,
+        "map",
+      );
+      const fallbackSize = self.config.mapOptions.nodeConfig.nodeSize;
+      const nodeSize =
+        typeof nodeSizeConfig === "object" ? fallbackSize : nodeSizeConfig;
+      const markerSize = Math.max(
+        Number(nodeSize) || 17,
+        Number(nodeEmphasisConfig.nodeSize) || 0,
+      );
+      // Leaflet cannot infer the size of an ECharts marker; leave room for the
+      // marker and the popup tip so neither can intercept clicks on the node.
+      popupConfig.offset = [0, -(markerSize / 2 + 10)];
+    }
     const popup = window.L.popup({
       ...popupConfig,
     })

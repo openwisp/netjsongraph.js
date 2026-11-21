@@ -1380,6 +1380,44 @@ describe("Chart Rendering Test", () => {
     expect(narrow.width).toBeLessThanOrEqual(180);
     expect(narrow.gap).toBeGreaterThanOrEqual(4);
   });
+
+  test("node popup points to the marker without covering it", async () => {
+    await driver.manage().window().setRect({width: 1200, height: 800});
+    await driver.get(urls.indoorMapOverlay);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window._geoMap && window._geoMap.leaflet && window._geoMap.data);",
+        ),
+      5000,
+      "Map was not ready",
+    );
+    const position = await driver.executeScript(`
+      const graph = window._geoMap;
+      const node = graph.data.nodes.find((item) => item.id === "172.16.171.15");
+      graph.leaflet.setView([node.location.lat, node.location.lng], 10, {animate: false});
+      return graph.gui.loadNodePopup(node).then(() => {
+        const popup = graph.leaflet.currentPopup;
+        const point = graph.leaflet.latLngToContainerPoint(popup.getLatLng());
+        const mapRect = graph.leaflet.getContainer().getBoundingClientRect();
+        const tip = popup.getElement().querySelector(".leaflet-popup-tip");
+        const tipRect = tip.getBoundingClientRect();
+        const contentRect = popup.getElement().querySelector(".leaflet-popup-content-wrapper").getBoundingClientRect();
+        return {
+          markerX: mapRect.left + point.x,
+          markerTop: mapRect.top + point.y - 8,
+          tipX: tipRect.left + tipRect.width / 2,
+          tipBottom: tipRect.bottom,
+          contentBottom: contentRect.bottom,
+          tipPointerEvents: getComputedStyle(tip).pointerEvents,
+        };
+      });
+    `);
+    expect(Math.abs(position.tipX - position.markerX)).toBeLessThanOrEqual(1);
+    expect(position.tipBottom).toBeLessThanOrEqual(position.markerTop);
+    expect(position.contentBottom).toBeLessThanOrEqual(position.markerTop);
+    expect(position.tipPointerEvents).toBe("none");
+  });
 });
 
 describe("Control colors", () => {

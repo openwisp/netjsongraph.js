@@ -1283,4 +1283,22 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
 
     expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
   });
+
+  test("node popup offset accounts for marker size and respects custom offsets", async () => {
+    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
+    testGraph.setConfig({nodeCategories: [{name: "large", nodeSize: 40}]});
+    const node = {id: "node-1", category: "large", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    expect(window.L.popup).toHaveBeenLastCalledWith(
+      expect.objectContaining({offset: [0, -30]}),
+    );
+    testGraph.config.mapOptions.nodePopup.config.offset = [5, -50];
+    await testGraph.gui.loadNodePopup(node);
+    expect(window.L.popup).toHaveBeenLastCalledWith(
+      expect.objectContaining({offset: [5, -50]}),
+    );
+  });
 });

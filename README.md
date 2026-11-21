@@ -470,6 +470,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   If you need custom content, set `content` to a function that receives the clicked node and returns a DOM element or a string.
   Use `config` to pass Leaflet popup options. Use `onOpen` if you need to run code after the popup opens.
   By default, popup width is limited to 300 pixels and the available map width when opened. Set `config.maxWidth` to use a different Leaflet width limit.
+  Node popups are positioned above the marker by default. Set `config.offset` to customize their position.
 
   The library stylesheet provides default styles for popup content and Leaflet popup tips inside the graph container. Override these styles in your own CSS if needed. When extending the default popup with an action, use `njg-popup-button` on the button and `njg-popup-button-container` on its parent for the default button style.
 

@@ -418,6 +418,7 @@
 
 .njg-container .leaflet-popup-tip {
   box-shadow: none;
+  pointer-events: none;
   width: 14px;
   height: 8px;
   margin: 0;
