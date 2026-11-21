@@ -15,9 +15,14 @@ import netJsonAppendData3 from "../public/assets/data/netjsonAppendData/3.json";
 
 const url = "http://0.0.0.0:8080";
 
-export const getDriver = async () => {
+export const getDriver = async ({mobileEmulation = false} = {}) => {
   try {
     const options = new chrome.Options();
+    if (mobileEmulation) {
+      options.setMobileEmulation({
+        deviceMetrics: {width: 800, height: 600, pixelRatio: 1},
+      });
+    }
     options.addArguments("--headless=new");
     options.addArguments("--disable-dev-shm-usage");
     options.addArguments("--no-sandbox");
