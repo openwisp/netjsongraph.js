@@ -1367,13 +1367,21 @@ describe("Chart Rendering Test", () => {
         const dataIndex = series[seriesIndex].data.findIndex((point) => point.node && point.node.properties.name === "Critical Node 23");
         window.map.echarts.dispatchAction({type: "showTip", seriesIndex, dataIndex});
         const tooltip = container.querySelector(".njg-tooltip");
+        tooltip.style.maxWidth = "";
+        if (arguments[0] === 180) {
+          tooltip.querySelector(".njg-tooltip-inner").appendChild(window.map.utils.createTooltipItem("longValue", "x".repeat(200)));
+        }
         const rows = [...tooltip.querySelectorAll(".njg-tooltip-item")];
         const label = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "label");
         const country = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "country");
         const labelValue = label.querySelector(".njg-tooltip-value").getBoundingClientRect();
         const key = country.querySelector(".njg-tooltip-key").getBoundingClientRect();
         const value = country.querySelector(".njg-tooltip-value").getBoundingClientRect();
-        return {width: tooltip.getBoundingClientRect().width, valueHeight: labelValue.height, gap: value.left - key.right};
+        const width = tooltip.getBoundingClientRect().width;
+        tooltip.style.maxWidth = "none";
+        const unconstrainedWidth = tooltip.getBoundingClientRect().width;
+        tooltip.style.maxWidth = "";
+        return {width, unconstrainedWidth, valueHeight: labelValue.height, gap: value.left - key.right};
       `,
         width,
       );
@@ -1384,19 +1392,22 @@ describe("Chart Rendering Test", () => {
     const narrow = await measure(180);
     expect(narrow.width).toBeLessThanOrEqual(180);
     expect(narrow.gap).toBeGreaterThanOrEqual(4);
+    expect(narrow.unconstrainedWidth).toBeGreaterThan(180);
     await measure(800);
     const longKey = await driver.executeScript(`
       const tooltip = document.querySelector(".njg-tooltip");
       const row = window.map.utils.createTooltipItem("a_very_long_property_name_that_has_no_natural_breaks", "Readable value");
       tooltip.querySelector(".njg-tooltip-inner").appendChild(row);
-      const key = row.querySelector(".njg-tooltip-key").getBoundingClientRect();
+      const keyElement = row.querySelector(".njg-tooltip-key");
+      const key = keyElement.getBoundingClientRect();
       const value = row.querySelector(".njg-tooltip-value").getBoundingClientRect();
       const tooltipRect = tooltip.getBoundingClientRect();
-      return {valueWidth: value.width, gap: value.left - key.right, overflow: value.right - tooltipRect.right};
+      return {valueWidth: value.width, gap: value.left - key.right, overflow: value.right - tooltipRect.right, keyOverflow: keyElement.scrollWidth - keyElement.clientWidth};
     `);
     expect(longKey.valueWidth).toBeGreaterThanOrEqual(50);
     expect(longKey.gap).toBeGreaterThanOrEqual(4);
     expect(longKey.overflow).toBeLessThanOrEqual(0);
+    expect(longKey.keyOverflow).toBeLessThanOrEqual(0);
   });
 
   test("node popup points to the marker without covering it", async () => {
@@ -1451,6 +1462,8 @@ describe("Chart Rendering Test", () => {
     const nodeId = await driver.executeScript(`
       const node = window.map.data.nodes.find((item) => item.properties._featureType === "Point");
       window.map.leaflet.setView([node.location.lat, node.location.lng], 8, {animate: false});
+      window.mapClickCount = 0;
+      window.map.leaflet.on("click", () => { window.mapClickCount += 1; });
       return node.id;
     `);
     await driver.wait(
@@ -1472,12 +1485,14 @@ describe("Chart Rendering Test", () => {
       await driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
     ).toBe(true);
     expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    expect(await driver.executeScript("return window.mapClickCount;")).toBe(1);
     await driver.actions().move({origin: container, x: 300, y: 200}).click().perform();
     await driver.wait(
       () => driver.executeScript("return !window.map.leaflet.currentPopup;"),
       5000,
       "Clicking the map did not close the popup",
     );
+    expect(await driver.executeScript("return window.mapClickCount;")).toBe(2);
   });
 
   test("touching a point opens its popup and releases map dragging", async () => {
@@ -1497,6 +1512,8 @@ describe("Chart Rendering Test", () => {
         window.map.gui.sideBar.classList.add("hidden");
         window.map.leaflet.setView([node.location.lat, node.location.lng], 8, {animate: false});
         window.touchEndCount = 0;
+        window.mapClickCount = 0;
+        window.map.leaflet.on("click", () => { window.mapClickCount += 1; });
         document.addEventListener("touchend", () => { window.touchEndCount += 1; });
         const rect = window.map.leaflet.getContainer().getBoundingClientRect();
         return {x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2)};
@@ -1517,9 +1534,15 @@ describe("Chart Rendering Test", () => {
           popup: Boolean(window.map.leaflet.currentPopup),
           touchEndCount: window.touchEndCount,
           dragging: Boolean(window.L.Draggable._dragging),
+          mapClickCount: window.mapClickCount,
         };
       `);
-      expect(state).toEqual({popup: true, touchEndCount: 1, dragging: false});
+      expect(state).toEqual({
+        popup: true,
+        touchEndCount: 1,
+        dragging: false,
+        mapClickCount: 1,
+      });
     } finally {
       await tearDown(touchDriver);
     }

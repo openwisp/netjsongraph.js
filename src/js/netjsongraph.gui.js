@@ -385,12 +385,24 @@ class NetJSONGraphGUI {
       );
       const fallbackSize = self.config.mapOptions.nodeConfig.nodeSize;
       const nodeSize =
-        typeof nodeSizeConfig === "object" ? fallbackSize : nodeSizeConfig;
+        typeof nodeSizeConfig === "object" && !Array.isArray(nodeSizeConfig)
+          ? fallbackSize
+          : nodeSizeConfig;
       const height = (size) => Number(Array.isArray(size) ? size[1] : size) || 0;
-      const markerSize = Math.max(
+      const baseSize = Math.max(
         height(nodeSize) || 17,
         height(nodeEmphasisConfig.nodeSize),
       );
+      const {scale} = self.config.mapOptions.nodeConfig.emphasis || {};
+      // ECharts uses a default scale for true or unset values, and ignores
+      // non-positive and non-finite scales.
+      let ratio = 1;
+      if (scale == null || scale === true) {
+        ratio = Math.max(1.1, 6 / baseSize);
+      } else if (Number.isFinite(scale) && scale > 0) {
+        ratio = scale;
+      }
+      const markerSize = Math.max(baseSize, baseSize * ratio);
       // Leaflet cannot infer the size of an ECharts marker; leave room for the
       // marker and the popup tip so neither can intercept clicks on the node.
       popupConfig.offset = [0, -(markerSize / 2 + 10)];

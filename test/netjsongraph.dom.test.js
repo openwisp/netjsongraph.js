@@ -1322,4 +1322,23 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       expect.objectContaining({offset: [0, -60]}),
     );
   });
+
+  test("node popup offset accounts for emphasis scale", async () => {
+    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
+    testGraph.config.mapOptions.nodeConfig.nodeSize = 80;
+    testGraph.config.mapOptions.nodeConfig.emphasis.scale = 2;
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    await testGraph.gui.loadNodePopup(node);
+    expect(window.L.popup).toHaveBeenLastCalledWith(
+      expect.objectContaining({offset: [0, -90]}),
+    );
+    testGraph.config.mapOptions.nodeConfig.emphasis.scale = false;
+    await testGraph.gui.loadNodePopup(node);
+    expect(window.L.popup).toHaveBeenLastCalledWith(
+      expect.objectContaining({offset: [0, -50]}),
+    );
+  });
 });
