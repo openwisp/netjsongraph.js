@@ -3,7 +3,7 @@
   pointer-events: auto;
   opacity: 1;
   cursor: pointer;
-  background: rgba(217, 79, 52, 0.85) !important;
+  background: #282222 !important;
   color: #fff !important;
 }
 
@@ -54,10 +54,18 @@
 }
 
 .njg-container .sideBarHandle {
-  background: rgba(217, 79, 52, 0.85);
+  background: #fff;
 }
 
 .njg-container .sideBarHandle::before {
+  color: #282222;
+}
+
+.njg-container.njg-map .sideBarHandle {
+  background: #282222;
+}
+
+.njg-container.njg-map .sideBarHandle::before {
   color: #fff;
 }
 
