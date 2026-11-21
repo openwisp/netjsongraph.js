@@ -1293,3 +1293,36 @@ describe("Chart Rendering Test", () => {
     }
   }, 30000);
 });
+
+describe("Control colors", () => {
+  test("uses inverted colors for the graph and map", async () => {
+    const driver = await getDriver();
+    try {
+      await driver.get(urls.basicUsage);
+      await getElementByCss(driver, ".sideBarHandle", 5000);
+      const graphColors = await driver.executeScript(`
+        const button = document.querySelector('.sideBarHandle');
+        return [getComputedStyle(button).backgroundColor,
+                getComputedStyle(button, '::before').color];
+      `);
+      expect(graphColors).toEqual(["rgb(255, 255, 255)", "rgb(40, 34, 34)"]);
+      await driver.get(urls.geographicMap);
+      await getElementByCss(driver, ".leaflet-control-zoom-in", 5000);
+      const mapColors = await driver.executeScript(`
+        const button = document.querySelector('.sideBarHandle');
+        const zoom = document.querySelector('.leaflet-control-zoom-in');
+        return [getComputedStyle(button).backgroundColor,
+                getComputedStyle(button, '::before').color,
+                getComputedStyle(zoom).backgroundColor, getComputedStyle(zoom).color];
+      `);
+      expect(mapColors).toEqual([
+        "rgb(40, 34, 34)",
+        "rgb(255, 255, 255)",
+        "rgb(40, 34, 34)",
+        "rgb(255, 255, 255)",
+      ]);
+    } finally {
+      await tearDown(driver);
+    }
+  }, 30000);
+});
