@@ -1284,77 +1284,57 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
   });
 
-  test("node popup offset accounts for marker size and respects custom offsets", async () => {
-    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
-    testGraph.echarts = {setOption: jest.fn()};
-    testGraph.utils.updateLabelVisibility = jest.fn();
-    testGraph.utils.setTooltipVisibility = jest.fn();
-    testGraph.setConfig({nodeCategories: [{name: "large", nodeSize: 40}]});
-    const node = {id: "node-1", category: "large", location: {lat: 10, lng: 20}};
-    await testGraph.gui.loadNodePopup(node);
-    expect(window.L.popup).toHaveBeenLastCalledWith(
-      expect.objectContaining({offset: [0, -30]}),
-    );
-    testGraph.config.mapOptions.nodePopup.config.offset = [5, -50];
-    await testGraph.gui.loadNodePopup(node);
-    expect(window.L.popup).toHaveBeenLastCalledWith(
-      expect.objectContaining({offset: [5, -50]}),
-    );
-  });
-
-  test("node popup offset uses the height of array marker sizes", async () => {
-    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
-    testGraph.echarts = {setOption: jest.fn()};
-    testGraph.utils.updateLabelVisibility = jest.fn();
-    testGraph.utils.setTooltipVisibility = jest.fn();
-    testGraph.config.mapOptions.nodeConfig.nodeSize = [40, 80];
-    const node = {id: "node-1", location: {lat: 10, lng: 20}};
-    await testGraph.gui.loadNodePopup(node);
-    expect(window.L.popup).toHaveBeenLastCalledWith(
-      expect.objectContaining({offset: [0, -50]}),
-    );
-    testGraph.setConfig({
-      nodeCategories: [{name: "large", nodeSize: 40, emphasis: {nodeSize: [40, 100]}}],
-    });
-    node.category = "large";
-    await testGraph.gui.loadNodePopup(node);
-    expect(window.L.popup).toHaveBeenLastCalledWith(
-      expect.objectContaining({offset: [0, -60]}),
-    );
-  });
-
-  test("node popup offset accounts for emphasis scale", async () => {
-    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
-    testGraph.echarts = {setOption: jest.fn()};
-    testGraph.utils.updateLabelVisibility = jest.fn();
-    testGraph.utils.setTooltipVisibility = jest.fn();
-    testGraph.config.mapOptions.nodeConfig.nodeSize = 80;
-    testGraph.config.mapOptions.nodeConfig.emphasis.scale = 2;
-    const node = {id: "node-1", location: {lat: 10, lng: 20}};
-    await testGraph.gui.loadNodePopup(node);
-    expect(window.L.popup).toHaveBeenLastCalledWith(
-      expect.objectContaining({offset: [0, -90]}),
-    );
-    testGraph.config.mapOptions.nodeConfig.emphasis.scale = false;
-    await testGraph.gui.loadNodePopup(node);
-    expect(window.L.popup).toHaveBeenLastCalledWith(
-      expect.objectContaining({offset: [0, -50]}),
-    );
-  });
-
-  test("node popup offset matches the map fallback for category array sizes", async () => {
-    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
-    testGraph.echarts = {setOption: jest.fn()};
-    testGraph.utils.updateLabelVisibility = jest.fn();
-    testGraph.utils.setTooltipVisibility = jest.fn();
-    testGraph.config.mapOptions.nodeConfig.nodeSize = 80;
-    testGraph.setConfig({nodeCategories: [{name: "small", nodeSize: [40, 20]}]});
-    const node = {id: "node-1", category: "small", location: {lat: 10, lng: 20}};
-    await testGraph.gui.loadNodePopup(node);
-    expect(window.L.popup).toHaveBeenLastCalledWith(
-      expect.objectContaining({offset: [0, -50]}),
-    );
-  });
+  test.each([
+    {
+      name: "category size",
+      category: {name: "large", nodeSize: 40},
+      expected: [0, -30],
+    },
+    {name: "custom offset", offset: [5, -50], expected: [5, -50]},
+    {name: "array height", size: [40, 80], expected: [0, -50]},
+    {
+      name: "emphasis array height",
+      category: {name: "large", nodeSize: 40, emphasis: {nodeSize: [40, 100]}},
+      expected: [0, -60],
+    },
+    {name: "emphasis scale", size: 80, scale: 2, expected: [0, -90]},
+    {name: "disabled scale", size: 80, scale: false, expected: [0, -50]},
+    {
+      name: "category array fallback",
+      size: 80,
+      category: {name: "large", nodeSize: [40, 20]},
+      expected: [0, -50],
+    },
+  ])(
+    "node popup offset uses $name",
+    async ({size, scale, category, offset, expected}) => {
+      testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
+      testGraph.echarts = {setOption: jest.fn()};
+      testGraph.utils.updateLabelVisibility = jest.fn();
+      testGraph.utils.setTooltipVisibility = jest.fn();
+      if (size != null) {
+        testGraph.config.mapOptions.nodeConfig.nodeSize = size;
+      }
+      if (scale != null) {
+        testGraph.config.mapOptions.nodeConfig.emphasis.scale = scale;
+      }
+      if (offset) {
+        testGraph.config.mapOptions.nodePopup.config.offset = offset;
+      }
+      if (category) {
+        testGraph.setConfig({nodeCategories: [category]});
+      }
+      const node = {
+        id: "node-1",
+        category: category?.name,
+        location: {lat: 10, lng: 20},
+      };
+      await testGraph.gui.loadNodePopup(node);
+      expect(window.L.popup).toHaveBeenLastCalledWith(
+        expect.objectContaining({offset: expected}),
+      );
+    },
+  );
 
   test("failed popup content preserves a newer link bookmark", async () => {
     testGraph.leaflet = {getSize: jest.fn(() => ({x: 800})), currentPopup: null};

@@ -1293,7 +1293,7 @@ describe("Chart Rendering Test", () => {
     }
   }, 30000);
 
-  test("node popup fits its content and narrow map containers", async () => {
+  test("node popups fit their content and narrow map containers", async () => {
     await driver.get(urls.indoorMapOverlay);
     expect(await getElementByCss(driver, ".leaflet-container", 5000)).not.toBeNull();
     await driver.executeScript(`
@@ -1338,6 +1338,20 @@ describe("Chart Rendering Test", () => {
     const narrow = await measurePopup(180);
     expect(narrow.mapWidth).toBe(180);
     expect(narrow.width).toBeLessThanOrEqual(180);
+    const custom = await driver.executeScript(`
+      const graph = window._geoMap;
+      graph.config.mapOptions.nodePopup.content = () => "Hello world";
+      return graph.gui.loadNodePopup(graph.data.nodes[0]).then(() => {
+        const popup = graph.leaflet.currentPopup.getElement();
+        const range = document.createRange();
+        range.selectNodeContents(popup.querySelector(".leaflet-popup-content"));
+        const text = range.getBoundingClientRect();
+        const close = popup.querySelector(".leaflet-popup-close-button").getBoundingClientRect();
+        return {overlap: text.left < close.right && text.right > close.left && text.top < close.bottom && text.bottom > close.top, width: popup.getBoundingClientRect().width};
+      });
+    `);
+    expect(custom.overlap).toBe(false);
+    expect(custom.width).toBeLessThanOrEqual(180);
   });
 
   test("hover tooltip fits its content and narrow map containers", async () => {
@@ -1706,37 +1720,6 @@ describe("Chart Rendering Test", () => {
         "return window.map.leaflet.currentPopup.getContent();",
       ),
     ).toBe(polygonId);
-  });
-
-  test("custom popup content does not overlap the close button", async () => {
-    await driver.get(urls.indoorMapOverlay);
-    await driver.wait(
-      () =>
-        driver.executeScript(
-          "return Boolean(window._geoMap && window._geoMap.leaflet && window._geoMap.data);",
-        ),
-      5000,
-      "Map was not ready",
-    );
-    const result = await driver.executeScript(`
-      const graph = window._geoMap;
-      const node = graph.data.nodes[0];
-      graph.el.style.width = "180px";
-      graph.echarts.resize();
-      graph.leaflet.invalidateSize();
-      graph.config.mapOptions.nodePopup.content = () => "Hello world";
-      return graph.gui.loadNodePopup(node).then(() => {
-        const popup = graph.leaflet.currentPopup.getElement();
-        const content = popup.querySelector(".leaflet-popup-content");
-        const range = document.createRange();
-        range.selectNodeContents(content);
-        const text = range.getBoundingClientRect();
-        const close = popup.querySelector(".leaflet-popup-close-button").getBoundingClientRect();
-        return {overlap: text.left < close.right && text.right > close.left && text.top < close.bottom && text.bottom > close.top, width: popup.getBoundingClientRect().width};
-      });
-    `);
-    expect(result.overlap).toBe(false);
-    expect(result.width).toBeLessThanOrEqual(180);
   });
 
   test("a deferred point popup does not replace a programmatically opened popup", async () => {
