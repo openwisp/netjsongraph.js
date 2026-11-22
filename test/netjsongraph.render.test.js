@@ -257,6 +257,11 @@ describe("highlight click handling", () => {
           updateLabelVisibility: jest.fn(),
         },
       };
+      previousPopup.remove.mockImplementation(() => {
+        if (self.leaflet.currentPopup === previousPopup) {
+          self.utils.clearHighlight();
+        }
+      });
       render.echartsSetOption({}, self);
       self.utils.clearHighlight.mockClear();
       const first = {id: "first"};
