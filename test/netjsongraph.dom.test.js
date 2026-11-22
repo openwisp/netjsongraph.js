@@ -1355,4 +1355,17 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       expect.objectContaining({offset: [0, -50]}),
     );
   });
+
+  test("failed popup content preserves a newer link bookmark", async () => {
+    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800})), currentPopup: null};
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.config.mapOptions.nodePopup.content = () =>
+      Promise.reject(new Error("failed"));
+    testGraph.utils.parseUrlFragments = jest.fn(() => ({
+      id: new URLSearchParams({nodeId: "node-1~node-2"}),
+    }));
+    testGraph.utils.removeUrlFragment = jest.fn();
+    await testGraph.gui.loadNodePopup({id: "node-1", location: {lat: 10, lng: 20}});
+    expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
+  });
 });

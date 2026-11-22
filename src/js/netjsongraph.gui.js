@@ -353,7 +353,16 @@ class NetJSONGraphGUI {
         if (self.leaflet.currentPopupRequest !== popupRequest) {
           return;
         }
-        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId", preserveFragment);
+        const fragments = self.utils.parseUrlFragments();
+        const fragment = fragments[bookmarkableActionId];
+        const selectedId = fragment && fragment.get("nodeId");
+        if (!selectedId || selectedId === String(node.id)) {
+          self.utils.removeUrlFragment(
+            bookmarkableActionId,
+            "nodeId",
+            preserveFragment,
+          );
+        }
         self.leaflet.currentPopupRequest = null;
         // If we tore down a previous popup before content generation failed,
         // its remove handler was bypassed — restore tooltip/labels manually so

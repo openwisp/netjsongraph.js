@@ -1752,6 +1752,34 @@ describe("Chart Rendering Test", () => {
       await driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
     ).toBe(false);
   });
+
+  test("a failed popup request cannot clear a newer link bookmark", async () => {
+    await driver.get(urls.geographicMap);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "Map was not ready",
+    );
+    const result = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      const graph = window.map;
+      const node = graph.data.nodes[0];
+      const link = graph.data.links[0];
+      let rejectFirst;
+      graph.config.mapOptions.nodePopup.content = () => new Promise((resolve, reject) => { rejectFirst = reject; });
+      graph.gui.loadNodePopup(node);
+      graph.echartsClickHandler({componentSubType: "lines", seriesType: "lines", data: {link}, seriesIndex: 0, dataIndex: 0});
+      rejectFirst(new Error("old request failed"));
+      setTimeout(() => {
+        const fragment = graph.utils.parseUrlFragments()[graph.config.bookmarkableActions.id];
+        done({actual: fragment && fragment.get("nodeId"), expected: link.source + "~" + link.target});
+      }, 0);
+    `);
+    expect(result.actual).toBe(result.expected);
+  });
 });
 
 describe("Control colors", () => {
