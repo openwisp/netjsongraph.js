@@ -328,7 +328,7 @@
 
 .njg-container .njg-tooltip .njg-tooltip-item {
   display: grid;
-  grid-template-columns: fit-content(40%) minmax(0, 1fr);
+  grid-template-columns: fit-content(min(100px, 60%)) minmax(0, 1fr);
   gap: 8px;
 }
 

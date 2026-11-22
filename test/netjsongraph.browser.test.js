@@ -1370,6 +1370,7 @@ describe("Chart Rendering Test", () => {
         tooltip.style.maxWidth = "";
         if (arguments[0] === 180) {
           tooltip.querySelector(".njg-tooltip-inner").appendChild(window.map.utils.createTooltipItem("longValue", "x".repeat(200)));
+          tooltip.querySelector(".njg-tooltip-inner").appendChild(window.map.utils.createTooltipItem("a_very_long_property_name_that_has_no_natural_breaks", "Readable value"));
         }
         const rows = [...tooltip.querySelectorAll(".njg-tooltip-item")];
         const label = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "label");
@@ -1377,11 +1378,13 @@ describe("Chart Rendering Test", () => {
         const labelValue = label.querySelector(".njg-tooltip-value").getBoundingClientRect();
         const key = country.querySelector(".njg-tooltip-key").getBoundingClientRect();
         const value = country.querySelector(".njg-tooltip-value").getBoundingClientRect();
+        const longKeyRow = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "a_very_long_property_name_that_has_no_natural_breaks");
+        const longKeyValueWidth = longKeyRow && longKeyRow.querySelector(".njg-tooltip-value").getBoundingClientRect().width;
         const width = tooltip.getBoundingClientRect().width;
         tooltip.style.maxWidth = "none";
         const unconstrainedWidth = tooltip.getBoundingClientRect().width;
         tooltip.style.maxWidth = "";
-        return {width, unconstrainedWidth, valueHeight: labelValue.height, gap: value.left - key.right};
+        return {width, unconstrainedWidth, valueHeight: labelValue.height, gap: value.left - key.right, longKeyValueWidth};
       `,
         width,
       );
@@ -1392,6 +1395,7 @@ describe("Chart Rendering Test", () => {
     const narrow = await measure(180);
     expect(narrow.width).toBeLessThanOrEqual(180);
     expect(narrow.gap).toBeGreaterThanOrEqual(4);
+    expect(narrow.longKeyValueWidth).toBeGreaterThanOrEqual(30);
     expect(narrow.unconstrainedWidth).toBeGreaterThan(180);
     await measure(800);
     const longKey = await driver.executeScript(`
@@ -1416,6 +1420,37 @@ describe("Chart Rendering Test", () => {
       return {height: value.getBoundingClientRect().height, lineHeight: parseFloat(getComputedStyle(value).lineHeight)};
     `);
     expect(multiline.height).toBeGreaterThanOrEqual(multiline.lineHeight * 2);
+    const shortKeys = await driver.executeScript(`
+      const tooltip = document.querySelector(".njg-tooltip");
+      const inner = tooltip.querySelector(".njg-tooltip-inner");
+      const measure = (items) => {
+        inner.replaceChildren(...items.map(([key, value]) => window.map.utils.createTooltipItem(key, value)));
+        return [...inner.querySelectorAll(".njg-tooltip-item")].map((row) => {
+          const key = row.querySelector(".njg-tooltip-key");
+          const value = row.querySelector(".njg-tooltip-value");
+          const keyRect = key.getBoundingClientRect();
+          const valueRect = value.getBoundingClientRect();
+          return {
+            text: key.textContent,
+            keyLines: Math.round(keyRect.height / parseFloat(getComputedStyle(key).lineHeight)),
+            valueLines: Math.round(valueRect.height / parseFloat(getComputedStyle(value).lineHeight)),
+            gap: valueRect.left - keyRect.right,
+          };
+        });
+      };
+      return [
+        ...measure([["country", "Austria"]]),
+        ...measure([["name", "Sample MultiLineString"], ["FeatureType", "LineString"]]),
+      ];
+    `);
+    shortKeys.forEach(({text, keyLines, valueLines, gap}) => {
+      expect({key: text, keyLines, valueLines}).toEqual({
+        key: text,
+        keyLines: 1,
+        valueLines: 1,
+      });
+      expect(gap).toBeGreaterThanOrEqual(4);
+    });
   });
 
   test("node popup points to the marker without covering it", async () => {
