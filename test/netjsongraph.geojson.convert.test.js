@@ -489,6 +489,26 @@ describe("geojsonToNetjson polygon nodes", () => {
     warn.mockRestore();
   });
 
+  test("a Point keeps its id when a polygon comes first with the same id", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const point = (x) => ({
+      type: "Feature",
+      id: "polygon_42",
+      properties: {},
+      geometry: {type: "Point", coordinates: [x, x]},
+    });
+    const area = polygon([square(0, 0, 4)], {id: 42, properties: {}});
+    [convert(area, point(10), point(20)), convert(point(10), point(20), area)].forEach(
+      (nodes) => {
+        // eslint-disable-next-line no-underscore-dangle
+        const ids = (type) => nodes.filter((n) => n.properties._featureType === type);
+        expect(ids("Point").map((n) => n.id)).toEqual(["polygon_42", "polygon_42_1"]);
+        expect(ids("Polygon").map((n) => n.id)).toEqual(["polygon_42_2"]);
+      },
+    );
+    warn.mockRestore();
+  });
+
   test("an empty id is treated as missing", () => {
     const point = (x, properties = {}) => ({
       type: "Feature",

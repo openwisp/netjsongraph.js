@@ -185,7 +185,9 @@ export function geojsonToNetjson(geojson) {
   // Return the first `${base}_${n}` (n >= start) not used by any other node.
   // Each base resumes from its last suffix, since the lower ones are taken.
   // reservedIds holds every id that is reserved or taken; nodeIds holds only
-  // the ids already given to a node, to detect a repeated Point id.
+  // the ids already given to a non-polygon node, to detect a repeated Point
+  // id. The id of a polygon node is provisional, as the final pass renames it
+  // if another node uses it.
   const nextSuffix = new Map();
   const nodeIds = new Set();
   const uniqueSuffixedId = (base, start) => {
@@ -216,7 +218,10 @@ export function geojsonToNetjson(geojson) {
       },
       _generatedIdentity: !hasId, // internal marker – not shown to users
     });
-    nodeIds.add(id);
+    // eslint-disable-next-line no-underscore-dangle
+    if (baseProps._featureType !== "Polygon") {
+      nodeIds.add(id);
+    }
     return id;
   };
 
