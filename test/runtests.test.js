@@ -18,8 +18,20 @@ test("runs an existing spec suite", () => {
   const result = spawnSync(script, ["--runInBand", "test/netjsongraph.spec.js"], {
     cwd: root,
     encoding: "utf8",
+    env: {...process.env, FORCE_COLOR: "0"},
     timeout: 20000,
   });
   expect(result.status).toBe(0);
   expect(result.stderr).toMatch(/Test Suites: 1 passed/);
+}, 30000);
+
+test("accepts a test path in a hyphenated directory", () => {
+  const result = spawnSync(script, ["--runInBand", "test/my-feature/missing.test.js"], {
+    cwd: root,
+    encoding: "utf8",
+    env: {...process.env, FORCE_COLOR: "0"},
+    timeout: 20000,
+  });
+  expect(result.status).toBe(1);
+  expect(result.stdout).toMatch(/No tests found/);
 }, 30000);

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Limit selectors to test files; other Jest options can load executable code.
-test_pattern='^test/([[:alnum:]_]+/)*[[:alnum:]_.-]+\.(test|spec)\.js$'
+test_pattern='^test/([[:alnum:]_-]+/)*[[:alnum:]_.-]+\.(test|spec)\.js$'
 for argument in "$@"; do
   # Keep the existing coverage and Coveralls commands working through this entry point.
   case "$argument" in
