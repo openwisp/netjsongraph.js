@@ -151,4 +151,30 @@ describe("CI standardization", () => {
       "github.event.workflow_run.path == '.github/workflows/ci.yml'",
     );
   });
+
+  test.each([["--testTimeout=30000"], ["-f", "./coverage/lcov.info"]])(
+    "forwards supported arguments %s",
+    (...args) => {
+      const directory = fs.mkdtempSync(path.join(os.tmpdir(), "runtests-yarn-"));
+      try {
+        fs.writeFileSync(
+          path.join(directory, "yarn"),
+          '#!/bin/sh\nprintf "%s\\n" "$@"\nexit 17\n',
+          {mode: 0o755},
+        );
+        const result = spawnSync(script, args, {
+          cwd: root,
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            PATH: `${directory}${path.delimiter}${process.env.PATH}`,
+          },
+        });
+        expect(result.status).toBe(17);
+        expect(result.stdout.trim().split("\n")).toEqual(["test", ...args]);
+      } finally {
+        fs.rmSync(directory, {recursive: true, force: true});
+      }
+    },
+  );
 });
