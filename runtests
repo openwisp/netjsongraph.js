@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Run the test suite or selected Jest test files.
+set -euo pipefail
+
+# Limit selectors to test files; other Jest options can load executable code.
+test_pattern='^test/([[:alnum:]_]+/)*[[:alnum:]_.-]+\.test\.js$'
+for argument in "$@"; do
+  # Keep the existing coverage and Coveralls commands working through this entry point.
+  case "$argument" in
+    -f|./coverage/lcov.info|--coverage|--runInBand|--testTimeout=30000|\
+      --testPathIgnorePatterns=test/netjsongraph.browser.test.js)
+      continue ;;
+  esac
+  if [[ ! "$argument" =~ $test_pattern ]] || [[ "$argument" == *..* ]]; then
+    echo "Unsupported test argument: $argument" >&2
+    exit 2
+  fi
+done
+
+exec yarn test "$@"
