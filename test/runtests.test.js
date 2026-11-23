@@ -13,3 +13,13 @@ test.each(["--config=other.js", "--setupFiles=other.js", "../other.test.js"])(
     expect(result.stderr).toMatch(/unsupported/i);
   },
 );
+
+test("runs an existing spec suite", () => {
+  const result = spawnSync(script, ["--runInBand", "test/netjsongraph.spec.js"], {
+    cwd: root,
+    encoding: "utf8",
+    timeout: 20000,
+  });
+  expect(result.status).toBe(0);
+  expect(result.stderr).toMatch(/Test Suites: 1 passed/);
+}, 30000);
