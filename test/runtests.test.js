@@ -17,7 +17,7 @@ test.each(["--config=other.js", "--setupFiles=other.js", "../other.test.js"])(
 );
 
 test("runs an existing spec suite", () => {
-  const result = spawnSync(script, ["--runInBand", "test/netjsongraph.spec.js"], {
+  const result = spawnSync(script, ["test/netjsongraph.spec.js"], {
     cwd: root,
     encoding: "utf8",
     env: {...process.env, FORCE_COLOR: "0"},

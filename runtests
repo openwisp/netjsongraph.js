@@ -23,6 +23,7 @@ done
 
 if [ "${#test_files[@]}" -gt 0 ]; then
   # Put paths before array options so Jest selects them instead of consuming them as option values.
-  exec yarn test --runTestsByPath "${test_files[@]}" "${options[@]}"
+  # Bash 3 treats an empty array as unset when nounset is enabled.
+  exec yarn test --runTestsByPath "${test_files[@]}" ${options[@]+"${options[@]}"}
 fi
-exec yarn test "${options[@]}"
+exec yarn test ${options[@]+"${options[@]}"}
