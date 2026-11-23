@@ -70,13 +70,18 @@ test("selects the requested file when the ignore option comes first", () => {
       path.join(directory, "package.json"),
       JSON.stringify({private: true, scripts: {test: "jest --silent"}}),
     );
+    fs.writeFileSync(path.join(directory, "source.js"), "module.exports = 1;\n");
     fs.writeFileSync(
       path.join(directory, "test", "one.test.js"),
-      'test("one", () => {});\n',
+      'test("one", () => expect(require("../source")).toBe(1));\n',
     );
     fs.writeFileSync(
       path.join(directory, "test", "two.test.js"),
       'test("two", () => { throw new Error("wrong suite"); });\n',
+    );
+    fs.writeFileSync(
+      path.join(directory, "test", "netjsongraph.browser.test.js"),
+      'test("browser", () => { throw new Error("browser should be ignored"); });\n',
     );
     const result = spawnSync(
       script,
@@ -96,7 +101,11 @@ test("selects the requested file when the ignore option comes first", () => {
     expect(result.stderr).toMatch(/Test Suites:\s+1 passed/);
     const all = spawnSync(
       script,
-      ["--runInBand", "--testPathIgnorePatterns=test/netjsongraph.browser.test.js"],
+      [
+        "--runInBand",
+        "--coverage",
+        "--testPathIgnorePatterns=test/netjsongraph.browser.test.js",
+      ],
       {
         cwd: directory,
         encoding: "utf8",
@@ -106,6 +115,10 @@ test("selects the requested file when the ignore option comes first", () => {
     );
     expect(all.status).toBe(1);
     expect(all.stderr).toMatch(/wrong suite/);
+    expect(all.stderr).not.toMatch(/browser should be ignored/);
+    expect(fs.existsSync(path.join(directory, "coverage", "coverage-final.json"))).toBe(
+      true,
+    );
   } finally {
     fs.rmSync(directory, {recursive: true, force: true});
   }
