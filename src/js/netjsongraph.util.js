@@ -1526,6 +1526,8 @@ class NetJSONGraphUtil {
   }
 
   applyUrlFragmentState(self) {
+    // Browser navigation supersedes any point popup queued by an earlier click.
+    self.popupSelection = null;
     if (!self.config.bookmarkableActions.enabled) {
       return;
     }
