@@ -218,14 +218,18 @@ yarn dev:test
 Then, in a separate terminal, run:
 
 ```
-yarn test
+./runtests
 ```
 
 To run a specific test suite:
 
 ```
-yarn test test/netjsongraph.browser.test.js
+./runtests test/netjsongraph.browser.test.js
 ```
+
+The entry point accepts test files under `test/` and the options used by CI:
+`-f`, `--coverage`, `--runInBand`, `--testTimeout=30000`, and
+`--testPathIgnorePatterns=test/netjsongraph.browser.test.js`.
 
 ### Arguments
 
