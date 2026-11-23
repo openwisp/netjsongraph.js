@@ -1,4 +1,4 @@
-import {By, until} from "selenium-webdriver";
+import {By, Key, until} from "selenium-webdriver";
 import {Origin, Pointer} from "selenium-webdriver/lib/input";
 import {
   getElementByCss,
@@ -1292,6 +1292,512 @@ describe("Chart Rendering Test", () => {
       await tearDown(touchDriver);
     }
   }, 30000);
+
+  test("node popups fit their content and narrow map containers", async () => {
+    await driver.get(urls.indoorMapOverlay);
+    expect(await getElementByCss(driver, ".leaflet-container", 5000)).not.toBeNull();
+    await driver.executeScript(`
+      const leafletStyles = document.createElement("style");
+      leafletStyles.textContent = ".leaflet-popup-content { margin: 13px 24px 13px 20px; } .leaflet-popup-content-wrapper { padding: 1px; }";
+      document.head.appendChild(leafletStyles);
+    `);
+    const measurePopup = async (width) =>
+      driver.executeScript(
+        `
+        const mapWidth = arguments[0];
+        const container = document.querySelector(".njg-container");
+        container.style.width = mapWidth + "px";
+        window._geoMap.echarts.resize();
+        window._geoMap.leaflet.invalidateSize();
+        return window._geoMap.gui.loadNodePopup({
+          name: "Node 9",
+          id: "node_9",
+          label: "Node 9",
+          location: {lat: 0.10986321, lng: -1.15356445},
+        }).then(() => {
+        const popup = window._geoMap.leaflet.currentPopup.getElement();
+        const rows = [...popup.querySelectorAll(".njg-tooltip-item")];
+          return {
+          width: popup.getBoundingClientRect().width,
+          mapWidth: window._geoMap.leaflet.getSize().x,
+          labelHeight: rows[0].querySelector(".njg-tooltip-key").getBoundingClientRect()
+            .height,
+          valueHeight: rows[0]
+            .querySelector(".njg-tooltip-value")
+            .getBoundingClientRect().height,
+          };
+        });
+      `,
+        width,
+      );
+    const wide = await measurePopup(800);
+    expect(wide.width).toBeGreaterThanOrEqual(200);
+    expect(wide.width).toBeLessThanOrEqual(320);
+    expect(wide.labelHeight).toBeLessThan(22);
+    expect(wide.valueHeight).toBeLessThan(22);
+    const narrow = await measurePopup(180);
+    expect(narrow.mapWidth).toBe(180);
+    expect(narrow.width).toBeLessThanOrEqual(180);
+    const custom = await driver.executeScript(`
+      const graph = window._geoMap;
+      graph.config.mapOptions.nodePopup.content = () => "Hello world";
+      return graph.gui.loadNodePopup(graph.data.nodes[0]).then(() => {
+        const popup = graph.leaflet.currentPopup.getElement();
+        const range = document.createRange();
+        range.selectNodeContents(popup.querySelector(".leaflet-popup-content"));
+        const text = range.getBoundingClientRect();
+        const close = popup.querySelector(".leaflet-popup-close-button").getBoundingClientRect();
+        return {overlap: text.left < close.right && text.right > close.left && text.top < close.bottom && text.bottom > close.top, width: popup.getBoundingClientRect().width};
+      });
+    `);
+    expect(custom.overlap).toBe(false);
+    expect(custom.width).toBeLessThanOrEqual(180);
+  });
+
+  test("hover tooltip fits its content and narrow map containers", async () => {
+    await driver.manage().window().setRect({width: 1200, height: 800});
+    await driver.get(urls.clustering);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "Cluster map was not ready",
+    );
+    await driver.executeScript(`
+      const node = window.map.data.nodes.find((item) => item.properties.name === "Critical Node 23");
+      window.map.leaflet.setView([node.location.lat, node.location.lng], 18, {animate: false});
+    `);
+    const measure = async (width) =>
+      driver.executeScript(
+        `
+        const container = document.querySelector(".njg-container");
+        container.style.width = arguments[0] + "px";
+        window.map.echarts.resize();
+        window.map.echarts.setOption({tooltip: {show: true}, media: [{query: {minWidth: 0}, option: {tooltip: {show: true}}}]});
+        const series = window.map.echarts.getOption().series;
+        const seriesIndex = series.findIndex((item) => item.type === "scatter" && item.data.some((point) => point.node && point.node.properties.name === "Critical Node 23"));
+        const dataIndex = series[seriesIndex].data.findIndex((point) => point.node && point.node.properties.name === "Critical Node 23");
+        window.map.echarts.dispatchAction({type: "showTip", seriesIndex, dataIndex});
+        const tooltip = container.querySelector(".njg-tooltip");
+        tooltip.style.maxWidth = "";
+        if (arguments[0] === 180) {
+          tooltip.querySelector(".njg-tooltip-inner").appendChild(window.map.utils.createTooltipItem("longValue", "x".repeat(200)));
+          tooltip.querySelector(".njg-tooltip-inner").appendChild(window.map.utils.createTooltipItem("a_very_long_property_name_that_has_no_natural_breaks", "Readable value"));
+        }
+        const rows = [...tooltip.querySelectorAll(".njg-tooltip-item")];
+        const label = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "label");
+        const country = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "country");
+        const labelValue = label.querySelector(".njg-tooltip-value").getBoundingClientRect();
+        const key = country.querySelector(".njg-tooltip-key").getBoundingClientRect();
+        const value = country.querySelector(".njg-tooltip-value").getBoundingClientRect();
+        const longKeyRow = rows.find((item) => item.querySelector(".njg-tooltip-key").textContent === "a_very_long_property_name_that_has_no_natural_breaks");
+        const longKeyValueWidth = longKeyRow && longKeyRow.querySelector(".njg-tooltip-value").getBoundingClientRect().width;
+        const width = tooltip.getBoundingClientRect().width;
+        tooltip.style.maxWidth = "none";
+        const unconstrainedWidth = tooltip.getBoundingClientRect().width;
+        tooltip.style.maxWidth = "";
+        return {width, unconstrainedWidth, valueHeight: labelValue.height, gap: value.left - key.right, longKeyValueWidth};
+      `,
+        width,
+      );
+    const wide = await measure(800);
+    expect(wide.valueHeight).toBeLessThanOrEqual(22);
+    expect(wide.gap).toBeGreaterThanOrEqual(4);
+    expect(wide.width).toBeLessThanOrEqual(320);
+    const narrow = await measure(180);
+    expect(narrow.width).toBeLessThanOrEqual(180);
+    expect(narrow.gap).toBeGreaterThanOrEqual(4);
+    expect(narrow.longKeyValueWidth).toBeGreaterThanOrEqual(30);
+    expect(narrow.unconstrainedWidth).toBeGreaterThan(180);
+    await measure(800);
+    const longKey = await driver.executeScript(`
+      const tooltip = document.querySelector(".njg-tooltip");
+      const row = window.map.utils.createTooltipItem("a_very_long_property_name_that_has_no_natural_breaks", "Readable value");
+      tooltip.querySelector(".njg-tooltip-inner").appendChild(row);
+      const keyElement = row.querySelector(".njg-tooltip-key");
+      const key = keyElement.getBoundingClientRect();
+      const value = row.querySelector(".njg-tooltip-value").getBoundingClientRect();
+      const tooltipRect = tooltip.getBoundingClientRect();
+      return {valueWidth: value.width, gap: value.left - key.right, overflow: value.right - tooltipRect.right, keyOverflow: keyElement.scrollWidth - keyElement.clientWidth};
+    `);
+    expect(longKey.valueWidth).toBeGreaterThanOrEqual(50);
+    expect(longKey.gap).toBeGreaterThanOrEqual(4);
+    expect(longKey.overflow).toBeLessThanOrEqual(0);
+    expect(longKey.keyOverflow).toBeLessThanOrEqual(0);
+    const multiline = await driver.executeScript(`
+      const tooltip = document.querySelector(".njg-tooltip");
+      const row = window.map.utils.createTooltipItem("addresses", "first\\nsecond");
+      tooltip.querySelector(".njg-tooltip-inner").appendChild(row);
+      const value = row.querySelector(".njg-tooltip-value");
+      return {height: value.getBoundingClientRect().height, lineHeight: parseFloat(getComputedStyle(value).lineHeight)};
+    `);
+    expect(multiline.height).toBeGreaterThanOrEqual(multiline.lineHeight * 2);
+    const shortKeys = await driver.executeScript(`
+      const tooltip = document.querySelector(".njg-tooltip");
+      const inner = tooltip.querySelector(".njg-tooltip-inner");
+      const measure = (items) => {
+        inner.replaceChildren(...items.map(([key, value]) => window.map.utils.createTooltipItem(key, value)));
+        return [...inner.querySelectorAll(".njg-tooltip-item")].map((row) => {
+          const key = row.querySelector(".njg-tooltip-key");
+          const value = row.querySelector(".njg-tooltip-value");
+          const keyRect = key.getBoundingClientRect();
+          const valueRect = value.getBoundingClientRect();
+          return {
+            text: key.textContent,
+            keyLines: Math.round(keyRect.height / parseFloat(getComputedStyle(key).lineHeight)),
+            valueLines: Math.round(valueRect.height / parseFloat(getComputedStyle(value).lineHeight)),
+            gap: valueRect.left - keyRect.right,
+          };
+        });
+      };
+      return [
+        ...measure([["country", "Austria"]]),
+        ...measure([["name", "Sample MultiLineString"], ["FeatureType", "LineString"]]),
+      ];
+    `);
+    shortKeys.forEach(({text, keyLines, valueLines, gap}) => {
+      expect({key: text, keyLines, valueLines}).toEqual({
+        key: text,
+        keyLines: 1,
+        valueLines: 1,
+      });
+      expect(gap).toBeGreaterThanOrEqual(4);
+    });
+  });
+
+  test("node popup points to the marker without covering it", async () => {
+    await driver.manage().window().setRect({width: 1200, height: 800});
+    await driver.get(urls.indoorMapOverlay);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window._geoMap && window._geoMap.leaflet && window._geoMap.data);",
+        ),
+      5000,
+      "Map was not ready",
+    );
+    const position = await driver.executeScript(`
+      const graph = window._geoMap;
+      const node = graph.data.nodes.find((item) => item.id === "172.16.171.15");
+      graph.leaflet.setView([node.location.lat, node.location.lng], 10, {animate: false});
+      return graph.gui.loadNodePopup(node).then(() => {
+        const popup = graph.leaflet.currentPopup;
+        const point = graph.leaflet.latLngToContainerPoint(popup.getLatLng());
+        const mapRect = graph.leaflet.getContainer().getBoundingClientRect();
+        const tip = popup.getElement().querySelector(".leaflet-popup-tip");
+        const tipRect = tip.getBoundingClientRect();
+        const contentRect = popup.getElement().querySelector(".leaflet-popup-content-wrapper").getBoundingClientRect();
+        return {
+          markerX: mapRect.left + point.x,
+          markerTop: mapRect.top + point.y - 8,
+          tipX: tipRect.left + tipRect.width / 2,
+          tipBottom: tipRect.bottom,
+          contentBottom: contentRect.bottom,
+          tipPointerEvents: getComputedStyle(tip).pointerEvents,
+        };
+      });
+    `);
+    expect(Math.abs(position.tipX - position.markerX)).toBeLessThanOrEqual(1);
+    expect(position.tipBottom).toBeLessThanOrEqual(position.markerTop);
+    expect(position.contentBottom).toBeLessThanOrEqual(position.markerTop);
+    expect(position.tipPointerEvents).toBe("none");
+  });
+
+  test("GeoJSON point click keeps the popup open until the map is clicked", async () => {
+    await driver.manage().window().setRect({width: 1400, height: 900});
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    const nodeId = await driver.executeScript(`
+      const node = window.map.data.nodes.find((item) => item.properties._featureType === "Point");
+      window.map.leaflet.setView([node.location.lat, node.location.lng], 8, {animate: false});
+      window.mapClickCount = 0;
+      window.map.leaflet.on("click", () => { window.mapClickCount += 1; });
+      return node.id;
+    `);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          `
+        return window.map.echarts.getOption().series.some((series) =>
+          series.type === "scatter" && series.data.some((item) => item.node && item.node.id === arguments[0] && !item.cluster));
+      `,
+          nodeId,
+        ),
+      5000,
+      "Point was not visible",
+    );
+    const container = await getElementByCss(driver, ".ec-extension-leaflet", 5000);
+    await driver.actions().move({origin: container}).click().perform();
+    await driver.sleep(300);
+    expect(
+      await driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+    ).toBe(true);
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    expect(await driver.executeScript("return window.mapClickCount;")).toBe(1);
+    await driver.actions().move({origin: container}).click().perform();
+    await driver.wait(
+      () => driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+      5000,
+      "Repeat click did not reopen the popup",
+    );
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    expect(
+      await driver.executeScript(
+        "return window.map.activeHighlightedElements.map((item) => item.key);",
+      ),
+    ).toContain(`node:${nodeId}`);
+    const secondId = await driver.executeScript(
+      `
+      const node = window.map.data.nodes.find((item) => item.properties._featureType === "Point" && item.id !== arguments[0]);
+      window.map.leaflet.setView([node.location.lat, node.location.lng], 8, {animate: false});
+      return node.id;
+    `,
+      nodeId,
+    );
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          `
+        return window.map.echarts.getOption().series.some((series) =>
+          series.type === "scatter" && series.data.some((item) => item.node && item.node.id === arguments[0] && !item.cluster));
+      `,
+          secondId,
+        ),
+      5000,
+      "Second point was not visible",
+    );
+    await driver
+      .actions()
+      .move({origin: container})
+      .keyDown(Key.CONTROL)
+      .click()
+      .keyUp(Key.CONTROL)
+      .perform();
+    await driver.wait(
+      () => driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+      5000,
+      "Second point did not open a popup",
+    );
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${secondId}`);
+    expect(
+      await driver.executeScript(
+        "return window.map.activeHighlightedElements.map((item) => item.key);",
+      ),
+    ).toContain(`node:${secondId}`);
+    expect(
+      await driver.executeScript(
+        "return window.map.activeHighlightedElements.map((item) => item.key);",
+      ),
+    ).toContain(`node:${nodeId}`);
+    await driver.navigate().back();
+    await driver.wait(
+      async () => (await driver.getCurrentUrl()).includes(`nodeId=${nodeId}`),
+      5000,
+      "Back did not restore the previous node bookmark",
+    );
+    await driver.actions().move({origin: container, x: 300, y: 200}).click().perform();
+    await driver.wait(
+      () => driver.executeScript("return !window.map.leaflet.currentPopup;"),
+      5000,
+      "Clicking the map did not close the popup",
+    );
+    expect(await driver.executeScript("return window.mapClickCount;")).toBe(4);
+  });
+
+  test("touching a point opens its popup and releases map dragging", async () => {
+    const touchDriver = await getDriver({mobileEmulation: true});
+    try {
+      await touchDriver.get(urls.geoJson);
+      await touchDriver.wait(
+        () =>
+          touchDriver.executeScript(
+            "return Boolean(window.map && window.map.leaflet && window.map.data);",
+          ),
+        5000,
+        "GeoJSON map was not ready",
+      );
+      const point = await touchDriver.executeScript(`
+        const node = window.map.data.nodes.find((item) => item.properties._featureType === "Point");
+        window.map.gui.sideBar.classList.add("hidden");
+        window.map.leaflet.setView([node.location.lat, node.location.lng], 8, {animate: false});
+        window.touchEndCount = 0;
+        window.mapClickCount = 0;
+        window.map.leaflet.on("click", () => { window.mapClickCount += 1; });
+        document.addEventListener("touchend", () => { window.touchEndCount += 1; });
+        const rect = window.map.leaflet.getContainer().getBoundingClientRect();
+        return {x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2)};
+      `);
+      const finger = new Pointer("node touch", Pointer.Type.TOUCH);
+      await touchDriver
+        .actions()
+        .insert(
+          finger,
+          finger.move({origin: Origin.VIEWPORT, x: point.x, y: point.y, duration: 0}),
+          finger.press(),
+          finger.release(),
+        )
+        .perform();
+      await touchDriver.sleep(400);
+      const state = await touchDriver.executeScript(`
+        return {
+          popup: Boolean(window.map.leaflet.currentPopup),
+          touchEndCount: window.touchEndCount,
+          dragging: Boolean(window.L.Draggable._dragging),
+          mapClickCount: window.mapClickCount,
+        };
+      `);
+      expect(state).toEqual({
+        popup: true,
+        touchEndCount: 1,
+        dragging: false,
+        mapClickCount: 1,
+      });
+    } finally {
+      await tearDown(touchDriver);
+    }
+  }, 30000);
+
+  test("a failed older popup request cannot clear a newer point bookmark", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    const nodeId = await driver.executeScript(`
+      const graph = window.map;
+      const [first, second] = graph.data.nodes.filter((item) => item.properties._featureType === "Point");
+      let rejectFirst;
+      graph.config.mapOptions.nodePopup.content = () => new Promise((resolve, reject) => { rejectFirst = reject; });
+      graph.gui.loadNodePopup(first);
+      graph.config.mapOptions.nodePopup.content = () => "Second point";
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node: second}, seriesIndex: 0, dataIndex: 0});
+      rejectFirst(new Error("old request failed"));
+      return second.id;
+    `);
+    await driver.wait(
+      () => driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+      5000,
+      "New popup did not open",
+    );
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+  });
+
+  test("a deferred point popup does not replace a newer polygon popup", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    const polygonId = await driver.executeScript(`
+      const graph = window.map;
+      const point = graph.data.nodes.find((item) => item.properties._featureType === "Point");
+      const polygon = graph.data.nodes.find((item) => item.properties._featureType === "Polygon");
+      graph.config.mapOptions.nodePopup.content = (node) => node.id;
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node: point}, seriesIndex: 0, dataIndex: 0});
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node: polygon}, seriesIndex: 0, dataIndex: 0});
+      return polygon.id;
+    `);
+    await driver.sleep(100);
+    expect(
+      await driver.executeScript(
+        "return window.map.leaflet.currentPopup.getContent();",
+      ),
+    ).toBe(polygonId);
+  });
+
+  test("a deferred point popup does not replace a programmatically opened popup", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    const secondId = await driver.executeScript(`
+      const graph = window.map;
+      const [first, second] = graph.data.nodes.filter((item) => item.properties._featureType === "Point");
+      graph.config.mapOptions.nodePopup.content = (node) => node.id;
+      graph.config.onClickElement = () => graph.gui.loadNodePopup(second);
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node: first}, seriesIndex: 0, dataIndex: 0});
+      return second.id;
+    `);
+    await driver.sleep(100);
+    expect(
+      await driver.executeScript(
+        "return window.map.leaflet.currentPopup.getContent();",
+      ),
+    ).toBe(secondId);
+  });
+
+  test("browser navigation cancels a deferred point popup", async () => {
+    await driver.get(urls.geoJson);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "GeoJSON map was not ready",
+    );
+    await driver.executeScript(`
+      const graph = window.map;
+      const node = graph.data.nodes.find((item) => item.properties._featureType === "Point");
+      graph.echartsClickHandler({componentSubType: "scatter", seriesType: "scatter", data: {node}, seriesIndex: 0, dataIndex: 0});
+      window.history.replaceState({}, "", window.location.pathname);
+      graph.utils.applyUrlFragmentState(graph);
+    `);
+    await driver.sleep(100);
+    expect(
+      await driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
+    ).toBe(false);
+  });
+
+  test("a failed popup request cannot clear a newer link bookmark", async () => {
+    await driver.get(urls.geographicMap);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return Boolean(window.map && window.map.leaflet && window.map.data);",
+        ),
+      5000,
+      "Map was not ready",
+    );
+    const result = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      const graph = window.map;
+      const node = graph.data.nodes[0];
+      const link = graph.data.links[0];
+      let rejectFirst;
+      graph.config.mapOptions.nodePopup.content = () => new Promise((resolve, reject) => { rejectFirst = reject; });
+      graph.gui.loadNodePopup(node);
+      graph.echartsClickHandler({componentSubType: "lines", seriesType: "lines", data: {link}, seriesIndex: 0, dataIndex: 0});
+      rejectFirst(new Error("old request failed"));
+      setTimeout(() => {
+        const fragment = graph.utils.parseUrlFragments()[graph.config.bookmarkableActions.id];
+        done({actual: fragment && fragment.get("nodeId"), expected: link.source + "~" + link.target});
+      }, 0);
+    `);
+    expect(result.actual).toBe(result.expected);
+  });
 });
 
 describe("Control colors", () => {

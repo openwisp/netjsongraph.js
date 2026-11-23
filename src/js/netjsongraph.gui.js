@@ -313,6 +313,8 @@ class NetJSONGraphGUI {
    */
   async loadNodePopup(node) {
     const {self} = this;
+    // A programmatic popup takes precedence over a queued point click.
+    self.popupSelection = null;
     if (!self.leaflet) {
       console.error("Leaflet map not available. Cannot load popup.");
       return;
@@ -351,7 +353,16 @@ class NetJSONGraphGUI {
         if (self.leaflet.currentPopupRequest !== popupRequest) {
           return;
         }
-        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId", preserveFragment);
+        const fragments = self.utils.parseUrlFragments();
+        const fragment = fragments[bookmarkableActionId];
+        const selectedId = fragment && fragment.get("nodeId");
+        if (!selectedId || selectedId === String(node.id)) {
+          self.utils.removeUrlFragment(
+            bookmarkableActionId,
+            "nodeId",
+            preserveFragment,
+          );
+        }
         self.leaflet.currentPopupRequest = null;
         // If we tore down a previous popup before content generation failed,
         // its remove handler was bypassed — restore tooltip/labels manually so
@@ -372,6 +383,40 @@ class NetJSONGraphGUI {
       Object.entries(popupConfigInput).filter(([, value]) => value != null),
     );
 
+    // Leaflet does not limit its default popup width to the map container.
+    // Leave room at the edges, but preserve an explicit caller-provided width.
+    if (popupConfig.maxWidth == null) {
+      popupConfig.maxWidth = Math.max(50, Math.min(300, self.leaflet.getSize().x - 20));
+    }
+    if (popupConfig.offset == null) {
+      const {nodeSizeConfig, nodeEmphasisConfig} = self.utils.getNodeStyle(
+        node,
+        self.config,
+        "map",
+      );
+      const fallbackSize = self.config.mapOptions.nodeConfig.nodeSize;
+      // Match the map renderer's fallback for object-valued category sizes.
+      const nodeSize =
+        typeof nodeSizeConfig === "object" ? fallbackSize : nodeSizeConfig;
+      const height = (size) => Number(Array.isArray(size) ? size[1] : size) || 0;
+      const baseSize = Math.max(
+        height(nodeSize) || 17,
+        height(nodeEmphasisConfig.nodeSize),
+      );
+      const {scale} = self.config.mapOptions.nodeConfig.emphasis || {};
+      // ECharts uses a default scale for true or unset values, and ignores
+      // non-positive and non-finite scales.
+      let ratio = 1;
+      if (scale == null || scale === true) {
+        ratio = Math.max(1.1, 6 / baseSize);
+      } else if (Number.isFinite(scale) && scale > 0) {
+        ratio = scale;
+      }
+      const markerSize = Math.max(baseSize, baseSize * ratio);
+      // Leaflet cannot infer the size of an ECharts marker; leave room for the
+      // marker and the popup tip so neither can intercept clicks on the node.
+      popupConfig.offset = [0, -(markerSize / 2 + 10)];
+    }
     const popup = window.L.popup({
       ...popupConfig,
     })

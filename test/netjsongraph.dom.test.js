@@ -817,6 +817,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -853,6 +854,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -895,6 +897,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     });
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: {remove: jest.fn()},
       currentPopupRequest: null,
       once: jest.fn(),
@@ -931,6 +934,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -953,6 +957,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -988,6 +993,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1032,6 +1038,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1070,6 +1077,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1088,6 +1096,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1114,6 +1123,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1146,6 +1156,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1184,6 +1195,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     });
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1248,6 +1260,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
 
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1268,6 +1281,71 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     expect(popups).toHaveLength(2);
     expect(popups[0].remove).toHaveBeenCalled();
 
+    expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    {
+      name: "category size",
+      category: {name: "large", nodeSize: 40},
+      expected: [0, -30],
+    },
+    {name: "custom offset", offset: [5, -50], expected: [5, -50]},
+    {name: "array height", size: [40, 80], expected: [0, -50]},
+    {
+      name: "emphasis array height",
+      category: {name: "large", nodeSize: 40, emphasis: {nodeSize: [40, 100]}},
+      expected: [0, -60],
+    },
+    {name: "emphasis scale", size: 80, scale: 2, expected: [0, -90]},
+    {name: "disabled scale", size: 80, scale: false, expected: [0, -50]},
+    {
+      name: "category array fallback",
+      size: 80,
+      category: {name: "large", nodeSize: [40, 20]},
+      expected: [0, -50],
+    },
+  ])(
+    "node popup offset uses $name",
+    async ({size, scale, category, offset, expected}) => {
+      testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
+      testGraph.echarts = {setOption: jest.fn()};
+      testGraph.utils.updateLabelVisibility = jest.fn();
+      testGraph.utils.setTooltipVisibility = jest.fn();
+      if (size != null) {
+        testGraph.config.mapOptions.nodeConfig.nodeSize = size;
+      }
+      if (scale != null) {
+        testGraph.config.mapOptions.nodeConfig.emphasis.scale = scale;
+      }
+      if (offset) {
+        testGraph.config.mapOptions.nodePopup.config.offset = offset;
+      }
+      if (category) {
+        testGraph.setConfig({nodeCategories: [category]});
+      }
+      const node = {
+        id: "node-1",
+        category: category?.name,
+        location: {lat: 10, lng: 20},
+      };
+      await testGraph.gui.loadNodePopup(node);
+      expect(window.L.popup).toHaveBeenLastCalledWith(
+        expect.objectContaining({offset: expected}),
+      );
+    },
+  );
+
+  test("failed popup content preserves a newer link bookmark", async () => {
+    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800})), currentPopup: null};
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.config.mapOptions.nodePopup.content = () =>
+      Promise.reject(new Error("failed"));
+    testGraph.utils.parseUrlFragments = jest.fn(() => ({
+      id: new URLSearchParams({nodeId: "node-1~node-2"}),
+    }));
+    testGraph.utils.removeUrlFragment = jest.fn();
+    await testGraph.gui.loadNodePopup({id: "node-1", location: {lat: 10, lng: 20}});
     expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
   });
 });
