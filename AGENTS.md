@@ -50,7 +50,7 @@ If instructions conflict, repository config and CI workflows win first, docs nex
 
 ## Testing and QA
 
-- Use `./runtests` as the test entry point in CI, documentation, and local work. Pass a test path to run a focused test, and follow the documented browser test flow for browser-specific behavior.
+- Use `./runtests` as the test entry point in CI, documentation, and local work. Pass a test path to run a focused test, and follow the documented browser test flow for browser-specific behavior. Enforce an explicit allowlist of reviewed, safe flags and reject all others: test runner options can execute code outside the selected tests.
 - Keep helpers and classes used by only one test method inside that method. Promote them to class or module scope only when genuinely reused.
 
 ## Security Rules

@@ -76,7 +76,7 @@ describe("CI standardization", () => {
       );
       fs.writeFileSync(
         path.join(directory, "package.json"),
-        JSON.stringify({private: true, scripts: {test: "jest --silent"}}),
+        JSON.stringify({private: true, scripts: {test: "jest --silent --runInBand"}}),
       );
       fs.writeFileSync(path.join(directory, "source.js"), "module.exports = 1;\n");
       fs.writeFileSync(
@@ -127,6 +127,15 @@ describe("CI standardization", () => {
       expect(
         fs.existsSync(path.join(directory, "coverage", "coverage-final.json")),
       ).toBe(true);
+      const defaults = spawnSync(script, [], {
+        cwd: directory,
+        encoding: "utf8",
+        env: {...process.env, FORCE_COLOR: "0"},
+        timeout: 20000,
+      });
+      expect(defaults.status).toBe(1);
+      expect(defaults.stderr).toMatch(/wrong suite/);
+      expect(defaults.stderr).toMatch(/browser should be ignored/);
     } finally {
       fs.rmSync(directory, {recursive: true, force: true});
     }
