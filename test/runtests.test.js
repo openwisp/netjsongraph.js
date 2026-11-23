@@ -94,6 +94,18 @@ test("selects the requested file when the ignore option comes first", () => {
     );
     expect(result.status).toBe(0);
     expect(result.stderr).toMatch(/Test Suites:\s+1 passed/);
+    const all = spawnSync(
+      script,
+      ["--runInBand", "--testPathIgnorePatterns=test/netjsongraph.browser.test.js"],
+      {
+        cwd: directory,
+        encoding: "utf8",
+        env: {...process.env, FORCE_COLOR: "0"},
+        timeout: 20000,
+      },
+    );
+    expect(all.status).toBe(1);
+    expect(all.stderr).toMatch(/wrong suite/);
   } finally {
     fs.rmSync(directory, {recursive: true, force: true});
   }
