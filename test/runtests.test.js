@@ -1,6 +1,7 @@
 // Test the shared entry point without allowing Jest options that execute other code.
 const {spawnSync} = require("child_process");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 
 const root = path.resolve(__dirname, "..");
@@ -51,6 +52,48 @@ test("runs only the selected test file", () => {
     });
     expect(result.status).toBe(0);
     expect(result.stderr).toMatch(/Tests:\s+1 passed/);
+  } finally {
+    fs.rmSync(directory, {recursive: true, force: true});
+  }
+}, 30000);
+
+test("selects the requested file when the ignore option comes first", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "runtests-"));
+  try {
+    fs.mkdirSync(path.join(directory, "test"));
+    fs.symlinkSync(
+      path.join(root, "node_modules"),
+      path.join(directory, "node_modules"),
+      "junction",
+    );
+    fs.writeFileSync(
+      path.join(directory, "package.json"),
+      JSON.stringify({private: true, scripts: {test: "jest --silent"}}),
+    );
+    fs.writeFileSync(
+      path.join(directory, "test", "one.test.js"),
+      'test("one", () => {});\n',
+    );
+    fs.writeFileSync(
+      path.join(directory, "test", "two.test.js"),
+      'test("two", () => { throw new Error("wrong suite"); });\n',
+    );
+    const result = spawnSync(
+      script,
+      [
+        "--runInBand",
+        "--testPathIgnorePatterns=test/netjsongraph.browser.test.js",
+        "test/one.test.js",
+      ],
+      {
+        cwd: directory,
+        encoding: "utf8",
+        env: {...process.env, FORCE_COLOR: "0"},
+        timeout: 20000,
+      },
+    );
+    expect(result.status).toBe(0);
+    expect(result.stderr).toMatch(/Test Suites:\s+1 passed/);
   } finally {
     fs.rmSync(directory, {recursive: true, force: true});
   }
