@@ -4,6 +4,7 @@ set -euo pipefail
 
 # Limit selectors to test files; other Jest options can load executable code.
 test_pattern='^test/([[:alnum:]_-]+/)*[[:alnum:]_.-]+\.(test|spec)\.js$'
+test_path_mode=()
 for argument in "$@"; do
   # Keep the existing coverage and Coveralls commands working through this entry point.
   case "$argument" in
@@ -15,6 +16,8 @@ for argument in "$@"; do
     echo "Unsupported test argument: $argument" >&2
     exit 2
   fi
+  test_path_mode=(--runTestsByPath)
 done
 
-exec yarn test "$@"
+# Jest treats file arguments as patterns unless exact-path mode is enabled.
+exec yarn test "${test_path_mode[@]}" "$@"
