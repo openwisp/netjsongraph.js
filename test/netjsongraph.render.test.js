@@ -1271,7 +1271,10 @@ describe("Test disableClusteringAtLevel: 0", () => {
   test("updates the control theme when switching between map and graph", () => {
     mockSelf.leaflet.getZoom.mockReturnValue(1);
     mockSelf.utils.generateGraphOption = jest.fn(() => ({series: []}));
-    Object.assign(mockSelf.utils, {_propagateGraphZoom: jest.fn()});
+    Object.assign(mockSelf.utils, {
+      _propagateGraphZoom: jest.fn(),
+      setupGraphFit: jest.fn(),
+    });
     renderInstance.mapRender(mockSelf.data, mockSelf);
     expect(mockSelf.el.classList.contains("njg-map")).toBe(true);
     renderInstance.graphRender({nodes: [], links: []}, mockSelf);
@@ -1666,6 +1669,7 @@ describe("graph label visibility and fallbacks", () => {
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
         _propagateGraphZoom: jest.fn(),
+        setupGraphFit: jest.fn(),
         updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       echarts: {

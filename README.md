@@ -339,6 +339,21 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   });
   ```
 
+- `autoFitGraph`
+
+  **Default**: `true`
+
+  Fits the initial network graph to its container with 40 pixels of padding after
+  the layout finishes. Node symbols, visible labels and links are included in the
+  measurement. A single node is centred without increasing its zoom.
+
+  Set this to `false` to keep the original initial view. An explicit
+  `graphConfig.series.zoom` or `graphConfig.series.center` also disables fitting.
+  The fit respects `graphConfig.series.scaleLimit`; those limits can prevent the
+  whole graph from fitting. Panning, zooming or pressing on the graph before the
+  layout finishes cancels the automatic fit. Later updates do not reset the view.
+  Geographic maps are unaffected.
+
 - `maxPointsFetched`
 
   **Default**: `10000`

@@ -24,6 +24,126 @@ describe("Chart Rendering Test", () => {
     await tearDown(driver);
   });
 
+  test("fits the settled graph and preserves subsequent manual zoom", async () => {
+    await driver.get(urls.customAttributes);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return typeof graph !== 'undefined' && graph.graphFitted === true",
+        ),
+      15000,
+      "The initial graph should fit after the force layout stops",
+    );
+    const fitted = await driver.executeScript(`
+      const chart = graph.echarts;
+      const series = chart.getModel().getSeriesByIndex(0);
+      const data = series.getData();
+      const points = [];
+      data.each(i => points.push(series.coordinateSystem.dataToPoint(data.getItemLayout(i))));
+      return {
+        zoom: chart.getOption().series[0].zoom,
+        moving: chart.getViewOfSeriesModel(series)._layouting,
+        width: chart.getWidth(), height: chart.getHeight(),
+        left: Math.min(...points.map(p => p[0])),
+        right: Math.max(...points.map(p => p[0])),
+        top: Math.min(...points.map(p => p[1])),
+        bottom: Math.max(...points.map(p => p[1]))
+      };
+    `);
+    expect(fitted.moving).toBe(false);
+    expect(fitted.left).toBeGreaterThan(0);
+    expect(fitted.top).toBeGreaterThan(0);
+    expect(fitted.right).toBeLessThan(fitted.width);
+    expect(fitted.bottom).toBeLessThan(fitted.height);
+    expect(
+      Math.max(
+        (fitted.right - fitted.left) / fitted.width,
+        (fitted.bottom - fitted.top) / fitted.height,
+      ),
+    ).toBeGreaterThan(0.6);
+    const manualZoom = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      graph.echarts.dispatchAction({type:'graphRoam', seriesId:'network-graph',
+        zoom:0.5, originX:graph.echarts.getWidth()/2, originY:graph.echarts.getHeight()/2});
+      setTimeout(() => done(graph.echarts.getOption().series[0].zoom), 300);
+    `);
+    expect(manualZoom).toBeCloseTo(fitted.zoom * 0.5);
+  }, 20000);
+
+  test.each([
+    {layout: "force", layoutAnimation: true},
+    {layout: "force", layoutAnimation: false},
+    {layout: "none", layoutAnimation: false},
+  ])(
+    "fits $layout layouts (animation: $layoutAnimation) with zoom-dependent labels",
+    async ({layout, layoutAnimation}) => {
+      await driver.get(urls.customAttributes);
+      await getElementByCss(driver, "canvas", 2000);
+      await driver.executeScript(
+        `
+      graph.echarts.dispose();
+      document.body.innerHTML = '<div id="fit-case" style="width:900px;height:600px"></div>';
+      window.fitCase = new NetJSONGraph({
+        type:'NetworkGraph',
+        nodes:[{id:'a',label:'First node',x:100,y:100},{id:'b',label:'Second node',x:200,y:200}],
+        links:[{source:'a',target:'b'}]
+      }, {
+        el:'#fit-case', metadata:false, showGraphLabelsAtZoom:1.1,
+        graphConfig:{series:{layout:arguments[0],force:{layoutAnimation:arguments[1]}}}
+      });
+      fitCase.render();
+    `,
+        layout,
+        layoutAnimation,
+      );
+      await driver.wait(
+        () =>
+          driver.executeScript(`
+          const chart = fitCase.echarts;
+          const series = chart.getModel().getSeriesByIndex(0);
+          return fitCase.graphFitted === true && !chart.getViewOfSeriesModel(series)._layouting;
+        `),
+        20000,
+        "The fitted graph should finish layout with its labels refreshed",
+      );
+      const result = await driver.executeScript(`
+      const chart = fitCase.echarts;
+      const series = chart.getModel().getSeriesByIndex(0);
+      const data = series.getData();
+      const labels = [];
+      const points = [];
+      const labelBounds = [];
+      data.eachItemGraphicEl(el => {
+        const label = el.getSymbolPath().getTextContent();
+        labels.push(label.style.text);
+        if (label.style.text && !label.ignore) {
+          const rect = label.getBoundingRect().clone();
+          rect.applyTransform(label.getComputedTransform());
+          labelBounds.push({x:rect.x,y:rect.y,width:rect.width,height:rect.height});
+        }
+      });
+      data.each(i => points.push(series.coordinateSystem.dataToPoint(data.getItemLayout(i))));
+      return {zoom:chart.getOption().series[0].zoom, labels, points, labelBounds};
+    `);
+      expect(result.labels).toEqual(
+        result.zoom >= 1.1 ? ["First node", "Second node"] : ["", ""],
+      );
+      result.points.forEach(([x, y]) => {
+        expect(x).toBeGreaterThan(0);
+        expect(x).toBeLessThan(900);
+        expect(y).toBeGreaterThan(0);
+        expect(y).toBeLessThan(600);
+      });
+      result.labelBounds.forEach(({x, y, width, height}) => {
+        expect(x).toBeGreaterThan(0);
+        expect(y).toBeGreaterThan(0);
+        expect(x + width).toBeLessThan(900);
+        expect(y + height).toBeLessThan(600);
+      });
+    },
+    25000,
+  );
+
   test("render the Basic usage example without console errors", async () => {
     driver.get(urls.basicUsage);
     const canvas = await getElementByCss(driver, "canvas", 2000);

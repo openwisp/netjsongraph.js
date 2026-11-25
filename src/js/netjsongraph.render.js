@@ -625,6 +625,134 @@ class NetJSONGraphRender {
     );
   }
 
+  getGraphBounds(series) {
+    let bounds;
+    const include = (element) => {
+      if (!element || element.ignore || element.invisible) {
+        return;
+      }
+      if (element.isGroup) {
+        element.eachChild(include);
+      } else {
+        const rect = element.getBoundingRect().clone();
+        const transform = element.getComputedTransform();
+        if (transform) {
+          rect.applyTransform(transform);
+        }
+        if (![rect.x, rect.y, rect.width, rect.height].every(Number.isFinite)) {
+          return;
+        }
+        if (bounds) {
+          bounds.union(rect);
+        } else {
+          bounds = rect;
+        }
+      }
+      include(element.getTextContent());
+    };
+    [series.getData(), series.getEdgeData()].forEach((data) => {
+      data.eachItemGraphicEl(include);
+    });
+    return bounds;
+  }
+
+  fitGraph(self, series) {
+    const chart = self.echarts;
+    const width = chart.getWidth();
+    const height = chart.getHeight();
+    const padding = 40;
+    if (width <= padding * 2 || height <= padding * 2) {
+      return;
+    }
+    const limit = series.get("scaleLimit") || {};
+    // Symbols and labels do not scale at the same rate as node positions.
+    // Remeasure after zooming instead of assuming a uniform scale.
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const bounds = this.getGraphBounds(series);
+      if (!bounds || !bounds.width || !bounds.height) {
+        return;
+      }
+      const zoom = series.get("zoom") || 1;
+      const factor = Math.min(
+        (width - padding * 2) / bounds.width,
+        (height - padding * 2) / bounds.height,
+      );
+      const target =
+        series.getData().count() === 1
+          ? zoom
+          : Math.max(limit.min || 0, Math.min(limit.max || Infinity, zoom * factor));
+      chart.dispatchAction(
+        {
+          type: "graphRoam",
+          seriesId: series.id,
+          dx: width / 2 - (bounds.x + bounds.width / 2),
+          dy: height / 2 - (bounds.y + bounds.height / 2),
+        },
+        {silent: true},
+      );
+      if (Math.abs(target / zoom - 1) < 0.01) {
+        break;
+      }
+      chart.dispatchAction({
+        type: "graphRoam",
+        seriesId: series.id,
+        zoom: target / zoom,
+        originX: width / 2,
+        originY: height / 2,
+      });
+    }
+  }
+
+  setupGraphFit(self) {
+    if (self.cancelGraphFit) {
+      self.cancelGraphFit();
+    }
+    if (!self.config.autoFitGraph || self.graphFitted) {
+      return;
+    }
+    const {zoom, center} = self.config.graphConfig.series;
+    if (zoom !== undefined || center !== undefined) {
+      return;
+    }
+    const chart = self.echarts;
+    const fit = () => {
+      const series = chart.getModel().getSeriesByIndex(0);
+      if (!series || series.id !== "network-graph") {
+        self.cancelGraphFit();
+        return;
+      }
+      // ECharts emits "finished" between force-layout steps. Its graph view
+      // currently exposes completion only through this internal flag.
+      const view = chart.getViewOfSeriesModel(series);
+      if (series.get("layout") === "force" && (!view || view._layouting !== false)) {
+        return;
+      }
+      if (
+        !series.getData().count() ||
+        chart.getWidth() <= 80 ||
+        chart.getHeight() <= 80
+      ) {
+        return;
+      }
+      self.graphFitted = true;
+      self.cancelGraphFit();
+      this.fitGraph(self, series);
+    };
+    const interacted = () => {
+      self.graphFitted = true;
+      self.cancelGraphFit();
+    };
+    self.cancelGraphFit = () => {
+      chart.off("finished", fit);
+      chart.off("graphRoam", interacted);
+      chart.getZr().off("mousedown", interacted);
+      self.cancelGraphFit = null;
+    };
+    chart.on("finished", fit);
+    chart.on("graphRoam", interacted);
+    chart.getZr().on("mousedown", interacted);
+  }
+
   /**
    * @function
    * @name graphRender
@@ -636,6 +764,7 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.el.classList.remove("njg-map");
+    self.utils.setupGraphFit(self);
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
     window.onresize = () => {
       self.echarts.resize();
@@ -679,6 +808,9 @@ class NetJSONGraphRender {
    *
    */
   mapRender(JSONData, self) {
+    if (self.cancelGraphFit) {
+      self.cancelGraphFit();
+    }
     const L = getLeaflet();
     if (!L) {
       throw new Error("Leaflet api is not loaded");
