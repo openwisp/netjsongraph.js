@@ -352,6 +352,8 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   The fit respects `graphConfig.series.scaleLimit`; those limits can prevent the
   whole graph from fitting. Panning, zooming or pressing on the graph before the
   layout finishes cancels the automatic fit. Later updates do not reset the view.
+  The toolbox's "Restore view" action fits the graph again after its layout settles,
+  while still respecting the opt-out and explicit zoom/centre settings above.
   Geographic maps are unaffected.
 
 - `maxPointsFetched`

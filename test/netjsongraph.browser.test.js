@@ -24,7 +24,7 @@ describe("Chart Rendering Test", () => {
     await tearDown(driver);
   });
 
-  test("fits the settled graph and preserves subsequent manual zoom", async () => {
+  test("fits the graph, preserves manual zoom and fits again after restore", async () => {
     await driver.get(urls.customAttributes);
     await driver.wait(
       () =>
@@ -34,7 +34,8 @@ describe("Chart Rendering Test", () => {
       15000,
       "The initial graph should fit after the force layout stops",
     );
-    const fitted = await driver.executeScript(`
+    const measure = () =>
+      driver.executeScript(`
       const chart = graph.echarts;
       const series = chart.getModel().getSeriesByIndex(0);
       const data = series.getData();
@@ -50,6 +51,7 @@ describe("Chart Rendering Test", () => {
         bottom: Math.max(...points.map(p => p[1]))
       };
     `);
+    const fitted = await measure();
     expect(fitted.moving).toBe(false);
     expect(fitted.left).toBeGreaterThan(0);
     expect(fitted.top).toBeGreaterThan(0);
@@ -68,7 +70,26 @@ describe("Chart Rendering Test", () => {
       setTimeout(() => done(graph.echarts.getOption().series[0].zoom), 300);
     `);
     expect(manualZoom).toBeCloseTo(fitted.zoom * 0.5);
-  }, 20000);
+    await driver.executeScript("graph.echarts.dispatchAction({type:'restore'});");
+    await driver.wait(
+      () => driver.executeScript("return graph.graphFitted === true"),
+      15000,
+      "Restore view should fit the graph after layout completion",
+    );
+    const restored = await measure();
+    expect(restored.moving).toBe(false);
+    expect(restored.zoom).toBeGreaterThan(0);
+    expect(restored.left).toBeGreaterThan(0);
+    expect(restored.top).toBeGreaterThan(0);
+    expect(restored.right).toBeLessThan(restored.width);
+    expect(restored.bottom).toBeLessThan(restored.height);
+    expect(
+      Math.max(
+        (restored.right - restored.left) / restored.width,
+        (restored.bottom - restored.top) / restored.height,
+      ),
+    ).toBeGreaterThan(0.6);
+  }, 35000);
 
   test.each([
     {layout: "force", layoutAnimation: true},
@@ -140,6 +161,23 @@ describe("Chart Rendering Test", () => {
         expect(x + width).toBeLessThan(900);
         expect(y + height).toBeLessThan(600);
       });
+      if (layout === "none") {
+        await driver.executeScript("fitCase.echarts.dispatchAction({type:'restore'});");
+        await driver.wait(
+          () => driver.executeScript("return fitCase.graphFitted === true"),
+          5000,
+          "Restore view should also fit a fixed layout",
+        );
+        const restored = await driver.executeScript(`
+          const chart = fitCase.echarts;
+          const labels = [];
+          chart.getModel().getSeriesByIndex(0).getData().eachItemGraphicEl(el =>
+            labels.push(el.getSymbolPath().getTextContent().style.text));
+          return {zoom: chart.getOption().series[0].zoom, labels};
+        `);
+        expect(restored.zoom).toBeCloseTo(result.zoom);
+        expect(restored.labels).toEqual(result.labels);
+      }
     },
     25000,
   );

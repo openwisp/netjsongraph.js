@@ -724,6 +724,18 @@ class NetJSONGraphRender {
       // ECharts emits "finished" between force-layout steps. Its graph view
       // currently exposes completion only through this internal flag.
       const view = chart.getViewOfSeriesModel(series);
+      if (
+        series.get("layout") === "force" &&
+        view &&
+        typeof view._layouting !== "boolean"
+      ) {
+        console.warn(
+          "autoFitGraph skipped: the ECharts force-layout completion flag is unavailable.",
+        );
+        self.graphFitted = true;
+        self.cancelGraphFit();
+        return;
+      }
       if (series.get("layout") === "force" && (!view || view._layouting !== false)) {
         return;
       }
@@ -764,6 +776,14 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.el.classList.remove("njg-map");
+    if (self.restoreGraphFit) {
+      self.echarts.off("restore", self.restoreGraphFit);
+    }
+    self.restoreGraphFit = () => {
+      self.graphFitted = false;
+      self.utils.setupGraphFit(self);
+    };
+    self.echarts.on("restore", self.restoreGraphFit);
     self.utils.setupGraphFit(self);
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
     window.onresize = () => {
@@ -808,6 +828,10 @@ class NetJSONGraphRender {
    *
    */
   mapRender(JSONData, self) {
+    if (self.restoreGraphFit) {
+      self.echarts.off("restore", self.restoreGraphFit);
+      self.restoreGraphFit = null;
+    }
     if (self.cancelGraphFit) {
       self.cancelGraphFit();
     }

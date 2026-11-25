@@ -1269,6 +1269,7 @@ describe("Test disableClusteringAtLevel: 0", () => {
   });
 
   test("updates the control theme when switching between map and graph", () => {
+    mockSelf.echarts.off = jest.fn();
     mockSelf.leaflet.getZoom.mockReturnValue(1);
     mockSelf.utils.generateGraphOption = jest.fn(() => ({series: []}));
     Object.assign(mockSelf.utils, {
@@ -1278,9 +1279,12 @@ describe("Test disableClusteringAtLevel: 0", () => {
     renderInstance.mapRender(mockSelf.data, mockSelf);
     expect(mockSelf.el.classList.contains("njg-map")).toBe(true);
     renderInstance.graphRender({nodes: [], links: []}, mockSelf);
+    const restoreHandler = mockSelf.restoreGraphFit;
     expect(mockSelf.el.classList.contains("njg-map")).toBe(false);
     renderInstance.mapRender(mockSelf.data, mockSelf);
     expect(mockSelf.el.classList.contains("njg-map")).toBe(true);
+    expect(mockSelf.echarts.off).toHaveBeenCalledWith("restore", restoreHandler);
+    expect(mockSelf.restoreGraphFit).toBeNull();
   });
 });
 

@@ -93,11 +93,50 @@ describe("initial graph fitting", () => {
     expect(events.size).toBe(0);
   });
 
-  test("does not guess completion if the internal layout flag is unavailable", () => {
+  test("warns once and removes pending handlers if the layout flag is unavailable", () => {
+    const warning = jest.spyOn(console, "warn").mockImplementation(() => {});
     delete view._layouting;
-    render.setupGraphFit(self);
+    try {
+      render.setupGraphFit(self);
+      events.get("finished")();
+      render.setupGraphFit(self);
+      expect(warning).toHaveBeenCalledTimes(1);
+      expect(warning).toHaveBeenCalledWith(expect.stringContaining("autoFitGraph"));
+      expect(events.size).toBe(0);
+      expect(pointerEvents.size).toBe(0);
+      expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
+    } finally {
+      warning.mockRestore();
+    }
+  });
+
+  test("restoring the graph starts another fit after manual interaction", () => {
+    self.el = document.createElement("div");
+    self.event = {emit: jest.fn()};
+    self.utils = {
+      setupGraphFit: render.setupGraphFit.bind(render),
+      generateGraphOption: jest.fn(),
+      echartsSetOption: jest.fn(),
+      _propagateGraphZoom: jest.fn(),
+      setupHashChangeHandler: jest.fn(),
+    };
+    render.graphRender({nodes: [], links: []}, self);
+    pointerEvents.get("mousedown")();
+    expect(self.graphFitted).toBe(true);
+    expect(events.has("finished")).toBe(false);
+    expect(events.has("restore")).toBe(true);
+    events.get("restore")();
+    expect(self.graphFitted).toBe(false);
+    view._layouting = false;
     events.get("finished")();
-    expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
+    expect(zoom).toBeGreaterThan(1);
+    expect(self.graphFitted).toBe(true);
+    expect([...events.keys()]).toEqual(["restore"]);
+    const previousRestore = self.restoreGraphFit;
+    const off = jest.spyOn(self.echarts, "off");
+    render.graphRender({nodes: [], links: []}, self);
+    expect(off).toHaveBeenCalledWith("restore", previousRestore);
+    expect([...events.keys()]).toEqual(["restore"]);
   });
 
   test.each(["graphRoam", "mousedown"])(
