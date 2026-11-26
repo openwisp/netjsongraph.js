@@ -127,6 +127,63 @@ describe("initial graph fitting", () => {
     expect(self.graphFitted).toBe(true);
   });
 
+  test.each([undefined, null, 0, "running"])(
+    "warns once when force layout completion has an unsupported value: %s",
+    (value) => {
+      const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+      const fit = jest.spyOn(render, "fitGraph");
+      try {
+        view._layouting = value;
+        animationFinished = false;
+        render.setupGraphFit(self);
+        for (let frame = 0; frame < 2; frame += 1) {
+          events.get("rendered")();
+          jest.advanceTimersByTime(100);
+        }
+        render.setupGraphFit(self);
+        events.get("rendered")();
+        jest.advanceTimersByTime(100);
+        expect(warn).toHaveBeenCalledTimes(1);
+        expect(warn).toHaveBeenCalledWith(
+          "autoFitGraph: cannot reliably detect force layout completion.",
+        );
+        expect(fit).toHaveBeenCalledTimes(3);
+        view._layouting = false;
+        animationFinished = true;
+        events.get("rendered")();
+        jest.advanceTimersByTime(100);
+        expect(self.graphFitted).toBe(true);
+        expect(events.size).toBe(0);
+        expect(warn).toHaveBeenCalledTimes(1);
+      } finally {
+        warn.mockRestore();
+        fit.mockRestore();
+      }
+    },
+  );
+
+  test.each([
+    ["force", {_layouting: true}],
+    ["force", {_layouting: false}],
+    ["force", undefined],
+    ["none", {}],
+  ])("does not warn for layout %s with view %j", (layout, graphView) => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const {get} = series;
+    try {
+      series.get = (name) => (name === "layout" ? layout : get(name));
+      view = graphView;
+      render.setupGraphFit(self);
+      events.get("rendered")();
+      jest.advanceTimersByTime(100);
+      expect(warn).not.toHaveBeenCalled();
+      expect(zoom).toBeGreaterThan(1);
+      expect(self.graphFitted === true).toBe(!graphView?._layouting);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   test("restoring the graph starts another fit after manual interaction", () => {
     self.el = document.createElement("div");
     self.event = {emit: jest.fn()};

@@ -361,6 +361,9 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   graph start fitting again, respecting the opt-out and explicit view settings.
   Geographic maps are unaffected.
 
+  Force-layout completion uses ECharts' internal `_layouting` flag. If that flag
+  is missing or has an unexpected type, a warning is logged once per graph instance.
+
 - `maxPointsFetched`
 
   **Default**: `10000`

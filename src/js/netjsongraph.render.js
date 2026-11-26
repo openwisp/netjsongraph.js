@@ -803,6 +803,15 @@ class NetJSONGraphRender {
       }
       this.fitGraph(self, series);
       const view = chart.getViewOfSeriesModel(series);
+      if (
+        series.get("layout") === "force" &&
+        view &&
+        typeof view._layouting !== "boolean" &&
+        !self.graphFitWarned
+      ) {
+        self.graphFitWarned = true;
+        console.warn("autoFitGraph: cannot reliably detect force layout completion.");
+      }
       // The flag only controls completion; fitting already runs on each frame.
       if (
         (series.get("layout") !== "force" || !view || !view._layouting) &&
