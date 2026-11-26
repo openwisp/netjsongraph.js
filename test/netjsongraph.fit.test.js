@@ -276,6 +276,57 @@ describe("initial graph fitting", () => {
     expect(self.cancelGraphFit).toBeNull();
   });
 
+  test.each(["emphasis", "blur", "select"])(
+    "keeps labels in sync when zooming into and out of the %s state",
+    (state) => {
+      const label = new graphic.Text({style: {text: "", fill: "black"}});
+      label.ensureState(state).style = {text: "", fill: "red"};
+      series.getData = () => ({
+        getName: () => "First node",
+        eachItemGraphicEl: (callback) =>
+          callback({getSymbolPath: () => ({getTextContent: () => label})}, 0),
+      });
+      self.config.showGraphLabelsAtZoom = 2;
+      zoom = 3;
+      render.updateGraphLabels(self, series);
+      expect(label.style.text).toBe("First node");
+      label.useState(state, false, true);
+      expect(label.style.text).toBe("First node");
+      expect(label.style.fill).toBe("red");
+      zoom = 1;
+      render.updateGraphLabels(self, series);
+      expect(label.currentStates).toEqual([state]);
+      expect(label.style.text).toBe("");
+      label.clearStates(true);
+      expect(label.style.text).toBe("");
+      expect(label.style.fill).toBe("black");
+      label.useState(state, false, true);
+      zoom = 2;
+      render.updateGraphLabels(self, series);
+      expect(label.style.text).toBe("First node");
+      label.clearStates(true);
+      expect(label.style.text).toBe("First node");
+    },
+  );
+
+  test("reserves hidden label bounds without changing the visible text", () => {
+    const label = new graphic.Text({style: {text: "", fontSize: 14}});
+    label.x = 100;
+    label.y = 100;
+    const symbol = new graphic.Rect({shape: {x: 100, y: 100, width: 10, height: 10}});
+    symbol.getTextContent = () => label;
+    series.getData = () => ({
+      getName: () => "A long node label",
+      eachItemGraphicEl: (callback) => callback(symbol, 0),
+    });
+    const reserved = render.getGraphBounds(series, true);
+    expect(reserved.width).toBeGreaterThan(10);
+    expect(label.style.text).toBe("");
+    label.setStyle("text", "A long node label");
+    const visible = render.getGraphBounds(series);
+    expect(reserved).toEqual(visible);
+  });
+
   test("bounds the work when a label is wider than the container", () => {
     jest
       .spyOn(render, "getGraphBounds")

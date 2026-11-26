@@ -1,4 +1,5 @@
 import {graphic, use} from "echarts/core";
+import {setLabelText} from "echarts/lib/label/labelStyle";
 import {install as LinesChart} from "echarts/lib/chart/lines/install";
 import {install as GraphChart} from "echarts/lib/chart/graph/install";
 import {install as ScatterChart} from "echarts/lib/chart/scatter/install";
@@ -759,7 +760,8 @@ class NetJSONGraphRender {
     data.eachItemGraphicEl((element, index) => {
       const label = element.getSymbolPath().getTextContent();
       if (label) {
-        label.setStyle("text", visible ? data.getName(index) : "");
+        const text = visible ? data.getName(index) : "";
+        setLabelText(label, {normal: text, emphasis: text, blur: text, select: text});
       }
     });
   }

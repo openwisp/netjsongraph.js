@@ -70,18 +70,71 @@ describe("Chart Rendering Test", () => {
     );
     const result = await driver.executeAsyncScript(`
       const done = arguments[arguments.length - 1];
+      const pendingBefore = !!fitCase.cancelGraphFit;
       fitCase.echarts.dispatchAction({type:'graphRoam',seriesId:'network-graph',dx:30,dy:20});
       const count = fitSamples.length;
       const before = fitCase.echarts.getOption().series[0];
       setTimeout(() => {
         const after = fitCase.echarts.getOption().series[0];
-        done({count, afterCount:fitSamples.length, before:{zoom:before.zoom,center:before.center},
+        done({pendingBefore, count, afterCount:fitSamples.length, before:{zoom:before.zoom,center:before.center},
           after:{zoom:after.zoom,center:after.center}, pending:!!fitCase.cancelGraphFit});
       }, 400);
     `);
+    expect(result.pendingBefore).toBe(true);
     expect(result.afterCount).toBe(result.count);
     expect(result.after).toEqual(result.before);
     expect(result.pending).toBe(false);
+  });
+
+  test("keeps hover labels in sync across the zoom threshold", async () => {
+    await driver.get(urls.customAttributes);
+    await getElementByCss(driver, "canvas", 2000);
+    await driver.executeScript(`
+      graph.echarts.dispose();
+      document.body.innerHTML = '<div id="fit-case" style="width:900px;height:600px"></div>';
+      window.fitCase = new NetJSONGraph({type:'NetworkGraph',
+        nodes:[{id:'a',label:'First node',x:100,y:100},{id:'b',label:'Second node',x:200,y:200}],
+        links:[{source:'a',target:'b'}]
+      }, {el:'#fit-case', metadata:false, autoFitGraph:false, showGraphLabelsAtZoom:2,
+        graphConfig:{series:{layout:'none',animation:false}}});
+      fitCase.render();
+    `);
+    await driver.wait(
+      () => driver.executeScript("return !!fitCase.echarts.getOption().series"),
+      2000,
+    );
+    const act = async (action) =>
+      driver.executeAsyncScript(
+        `
+        const done = arguments[arguments.length - 1];
+        fitCase.echarts.dispatchAction({...arguments[0],seriesId:'network-graph'});
+        setTimeout(() => {
+          const data = fitCase.echarts.getModel().getSeriesByIndex(0).getData();
+          const label = data.getItemGraphicEl(0).getSymbolPath().getTextContent();
+          done({text:label.style.text,states:label.currentStates});
+        }, 100);
+      `,
+        action,
+      );
+    await act({type: "graphRoam", zoom: 3, originX: 450, originY: 300});
+    const highlighted = await act({type: "highlight", dataIndex: 0});
+    expect(highlighted.states).toContain("emphasis");
+    expect(highlighted.text).toBe("First node");
+    const hidden = await act({
+      type: "graphRoam",
+      zoom: 1 / 3,
+      originX: 450,
+      originY: 300,
+    });
+    expect(hidden.states).toContain("emphasis");
+    expect(hidden.text).toBe("");
+    expect((await act({type: "downplay", dataIndex: 0})).text).toBe("");
+    await act({type: "highlight", dataIndex: 0});
+    const visible = await act({type: "graphRoam", zoom: 3, originX: 450, originY: 300});
+    expect(visible.states).toContain("emphasis");
+    expect(visible.text).toBe("First node");
+    expect((await act({type: "downplay", dataIndex: 0})).text).toBe("First node");
+    await printConsoleErrors(driver);
   });
 
   test("fits long labels inside the padded container", async () => {
