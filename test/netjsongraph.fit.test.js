@@ -15,8 +15,10 @@ describe("initial graph fitting", () => {
   let transform;
   let zoom;
   let limit;
+  let animationFinished;
 
   beforeEach(() => {
+    jest.useFakeTimers();
     render = new NetJSONGraphRender();
     events = new Map();
     pointerEvents = new Map();
@@ -27,9 +29,11 @@ describe("initial graph fitting", () => {
     transform = [1, 0, 0, 1, 0, 0];
     zoom = 1;
     limit = {};
+    animationFinished = true;
     view = {_layouting: true};
     const data = {
       count: () => positions.length,
+      getName: (index) => String(index),
       eachItemGraphicEl: (callback) =>
         positions.forEach(([x, y]) =>
           callback({
@@ -48,9 +52,12 @@ describe("initial graph fitting", () => {
     self = {
       config: {autoFitGraph: true, graphConfig: {series: {}}},
       echarts: {
+        isDisposed: () => false,
+        getOption: () => ({}),
         on: (name, callback) => events.set(name, callback),
         off: (name) => events.delete(name),
         getZr: () => ({
+          animation: {isFinished: () => animationFinished},
           on: (name, callback) => pointerEvents.set(name, callback),
           off: (name) => pointerEvents.delete(name),
         }),
@@ -78,36 +85,46 @@ describe("initial graph fitting", () => {
     };
   });
 
-  test("waits for force layout completion and fits only once", () => {
+  afterEach(() => {
+    if (self.cancelGraphFit) {
+      self.cancelGraphFit();
+    }
+    jest.useRealTimers();
+  });
+
+  test("fits while the force layout is moving and throttles repeated frames", () => {
+    const fit = jest.spyOn(render, "fitGraph");
     render.setupGraphFit(self);
-    const finished = events.get("finished");
-    finished();
-    expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
-    view._layouting = false;
-    finished();
+    const rendered = events.get("rendered");
+    expect(typeof rendered).toBe("function");
+    rendered();
+    rendered();
+    jest.advanceTimersByTime(100);
     expect(zoom).toBeGreaterThan(1);
+    expect(fit).toHaveBeenCalledTimes(1);
+    expect(self.graphFitted).not.toBe(true);
+    expect(events.has("rendered")).toBe(true);
+    expect(pointerEvents.has("mousedown")).toBe(false);
+    view._layouting = false;
+    rendered();
+    jest.advanceTimersByTime(100);
     expect(self.graphFitted).toBe(true);
-    expect(events.size).toBe(0);
-    expect(pointerEvents.size).toBe(0);
-    render.setupGraphFit(self);
     expect(events.size).toBe(0);
   });
 
-  test("warns once and removes pending handlers if the layout flag is unavailable", () => {
-    const warning = jest.spyOn(console, "warn").mockImplementation(() => {});
-    delete view._layouting;
-    try {
-      render.setupGraphFit(self);
-      events.get("finished")();
-      render.setupGraphFit(self);
-      expect(warning).toHaveBeenCalledTimes(1);
-      expect(warning).toHaveBeenCalledWith(expect.stringContaining("autoFitGraph"));
-      expect(events.size).toBe(0);
-      expect(pointerEvents.size).toBe(0);
-      expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
-    } finally {
-      warning.mockRestore();
-    }
+  test("continues fitting until node size animations finish", () => {
+    view._layouting = false;
+    animationFinished = false;
+    render.setupGraphFit(self);
+    const rendered = events.get("rendered");
+    rendered();
+    jest.advanceTimersByTime(100);
+    expect(zoom).toBeGreaterThan(1);
+    expect(self.graphFitted).not.toBe(true);
+    animationFinished = true;
+    rendered();
+    jest.advanceTimersByTime(100);
+    expect(self.graphFitted).toBe(true);
   });
 
   test("restoring the graph starts another fit after manual interaction", () => {
@@ -121,14 +138,15 @@ describe("initial graph fitting", () => {
       setupHashChangeHandler: jest.fn(),
     };
     render.graphRender({nodes: [], links: []}, self);
-    pointerEvents.get("mousedown")();
+    events.get("graphRoam")();
     expect(self.graphFitted).toBe(true);
-    expect(events.has("finished")).toBe(false);
+    expect(events.has("rendered")).toBe(false);
     expect(events.has("restore")).toBe(true);
     events.get("restore")();
     expect(self.graphFitted).toBe(false);
     view._layouting = false;
-    events.get("finished")();
+    events.get("rendered")();
+    jest.advanceTimersByTime(100);
     expect(zoom).toBeGreaterThan(1);
     expect(self.graphFitted).toBe(true);
     expect([...events.keys()]).toEqual(["restore"]);
@@ -136,22 +154,19 @@ describe("initial graph fitting", () => {
     const off = jest.spyOn(self.echarts, "off");
     render.graphRender({nodes: [], links: []}, self);
     expect(off).toHaveBeenCalledWith("restore", previousRestore);
-    expect([...events.keys()]).toEqual(["restore"]);
+    expect([...events.keys()]).toEqual(["restore", "rendered", "graphRoam"]);
   });
 
-  test.each(["graphRoam", "mousedown"])(
-    "preserves interaction before fitting: %s",
-    (event) => {
-      render.setupGraphFit(self);
-      (events.get(event) || pointerEvents.get(event))();
-      view._layouting = false;
-      render.setupGraphFit(self);
-      expect(self.graphFitted).toBe(true);
-      expect(events.size).toBe(0);
-      expect(pointerEvents.size).toBe(0);
-      expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
-    },
-  );
+  test("preserves a user pan or zoom before layout completion", () => {
+    render.setupGraphFit(self);
+    events.get("rendered")();
+    events.get("graphRoam")();
+    jest.advanceTimersByTime(100);
+    render.setupGraphFit(self);
+    expect(self.graphFitted).toBe(true);
+    expect(events.size).toBe(0);
+    expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
+  });
 
   test.each(["disabled", "zoom", "center"])(
     "respects configured view: %s",
@@ -168,11 +183,12 @@ describe("initial graph fitting", () => {
 
   test("replaces pending listeners and cancels when the graph is removed", () => {
     render.setupGraphFit(self);
-    const previous = events.get("finished");
+    const previous = events.get("rendered");
     render.setupGraphFit(self);
-    expect(events.get("finished")).not.toBe(previous);
+    expect(events.get("rendered")).not.toBe(previous);
     series.id = "geo-map";
-    events.get("finished")();
+    events.get("rendered")();
+    jest.advanceTimersByTime(100);
     expect(events.size).toBe(0);
     expect(pointerEvents.size).toBe(0);
     expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
@@ -210,15 +226,64 @@ describe("initial graph fitting", () => {
     positions = [];
     view._layouting = false;
     render.setupGraphFit(self);
-    events.get("finished")();
+    events.get("rendered")();
+    jest.advanceTimersByTime(100);
     expect(self.graphFitted).toBeUndefined();
     positions = [[100, 100]];
     self.echarts.getWidth = () => 0;
-    events.get("finished")();
+    events.get("rendered")();
+    jest.advanceTimersByTime(100);
     expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
     self.echarts.getWidth = () => 900;
-    events.get("finished")();
+    events.get("rendered")();
+    jest.advanceTimersByTime(100);
     expect(self.graphFitted).toBe(true);
+  });
+
+  test.each([undefined, {zoom: 3, center: [50, 60]}])(
+    "preserves the viewport while respecting explicit options: %j",
+    (configured) => {
+      const media = [{query: {minWidth: 501}, option: {series: [{zoom: 1}]}}];
+      const option = {series: [{id: "network-graph", ...configured}], media};
+      const previous = {id: "network-graph", zoom: 2, center: [100, 200]};
+      self.echarts.getOption = () => ({series: [previous]});
+      self.graphFitted = true;
+      self.el = document.createElement("div");
+      self.event = {emit: jest.fn()};
+      self.utils = {
+        setupGraphFit: render.setupGraphFit.bind(render),
+        generateGraphOption: () => option,
+        echartsSetOption: jest.fn(),
+        _propagateGraphZoom: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
+      };
+      render.graphRender({nodes: [], links: []}, self);
+      const expected = configured || {zoom: 2, center: [100, 200]};
+      expect(option.series[0]).toEqual({id: "network-graph", ...expected});
+      expect(option.media[0].option.series[0]).toEqual(expected);
+      expect(media[0].option.series[0]).toEqual({zoom: 1});
+      expect(events.has("rendered")).toBe(false);
+    },
+  );
+
+  test("cancels a scheduled fit when its chart has been disposed", () => {
+    render.setupGraphFit(self);
+    events.get("rendered")();
+    self.echarts.isDisposed = () => true;
+    jest.advanceTimersByTime(100);
+    expect(self.echarts.dispatchAction).not.toHaveBeenCalled();
+    expect(events.size).toBe(0);
+    expect(self.cancelGraphFit).toBeNull();
+  });
+
+  test("bounds the work when a label is wider than the container", () => {
+    jest
+      .spyOn(render, "getGraphBounds")
+      .mockReturnValue(new BoundingRect(0, 0, 1200, 30));
+    render.fitGraph(self, series);
+    expect(Number.isFinite(zoom)).toBe(true);
+    expect(zoom).toBeGreaterThan(0);
+    expect(self.echarts.dispatchAction.mock.calls.length).toBeLessThanOrEqual(22);
   });
 
   test("includes transformed symbols, visible labels and curved links", () => {
@@ -235,7 +300,7 @@ describe("initial graph fitting", () => {
       eachChild: (fn) => fn(node),
       getTextContent: () => null,
     };
-    series.getData = () => ({eachItemGraphicEl: (fn) => fn(group)});
+    series.getData = () => ({getName: () => "", eachItemGraphicEl: (fn) => fn(group)});
     series.getEdgeData = () => ({
       eachItemGraphicEl: (fn) => {
         fn(element(new BoundingRect(10, 10, 60, 40)));

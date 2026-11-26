@@ -24,6 +24,146 @@ describe("Chart Rendering Test", () => {
     await tearDown(driver);
   });
 
+  test("fits during layout, ignores clicks and stops after a user pan", async () => {
+    await driver.get(urls.customAttributes);
+    await getElementByCss(driver, "canvas", 2000);
+    await driver.executeScript(`
+      graph.echarts.dispose();
+      document.body.innerHTML = '<div id="fit-case" style="width:900px;height:600px"></div>';
+      window.fitCase = new NetJSONGraph({type:'NetworkGraph',
+        nodes:[{id:'a',label:'First node',x:100,y:100},{id:'b',label:'Second node',x:200,y:200}],
+        links:[{source:'a',target:'b'}]
+      }, {el:'#fit-case', metadata:false, showGraphLabelsAtZoom:1.1});
+      window.fitSamples = [];
+      const fit = fitCase.utils.fitGraph.bind(fitCase.utils);
+      const start = performance.now();
+      fitCase.utils.fitGraph = (self, series) => {
+        fit(self, series);
+        const labels = [];
+        series.getData().eachItemGraphicEl(el => labels.push(el.getSymbolPath().getTextContent().style.text));
+        fitSamples.push({ms:performance.now()-start, zoom:series.get('zoom'), labels});
+      };
+      fitCase.render();
+    `);
+    await driver.wait(
+      () => driver.executeScript("return !!fitCase.cancelGraphFit"),
+      2000,
+    );
+    expect(
+      await driver.executeScript("return document.elementFromPoint(20, 100).tagName"),
+    ).toBe("CANVAS");
+    await driver
+      .actions()
+      .move({origin: Origin.VIEWPORT, x: 20, y: 100})
+      .click()
+      .perform();
+    await driver.wait(
+      () => driver.executeScript("return fitSamples.length >= 3"),
+      1500,
+      "Fitting should run during layout, even after an ordinary click",
+    );
+    const samples = await driver.executeScript("return fitSamples");
+    expect(samples[0].ms).toBeLessThan(1000);
+    expect(samples.some((sample) => sample.zoom > 1.1)).toBe(true);
+    expect(samples.every((sample) => sample.labels.every((label) => !label))).toBe(
+      true,
+    );
+    const result = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      fitCase.echarts.dispatchAction({type:'graphRoam',seriesId:'network-graph',dx:30,dy:20});
+      const count = fitSamples.length;
+      const before = fitCase.echarts.getOption().series[0];
+      setTimeout(() => {
+        const after = fitCase.echarts.getOption().series[0];
+        done({count, afterCount:fitSamples.length, before:{zoom:before.zoom,center:before.center},
+          after:{zoom:after.zoom,center:after.center}, pending:!!fitCase.cancelGraphFit});
+      }, 400);
+    `);
+    expect(result.afterCount).toBe(result.count);
+    expect(result.after).toEqual(result.before);
+    expect(result.pending).toBe(false);
+  });
+
+  test("fits long labels inside the padded container", async () => {
+    await driver.get(urls.customAttributes);
+    await getElementByCss(driver, "canvas", 2000);
+    await driver.executeScript(`
+      graph.echarts.dispose();
+      document.body.innerHTML = '<div id="fit-case" style="width:900px;height:600px"></div>';
+      window.fitCase = new NetJSONGraph({type:'NetworkGraph',
+        nodes:[{id:'a',label:'Long name '.repeat(12),x:100,y:100},
+          {id:'b',label:'Long name '.repeat(12),x:200,y:200}],
+        links:[{source:'a',target:'b'}]
+      }, {el:'#fit-case',metadata:false,graphConfig:{series:{layout:'none'}}});
+      fitCase.render();
+    `);
+    await driver.wait(
+      () => driver.executeScript("return fitCase.graphFitted === true"),
+      5000,
+    );
+    const bounds = await driver.executeScript(`
+      const series = fitCase.echarts.getModel().getSeriesByIndex(0);
+      const b = fitCase.utils.getGraphBounds(series);
+      return {x:b.x,y:b.y,width:b.width,height:b.height};
+    `);
+    expect(bounds.x).toBeGreaterThanOrEqual(39.5);
+    expect(bounds.y).toBeGreaterThanOrEqual(39.5);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(860.5);
+    expect(bounds.y + bounds.height).toBeLessThanOrEqual(560.5);
+    expect(bounds.width).toBeGreaterThan(800);
+  });
+
+  test("fits a fresh graph after switching to a map and back", async () => {
+    await driver.get(urls.geographicMap);
+    await driver.wait(
+      () => driver.executeScript("return !!(window.map && window.map.leaflet)"),
+      5000,
+    );
+    await driver.executeScript(`
+      map.echarts.dispose();
+      document.body.innerHTML = '<div id="mode-case" style="width:900px;height:600px"></div>';
+      window.modeCase = new NetJSONGraph({type:'NetworkGraph',
+        nodes:[{id:'a',properties:{location:{lat:47,lng:19}}},
+          {id:'b',properties:{location:{lat:48,lng:20}}}],
+        links:[{source:'a',target:'b'}]
+      }, {el:'#mode-case',metadata:false,switchMode:true,mapOptions:{center:[47,19],zoom:5}});
+      modeCase.render();
+    `);
+    await driver.wait(
+      () =>
+        driver.executeScript(
+          "return typeof modeCase !== 'undefined' && modeCase.graphFitted === true",
+        ),
+      15000,
+    );
+    await driver.executeScript("modeCase.gui.renderModeSelector.click()");
+    expect(await driver.executeScript("return modeCase.leaflet.getZoom()")).toBe(5);
+    expect(
+      await driver.executeScript("return modeCase.el.classList.contains('njg-map')"),
+    ).toBe(true);
+    await driver.executeScript("modeCase.gui.renderModeSelector.click()");
+    expect(await driver.executeScript("return modeCase.graphFitted")).toBe(false);
+    await driver.wait(
+      () => driver.executeScript("return modeCase.graphFitted === true"),
+      15000,
+    );
+    const result = await driver.executeScript(`
+      const chart = modeCase.echarts;
+      const series = chart.getModel().getSeriesByIndex(0);
+      const b = modeCase.utils.getGraphBounds(series);
+      return {id:series.id,x:b.x,y:b.y,right:b.x+b.width,bottom:b.y+b.height,
+        width:chart.getWidth(),height:chart.getHeight()};
+    `);
+    expect(result.id).toBe("network-graph");
+    expect(result.x).toBeGreaterThanOrEqual(39);
+    expect(result.y).toBeGreaterThanOrEqual(39);
+    expect(result.right).toBeLessThanOrEqual(result.width - 39);
+    expect(result.bottom).toBeLessThanOrEqual(result.height - 39);
+    const errors = await captureConsoleErrors(driver);
+    printConsoleErrors(errors);
+    expect(errors).toEqual([]);
+  }, 35000);
+
   test("fits the graph, preserves manual zoom and fits again after restore", async () => {
     await driver.get(urls.customAttributes);
     await driver.wait(
@@ -70,6 +210,17 @@ describe("Chart Rendering Test", () => {
       setTimeout(() => done(graph.echarts.getOption().series[0].zoom), 300);
     `);
     expect(manualZoom).toBeCloseTo(fitted.zoom * 0.5);
+    const updated = await driver.executeAsyncScript(`
+      const done = arguments[arguments.length - 1];
+      const chart = graph.echarts;
+      chart.dispatchAction({type:'graphRoam',seriesId:'network-graph',dx:40,dy:20});
+      const before = chart.getOption().series[0];
+      graph.utils.JSONDataUpdate.call(graph, graph.data).then(() => {
+        const after = chart.getOption().series[0];
+        done({before:{zoom:before.zoom,center:before.center},after:{zoom:after.zoom,center:after.center}});
+      });
+    `);
+    expect(updated.after).toEqual(updated.before);
     await driver.executeScript("graph.echarts.dispatchAction({type:'restore'});");
     await driver.wait(
       () => driver.executeScript("return graph.graphFitted === true"),
@@ -92,12 +243,13 @@ describe("Chart Rendering Test", () => {
   }, 35000);
 
   test.each([
-    {layout: "force", layoutAnimation: true},
-    {layout: "force", layoutAnimation: false},
-    {layout: "none", layoutAnimation: false},
+    {layout: "force", layoutAnimation: true, nodeSize: 15},
+    {layout: "force", layoutAnimation: false, nodeSize: 15},
+    {layout: "none", layoutAnimation: false, nodeSize: 15},
+    {layout: "none", layoutAnimation: false, nodeSize: 200},
   ])(
-    "fits $layout layouts (animation: $layoutAnimation) with zoom-dependent labels",
-    async ({layout, layoutAnimation}) => {
+    "fits $layout layouts (animation: $layoutAnimation, node size: $nodeSize) with zoom-dependent labels",
+    async ({layout, layoutAnimation, nodeSize}) => {
       await driver.get(urls.customAttributes);
       await getElementByCss(driver, "canvas", 2000);
       await driver.executeScript(
@@ -110,19 +262,20 @@ describe("Chart Rendering Test", () => {
         links:[{source:'a',target:'b'}]
       }, {
         el:'#fit-case', metadata:false, showGraphLabelsAtZoom:1.1,
-        graphConfig:{series:{layout:arguments[0],force:{layoutAnimation:arguments[1]}}}
+        graphConfig:{series:{layout:arguments[0],force:{layoutAnimation:arguments[1]},nodeSize:arguments[2],animationDuration:1500}}
       });
       fitCase.render();
     `,
         layout,
         layoutAnimation,
+        nodeSize,
       );
       await driver.wait(
         () =>
           driver.executeScript(`
           const chart = fitCase.echarts;
           const series = chart.getModel().getSeriesByIndex(0);
-          return fitCase.graphFitted === true && !chart.getViewOfSeriesModel(series)._layouting;
+          return fitCase.graphFitted === true && !chart.getViewOfSeriesModel(series)._layouting && chart.getZr().animation.isFinished();
         `),
         20000,
         "The fitted graph should finish layout with its labels refreshed",

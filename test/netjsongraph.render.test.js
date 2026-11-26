@@ -1270,6 +1270,7 @@ describe("Test disableClusteringAtLevel: 0", () => {
 
   test("updates the control theme when switching between map and graph", () => {
     mockSelf.echarts.off = jest.fn();
+    mockSelf.echarts.getOption = jest.fn(() => ({}));
     mockSelf.leaflet.getZoom.mockReturnValue(1);
     mockSelf.utils.generateGraphOption = jest.fn(() => ({series: []}));
     Object.assign(mockSelf.utils, {
@@ -1661,14 +1662,15 @@ describe("graph label visibility and fallbacks", () => {
     expect(fmt({data: {name: "Node1"}})).toBe("Node1");
   });
 
-  test("graphRender registers roam handler (conditional) that triggers resize on zoom", () => {
+  test("graphRender refreshes labels without restarting layout on zoom", () => {
     const render = new NetJSONGraphRender();
     const handlers = {};
     let zoom = 0.5;
     const mockSelf = {
       el: document.createElement("div"),
       utils: {
-        generateGraphOption: jest.fn(() => ({series: []})),
+        generateGraphOption: jest.fn(() => ({series: [{}]})),
+        updateGraphLabels: jest.fn(),
         echartsSetOption: jest.fn(),
         parseUrlFragments: jest.fn(),
         setupHashChangeHandler: jest.fn(),
@@ -1682,6 +1684,7 @@ describe("graph label visibility and fallbacks", () => {
         }),
         resize: jest.fn(),
         getOption: jest.fn(() => ({series: [{id: "network-graph", zoom}]})),
+        getModel: () => ({getSeriesByIndex: () => ({id: "network-graph"})}),
       },
       event: {emit: jest.fn()},
       config: {showGraphLabelsAtZoom: 1},
@@ -1692,7 +1695,8 @@ describe("graph label visibility and fallbacks", () => {
     // cross threshold upwards
     zoom = 1.2;
     handlers.graphRoam({zoom});
-    expect(mockSelf.echarts.resize).toHaveBeenCalled();
+    expect(mockSelf.utils.updateGraphLabels).toHaveBeenCalled();
+    expect(mockSelf.echarts.resize).not.toHaveBeenCalled();
   });
 });
 

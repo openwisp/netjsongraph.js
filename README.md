@@ -343,17 +343,22 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Default**: `true`
 
-  Fits the initial network graph to its container with 40 pixels of padding after
-  the layout finishes. Node symbols, visible labels and links are included in the
+  Fits the network graph as its layout moves, at most once every 100 milliseconds,
+  with 40 pixels of padding. Node symbols, labels and links are included in the
   measurement. A single node is centred without increasing its zoom.
+
+  When `showGraphLabelsAtZoom` is enabled, fitting reserves space for the labels.
+  Their visibility stays unchanged while the layout moves, then follows the final
+  zoom. This prevents labels from flickering around the threshold. Manual zooming
+  updates their visibility immediately.
 
   Set this to `false` to keep the original initial view. An explicit
   `graphConfig.series.zoom` or `graphConfig.series.center` also disables fitting.
-  The fit respects `graphConfig.series.scaleLimit`; those limits can prevent the
-  whole graph from fitting. Panning, zooming or pressing on the graph before the
-  layout finishes cancels the automatic fit. Later updates do not reset the view.
-  The toolbox's "Restore view" action fits the graph again after its layout settles,
-  while still respecting the opt-out and explicit zoom/centre settings above.
+  The fit respects `graphConfig.series.scaleLimit`; those limits, or a label wider
+  than the container, can prevent the whole graph from fitting. Panning or zooming
+  cancels the automatic fit; an ordinary click does not. Later data updates preserve
+  the current zoom and centre. "Restore view" and switching from a map to a fresh
+  graph start fitting again, respecting the opt-out and explicit view settings.
   Geographic maps are unaffected.
 
 - `maxPointsFetched`
