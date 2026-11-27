@@ -411,6 +411,32 @@ describe("initial graph fitting", () => {
     },
   );
 
+  test.each(["top", "bottom", "left", "right"])(
+    "reserves the inherited alignment of a hidden %s label",
+    (position) => {
+      const label = new graphic.Text({style: {text: "", fontSize: 14}});
+      const symbol = new graphic.Rect({shape: {x: 100, y: 100, width: 10, height: 10}});
+      symbol.setTextContent(label);
+      symbol.setTextConfig({
+        position,
+        outsideFill: "black",
+        outsideStroke: "transparent",
+      });
+      symbol.update();
+      series.getData = () => ({
+        getName: () => "A long node label",
+        eachItemGraphicEl: (callback) => callback(symbol, 0),
+      });
+      const reserved = render.getGraphBounds(series, true);
+      expect(label.style.text).toBe("");
+      label.setStyle("text", "A long node label");
+      const visible = label.getBoundingRect().clone();
+      visible.applyTransform(label.getComputedTransform());
+      visible.union(symbol.getBoundingRect());
+      expect(reserved).toEqual(visible);
+    },
+  );
+
   test("stops fitting when a settled graph has no drawable bounds", () => {
     view._layouting = false;
     jest.spyOn(render, "getGraphBounds").mockReturnValue(undefined);

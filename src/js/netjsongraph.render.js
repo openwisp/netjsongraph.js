@@ -1,4 +1,4 @@
-import {graphic, use} from "echarts/core";
+import {use} from "echarts/core";
 import {setLabelText} from "echarts/lib/label/labelStyle";
 import {install as LinesChart} from "echarts/lib/chart/lines/install";
 import {install as GraphChart} from "echarts/lib/chart/graph/install";
@@ -645,9 +645,19 @@ class NetJSONGraphRender {
       if (reserveLabels && label && !label.ignore && name && !label.style.text) {
         // Reserve hidden label space so crossing the threshold cannot change
         // the fitted zoom and immediately hide the labels again.
-        const text = new graphic.Text({style: {...label.style, text: name}});
-        const rect = text.getBoundingRect().clone();
-        rect.applyTransform(label.getComputedTransform());
+        // Measure the attached label to retain alignment inherited from its node.
+        const previousText = label.style.text;
+        let rect;
+        try {
+          label.setStyle("text", name);
+          const transform = label.getComputedTransform();
+          rect = label.getBoundingRect().clone();
+          if (transform) {
+            rect.applyTransform(transform);
+          }
+        } finally {
+          label.setStyle("text", previousText);
+        }
         if (bounds) {
           bounds.union(rect);
         } else {

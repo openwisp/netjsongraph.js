@@ -288,7 +288,8 @@ describe("Chart Rendering Test", () => {
         window.fallbackCase=new NetJSONGraph({type:'NetworkGraph',nodes:[
           {id:'a',label:'Long name '.repeat(12),x:100,y:100},
           {id:'b',label:'Long name '.repeat(12),x:200,y:200}],links:[]},
-          {el:'#fallback-case',metadata:false,showGraphLabelsAtZoom:1.01,
+          {el:'#fallback-case',metadata:false,svgRender:true,showGraphLabelsAtZoom:1.01,
+            echartsOption:{toolbox:{show:false}},
            graphConfig:{series:{layout:'none',animation:false,label:{formatter:()=>${formatted}}}}});
         fallbackCase.render();
       `);
@@ -298,17 +299,42 @@ describe("Chart Rendering Test", () => {
         "Fitting did not finish with a fallback label",
       );
       const result = await driver.executeScript(`
-        const series=fallbackCase.echarts.getModel().getSeriesByIndex(0),data=series.getData();
-        const bounds=fallbackCase.utils.getGraphBounds(series,true,fallbackCase.config.graphConfig.series.label.formatter);
-        return {zoom:series.get('zoom'),x:bounds.x,right:bounds.x+bounds.width,y:bounds.y,bottom:bounds.y+bounds.height,
-          labels:Array.from({length:data.count()},(_,i)=>data.getItemGraphicEl(i).getSymbolPath().getTextContent().style.text)};
+        const chart=fallbackCase.echarts, container=chart.getDom();
+        const view=()=>{const series=chart.getOption().series[0];
+          return {zoom:series.zoom,center:series.center};};
+        const before=view();
+        const hidden=Array.from(container.querySelectorAll('svg text'),el=>el.textContent);
+        // Reveal the reserved text without zooming, moving nodes or fitting again.
+        fallbackCase.config.showGraphLabelsAtZoom=0.000001;
+        chart.dispatchAction({type:'graphRoam',seriesId:'network-graph',zoom:1,originX:450,originY:300});
+        chart.getZr().refreshImmediately();
+        const origin=container.getBoundingClientRect();
+        const measure=selector=>Array.from(container.querySelectorAll(selector),el=>{
+          const rect=el.getBoundingClientRect();
+          return {x:rect.left-origin.left,right:rect.right-origin.left,
+            y:rect.top-origin.top,bottom:rect.bottom-origin.top};
+        });
+        return {before,after:view(),hidden,
+          nodes:measure('svg path'),labels:measure('svg text'),
+          text:Array.from(container.querySelectorAll('svg text'),el=>el.textContent)};
       `);
-      expect(result.x).toBeGreaterThanOrEqual(39.5);
-      expect(result.right).toBeLessThanOrEqual(860.5);
-      expect(result.y).toBeGreaterThanOrEqual(39.5);
-      expect(result.bottom).toBeLessThanOrEqual(560.5);
-      const text = result.zoom >= 1.01 ? "Long name ".repeat(12) : "";
-      expect(result.labels).toEqual([text, text]);
+      expect(result.after.zoom).toBeCloseTo(result.before.zoom, 8);
+      result.after.center.forEach((coordinate, index) => {
+        expect(coordinate).toBeCloseTo(result.before.center[index], 8);
+      });
+      expect(result.nodes).toHaveLength(2);
+      expect(result.labels).toHaveLength(2);
+      expect(result.text).toEqual(["Long name ".repeat(12), "Long name ".repeat(12)]);
+      [...result.nodes, ...result.labels].forEach((bounds) => {
+        expect(bounds.right).toBeGreaterThan(bounds.x);
+        expect(bounds.bottom).toBeGreaterThan(bounds.y);
+        expect(bounds.x).toBeGreaterThanOrEqual(39.5);
+        expect(bounds.right).toBeLessThanOrEqual(860.5);
+        expect(bounds.y).toBeGreaterThanOrEqual(39.5);
+        expect(bounds.bottom).toBeLessThanOrEqual(560.5);
+      });
+      expect(result.before.zoom).toBeLessThan(1.01);
+      expect(result.hidden.every((text) => text === "")).toBe(true);
     },
   );
 
