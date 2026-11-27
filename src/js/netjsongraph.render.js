@@ -871,6 +871,7 @@ class NetJSONGraphRender {
     const interacted = () => {
       self.graphFitted = true;
       self.cancelGraphFit();
+      self.graphLabelHandler?.();
     };
     self.cancelGraphFit = () => {
       clearTimeout(timer);
@@ -922,7 +923,9 @@ class NetJSONGraphRender {
         ...media,
         option: {
           ...media.option,
-          series: (media.option.series || []).map((series) => ({...series, ...view})),
+          series: []
+            .concat(media.option.series || [])
+            .map((series) => ({...series, ...view})),
         },
       }));
     }
@@ -935,7 +938,7 @@ class NetJSONGraphRender {
         ...media,
         option: {
           ...media.option,
-          series: (media.option.series || []).map((series) => {
+          series: [].concat(media.option.series || []).map((series) => {
             const responsiveStyle = {...series};
             delete responsiveStyle.zoom;
             delete responsiveStyle.center;

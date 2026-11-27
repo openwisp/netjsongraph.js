@@ -87,6 +87,55 @@ describe("Chart Rendering Test", () => {
     expect(result.pending).toBe(false);
   });
 
+  test.each(["zoom", "pan"])(
+    "refreshes labels when a %s interrupts fitting after restore",
+    async (interaction) => {
+      await driver.get(urls.customAttributes);
+      await getElementByCss(driver, "canvas", 2000);
+      await driver.executeScript(`
+        graph.echarts.dispose();
+        document.body.innerHTML='<div id="restore-case" style="width:900px;height:600px"></div>';
+        window.restoreCase=new NetJSONGraph({type:'NetworkGraph',nodes:[
+          {id:'a',label:'A',x:100,y:100},{id:'b',label:'B',x:200,y:200}],
+          links:[{source:'a',target:'b'}]},
+          {el:'#restore-case',metadata:false,showGraphLabelsAtZoom:2});
+        restoreCase.render();
+      `);
+      await driver.wait(
+        () => driver.executeScript("return restoreCase.graphFitted === true"),
+        20000,
+      );
+      await driver.executeScript(
+        "restoreCase.echarts.dispatchAction({type:'restore'});",
+      );
+      await driver.wait(
+        () =>
+          driver.executeScript(`return !!restoreCase.cancelGraphFit &&
+          restoreCase.fitLabelsVisible === false &&
+          restoreCase.echarts.getOption().series[0].zoom > 2`),
+        5000,
+        "Restore must still be fitting above the label threshold",
+      );
+      const result = await driver.executeAsyncScript(`
+        const done=arguments[arguments.length-1],chart=restoreCase.echarts;
+        const series=chart.getModel().getSeriesByIndex(0);
+        const read=()=>({zoom:series.get('zoom'),pending:!!restoreCase.cancelGraphFit,
+          text:series.getData().getItemGraphicEl(0).getSymbolPath().getTextContent().style.text});
+        const before=read();
+        const action=${interaction === "zoom" ? "{zoom:3/series.get('zoom'),originX:450,originY:300}" : "{dx:30,dy:20}"};
+        chart.dispatchAction({type:'graphRoam',seriesId:'network-graph',...action});
+        const after=read();
+        setTimeout(()=>done({before,after,later:read()}),300);
+      `);
+      expect(result.before.pending).toBe(true);
+      expect(result.before.text).toBe("");
+      expect(result.after.pending).toBe(false);
+      expect(result.after.zoom).toBeGreaterThan(2);
+      expect(result.after.text).toBe("A");
+      expect(result.later).toEqual(result.after);
+    },
+  );
+
   test("keeps hover labels in sync across the zoom threshold", async () => {
     await driver.get(urls.customAttributes);
     await getElementByCss(driver, "canvas", 2000);
@@ -178,6 +227,48 @@ describe("Chart Rendering Test", () => {
         expect(result.narrow).toBe(0.7);
         expect(result.wide.zoom).toBe(1);
       }
+    },
+  );
+
+  test.each([true, false])(
+    "renders and updates object media series with autoFitGraph=%s",
+    async (autoFitGraph) => {
+      await driver.get(urls.customAttributes);
+      await getElementByCss(driver, "canvas", 2000);
+      await driver.executeScript(`
+        graph.echarts.dispose();
+        document.body.innerHTML='<div id="media-case" style="width:900px;height:600px"></div>';
+        window.mediaCase=new NetJSONGraph({type:'NetworkGraph',nodes:[
+          {id:'a',label:'A',x:100,y:100},{id:'b',label:'B',x:200,y:200}],links:[]},
+          {el:'#media-case',metadata:false,autoFitGraph:${autoFitGraph},graphConfig:{
+            series:{layout:'none',animation:false},
+            baseOptions:{media:[{query:{maxWidth:600},option:{series:{label:{color:'red'}}}}]}
+          }});
+        mediaCase.render();
+      `);
+      await driver.wait(
+        () =>
+          driver.executeScript(`return mediaCase.echarts.getOption().series.length > 0 &&
+          (!mediaCase.config.autoFitGraph || mediaCase.graphFitted)`),
+        5000,
+        "Object-valued media settings must allow the graph to render",
+      );
+      const result = await driver.executeAsyncScript(`
+        const done=arguments[arguments.length-1],chart=mediaCase.echarts;
+        const read=()=>{const series=chart.getOption().series[0];
+          return {zoom:series.zoom,center:series.center};};
+        chart.dispatchAction({type:'graphRoam',seriesId:'network-graph',zoom:0.8,dx:20,dy:10,originX:450,originY:300});
+        const before=read();
+        mediaCase.utils.JSONDataUpdate.call(mediaCase,mediaCase.data).then(()=>{
+          const after=read();
+          chart.resize({width:450,height:600,animation:false});
+          done({before,after,narrow:read(),color:chart.getOption().series[0].label.color});
+        }).catch(error=>done({error:error.message}));
+      `);
+      expect(result.error).toBeUndefined();
+      expect(result.after).toEqual(result.before);
+      expect(result.narrow).toEqual(result.after);
+      expect(result.color).toBe("red");
     },
   );
 

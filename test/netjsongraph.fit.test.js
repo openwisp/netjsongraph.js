@@ -325,6 +325,55 @@ describe("initial graph fitting", () => {
     },
   );
 
+  test.each(
+    [true, false].flatMap((autoFitGraph) =>
+      [false, true].flatMap((updating) =>
+        ["object", "array", "absent"].map((shape) => [autoFitGraph, updating, shape]),
+      ),
+    ),
+  )(
+    "handles media series with autoFitGraph=%s, updating=%s, shape=%s",
+    (autoFitGraph, updating, shape) => {
+      self.config.autoFitGraph = autoFitGraph;
+      const style = {zoom: 0.7, center: [10, 20], label: {color: "red"}};
+      const mediaSeries = shape === "array" ? [style] : style;
+      const media = [
+        {
+          query: {maxWidth: 600},
+          option: shape === "absent" ? {} : {series: mediaSeries},
+        },
+      ];
+      const original = JSON.parse(JSON.stringify(media));
+      const option = {series: [{id: "network-graph"}], media};
+      const previous = {id: "network-graph", zoom: 2, center: [100, 200]};
+      self.echarts.getOption = () => ({series: updating ? [previous] : []});
+      self.graphFitted = updating;
+      self.el = document.createElement("div");
+      self.event = {emit: jest.fn()};
+      self.utils = {
+        setupGraphFit: render.setupGraphFit.bind(render),
+        generateGraphOption: () => option,
+        echartsSetOption: jest.fn(),
+        _propagateGraphZoom: jest.fn(),
+        setupHashChangeHandler: jest.fn(),
+      };
+      render.graphRender({nodes: [], links: []}, self);
+      expect(self.utils.echartsSetOption).toHaveBeenCalledWith(option, self);
+      expect(self.event.emit).toHaveBeenCalledWith("onLoad");
+      expect(self.event.emit).toHaveBeenCalledWith("onReady");
+      const result = option.media[0].option.series;
+      if (autoFitGraph || updating) {
+        const expected = autoFitGraph
+          ? {label: style.label}
+          : {...style, zoom: previous.zoom, center: previous.center};
+        expect(result).toEqual(shape === "absent" ? [] : [expected]);
+      } else {
+        expect(result).toEqual(shape === "absent" ? undefined : mediaSeries);
+      }
+      expect(media).toEqual(original);
+    },
+  );
+
   test("cancels a scheduled fit when its chart has been disposed", () => {
     render.setupGraphFit(self);
     events.get("rendered")();
