@@ -391,6 +391,26 @@ describe("initial graph fitting", () => {
     expect(empty.height).toBe(10);
   });
 
+  test.each([undefined, null])(
+    "reserves the node name when a formatter returns %s",
+    (formatted) => {
+      const label = new graphic.Text({style: {text: "", fontSize: 14}});
+      label.x = 100;
+      label.y = 100;
+      const symbol = new graphic.Rect({shape: {x: 100, y: 100, width: 10, height: 10}});
+      symbol.getTextContent = () => label;
+      series.getData = () => ({
+        getName: () => "A long fallback node name",
+        eachItemGraphicEl: (callback) => callback(symbol, 0),
+      });
+      series.getFormattedLabel = () => formatted;
+      const reserved = render.getGraphBounds(series, true, () => formatted);
+      expect(label.style.text).toBe("");
+      label.setStyle("text", "A long fallback node name");
+      expect(reserved).toEqual(render.getGraphBounds(series));
+    },
+  );
+
   test("stops fitting when a settled graph has no drawable bounds", () => {
     view._layouting = false;
     jest.spyOn(render, "getGraphBounds").mockReturnValue(undefined);

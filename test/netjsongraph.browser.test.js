@@ -227,6 +227,91 @@ describe("Chart Rendering Test", () => {
     },
   );
 
+  test.each(["string", "function"])(
+    "preserves %s label formatters after legend filtering",
+    async (kind) => {
+      await driver.get(urls.customAttributes);
+      await getElementByCss(driver, "canvas", 2000);
+      await driver.executeScript(`
+        graph.echarts.dispose();
+        document.body.innerHTML='<div id="legend-case" style="width:900px;height:600px"></div>';
+        window.legendCase=new NetJSONGraph({type:'NetworkGraph',nodes:[
+          {id:'a',label:'A',category:0,x:100,y:100},
+          {id:'b',label:'B',category:1,x:200,y:200},
+          {id:'c',label:'C',category:1,x:300,y:300}],links:[]},
+          {el:'#legend-case',metadata:false,autoFitGraph:false,showGraphLabelsAtZoom:0.5,
+           graphConfig:{series:{layout:'none',animation:false,categories:[{name:'Hidden'},{name:'Visible'}],
+             label:{formatter:${kind === "string" ? "'Label: {b}'" : "p => 'Label: '+p.name+' ('+p.dataIndex+')'"}}},
+             baseOptions:{legend:{data:['Hidden','Visible']}}}});
+        legendCase.render();
+      `);
+      await driver.wait(
+        () =>
+          driver.executeScript(
+            "return legendCase.echarts.getOption().series.length > 0",
+          ),
+        5000,
+      );
+      const result = await driver.executeScript(`
+        const chart=legendCase.echarts;
+        const read=()=>{const data=chart.getModel().getSeriesByIndex(0).getData();
+          return Array.from({length:data.count()},(_,i)=>({name:data.getName(i),raw:data.getRawIndex(i),
+            text:data.getItemGraphicEl(i).getSymbolPath().getTextContent().style.text}));};
+        const before=read();
+        chart.dispatchAction({type:'legendUnSelect',name:'Hidden'});
+        const filtered=read();
+        chart.dispatchAction({type:'graphRoam',seriesId:'network-graph',zoom:1.1,originX:450,originY:300});
+        const zoomed=read();
+        chart.dispatchAction({type:'legendSelect',name:'Hidden'});
+        return {before,filtered,zoomed,restored:read()};
+      `);
+      const expected = ["A", "B", "C"].map((name, raw) => ({
+        name,
+        raw,
+        text: `Label: ${name}${kind === "function" ? ` (${raw})` : ""}`,
+      }));
+      expect(result.before).toEqual(expected);
+      expect(result.filtered).toEqual(expected.slice(1));
+      expect(result.zoomed).toEqual(expected.slice(1));
+      expect(result.restored).toEqual(expected);
+    },
+  );
+
+  test.each(["undefined", "null"])(
+    "fits fallback label bounds when the formatter returns %s",
+    async (formatted) => {
+      await driver.get(urls.customAttributes);
+      await getElementByCss(driver, "canvas", 2000);
+      await driver.executeScript(`
+        graph.echarts.dispose();
+        document.body.innerHTML='<div id="fallback-case" style="width:900px;height:600px"></div>';
+        window.fallbackCase=new NetJSONGraph({type:'NetworkGraph',nodes:[
+          {id:'a',label:'Long name '.repeat(12),x:100,y:100},
+          {id:'b',label:'Long name '.repeat(12),x:200,y:200}],links:[]},
+          {el:'#fallback-case',metadata:false,showGraphLabelsAtZoom:1.01,
+           graphConfig:{series:{layout:'none',animation:false,label:{formatter:()=>${formatted}}}}});
+        fallbackCase.render();
+      `);
+      await driver.wait(
+        () => driver.executeScript("return fallbackCase.graphFitted === true"),
+        5000,
+        "Fitting did not finish with a fallback label",
+      );
+      const result = await driver.executeScript(`
+        const series=fallbackCase.echarts.getModel().getSeriesByIndex(0),data=series.getData();
+        const bounds=fallbackCase.utils.getGraphBounds(series,true,fallbackCase.config.graphConfig.series.label.formatter);
+        return {zoom:series.get('zoom'),x:bounds.x,right:bounds.x+bounds.width,y:bounds.y,bottom:bounds.y+bounds.height,
+          labels:Array.from({length:data.count()},(_,i)=>data.getItemGraphicEl(i).getSymbolPath().getTextContent().style.text)};
+      `);
+      expect(result.x).toBeGreaterThanOrEqual(39.5);
+      expect(result.right).toBeLessThanOrEqual(860.5);
+      expect(result.y).toBeGreaterThanOrEqual(39.5);
+      expect(result.bottom).toBeLessThanOrEqual(560.5);
+      const text = result.zoom >= 1.01 ? "Long name ".repeat(12) : "";
+      expect(result.labels).toEqual([text, text]);
+    },
+  );
+
   test("fits long labels inside the padded container", async () => {
     await driver.get(urls.customAttributes);
     await getElementByCss(driver, "canvas", 2000);

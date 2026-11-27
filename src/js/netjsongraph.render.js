@@ -321,9 +321,11 @@ class NetJSONGraphRender {
         if (!visible || formatter === "") {
           return "";
         }
-        return formatter
-          ? model.getFormattedLabel(params.dataIndex, "normal", null, null, formatter)
-          : (params.name ?? params.data?.name ?? "");
+        if (formatter) {
+          const index = model.getData().indexOfRawIndex(params.dataIndex);
+          return model.getFormattedLabel(index, "normal", null, null, formatter);
+        }
+        return params.name ?? params.data?.name ?? "";
       };
     }
     baseGraphSeries.label = baseGraphLabel;
@@ -660,7 +662,8 @@ class NetJSONGraphRender {
       include(
         element,
         formatter != null
-          ? series.getFormattedLabel(index, "normal", null, null, formatter)
+          ? (series.getFormattedLabel(index, "normal", null, null, formatter) ??
+              data.getName(index))
           : data.getName(index),
       ),
     );
