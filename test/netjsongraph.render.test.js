@@ -233,6 +233,101 @@ describe("highlight click handling", () => {
     expect(render.getColorWithOpacity("red", 0.5)).toBe("red");
     expect(render.getColorWithOpacity(null, 0.5)).toBeNull();
   });
+
+  test("replacing point popups preserves modifier selection and cancels stale clicks", () => {
+    jest.useFakeTimers();
+    try {
+      const render = new NetJSONGraphRender();
+      const previousPopup = {remove: jest.fn()};
+      const self = {
+        config: {
+          echartsOption: {},
+          mapOptions: {nodePopup: {show: true}},
+          onClickElement: jest.fn(),
+        },
+        echarts: {setOption: jest.fn(), on: jest.fn()},
+        leaflet: {currentPopup: previousPopup, currentPopupRequest: {}},
+        gui: {loadNodePopup: jest.fn()},
+        utils: {
+          deepMergeObj: jest.fn((base, custom) => ({...base, ...custom})),
+          addActionToUrl: jest.fn(),
+          clearHighlight: jest.fn(),
+          highlightNode: jest.fn(),
+          setTooltipVisibility: jest.fn(),
+          updateLabelVisibility: jest.fn(),
+        },
+      };
+      previousPopup.remove.mockImplementation(() => {
+        if (self.leaflet.currentPopup === previousPopup) {
+          self.utils.clearHighlight();
+        }
+      });
+      render.echartsSetOption({}, self);
+      self.utils.clearHighlight.mockClear();
+      const first = {id: "first"};
+      const second = {id: "second"};
+      self.echartsClickHandler({
+        componentSubType: "scatter",
+        data: {node: first},
+        event: {event: {ctrlKey: true}},
+      });
+      expect(previousPopup.remove).toHaveBeenCalledTimes(1);
+      expect(self.leaflet.currentPopupRequest).toBeNull();
+      expect(self.utils.clearHighlight).not.toHaveBeenCalled();
+      expect(self.utils.highlightNode).toHaveBeenLastCalledWith(
+        first,
+        expect.objectContaining({append: true, toggle: true}),
+      );
+      expect(self.utils.setTooltipVisibility).toHaveBeenCalledWith(self, true);
+      expect(self.utils.updateLabelVisibility).toHaveBeenCalledWith(self, true);
+      self.echartsClickHandler({componentSubType: "scatter", data: {node: second}});
+      expect(self.gui.loadNodePopup).not.toHaveBeenCalled();
+      jest.runAllTimers();
+      expect(self.gui.loadNodePopup).toHaveBeenCalledTimes(1);
+      expect(self.gui.loadNodePopup).toHaveBeenCalledWith(second);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test("formats graph and map tooltips and positions links inside the view", () => {
+    const render = new NetJSONGraphRender();
+    const self = {
+      config: {echartsOption: {}, mapOptions: {}},
+      echarts: {setOption: jest.fn(), on: jest.fn()},
+      utils: {
+        deepMergeObj: jest.fn((base, custom) => ({...base, ...custom})),
+        getNodeTooltipInfo: jest.fn(() => "node tooltip"),
+        getLinkTooltipInfo: jest.fn(() => "link tooltip"),
+      },
+    };
+    render.echartsSetOption({}, self);
+    const {tooltip} = self.echarts.setOption.mock.calls[0][0];
+    const node = {id: "node-1"};
+    const link = {source: "node-1", target: "node-2"};
+    expect(
+      tooltip.formatter({componentSubType: "graph", dataType: "node", data: node}),
+    ).toBe("node tooltip");
+    expect(
+      tooltip.formatter({componentSubType: "graph", dataType: "edge", data: link}),
+    ).toBe("link tooltip");
+    expect(tooltip.formatter({componentSubType: "scatter", data: {node}})).toBe(
+      "node tooltip",
+    );
+    expect(tooltip.formatter({componentSubType: "lines", data: {link}})).toBe(
+      "link tooltip",
+    );
+    const size = {viewSize: [200, 100], contentSize: [80, 40]};
+    expect(
+      tooltip.position([100, 50], {componentSubType: "scatter"}, null, null, size),
+    ).toBe("right");
+    expect(
+      tooltip.position([180, 50], {componentSubType: "scatter"}, null, null, size),
+    ).toBe("left");
+    expect(
+      tooltip.position([180, 50], {componentSubType: "lines"}, null, null, size),
+    ).toEqual([90, 30]);
+  });
 });
 
 describe("Test netjsongraph setConfig", () => {
@@ -1172,6 +1267,18 @@ describe("Test disableClusteringAtLevel: 0", () => {
     // No polygon features supplied, so no GeoJSON layer should be added
     expect(mockGeoJSONLayer.addTo).not.toHaveBeenCalled();
   });
+
+  test("updates the control theme when switching between map and graph", () => {
+    mockSelf.leaflet.getZoom.mockReturnValue(1);
+    mockSelf.utils.generateGraphOption = jest.fn(() => ({series: []}));
+    Object.assign(mockSelf.utils, {_propagateGraphZoom: jest.fn()});
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    expect(mockSelf.el.classList.contains("njg-map")).toBe(true);
+    renderInstance.graphRender({nodes: [], links: []}, mockSelf);
+    expect(mockSelf.el.classList.contains("njg-map")).toBe(false);
+    renderInstance.mapRender(mockSelf.data, mockSelf);
+    expect(mockSelf.el.classList.contains("njg-map")).toBe(true);
+  });
 });
 
 describe("Test leaflet zoomend handler and zoom control state", () => {
@@ -1329,6 +1436,7 @@ describe("mapRender – polygon overlay & moveend bbox logic", () => {
     jest.spyOn(L, "geoJSON").mockImplementation(() => mockPolygonLayer);
 
     mockSelf = {
+      el: document.createElement("div"),
       type: "geojson",
       data: {
         type: "FeatureCollection",
@@ -1551,6 +1659,7 @@ describe("graph label visibility and fallbacks", () => {
     const handlers = {};
     let zoom = 0.5;
     const mockSelf = {
+      el: document.createElement("div"),
       utils: {
         generateGraphOption: jest.fn(() => ({series: []})),
         echartsSetOption: jest.fn(),
@@ -1785,6 +1894,7 @@ describe("map series ids and name fallbacks", () => {
       getBounds: jest.fn(() => ({})),
     };
     const mockSelf = {
+      el: document.createElement("div"),
       type: "geojson",
       data: {type: "FeatureCollection", features: []},
       config: {
@@ -1845,6 +1955,7 @@ describe("mapRender label and tooltip interaction (emphasis behavior)", () => {
       _zoomAnimated: false,
     };
     mockSelf = {
+      el: document.createElement("div"),
       type: "geojson",
       data: {type: "FeatureCollection", features: []},
       config: {
@@ -2053,6 +2164,7 @@ describe("mapRender clustering label visibility", () => {
       _zoomAnimated: false,
     };
     mockSelf = {
+      el: document.createElement("div"),
       type: "geojson",
       data: {type: "FeatureCollection", features: []},
       config: {
@@ -2213,6 +2325,7 @@ const renderPolygonMap = ({
     ...leafletOverrides,
   };
   const self = {
+    el: document.createElement("div"),
     type: "geojson",
     config: {
       geoOptions: {},

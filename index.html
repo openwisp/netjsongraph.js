@@ -75,9 +75,25 @@
       }
 
       header h1 {
-        font-size: 2.5rem;
+        margin: 10px 0 0;
+        font-size: 1.25rem;
         font-weight: 700;
         color: var(--text-primary);
+      }
+
+      .logo {
+        width: 260px;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .logo-dark,
+      .dark-mode .logo-light {
+        display: none;
+      }
+
+      .dark-mode .logo-dark {
+        display: inline;
       }
 
       main {
@@ -105,8 +121,10 @@
         text-decoration: none;
         color: var(--text-secondary);
         font-weight: 500;
+        line-height: 1.5;
         padding: 15px 20px;
         width: 250px;
+        height: 100%;
         text-align: center;
         transition: all var(--transition-speed) ease;
       }
@@ -139,7 +157,17 @@
     </button>
 
     <header>
-      <h1>NetJSONGraph.js Example Demos</h1>
+      <img
+        class="logo logo-light"
+        src="./assets/images/netjson-logo.svg"
+        alt="NetJSON"
+      />
+      <img
+        class="logo logo-dark"
+        src="./assets/images/netjson-white.svg"
+        alt="NetJSON"
+      />
+      <h1>NetJSONGraph.js Demos</h1>
     </header>
 
     <main>

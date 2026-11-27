@@ -154,9 +154,35 @@ class NetJSONGraphRender {
       echartsLayer.off("click", self.echartsClickHandler);
     }
     self.echartsClickHandler = (params) => {
-      self.utils.addActionToUrl(self, params);
+      const popupSelection = {};
+      self.popupSelection = popupSelection;
       const event = params.event && (params.event.event || params.event);
       const append = Boolean(event && (event.ctrlKey || event.metaKey));
+      if (
+        params.componentSubType !== "graph" &&
+        params.componentSubType !== "lines" &&
+        params.data &&
+        !params.data.cluster &&
+        !isPolygon(params.data.node) &&
+        configs.mapOptions?.nodePopup?.show &&
+        self.leaflet
+      ) {
+        // Supersede pending content immediately, before the deferred loader
+        // starts, so an older failure cannot clear the new bookmark.
+        self.leaflet.currentPopupRequest = null;
+        if (self.leaflet.currentPopup) {
+          // Replacement is not a user close: retain selection and history.
+          const previousPopup = self.leaflet.currentPopup;
+          self.leaflet.currentPopup = null;
+          previousPopup.remove();
+          if (!append) {
+            self.utils.clearHighlight.call(self);
+          }
+          self.utils.setTooltipVisibility(self, true);
+          self.utils.updateLabelVisibility(self, true);
+        }
+      }
+      self.utils.addActionToUrl(self, params);
       const highlightOptions = {
         showInfo: true,
         append,
@@ -187,7 +213,17 @@ class NetJSONGraphRender {
       if (params.data && !params.data.cluster) {
         const {node} = params.data;
         if (configs.mapOptions?.nodePopup?.show) {
-          self.gui.loadNodePopup(node);
+          if (!isPolygon(node)) {
+            // Let Leaflet process the same click before opening the popup, so
+            // it cannot immediately close it or hide the click from listeners.
+            setTimeout(() => {
+              if (self.popupSelection === popupSelection) {
+                self.gui.loadNodePopup(node);
+              }
+            }, 0);
+          } else {
+            self.gui.loadNodePopup(node);
+          }
         }
         if (isPolygon(node)) {
           self.config.onClickElement.call(self, "Feature", {
@@ -599,6 +635,7 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, self) {
+    self.el.classList.remove("njg-map");
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
     window.onresize = () => {
       self.echarts.resize();
@@ -651,6 +688,7 @@ class NetJSONGraphRender {
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
+    self.el.classList.add("njg-map");
 
     // Accept both NetJSON and GeoJSON inputs. If GeoJSON is detected,
     // deep-copy it for polygon overlays and convert the working copy to
