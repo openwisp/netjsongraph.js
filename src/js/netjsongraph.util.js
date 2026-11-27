@@ -1583,7 +1583,10 @@ class NetJSONGraphUtil {
       return fromZoom;
     }
     const nodes = allNodes.filter(isClusterable);
-    for (let zoom = fromZoom; zoom < disableClusteringAtLevel; zoom += 1) {
+    // setView rounds the zoom to the zoomSnap of the map
+    const {zoomSnap} = self.leaflet.options;
+    const startZoom = zoomSnap ? Math.round(fromZoom / zoomSnap) * zoomSnap : fromZoom;
+    for (let zoom = startZoom; zoom < disableClusteringAtLevel; zoom += 1) {
       // makeCluster moves the drawn location, the original one is clustered
       const points = nodes.map((n) => {
         const loc = n._origLocation || n.properties?.location || n.location;
@@ -1709,8 +1712,21 @@ class NetJSONGraphUtil {
     }
     const clustered = isClustered(clusters, popup.nodeId);
     element.style.display = clustered ? "none" : "";
+    // A hidden popup must not move the map to fit itself
+    popup.options.autoPan = !clustered && popup.autoPan;
     // The tooltip of the map is hidden only while the popup is shown
     self.utils.setTooltipVisibility(self, clustered);
+  }
+
+  /**
+   * Whether the node is inside one of the given clusters.
+   *
+   * @param {Array}         clusters  Clusters currently displayed on the map
+   * @param {string|number} nodeId    ID of the node
+   * @returns {boolean}
+   */
+  isClustered(clusters, nodeId) {
+    return isClustered(clusters, nodeId);
   }
 
   setupHashChangeHandler(self) {

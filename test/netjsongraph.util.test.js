@@ -1,3 +1,4 @@
+import L from "leaflet";
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
 import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 
@@ -446,6 +447,7 @@ describe("Test URL fragment utilities", () => {
       data: {nodes: [node, neighbor], links: []},
       nodeLinkIndex: {n1: node},
       leaflet: {
+        options: {zoomSnap: 1},
         project: ([lat, lng], zoom) => ({
           x: lng * 2 ** zoom,
           y: lat * 2 ** zoom,
@@ -475,6 +477,36 @@ describe("Test URL fragment utilities", () => {
     self.config.bookmarkableActions.zoomLevel = 17;
     utils.applyUrlFragmentState(self);
     expect(setView).toHaveBeenLastCalledWith([0, 0], 17);
+  });
+
+  test("getUnclusteredZoom predicts clusters at the zoom Leaflet applies", () => {
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const map = L.map(el, {minZoom: 0, maxZoom: 18, zoomSnap: 1}).setView([0, 0], 4);
+    // 81 pixels apart at zoom 3.4, which Leaflet rounds to zoom 3
+    const a = map.unproject([1000, 1000], 3.4);
+    const b = map.unproject([1081, 1000], 3.4);
+    const nodes = [a, b].map((loc, id) => ({
+      id,
+      location: {lat: loc.lat, lng: loc.lng},
+      properties: {},
+    }));
+    const self = {
+      leaflet: map,
+      data: {nodes, links: []},
+      config: {
+        clustering: true,
+        clusteringThreshold: 0,
+        clusterRadius: 80,
+        disableClusteringAtLevel: 8,
+        mapOptions: {clusterConfig: {}},
+      },
+    };
+    const zoom = utils.getUnclusteredZoom(self, nodes[0], 3.4);
+    map.setView(a, zoom, {animate: false});
+    expect(utils.makeCluster(self).clusters).toHaveLength(0);
+    map.remove();
+    el.remove();
   });
 
   test("applyUrlFragmentState does not change the zoom on Back and Forward unless the node is clustered", () => {
@@ -1554,7 +1586,12 @@ describe("updateClusteredPopup", () => {
     const util = new NetJSONGraphUtil();
     const element = document.createElement("div");
     // The popup stores the node id as a string, unlike the clustered node
-    const popup = {nodeId: "1", getElement: () => element, remove: jest.fn()};
+    const popup = {
+      nodeId: "1",
+      options: {},
+      getElement: () => element,
+      remove: jest.fn(),
+    };
     const self = {
       leaflet: {currentPopup: popup},
       utils: {setTooltipVisibility: jest.fn()},

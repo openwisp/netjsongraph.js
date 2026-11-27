@@ -454,6 +454,11 @@ class NetJSONGraphGUI {
     });
 
     popup.nodeId = popupNodeId;
+    // Leaflet pans to fit the popup while opening it, which must not happen
+    // when the popup is hidden in a cluster, the autoPan of the config is kept
+    popup.autoPan = popup.options.autoPan;
+    popup.options.autoPan =
+      popup.autoPan && !self.utils.isClustered(self.clusters || [], popupNodeId);
     self.leaflet.currentPopup = popup;
     popup.openOn(self.leaflet);
     // Hide tooltip and labels while the popup is open
