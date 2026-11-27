@@ -775,6 +775,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     originalLeaflet = window.L;
     mockLeafletPopup({
       querySelector: jest.fn(),
+      style: {},
     });
     container = document.createElement("div");
     container.setAttribute("id", "test-popup-map");
@@ -830,6 +831,30 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     expect(testGraph.utils.updateLabelVisibility).toHaveBeenCalledWith(
       testGraph,
       false,
+    );
+  });
+
+  test("loadNodePopup hides the popup of a node which is already clustered", async () => {
+    const popupElement = {querySelector: jest.fn(), style: {}};
+    mockLeafletPopup(popupElement);
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
+      currentPopup: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    testGraph.clusters = [{cluster: true, childNodes: [node]}];
+    await testGraph.gui.loadNodePopup(node);
+    expect(testGraph.leaflet.currentPopup).toBe(mockPopup);
+    expect(popupElement.style.display).toBe("none");
+    // The tooltip of the map is not hidden by a hidden popup
+    expect(testGraph.utils.setTooltipVisibility).toHaveBeenLastCalledWith(
+      testGraph,
+      true,
     );
   });
 

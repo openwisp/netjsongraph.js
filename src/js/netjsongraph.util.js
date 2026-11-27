@@ -3,6 +3,18 @@ import KDBush from "kdbush";
 import {geojsonToNetjson as convertGeojson, isPolygon} from "./netjsongraph.geojson";
 
 /**
+ * Whether the node with the given id is inside one of the given clusters.
+ *
+ * @param {Array}         clusters  Clusters currently displayed on the map
+ * @param {string|number} nodeId
+ * @returns {boolean}
+ */
+const isClustered = (clusters, nodeId) =>
+  clusters.some((cluster) =>
+    cluster.childNodes.some((node) => String(node.id) === String(nodeId)),
+  );
+
+/**
  * @class
  * NetJSONGraphUtil - Core utility functions for data manipulation and processing.
  *
@@ -1530,7 +1542,15 @@ class NetJSONGraphUtil {
     this.updateUrlFragments(fragments, state, replace);
   }
 
-  applyUrlFragmentState(self) {
+  /**
+   * Open the element selected in the URL.
+   *
+   * @param {Object}  self         NetJSONGraph instance
+   * @param {boolean} fromHistory  Whether the user went back or forward in
+   *   the history: the view, which the user has chosen, is then kept when the
+   *   element is shown in it.
+   */
+  applyUrlFragmentState(self, fromHistory = false) {
     // Browser navigation supersedes any point popup queued by an earlier click.
     self.popupSelection = null;
     if (!self.config.bookmarkableActions.enabled) {
@@ -1572,14 +1592,22 @@ class NetJSONGraphUtil {
       location != null
     ) {
       const center = [location.lat, location.lng];
-      const {clustering, disableClusteringAtLevel} = self.config;
-      let zoom =
-        self.config.bookmarkableActions.zoomLevel || self.config.showMapLabelsAtZoom;
-      if (clustering) {
-        zoom = Math.max(zoom, disableClusteringAtLevel);
-      }
       if (self.leaflet) {
-        self.leaflet.setView(center, zoom);
+        if (fromHistory && !isClustered(self.clusters || [], node.id)) {
+          // The element is drawn at the current zoom, show it without zooming
+          if (!self.leaflet.getBounds().contains(center)) {
+            self.leaflet.panTo(center);
+          }
+        } else {
+          const {clustering, disableClusteringAtLevel} = self.config;
+          let zoom =
+            self.config.bookmarkableActions.zoomLevel ||
+            self.config.showMapLabelsAtZoom;
+          if (clustering) {
+            zoom = Math.max(zoom, disableClusteringAtLevel);
+          }
+          self.leaflet.setView(center, zoom);
+        }
       }
     }
     if (target == null && self.config.mapOptions?.nodePopup?.show) {
@@ -1600,13 +1628,34 @@ class NetJSONGraphUtil {
     }
   }
 
+  /**
+   * Hide the open popup while its node is inside one of the given clusters,
+   * and show it again once the node is drawn on its own.
+   *
+   * The popup is not closed: its node stays selected and in the URL.
+   *
+   * @param {Object} self      NetJSONGraph instance
+   * @param {Array}  clusters  Clusters currently displayed on the map
+   */
+  updateClusteredPopup(self, clusters = []) {
+    const popup = self.leaflet?.currentPopup;
+    const element = popup?.getElement?.();
+    if (!element || popup.nodeId == null) {
+      return;
+    }
+    const clustered = isClustered(clusters, popup.nodeId);
+    element.style.display = clustered ? "none" : "";
+    // The tooltip of the map is hidden only while the popup is shown
+    self.utils.setTooltipVisibility(self, clustered);
+  }
+
   setupHashChangeHandler(self) {
     // Avoid duplicate listeners per instance
     if (self._popstateHandler) {
       window.removeEventListener("popstate", self._popstateHandler);
     }
     self._popstateHandler = (event) => {
-      this.applyUrlFragmentState(self);
+      this.applyUrlFragmentState(self, true);
       if (event && event._fragmentchangePending) {
         return;
       }

@@ -2405,19 +2405,70 @@ describe("mapRender hides clustered polygons", () => {
     expect(shown.has(layers[0])).toBe(true);
   });
 
-  test("polygons stay visible when viewport data is removed", async () => {
+  test("zooming passes the shown clusters to the popup, or none when clustering is off", () => {
+    const clusters = [{cluster: true, childNodes: [area, point]}];
+    const makeCluster = jest.fn(() => ({
+      clusters,
+      nonClusterNodes: [],
+      nonClusterLinks: [],
+    }));
+    const updateClusteredPopup = jest.fn();
+    const {self, leaflet, capturedEvents} = renderPolygonMap({
+      zoom: 5,
+      nodes: [area, point],
+      config: clustering,
+      utils: {makeCluster, updateClusteredPopup},
+    });
+    capturedEvents.zoomend();
+    expect(updateClusteredPopup).toHaveBeenLastCalledWith(self, clusters);
+    // Nothing is clustered at disableClusteringAtLevel and above
+    leaflet.getZoom.mockReturnValue(9);
+    capturedEvents.zoomend();
+    expect(updateClusteredPopup).toHaveBeenLastCalledWith(self, []);
+  });
+
+  test("clicking a cluster zooms in without letting Leaflet close the open popup", () => {
+    const setView = jest.fn();
+    const makeCluster = jest.fn(() => ({
+      clusters: [],
+      nonClusterNodes: [area, point],
+      nonClusterLinks: [],
+    }));
+    const {self} = renderPolygonMap({
+      zoom: 5,
+      nodes: [area, point],
+      config: clustering,
+      utils: {makeCluster},
+      leaflet: {setView},
+    });
+    const [, clusterClick] = self.echarts.on.mock.calls.find(
+      ([event, handler]) => event === "click" && handler !== self.echartsClickHandler,
+    );
+    const stopPropagation = jest.fn();
+    clusterClick({
+      componentSubType: "scatter",
+      data: {cluster: true, value: [1, 2]},
+      event: {event: {stopPropagation}},
+    });
+    expect(stopPropagation).toHaveBeenCalledTimes(1);
+    expect(setView).toHaveBeenCalledWith([2, 1], 7);
+  });
+
+  test("polygons and the popup stay visible when viewport data is removed", async () => {
     const fetched = {id: "fetched", properties: {location: {lat: 1, lng: 1}}};
     const makeCluster = jest.fn(() => ({
       clusters: [],
       nonClusterNodes: [area],
       nonClusterLinks: [],
     }));
+    const updateClusteredPopup = jest.fn();
     const {self, leaflet, layers, shown, capturedEvents} = renderPolygonMap({
       zoom: 9,
       nodes: [area],
       config: {...clustering, loadMoreAtZoomLevel: 9, prepareData: jest.fn()},
       utils: {
         makeCluster,
+        updateClusteredPopup,
         getBBoxData: jest.fn(() => Promise.resolve({nodes: [fetched], links: []})),
       },
       leaflet: {getBounds: jest.fn(() => ({}))},
@@ -2443,9 +2494,13 @@ describe("mapRender hides clustered polygons", () => {
     });
     capturedEvents.zoomend();
     expect(shown.has(layers[0])).toBe(false);
+    expect(self.clusters[0].childNodes).toContain(area);
     await capturedEvents.moveend();
     expect(self.bboxData.nodes).toEqual([]);
     expect(shown.has(layers[0])).toBe(true);
+    // The chart is redrawn without clusters
+    expect(self.clusters).toEqual([]);
+    expect(updateClusteredPopup).toHaveBeenLastCalledWith(self, []);
   });
 
   test("polygons stay visible when the map opens at disableClusteringAtLevel", () => {
@@ -2497,7 +2552,7 @@ describe("Polygon clicks are forwarded to ECharts", () => {
       },
     };
     const point = {id: "point", properties: {location: {lat: 5, lng: 5}}};
-    const {self, clickHandlers} = renderPolygonMap({
+    const {self, clickHandlers, layers} = renderPolygonMap({
       zoom: 5,
       nodes: [point, node],
       features: [
@@ -2513,7 +2568,7 @@ describe("Polygon clicks are forwarded to ECharts", () => {
       utils: {clearHighlight: jest.fn()},
       self: {data: {nodes: [point, node], links: []}, echartsClickHandler: jest.fn()},
     });
-    return {self, node, clickHandlers};
+    return {self, node, clickHandlers, layers};
   };
 
   test("clicking a polygon triggers the click handler with its node", () => {
@@ -2533,6 +2588,11 @@ describe("Polygon clicks are forwarded to ECharts", () => {
     expect(node.location).toEqual({lat: 2, lng: 2});
     expect(node.properties.location).toEqual({lat: 2, lng: 2});
     expect(self.utils.clearHighlight).toHaveBeenCalledTimes(1);
+  });
+
+  test("clicking a polygon does not let Leaflet close the open popup first", () => {
+    const {layers} = setUp();
+    expect(layers[0].on).toHaveBeenCalledWith("preclick", L.DomEvent.stopPropagation);
   });
 
   test("a custom geoOptions.onEachFeature replaces the default click handling", () => {

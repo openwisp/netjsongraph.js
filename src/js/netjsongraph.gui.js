@@ -453,11 +453,15 @@ class NetJSONGraphGUI {
       }
     });
 
+    popup.nodeId = popupNodeId;
     self.leaflet.currentPopup = popup;
     popup.openOn(self.leaflet);
     // Hide tooltip and labels while the popup is open
     self.utils.setTooltipVisibility(self, false);
     self.utils.updateLabelVisibility(self, false);
+    // The node may be in a cluster already, without a zoom which would hide
+    // the popup, e.g. when the view is not changed to restore the node
+    self.utils.updateClusteredPopup(self, self.clusters || []);
 
     const {onOpen} = self.config.mapOptions.nodePopup;
     if (typeof onOpen === "function") {

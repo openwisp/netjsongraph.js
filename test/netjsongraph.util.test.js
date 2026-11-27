@@ -421,10 +421,10 @@ describe("Test URL fragment utilities", () => {
     pushState.mockRestore();
   });
 
-  test("applyUrlFragmentState zooms in enough to show a restored node when clustering is enabled", () => {
-    const mockSetView = jest.fn();
-    const node = {id: "n1", location: {lat: 12.1, lng: 77.5}, cluster: null};
-    const self = {
+  // A clustered map whose node n1 is selected in the URL
+  const clusteredMapWithSelectedNode = (node, leaflet) => {
+    window.location.hash = "#id=geo&nodeId=n1";
+    return {
       config: {
         render: "map",
         clustering: true,
@@ -438,10 +438,15 @@ describe("Test URL fragment utilities", () => {
         mapOptions: {nodeConfig: {type: "scatter"}},
       },
       nodeLinkIndex: {n1: node},
-      leaflet: {setView: mockSetView},
+      leaflet,
       utils,
     };
-    window.location.hash = "#id=geo&nodeId=n1";
+  };
+
+  test("applyUrlFragmentState zooms in enough to show a restored node when clustering is enabled", () => {
+    const mockSetView = jest.fn();
+    const node = {id: "n1", location: {lat: 12.1, lng: 77.5}, cluster: null};
+    const self = clusteredMapWithSelectedNode(node, {setView: mockSetView});
     utils.applyUrlFragmentState(self);
     expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 15);
     node.cluster = 0;
@@ -450,6 +455,29 @@ describe("Test URL fragment utilities", () => {
     self.config.bookmarkableActions.zoomLevel = 17;
     utils.applyUrlFragmentState(self);
     expect(mockSetView).toHaveBeenLastCalledWith([12.1, 77.5], 17);
+  });
+
+  test("applyUrlFragmentState does not change the zoom on Back and Forward unless the node is clustered", () => {
+    const node = {id: "n1", location: {lat: 12.1, lng: 77.5}};
+    const contains = jest.fn(() => true);
+    const self = clusteredMapWithSelectedNode(node, {
+      setView: jest.fn(),
+      panTo: jest.fn(),
+      getBounds: () => ({contains}),
+    });
+    // The node is in the view
+    utils.applyUrlFragmentState(self, true);
+    expect(contains).toHaveBeenCalledWith([12.1, 77.5]);
+    expect(self.leaflet.panTo).not.toHaveBeenCalled();
+    // The node is out of the view
+    contains.mockReturnValue(false);
+    utils.applyUrlFragmentState(self, true);
+    expect(self.leaflet.panTo).toHaveBeenCalledWith([12.1, 77.5]);
+    expect(self.leaflet.setView).not.toHaveBeenCalled();
+    // The node is clustered
+    self.clusters = [{cluster: true, childNodes: [node]}];
+    utils.applyUrlFragmentState(self, true);
+    expect(self.leaflet.setView).toHaveBeenCalledWith([12.1, 77.5], 15);
   });
 
   test("applyUrlFragmentState shows a polygon as when its shape is clicked", () => {
@@ -1059,7 +1087,7 @@ describe("Test setupHashChangeHandler fragmentchange event", () => {
     util.setupHashChangeHandler(self);
     const popstateEvent = {};
     self._popstateHandler(popstateEvent);
-    expect(applySpy).toHaveBeenCalledWith(self);
+    expect(applySpy).toHaveBeenCalledWith(self, true);
     // Dispatch is deferred via queueMicrotask — not yet called
     expect(dispatchSpy).not.toHaveBeenCalled();
     // Flush microtasks
@@ -1087,8 +1115,8 @@ describe("Test setupHashChangeHandler fragmentchange event", () => {
     const popstateEvent = {};
     self1._popstateHandler(popstateEvent);
     self2._popstateHandler(popstateEvent);
-    expect(util1.applyUrlFragmentState).toHaveBeenCalledWith(self1);
-    expect(util2.applyUrlFragmentState).toHaveBeenCalledWith(self2);
+    expect(util1.applyUrlFragmentState).toHaveBeenCalledWith(self1, true);
+    expect(util2.applyUrlFragmentState).toHaveBeenCalledWith(self2, true);
     // Both handlers ran — state restored, but dispatch queued as microtask
     expect(dispatchSpy).not.toHaveBeenCalled();
     // Flush microtasks
@@ -1498,5 +1526,40 @@ describe("Test highlight utilities", () => {
       type: "hideTip",
     });
     expect(mockSelf.activeHighlightedElements).toEqual([]);
+  });
+});
+
+describe("updateClusteredPopup", () => {
+  const setUp = () => {
+    const util = new NetJSONGraphUtil();
+    const element = document.createElement("div");
+    // The popup stores the node id as a string, unlike the clustered node
+    const popup = {nodeId: "1", getElement: () => element, remove: jest.fn()};
+    const self = {
+      leaflet: {currentPopup: popup},
+      utils: {setTooltipVisibility: jest.fn()},
+    };
+    return {util, element, popup, self};
+  };
+  const clusters = [{cluster: true, childNodes: [{id: 1}]}];
+
+  test("hides the popup of a clustered node and shows it again when unclustered", () => {
+    const {util, element, popup, self} = setUp();
+    util.updateClusteredPopup(self, clusters);
+    expect(element.style.display).toBe("none");
+    expect(self.utils.setTooltipVisibility).toHaveBeenLastCalledWith(self, true);
+    util.updateClusteredPopup(self, []);
+    expect(element.style.display).toBe("");
+    expect(self.utils.setTooltipVisibility).toHaveBeenLastCalledWith(self, false);
+    // The popup is not closed, which would remove the node from the URL
+    expect(self.leaflet.currentPopup).toBe(popup);
+    expect(popup.remove).not.toHaveBeenCalled();
+  });
+
+  test("does nothing without an open popup", () => {
+    const {util, self} = setUp();
+    self.leaflet.currentPopup = null;
+    expect(() => util.updateClusteredPopup(self, clusters)).not.toThrow();
+    expect(self.utils.setTooltipVisibility).not.toHaveBeenCalled();
   });
 });
