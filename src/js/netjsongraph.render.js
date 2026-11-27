@@ -311,30 +311,20 @@ class NetJSONGraphRender {
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
 
-    // Shared helper to get current graph zoom level
-    const getGraphZoom = () => {
-      try {
-        const option = self.echarts.getOption();
-        const series = Array.isArray(option.series) ? option.series : [];
-        const graphSeries = series.find((s) => s && s.id === "network-graph");
-        return graphSeries && typeof graphSeries.zoom === "number"
-          ? graphSeries.zoom
-          : 1;
-      } catch (e) {
-        return 1;
-      }
-    };
-
-    // Set up dynamic label visibility based on zoom threshold
-    if (
-      typeof self.config.showGraphLabelsAtZoom === "number" &&
-      self.config.showGraphLabelsAtZoom > 0
-    ) {
-      const threshold = self.config.showGraphLabelsAtZoom;
-      baseGraphLabel.formatter = (params) =>
-        (self.fitLabelsVisible ?? getGraphZoom() >= threshold)
-          ? (params && params.data && params.data.name) || ""
-          : "";
+    if (self.config.showGraphLabelsAtZoom > 0) {
+      const {formatter} = baseGraphLabel;
+      baseGraphLabel.formatter = (params) => {
+        const model = self.echarts.getModel().getSeriesByIndex(0);
+        const visible =
+          self.fitLabelsVisible ??
+          (model.get("zoom") || 1) >= self.config.showGraphLabelsAtZoom;
+        if (!visible || formatter === "") {
+          return "";
+        }
+        return formatter
+          ? model.getFormattedLabel(params.dataIndex, "normal", null, null, formatter)
+          : (params.name ?? params.data?.name ?? "");
+      };
     }
     baseGraphSeries.label = baseGraphLabel;
     const series = [
@@ -626,7 +616,7 @@ class NetJSONGraphRender {
     );
   }
 
-  getGraphBounds(series, reserveLabels = false) {
+  getGraphBounds(series, reserveLabels = false, formatter = null) {
     let bounds;
     const include = (element, name) => {
       if (!element || element.ignore || element.invisible) {
@@ -666,89 +656,112 @@ class NetJSONGraphRender {
       }
     };
     const data = series.getData();
-    data.eachItemGraphicEl((element, index) => include(element, data.getName(index)));
+    data.eachItemGraphicEl((element, index) =>
+      include(
+        element,
+        formatter != null
+          ? series.getFormattedLabel(index, "normal", null, null, formatter)
+          : data.getName(index),
+      ),
+    );
     series.getEdgeData().eachItemGraphicEl((element) => include(element));
     return bounds;
   }
 
-  fitGraph(self, series) {
+  fitGraph(self, series, state = {}) {
     const chart = self.echarts;
     const width = chart.getWidth();
     const height = chart.getHeight();
     const padding = 40;
     if (width <= padding * 2 || height <= padding * 2) {
-      return;
+      return false;
     }
     const limit = series.get("scaleLimit") || {};
     const reserveLabels = self.config.showGraphLabelsAtZoom > 0;
-    const measure = () => this.getGraphBounds(series, reserveLabels);
-    const zoomBy = (factor) => {
+    const measure = () =>
+      this.getGraphBounds(
+        series,
+        reserveLabels,
+        self.config.graphConfig.series.label?.formatter,
+      );
+    const setZoom = (zoom) => {
       chart.dispatchAction(
         {
           type: "graphRoam",
           seriesId: series.id,
-          zoom: factor,
+          zoom: zoom / (series.get("zoom") || 1),
           originX: width / 2,
           originY: height / 2,
         },
         {silent: true},
       );
     };
-    // A restore transition can leave the model zoom ahead of the visible view.
-    // A neutral roam synchronizes them before we bracket the fitting zoom.
-    zoomBy(1);
-    const setZoom = (zoom) => {
-      const current = series.get("zoom") || 1;
-      if (Math.abs(zoom - current) >= 1e-8) {
-        zoomBy(zoom / current);
-      }
-    };
-    let lower = 0;
-    let upper = Infinity;
-    // Text does not scale with node positions. Bracket the fitting zoom and
-    // bisect instead of assuming that repeated proportional corrections fit it.
-    for (let attempt = 0; attempt < 20; attempt += 1) {
-      const bounds = measure();
-      if (!bounds || !bounds.width || !bounds.height) {
-        return;
-      }
-      const zoom = series.get("zoom") || 1;
-      const ratio = Math.max(
-        bounds.width / (width - padding * 2),
-        bounds.height / (height - padding * 2),
+    // Restore animations can leave the visible transform behind the model.
+    if (!state.synced) {
+      setZoom(series.get("zoom") || 1);
+      state.synced = true;
+    }
+    if (state.width !== width || state.height !== height) {
+      state.lower = 0;
+      state.upper = Infinity;
+      state.attempts = 0;
+      state.width = width;
+      state.height = height;
+    }
+    let bounds = measure();
+    if (!bounds || !bounds.width || !bounds.height) {
+      return true;
+    }
+    const ratioOf = (rect) =>
+      Math.max(
+        rect.width / (width - padding * 2),
+        rect.height / (height - padding * 2),
       );
+    const ratio = ratioOf(bounds);
+    const zoom = series.get("zoom") || 1;
+    let finished = series.getData().count() === 1 || (ratio <= 1 && 1 - ratio < 0.0005);
+    if (!finished) {
       if (ratio <= 1) {
-        lower = zoom;
+        state.lower = zoom;
       } else {
-        upper = zoom;
+        state.upper = zoom;
       }
-      if (series.getData().count() === 1 || (ratio <= 1 && 1 - ratio < 0.0005)) {
-        break;
-      }
-      let target = zoom / ratio;
-      if (attempt > 0) {
-        target = Number.isFinite(upper) ? (lower + upper) / 2 : target * 1.05;
-      }
+      // Keep the bracket between scheduled passes instead of repeatedly
+      // measuring and transforming the entire graph in one callback.
+      let target =
+        state.attempts && Number.isFinite(state.upper)
+          ? ((state.lower || 0) + state.upper) / 2
+          : zoom / ratio;
       target = Math.max(limit.min || 1e-6, Math.min(limit.max || Infinity, target));
+      state.attempts = (state.attempts || 0) + 1;
       if (Math.abs(target - zoom) < 1e-8) {
-        break;
+        finished = true;
+      } else {
+        setZoom(target);
+        bounds = measure();
+        const nextRatio = ratioOf(bounds);
+        if (nextRatio <= 1) {
+          state.lower = series.get("zoom") || 1;
+        }
+        finished = nextRatio <= 1 && 1 - nextRatio < 0.0005;
       }
-      setZoom(target);
-    }
-    if (lower && (series.get("zoom") || 1) > lower) {
-      setZoom(Math.max(limit.min || 1e-6, lower));
-    }
-    const bounds = measure();
-    if (bounds) {
-      const dx = width / 2 - (bounds.x + bounds.width / 2);
-      const dy = height / 2 - (bounds.y + bounds.height / 2);
-      if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
-        chart.dispatchAction(
-          {type: "graphRoam", seriesId: series.id, dx, dy},
-          {silent: true},
-        );
+      if (state.attempts >= 20) {
+        if (state.lower && (series.get("zoom") || 1) > state.lower) {
+          setZoom(Math.max(limit.min || 1e-6, state.lower));
+          bounds = measure();
+        }
+        finished = true;
       }
     }
+    const dx = width / 2 - (bounds.x + bounds.width / 2);
+    const dy = height / 2 - (bounds.y + bounds.height / 2);
+    if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+      chart.dispatchAction(
+        {type: "graphRoam", seriesId: series.id, dx, dy},
+        {silent: true},
+      );
+    }
+    return finished;
   }
 
   updateGraphLabels(self, series) {
@@ -760,8 +773,14 @@ class NetJSONGraphRender {
     data.eachItemGraphicEl((element, index) => {
       const label = element.getSymbolPath().getTextContent();
       if (label) {
-        const text = visible ? data.getName(index) : "";
-        setLabelText(label, {normal: text, emphasis: text, blur: text, select: text});
+        const normal = series.getFormattedLabel(index, "normal") ?? data.getName(index);
+        const text = {normal: visible ? normal : ""};
+        ["emphasis", "blur", "select"].forEach((state) => {
+          text[state] = visible
+            ? (series.getFormattedLabel(index, state) ?? normal)
+            : "";
+        });
+        setLabelText(label, text);
       }
     });
   }
@@ -779,6 +798,7 @@ class NetJSONGraphRender {
     }
     const chart = self.echarts;
     let timer;
+    const state = {};
     const fit = () => {
       timer = null;
       if (chart.isDisposed()) {
@@ -801,8 +821,17 @@ class NetJSONGraphRender {
         self.fitLabelsVisible =
           (series.get("zoom") || 1) >= self.config.showGraphLabelsAtZoom;
       }
-      this.fitGraph(self, series);
       const view = chart.getViewOfSeriesModel(series);
+      const settled =
+        (series.get("layout") !== "force" || !view || !view._layouting) &&
+        chart.getZr().animation.isFinished();
+      if (!settled || !state.settled) {
+        state.lower = 0;
+        state.upper = Infinity;
+        state.attempts = 0;
+      }
+      state.settled = settled;
+      const fitted = this.fitGraph(self, series, state);
       if (
         series.get("layout") === "force" &&
         view &&
@@ -813,13 +842,12 @@ class NetJSONGraphRender {
         console.warn("autoFitGraph: cannot reliably detect force layout completion.");
       }
       // The flag only controls completion; fitting already runs on each frame.
-      if (
-        (series.get("layout") !== "force" || !view || !view._layouting) &&
-        chart.getZr().animation.isFinished()
-      ) {
+      if (settled && fitted) {
         self.graphFitted = true;
         self.cancelGraphFit();
         this.updateGraphLabels(self, series);
+      } else if (settled && !timer) {
+        timer = setTimeout(fit, 100);
       }
     };
     const rendered = () => {
@@ -885,6 +913,24 @@ class NetJSONGraphRender {
         },
       }));
     }
+    if (
+      self.config.autoFitGraph &&
+      self.config.graphConfig.series.zoom === undefined &&
+      self.config.graphConfig.series.center === undefined
+    ) {
+      option.media = (option.media || []).map((media) => ({
+        ...media,
+        option: {
+          ...media.option,
+          series: (media.option.series || []).map((series) => {
+            const responsiveStyle = {...series};
+            delete responsiveStyle.zoom;
+            delete responsiveStyle.center;
+            return responsiveStyle;
+          }),
+        },
+      }));
+    }
     self.utils.echartsSetOption(option, self);
     window.onresize = () => {
       chart.resize();
@@ -902,6 +948,7 @@ class NetJSONGraphRender {
         }
       };
       chart.on("graphRoam", self.graphLabelHandler);
+      self.graphLabelHandler();
     }
 
     self.utils.setupHashChangeHandler(self);

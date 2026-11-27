@@ -47,6 +47,7 @@ describe("initial graph fitting", () => {
       id: "network-graph",
       get: (name) => ({layout: "force", zoom, scaleLimit: limit})[name],
       getData: () => data,
+      getFormattedLabel: () => undefined,
       getEdgeData: () => ({eachItemGraphicEl: () => {}}),
     };
     self = {
@@ -189,7 +190,7 @@ describe("initial graph fitting", () => {
     self.event = {emit: jest.fn()};
     self.utils = {
       setupGraphFit: render.setupGraphFit.bind(render),
-      generateGraphOption: jest.fn(),
+      generateGraphOption: jest.fn(() => ({series: [{}]})),
       echartsSetOption: jest.fn(),
       _propagateGraphZoom: jest.fn(),
       setupHashChangeHandler: jest.fn(),
@@ -302,6 +303,7 @@ describe("initial graph fitting", () => {
     (configured) => {
       const media = [{query: {minWidth: 501}, option: {series: [{zoom: 1}]}}];
       const option = {series: [{id: "network-graph", ...configured}], media};
+      Object.assign(self.config.graphConfig.series, configured);
       const previous = {id: "network-graph", zoom: 2, center: [100, 200]};
       self.echarts.getOption = () => ({series: [previous]});
       self.graphFitted = true;
@@ -317,7 +319,7 @@ describe("initial graph fitting", () => {
       render.graphRender({nodes: [], links: []}, self);
       const expected = configured || {zoom: 2, center: [100, 200]};
       expect(option.series[0]).toEqual({id: "network-graph", ...expected});
-      expect(option.media[0].option.series[0]).toEqual(expected);
+      expect(option.media[0].option.series[0]).toEqual(configured ? expected : {});
       expect(media[0].option.series[0]).toEqual({zoom: 1});
       expect(events.has("rendered")).toBe(false);
     },
@@ -382,6 +384,44 @@ describe("initial graph fitting", () => {
     label.setStyle("text", "A long node label");
     const visible = render.getGraphBounds(series);
     expect(reserved).toEqual(visible);
+    label.setStyle("text", "");
+    series.getFormattedLabel = () => "";
+    const empty = render.getGraphBounds(series, true, "");
+    expect(empty.width).toBe(10);
+    expect(empty.height).toBe(10);
+  });
+
+  test("stops fitting when a settled graph has no drawable bounds", () => {
+    view._layouting = false;
+    jest.spyOn(render, "getGraphBounds").mockReturnValue(undefined);
+    render.setupGraphFit(self);
+    events.get("rendered")();
+    jest.advanceTimersByTime(100);
+    expect(self.graphFitted).toBe(true);
+    expect(self.cancelGraphFit).toBeNull();
+    expect(events.size).toBe(0);
+  });
+
+  test("finishes bounded fitting when label contents cannot fit", () => {
+    view._layouting = false;
+    jest
+      .spyOn(render, "getGraphBounds")
+      .mockReturnValue(new BoundingRect(0, 0, 1200, 30));
+    render.setupGraphFit(self);
+    events.get("rendered")();
+    jest.advanceTimersByTime(2100);
+    expect(self.graphFitted).toBe(true);
+    expect(self.cancelGraphFit).toBeNull();
+    expect(events.size).toBe(0);
+  });
+
+  test("limits each fitting pass to a few measurements and roam actions", () => {
+    const measure = jest
+      .spyOn(render, "getGraphBounds")
+      .mockReturnValue(new BoundingRect(0, 0, 1200, 30));
+    render.fitGraph(self, series);
+    expect(measure.mock.calls.length).toBeLessThanOrEqual(3);
+    expect(self.echarts.dispatchAction.mock.calls.length).toBeLessThanOrEqual(4);
   });
 
   test("bounds the work when a label is wider than the container", () => {

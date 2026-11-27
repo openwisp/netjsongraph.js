@@ -344,13 +344,17 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   **Default**: `true`
 
   Fits the network graph as its layout moves, at most once every 100 milliseconds,
-  with 40 pixels of padding. Node symbols, labels and links are included in the
-  measurement. A single node is centred without increasing its zoom.
+  with 40 pixels of padding. Corrections are spread across scheduled passes to
+  avoid repeated full-graph measurements in one callback. Node symbols, labels
+  and links are included in the measurement. A single node is centred without increasing its zoom.
 
   When `showGraphLabelsAtZoom` is enabled, fitting reserves space for the labels.
   Their visibility stays unchanged while the layout moves, then follows the final
   zoom. This prevents labels from flickering around the threshold. Manual zooming
-  updates their visibility immediately.
+  updates their visibility immediately and preserves custom label formatters.
+  Responsive styles still apply, but media options do not reset the fitted or
+  manually adjusted zoom and centre. Disable automatic fitting to use media
+  options for the viewport.
 
   Set this to `false` to keep the original initial view. An explicit
   `graphConfig.series.zoom` or `graphConfig.series.center` also disables fitting.

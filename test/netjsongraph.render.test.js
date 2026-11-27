@@ -1623,6 +1623,7 @@ describe("graph label visibility and fallbacks", () => {
 
   test("label formatter hides below threshold and shows above", () => {
     const render = new NetJSONGraphRender();
+    const getZoom = jest.fn().mockReturnValueOnce(1).mockReturnValue(3);
     const mockSelf = {
       config: {
         graphConfig: {
@@ -1643,10 +1644,7 @@ describe("graph label visibility and fallbacks", () => {
         updateLabelVisibility: createUpdateLabelVisibilityMock(),
       },
       echarts: {
-        getOption: jest
-          .fn()
-          .mockReturnValueOnce({series: [{id: "network-graph", zoom: 1}]})
-          .mockReturnValue({series: [{id: "network-graph", zoom: 3}]}),
+        getModel: () => ({getSeriesByIndex: () => ({get: getZoom})}),
       },
     };
 

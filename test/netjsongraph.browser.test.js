@@ -37,11 +37,12 @@ describe("Chart Rendering Test", () => {
       window.fitSamples = [];
       const fit = fitCase.utils.fitGraph.bind(fitCase.utils);
       const start = performance.now();
-      fitCase.utils.fitGraph = (self, series) => {
-        fit(self, series);
+      fitCase.utils.fitGraph = (self, series, state) => {
+        const fitted = fit(self, series, state);
         const labels = [];
         series.getData().eachItemGraphicEl(el => labels.push(el.getSymbolPath().getTextContent().style.text));
         fitSamples.push({ms:performance.now()-start, zoom:series.get('zoom'), labels});
+        return fitted;
       };
       fitCase.render();
     `);
@@ -136,6 +137,95 @@ describe("Chart Rendering Test", () => {
     expect((await act({type: "downplay", dataIndex: 0})).text).toBe("First node");
     await printConsoleErrors(driver);
   });
+
+  test.each([true, false])(
+    "handles responsive zoom with autoFitGraph=%s",
+    async (autoFitGraph) => {
+      await driver.get(urls.customAttributes);
+      await getElementByCss(driver, "canvas", 2000);
+      await driver.executeScript(`
+      graph.echarts.dispose();
+      document.body.innerHTML = '<div id="resize-case" style="width:900px;height:600px"></div>';
+      window.resizeCase = new NetJSONGraph({type:'NetworkGraph',
+        nodes:[{id:'a',label:'A',x:100,y:100},{id:'b',label:'B',x:200,y:200}],links:[]
+      }, {el:'#resize-case',metadata:false,autoFitGraph:${autoFitGraph},graphConfig:{series:{layout:'none',animation:false}}});
+      resizeCase.render();
+    `);
+      await driver.wait(
+        () =>
+          driver.executeScript(
+            "return resizeCase.echarts.getOption().series.length > 0 && (!resizeCase.config.autoFitGraph || resizeCase.graphFitted)",
+          ),
+        5000,
+      );
+      const result = await driver.executeScript(`
+      const chart=resizeCase.echarts;
+      const fitted=chart.getOption().series[0].zoom;
+      chart.resize({width:450,height:600,animation:false});
+      const narrow=chart.getOption().series[0].zoom;
+      const toolbox=chart.getOption().toolbox[0].itemSize;
+      chart.dispatchAction({type:'graphRoam',seriesId:'network-graph',zoom:0.8,dx:20,dy:10,originX:200,originY:300});
+      const manual=chart.getOption().series[0];
+      chart.resize({width:900,height:600,animation:false});
+      const wide=chart.getOption().series[0];
+      return {fitted,narrow,toolbox,manual:{zoom:manual.zoom,center:manual.center},wide:{zoom:wide.zoom,center:wide.center}};
+    `);
+      expect(result.toolbox).toBe(18);
+      if (autoFitGraph) {
+        expect(result.narrow).toBeCloseTo(result.fitted);
+        expect(result.wide).toEqual(result.manual);
+      } else {
+        expect(result.narrow).toBe(0.7);
+        expect(result.wide.zoom).toBe(1);
+      }
+    },
+  );
+
+  test.each([0.5, 2, 3])(
+    "preserves custom label formatters with threshold %s",
+    async (threshold) => {
+      await driver.get(urls.customAttributes);
+      await getElementByCss(driver, "canvas", 2000);
+      await driver.executeScript(`
+      graph.echarts.dispose();
+      document.body.innerHTML='<div id="label-case" style="width:900px;height:600px"></div>';
+      window.labelCase=new NetJSONGraph({type:'NetworkGraph',nodes:[{id:'a',label:'A',x:100,y:100},{id:'b',label:'B',x:200,y:200}],links:[]},
+        {el:'#label-case',metadata:false,autoFitGraph:false,showGraphLabelsAtZoom:${threshold},
+         graphConfig:{series:{layout:'none',animation:false,label:{formatter:${threshold === 3 ? "''" : "'Normal: {b}'"}},
+           emphasis:{label:{formatter:'Details: {b}'}},blur:{label:{formatter:p=>'Blur: '+p.name}},select:{label:{formatter:'Selected: {b}'}}}}});
+      labelCase.render();
+    `);
+      await driver.wait(
+        () =>
+          driver.executeScript(
+            "return labelCase.echarts.getOption().series.length > 0",
+          ),
+        5000,
+      );
+      const result = await driver.executeScript(`
+      const chart=labelCase.echarts;
+      const label=chart.getModel().getSeriesByIndex(0).getData().getItemGraphicEl(0).getSymbolPath().getTextContent();
+      const texts=()=>({normal:label.style.text,emphasis:label.states.emphasis.style.text,blur:label.states.blur.style.text,select:label.states.select.style.text});
+      const before=texts();
+      chart.dispatchAction({type:'graphRoam',seriesId:'network-graph',zoom:0.2,originX:450,originY:300});
+      const hidden=texts();
+      chart.dispatchAction({type:'graphRoam',seriesId:'network-graph',zoom:20,originX:450,originY:300});
+      return {before,hidden,after:texts(),zoom:chart.getModel().getSeriesByIndex(0).get('zoom')};
+    `);
+      const expected = {
+        normal: threshold === 3 ? "" : "Normal: A",
+        emphasis: "Details: A",
+        blur: "Blur: A",
+        select: "Selected: A",
+      };
+      expect(result.before).toEqual(
+        threshold < 1 ? expected : {normal: "", emphasis: "", blur: "", select: ""},
+      );
+      expect(result.hidden).toEqual({normal: "", emphasis: "", blur: "", select: ""});
+      expect(result.zoom).toBeGreaterThan(threshold);
+      expect(result.after).toEqual(expected);
+    },
+  );
 
   test("fits long labels inside the padded container", async () => {
     await driver.get(urls.customAttributes);
@@ -1939,12 +2029,14 @@ describe("Chart Rendering Test", () => {
       5000,
       "Second point was not visible",
     );
+    const platform = (await driver.getCapabilities()).get("platformName");
+    const modifier = platform === "mac" ? Key.COMMAND : Key.CONTROL;
     await driver
       .actions()
       .move({origin: container})
-      .keyDown(Key.CONTROL)
+      .keyDown(modifier)
       .click()
-      .keyUp(Key.CONTROL)
+      .keyUp(modifier)
       .perform();
     await driver.wait(
       () => driver.executeScript("return Boolean(window.map.leaflet.currentPopup);"),
