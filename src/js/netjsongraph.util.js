@@ -1586,7 +1586,7 @@ class NetJSONGraphUtil {
     // setView rounds the zoom to the zoomSnap of the map
     const {zoomSnap} = self.leaflet.options;
     const startZoom = zoomSnap ? Math.round(fromZoom / zoomSnap) * zoomSnap : fromZoom;
-    for (let zoom = startZoom; zoom < disableClusteringAtLevel; zoom += 1) {
+    for (let zoom = startZoom; zoom < disableClusteringAtLevel; zoom += zoomSnap || 1) {
       // makeCluster moves the drawn location, the original one is clustered
       const points = nodes.map((n) => {
         const loc = n._origLocation || n.properties?.location || n.location;
