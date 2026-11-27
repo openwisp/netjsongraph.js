@@ -927,6 +927,10 @@ class NetJSONGraphRender {
         self.utils.updateLabelVisibility(self, true);
       });
     }
+    // A popup kept open from before a data update follows the new clusters
+    if (typeof self.utils.updateClusteredPopup === "function") {
+      self.utils.updateClusteredPopup(self, self.clusters);
+    }
 
     self.utils.setupHashChangeHandler(self);
     self.event.emit("onLoad");

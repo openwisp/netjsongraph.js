@@ -2405,7 +2405,7 @@ describe("mapRender hides clustered polygons", () => {
     expect(shown.has(layers[0])).toBe(true);
   });
 
-  test("zooming passes the shown clusters to the popup, or none when clustering is off", () => {
+  test("rendering and zooming pass the shown clusters to the popup, or none when clustering is off", () => {
     const clusters = [{cluster: true, childNodes: [area, point]}];
     const makeCluster = jest.fn(() => ({
       clusters,
@@ -2419,6 +2419,7 @@ describe("mapRender hides clustered polygons", () => {
       config: clustering,
       utils: {makeCluster, updateClusteredPopup},
     });
+    expect(updateClusteredPopup).toHaveBeenLastCalledWith(self, clusters);
     capturedEvents.zoomend();
     expect(updateClusteredPopup).toHaveBeenLastCalledWith(self, clusters);
     // Nothing is clustered at disableClusteringAtLevel and above
