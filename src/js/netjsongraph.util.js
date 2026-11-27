@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import KDBush from "kdbush";
 import {geojsonToNetjson as convertGeojson, isPolygon} from "./netjsongraph.geojson";
+import getLeaflet from "./leaflet-loader";
 
 /**
  * Whether the node with the given id is inside one of the given clusters.
@@ -1583,8 +1584,10 @@ class NetJSONGraphUtil {
       return fromZoom;
     }
     const nodes = allNodes.filter(isClusterable);
-    // setView rounds the zoom to the zoomSnap of the map
-    const {zoomSnap} = self.leaflet.options;
+    // setView rounds the zoom to the zoomSnap of the map, or to whole levels
+    // in browsers without 3D support
+    const zoomSnap =
+      getLeaflet(true)?.Browser?.any3d === false ? 1 : self.leaflet.options.zoomSnap;
     const startZoom = zoomSnap ? Math.round(fromZoom / zoomSnap) * zoomSnap : fromZoom;
     for (let zoom = startZoom; zoom < disableClusteringAtLevel; zoom += zoomSnap || 1) {
       // makeCluster moves the drawn location, the original one is clustered
@@ -1605,7 +1608,11 @@ class NetJSONGraphUtil {
         return zoom;
       }
     }
-    return Math.max(fromZoom, disableClusteringAtLevel);
+    // Rounded up, so that the zoom applied is not below the cutoff
+    const cutoff = zoomSnap
+      ? Math.ceil(disableClusteringAtLevel / zoomSnap) * zoomSnap
+      : disableClusteringAtLevel;
+    return Math.max(startZoom, cutoff);
   }
 
   /**
@@ -1667,7 +1674,7 @@ class NetJSONGraphUtil {
         } else {
           // Zoom in only as much as needed to show the element out of clusters
           const fromZoom = fromHistory
-            ? Math.floor(self.leaflet.getZoom()) + 1
+            ? self.leaflet.getZoom() + (self.leaflet.options.zoomSnap || 1)
             : self.config.bookmarkableActions.zoomLevel ||
               self.config.showMapLabelsAtZoom;
           self.leaflet.setView(
@@ -1712,6 +1719,16 @@ class NetJSONGraphUtil {
     }
     const clustered = isClustered(clusters, popup.nodeId);
     element.style.display = clustered ? "none" : "";
+    if (!clustered) {
+      // makeCluster may have moved the marker since the popup was opened
+      const node = self.data?.nodes?.find((n) => String(n.id) === popup.nodeId);
+      const location = node?.properties?.location || node?.location;
+      if (location) {
+        // Moving the popup must not pan the map after the zoom of the user
+        popup.options.autoPan = false;
+        popup.setLatLng(location);
+      }
+    }
     // A hidden popup must not move the map to fit itself
     popup.options.autoPan = !clustered && popup.autoPan;
     // The tooltip of the map is hidden only while the popup is shown
