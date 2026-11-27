@@ -421,13 +421,19 @@ describe("Test URL fragment utilities", () => {
     pushState.mockRestore();
   });
 
-  // A clustered map whose node n1 is selected in the URL
-  const clusteredMapWithSelectedNode = (node, leaflet) => {
+  // A clustered map whose node n1 is selected in the URL, with another node
+  // at the given longitude. Like in Leaflet, the pixel distance between them
+  // doubles at each zoom level: with a longitude of 0.01 they are clustered
+  // up to zoom 12 and drawn on their own from zoom 13.
+  const clusteredMapWithSelectedNode = (leaflet, neighborLng = 0.01) => {
     window.location.hash = "#id=geo&nodeId=n1";
-    return {
+    const node = {id: "n1", location: {lat: 0, lng: 0}};
+    const neighbor = {id: "n2", location: {lat: 0, lng: neighborLng}};
+    const self = {
       config: {
         render: "map",
         clustering: true,
+        clusterRadius: 80,
         disableClusteringAtLevel: 15,
         bookmarkableActions: {
           enabled: true,
@@ -437,47 +443,55 @@ describe("Test URL fragment utilities", () => {
         },
         mapOptions: {nodeConfig: {type: "scatter"}},
       },
+      data: {nodes: [node, neighbor], links: []},
       nodeLinkIndex: {n1: node},
-      leaflet,
+      leaflet: {
+        project: ([lat, lng], zoom) => ({x: lng * 2 ** zoom, y: lat * 2 ** zoom}),
+        ...leaflet,
+      },
       utils,
     };
+    return {self, node};
   };
 
-  test("applyUrlFragmentState zooms in enough to show a restored node when clustering is enabled", () => {
-    const mockSetView = jest.fn();
-    const node = {id: "n1", location: {lat: 12.1, lng: 77.5}, cluster: null};
-    const self = clusteredMapWithSelectedNode(node, {setView: mockSetView});
-    utils.applyUrlFragmentState(self);
-    expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 15);
-    node.cluster = 0;
-    utils.applyUrlFragmentState(self);
-    expect(mockSetView).toHaveBeenLastCalledWith([12.1, 77.5], 15);
+  test("applyUrlFragmentState zooms in only as much as needed to show a restored node out of clusters", () => {
+    const setView = jest.fn();
+    const {self} = clusteredMapWithSelectedNode({setView});
+    // Like on page load, which calls it with the NetJSONGraph instance as this
+    utils.applyUrlFragmentState.call(self, self);
+    expect(setView).toHaveBeenLastCalledWith([0, 0], 13);
+    // Nodes at the same location are clustered until clustering is disabled
+    utils.applyUrlFragmentState(clusteredMapWithSelectedNode({setView}, 0).self);
+    expect(setView).toHaveBeenLastCalledWith([0, 0], 15);
+    // A node far from the others is shown at zoomLevel
+    utils.applyUrlFragmentState(clusteredMapWithSelectedNode({setView}, 1).self);
+    expect(setView).toHaveBeenLastCalledWith([0, 0], 10);
     self.config.bookmarkableActions.zoomLevel = 17;
     utils.applyUrlFragmentState(self);
-    expect(mockSetView).toHaveBeenLastCalledWith([12.1, 77.5], 17);
+    expect(setView).toHaveBeenLastCalledWith([0, 0], 17);
   });
 
   test("applyUrlFragmentState does not change the zoom on Back and Forward unless the node is clustered", () => {
-    const node = {id: "n1", location: {lat: 12.1, lng: 77.5}};
     const contains = jest.fn(() => true);
-    const self = clusteredMapWithSelectedNode(node, {
+    const {self, node} = clusteredMapWithSelectedNode({
       setView: jest.fn(),
       panTo: jest.fn(),
       getBounds: () => ({contains}),
+      getZoom: () => 11,
     });
     // The node is in the view
     utils.applyUrlFragmentState(self, true);
-    expect(contains).toHaveBeenCalledWith([12.1, 77.5]);
+    expect(contains).toHaveBeenCalledWith([0, 0]);
     expect(self.leaflet.panTo).not.toHaveBeenCalled();
     // The node is out of the view
     contains.mockReturnValue(false);
     utils.applyUrlFragmentState(self, true);
-    expect(self.leaflet.panTo).toHaveBeenCalledWith([12.1, 77.5]);
+    expect(self.leaflet.panTo).toHaveBeenCalledWith([0, 0]);
     expect(self.leaflet.setView).not.toHaveBeenCalled();
-    // The node is clustered
+    // The node is clustered, zooming in from 11 shows it on its own at 13
     self.clusters = [{cluster: true, childNodes: [node]}];
     utils.applyUrlFragmentState(self, true);
-    expect(self.leaflet.setView).toHaveBeenCalledWith([12.1, 77.5], 15);
+    expect(self.leaflet.setView).toHaveBeenCalledWith([0, 0], 13);
   });
 
   test("applyUrlFragmentState shows a polygon as when its shape is clicked", () => {

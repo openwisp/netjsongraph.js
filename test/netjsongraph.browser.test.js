@@ -1074,7 +1074,7 @@ describe("Chart Rendering Test", () => {
       "Timed out waiting for the popup to close",
     );
     // At zoom 3 the first clicked polygon is in a cluster, hence going
-    // forward to it zooms in until clustering is disabled
+    // forward to it zooms in to 4, at which it was clicked out of clusters
     await driver.executeScript("window.map.leaflet.setZoom(3, {animate: false});");
     await driver.navigate().forward();
     await driver.wait(
@@ -1082,9 +1082,7 @@ describe("Chart Rendering Test", () => {
       2000,
       "Timed out waiting for the popup of gjn_polygon_0 after going forward",
     );
-    expect(await getZoom()).toBeGreaterThanOrEqual(
-      await driver.executeScript("return window.map.config.disableClusteringAtLevel;"),
-    );
+    expect(await getZoom()).toBe(4);
     // Without zoomOnRestore the view is not changed, hence the popup of the
     // clustered polygon is opened hidden
     await driver.executeScript(

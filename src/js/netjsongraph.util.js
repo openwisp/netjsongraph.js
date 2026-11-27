@@ -14,6 +14,71 @@ const isClustered = (clusters, nodeId) =>
     cluster.childNodes.some((node) => String(node.id) === String(nodeId)),
   );
 
+const isPoint = (node) =>
+  !(node.properties && node.properties._featureType) ||
+  node.properties._featureType === "Point";
+
+// Points and the nodes which stand for Polygon features can be clustered
+const isClusterable = (node) => isPoint(node) || isPolygon(node);
+
+/**
+ * Group the nodes which are drawn close to each other, as makeCluster does,
+ * without changing them.
+ *
+ * @param {Object} config  NetJSONGraph config
+ * @param {Array}  nodes   Nodes which can be clustered
+ * @param {Array}  points  Pixel coordinates ({x, y}) of each node
+ * @returns {{locationGroups: Map, isolated: Array}} The nodes close to each
+ *   node which is not yet in a group, by pixel location and then by
+ *   clusteringAttribute, and the nodes which are far from any other
+ */
+const groupNearbyNodes = (config, nodes, points) => {
+  const index = new KDBush(nodes.length);
+  points.forEach(({x, y}) => index.add(x, y));
+  index.finish();
+  const visited = new Set();
+  const locationGroups = new Map();
+  const isolated = [];
+  nodes.forEach((node, i) => {
+    if (visited.has(node)) {
+      return;
+    }
+    const {x, y} = points[i];
+    // Find all neighbors within clusterRadius in pixel space
+    // For a node at (x, y), find all nodes (xi, yi) such that:
+    // sqrt((xi - x)^2 + (yi - y)^2) <= clusterRadius
+    // This is the Euclidean distance formula in 2D.
+    const neighbors = index.within(x, y, config.clusterRadius).map((id) => nodes[id]);
+    if (neighbors.length > 1) {
+      // Group by rounded pixel location (to avoid floating point issues)
+      const key = `${Math.round(x)},${Math.round(y)}`;
+      if (!locationGroups.has(key)) {
+        locationGroups.set(key, new Map());
+      }
+      const groupByAttribute = locationGroups.get(key);
+      // Further group by attribute if configured (e.g., status)
+      neighbors.forEach((n) => {
+        if (visited.has(n)) {
+          return;
+        }
+        const attr = config.clusteringAttribute
+          ? n.properties[config.clusteringAttribute]
+          : "default";
+        if (!groupByAttribute.has(attr)) {
+          groupByAttribute.set(attr, []);
+        }
+        groupByAttribute.get(attr).push(n);
+        visited.add(n);
+      });
+    } else {
+      // Node is isolated, not clustered
+      visited.add(node);
+      isolated.push(node);
+    }
+  });
+  return {locationGroups, isolated};
+};
+
 /**
  * @class
  * NetJSONGraphUtil - Core utility functions for data manipulation and processing.
@@ -358,14 +423,9 @@ class NetJSONGraphUtil {
     // nodes which stand for Polygon features should be clustered.
     const {nodes: allNodes, links} = self.data;
 
-    const isPoint = (n) =>
-      !(n.properties && n.properties._featureType) ||
-      n.properties._featureType === "Point";
-    const clusterableNodes = (n) => isPoint(n) || isPolygon(n);
-
     // Candidates for clustering and nodes to always stay unclustered (e.g. LineString endpoints).
-    const nodes = allNodes.filter(clusterableNodes);
-    const nonClusterNodes = allNodes.filter((n) => !clusterableNodes(n));
+    const nodes = allNodes.filter(isClusterable);
+    const nonClusterNodes = allNodes.filter((n) => !isClusterable(n));
     const nonClusterLinks = [];
     const clusters = [];
     const nodeMap = new Map();
@@ -402,11 +462,6 @@ class NetJSONGraphUtil {
       node.cluster = null;
     });
 
-    // 2. Build a spatial index for fast neighbor search
-    const index = new KDBush(nodes.length);
-    nodes.forEach(({x, y}) => index.add(x, y));
-    index.finish();
-
     // Helper to get cluster symbol size (for overlap calculations)
     const symbolSizeSetting =
       self.config &&
@@ -427,48 +482,18 @@ class NetJSONGraphUtil {
       return typeof symbolSizeSetting === "number" ? symbolSizeSetting : 30;
     };
 
-    const locationGroups = new Map();
+    // 2-4. Group the nodes close to each other, by attribute
+    const {locationGroups, isolated} = groupNearbyNodes(
+      self.config,
+      nodes,
+      nodes.map(({x, y}) => ({x, y})),
+    );
     nodes.forEach((node) => {
-      if (node.visited) {
-        return;
-      }
-
-      // 3. Find all neighbors within clusterRadius in pixel space
-      // For a node at (x, y), find all nodes (xi, yi) such that:
-      // sqrt((xi - x)^2 + (yi - y)^2) <= clusterRadius
-      // This is the Euclidean distance formula in 2D.
-      const neighbors = index
-        .within(node.x, node.y, self.config.clusterRadius)
-        .map((id) => nodes[id]);
-
-      if (neighbors.length > 1) {
-        // Group by rounded pixel location (to avoid floating point issues)
-        const key = `${Math.round(node.x)},${Math.round(node.y)}`;
-        if (!locationGroups.has(key)) {
-          locationGroups.set(key, new Map());
-        }
-        const groupByAttribute = locationGroups.get(key);
-
-        // 4. Further group by attribute if configured (e.g., status)
-        neighbors.forEach((n) => {
-          if (n.visited) {
-            return;
-          }
-          const attr = self.config.clusteringAttribute
-            ? n.properties[self.config.clusteringAttribute]
-            : "default";
-          if (!groupByAttribute.has(attr)) {
-            groupByAttribute.set(attr, []);
-          }
-          groupByAttribute.get(attr).push(n);
-          n.visited = true;
-        });
-      } else {
-        // Node is isolated, not clustered
-        node.visited = true;
-        nodeMap.set(node.id, null);
-        nonClusterNodes.push(node);
-      }
+      node.visited = true;
+    });
+    isolated.forEach((node) => {
+      nodeMap.set(node.id, null);
+      nonClusterNodes.push(node);
     });
 
     // 5. For each pixel location, process attribute groups
@@ -1543,6 +1568,42 @@ class NetJSONGraphUtil {
   }
 
   /**
+   * The lowest zoom level, from the given one, at which the node is not in a
+   * cluster. At disableClusteringAtLevel nothing is clustered.
+   *
+   * @param {Object} self      NetJSONGraph instance
+   * @param {Object} node      Node to show
+   * @param {number} fromZoom  Lowest zoom level to return
+   * @returns {number}
+   */
+  getUnclusteredZoom(self, node, fromZoom) {
+    const {clustering, clusteringThreshold, disableClusteringAtLevel} = self.config;
+    const allNodes = self.data?.nodes || [];
+    if (!clustering || clusteringThreshold >= allNodes.length) {
+      return fromZoom;
+    }
+    const nodes = allNodes.filter(isClusterable);
+    for (let zoom = fromZoom; zoom < disableClusteringAtLevel; zoom += 1) {
+      // makeCluster moves the drawn location, the original one is clustered
+      const points = nodes.map((n) => {
+        const loc = n._origLocation || n.properties?.location || n.location;
+        return loc ? self.leaflet.project([loc.lat, loc.lng], zoom) : {x: NaN, y: NaN};
+      });
+      const {locationGroups} = groupNearbyNodes(self.config, nodes, points);
+      const clustered = Array.from(locationGroups.values()).some((groups) =>
+        Array.from(groups.values()).some(
+          (group) =>
+            group.length > 1 && group.some((n) => String(n.id) === String(node.id)),
+        ),
+      );
+      if (!clustered) {
+        return zoom;
+      }
+    }
+    return Math.max(fromZoom, disableClusteringAtLevel);
+  }
+
+  /**
    * Open the element selected in the URL.
    *
    * @param {Object}  self         NetJSONGraph instance
@@ -1599,14 +1660,15 @@ class NetJSONGraphUtil {
             self.leaflet.panTo(center);
           }
         } else {
-          const {clustering, disableClusteringAtLevel} = self.config;
-          let zoom =
-            self.config.bookmarkableActions.zoomLevel ||
-            self.config.showMapLabelsAtZoom;
-          if (clustering) {
-            zoom = Math.max(zoom, disableClusteringAtLevel);
-          }
-          self.leaflet.setView(center, zoom);
+          // Zoom in only as much as needed to show the element out of clusters
+          const fromZoom = fromHistory
+            ? Math.floor(self.leaflet.getZoom()) + 1
+            : self.config.bookmarkableActions.zoomLevel ||
+              self.config.showMapLabelsAtZoom;
+          self.leaflet.setView(
+            center,
+            self.utils.getUnclusteredZoom(self, node, fromZoom),
+          );
         }
       }
     }
