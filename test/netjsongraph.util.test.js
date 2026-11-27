@@ -446,7 +446,13 @@ describe("Test URL fragment utilities", () => {
       data: {nodes: [node, neighbor], links: []},
       nodeLinkIndex: {n1: node},
       leaflet: {
-        project: ([lat, lng], zoom) => ({x: lng * 2 ** zoom, y: lat * 2 ** zoom}),
+        project: ([lat, lng], zoom) => ({
+          x: lng * 2 ** zoom,
+          y: lat * 2 ** zoom,
+          round() {
+            return {x: Math.round(this.x), y: Math.round(this.y)};
+          },
+        }),
         ...leaflet,
       },
       utils,

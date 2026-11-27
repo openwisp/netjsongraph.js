@@ -1587,7 +1587,9 @@ class NetJSONGraphUtil {
       // makeCluster moves the drawn location, the original one is clustered
       const points = nodes.map((n) => {
         const loc = n._origLocation || n.properties?.location || n.location;
-        return loc ? self.leaflet.project([loc.lat, loc.lng], zoom) : {x: NaN, y: NaN};
+        return loc
+          ? self.leaflet.project([loc.lat, loc.lng], zoom).round()
+          : {x: NaN, y: NaN};
       });
       const {locationGroups} = groupNearbyNodes(self.config, nodes, points);
       const clustered = Array.from(locationGroups.values()).some((groups) =>
