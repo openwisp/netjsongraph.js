@@ -1723,7 +1723,7 @@ class NetJSONGraphUtil {
       // makeCluster may have moved the marker since the popup was opened
       const node = self.data?.nodes?.find((n) => String(n.id) === popup.nodeId);
       const location = node?.properties?.location || node?.location;
-      if (location) {
+      if (location && !isPolygon(node)) {
         // Moving the popup must not pan the map after the zoom of the user
         popup.options.autoPan = false;
         popup.setLatLng(location);
