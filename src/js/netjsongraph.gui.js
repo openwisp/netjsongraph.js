@@ -78,8 +78,8 @@ class NetJSONGraphGUI {
     metaInfoContainer.classList.add("njg-metaInfoContainer");
     const closeButton = document.createElement("span");
     closeButton.classList.add("njg-closeButton");
-    header.innerHTML = "Info";
-    closeButton.innerHTML = " &#x2715;";
+    header.textContent = "Info";
+    closeButton.textContent = " \u2715";
     header.appendChild(closeButton);
     metaInfoContainer.appendChild(header);
     metaInfoContainer.appendChild(metadataContainer);
@@ -127,8 +127,8 @@ class NetJSONGraphGUI {
     headerContainer.classList.add("njg-headerContainer");
     closeButton.classList.add("njg-closeButton");
     this.nodeLinkInfoContainer.style.display = "flex";
-    header.innerHTML = `${type} Info`;
-    closeButton.innerHTML = " &#x2715;";
+    header.textContent = `${type} Info`;
+    closeButton.textContent = " \u2715";
 
     // Key label normalization to improve readability
     const formatKeyLabel = (k) => {
@@ -167,8 +167,8 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = formatKeyLabel(key);
-          v.innerHTML = "[]";
+          k.textContent = formatKeyLabel(key);
+          v.textContent = "[]";
           item.appendChild(k);
           item.appendChild(v);
           parent.appendChild(item);
@@ -183,10 +183,8 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = formatKeyLabel(key);
-          v.innerHTML = val
-            .map((x) => (typeof x === "string" ? x.replace(/\n/g, "<br/>") : String(x)))
-            .join("<br/>");
+          k.textContent = formatKeyLabel(key);
+          v.textContent = val.map(String).join("\n");
           item.appendChild(k);
           item.appendChild(v);
           parent.appendChild(item);
@@ -214,8 +212,8 @@ class NetJSONGraphGUI {
           k.setAttribute("class", "njg-keyLabel");
           const v = document.createElement("span");
           v.setAttribute("class", "njg-valueLabel");
-          k.innerHTML = "Location";
-          v.innerHTML = `${Math.round(val.lat * 1000) / 1000}, ${
+          k.textContent = "Location";
+          v.textContent = `${Math.round(val.lat * 1000) / 1000}, ${
             Math.round(val.lng * 1000) / 1000
           }`;
           item.appendChild(k);
@@ -232,8 +230,8 @@ class NetJSONGraphGUI {
         hk.setAttribute("class", "njg-keyLabel");
         const hv = document.createElement("span");
         hv.setAttribute("class", "njg-valueLabel");
-        hk.innerHTML = formatKeyLabel(key);
-        hv.innerHTML = "";
+        hk.textContent = formatKeyLabel(key);
+        hv.textContent = "";
         headerItem.appendChild(hk);
         headerItem.appendChild(hv);
         parent.appendChild(headerItem);
@@ -252,10 +250,8 @@ class NetJSONGraphGUI {
       keyLabel.setAttribute("class", "njg-keyLabel");
       const valueLabel = document.createElement("span");
       valueLabel.setAttribute("class", "njg-valueLabel");
-      keyLabel.innerHTML = formatKeyLabel(key);
-      const displayVal =
-        typeof val === "string" ? val.replace(/\n/g, "<br/>") : String(val);
-      valueLabel.innerHTML = displayVal;
+      keyLabel.textContent = formatKeyLabel(key);
+      valueLabel.textContent = String(val);
       infoItems.appendChild(keyLabel);
       infoItems.appendChild(valueLabel);
       parent.appendChild(infoItems);
@@ -317,6 +313,8 @@ class NetJSONGraphGUI {
    */
   async loadNodePopup(node) {
     const {self} = this;
+    // A programmatic popup takes precedence over a queued point click.
+    self.popupSelection = null;
     if (!self.leaflet) {
       console.error("Leaflet map not available. Cannot load popup.");
       return;
@@ -355,7 +353,16 @@ class NetJSONGraphGUI {
         if (self.leaflet.currentPopupRequest !== popupRequest) {
           return;
         }
-        self.utils.removeUrlFragment(bookmarkableActionId, "nodeId", preserveFragment);
+        const fragments = self.utils.parseUrlFragments();
+        const fragment = fragments[bookmarkableActionId];
+        const selectedId = fragment && fragment.get("nodeId");
+        if (!selectedId || selectedId === String(node.id)) {
+          self.utils.removeUrlFragment(
+            bookmarkableActionId,
+            "nodeId",
+            preserveFragment,
+          );
+        }
         self.leaflet.currentPopupRequest = null;
         // If we tore down a previous popup before content generation failed,
         // its remove handler was bypassed — restore tooltip/labels manually so
@@ -376,6 +383,40 @@ class NetJSONGraphGUI {
       Object.entries(popupConfigInput).filter(([, value]) => value != null),
     );
 
+    // Leaflet does not limit its default popup width to the map container.
+    // Leave room at the edges, but preserve an explicit caller-provided width.
+    if (popupConfig.maxWidth == null) {
+      popupConfig.maxWidth = Math.max(50, Math.min(300, self.leaflet.getSize().x - 20));
+    }
+    if (popupConfig.offset == null) {
+      const {nodeSizeConfig, nodeEmphasisConfig} = self.utils.getNodeStyle(
+        node,
+        self.config,
+        "map",
+      );
+      const fallbackSize = self.config.mapOptions.nodeConfig.nodeSize;
+      // Match the map renderer's fallback for object-valued category sizes.
+      const nodeSize =
+        typeof nodeSizeConfig === "object" ? fallbackSize : nodeSizeConfig;
+      const height = (size) => Number(Array.isArray(size) ? size[1] : size) || 0;
+      const baseSize = Math.max(
+        height(nodeSize) || 17,
+        height(nodeEmphasisConfig.nodeSize),
+      );
+      const {scale} = self.config.mapOptions.nodeConfig.emphasis || {};
+      // ECharts uses a default scale for true or unset values, and ignores
+      // non-positive and non-finite scales.
+      let ratio = 1;
+      if (scale == null || scale === true) {
+        ratio = Math.max(1.1, 6 / baseSize);
+      } else if (Number.isFinite(scale) && scale > 0) {
+        ratio = scale;
+      }
+      const markerSize = Math.max(baseSize, baseSize * ratio);
+      // Leaflet cannot infer the size of an ECharts marker; leave room for the
+      // marker and the popup tip so neither can intercept clicks on the node.
+      popupConfig.offset = [0, -(markerSize / 2 + 10)];
+    }
     const popup = window.L.popup({
       ...popupConfig,
     })

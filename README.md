@@ -96,7 +96,9 @@ Switch between different tile providers and styles.
 
 [![Leaflet plugins](docs/gifs/netjsonmap-plugins.gif)](https://openwisp.github.io/netjsongraph.js/examples/netjsonmap-plugins.html)
 
-Use draw/measure and other Leaflet plugins in map mode.
+Use draw/measure and other Leaflet plugins in map mode. The measurement tool
+allows map dragging while measuring, closes a completed area by clicking its
+first point.
 
 ### Search elements
 
@@ -216,14 +218,18 @@ yarn dev:test
 Then, in a separate terminal, run:
 
 ```
-yarn test
+./runtests
 ```
 
 To run a specific test suite:
 
 ```
-yarn test test/netjsongraph.browser.test.js
+./runtests test/netjsongraph.browser.test.js
 ```
+
+The entry point accepts test files under `test/` and the options used by CI:
+`-f`, `--coverage`, `--runInBand`, `--testTimeout=30000`, and
+`--testPathIgnorePatterns=test/netjsongraph.browser.test.js`.
 
 ### Arguments
 
@@ -361,7 +367,7 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
 
   **Default**: `8`
 
-  The zoom level at which clustering is disabled. When the zoom level is greater than this value, all the clusters will be expanded.
+  The zoom level at which clustering is disabled. When the zoom level is greater than or equal to this value, all the clusters will be expanded.
 
 - `clusterRadius`
 
@@ -467,6 +473,10 @@ NetJSON format used internally is based on [networkgraph](http://netjson.org/rfc
   Set `show` to `true` to enable it. If `content` is `null`, the popup shows the default node details.
   If you need custom content, set `content` to a function that receives the clicked node and returns a DOM element or a string.
   Use `config` to pass Leaflet popup options. Use `onOpen` if you need to run code after the popup opens.
+  By default, popup width is limited to 300 pixels and the available map width when opened. Set `config.maxWidth` to use a different Leaflet width limit.
+  Node popups are positioned above the marker by default. Set `config.offset` to customize their position.
+
+  The library stylesheet provides default styles for popup content and Leaflet popup tips inside the graph container. Override these styles in your own CSS if needed. When extending the default popup with an action, use `njg-popup-button` on the button and `njg-popup-button-container` on its parent for the default button style.
 
   **Note:** `content` can also return a promise.
   If the user clicks multiple nodes quickly, only the latest popup result is shown.
@@ -681,23 +691,9 @@ The number of dots rendered around a node is determined by the `clients` field i
 
 ## GeoJSON handling
 
-netjsongraph.js will now **always** convert GeoJSON input into an internal
-NetJSON‐like structure (`nodes` / `links`). The original GeoJSON object is kept
-in memory only to render non‐point geometries (Polygons & Multipolygons) as
-filled shapes on the Leaflet basemap.
-
-To keep the codebase clean we extracted all GeoJSON‐specific helpers into
-`src/js/netjsongraph.geojson.js`:
-
-- `geojsonToNetjson(geojson)` – converts any GeoJSON _FeatureCollection_ into
-  NetJSON nodes & links (supports Points, LineStrings, Polygons, Multi\* and
-  GeometryCollections).
-- `addPolygonOverlays(self)` – draws Polygon / MultiPolygon features on a
-  dedicated Leaflet pane so they sit beneath the ECharts overlay but above the
-  tile layer.
-
-If you used `map.utils.geojsonToNetjson` the public API is unchanged – it now
-forwards to the new helper.
+GeoJSON FeatureCollections are converted into NetJSON nodes and links. The
+original GeoJSON is kept to draw Polygon and MultiPolygon shapes with Leaflet.
+To convert data directly, use `map.utils.geojsonToNetjson` or import the helper:
 
 ```js
 import {geojsonToNetjson} from "netjsongraph/src/js/netjsongraph.geojson";
@@ -705,8 +701,26 @@ import {geojsonToNetjson} from "netjsongraph/src/js/netjsongraph.geojson";
 const netjson = geojsonToNetjson(myGeoJSON);
 ```
 
-No action is required for most users; these changes simply make the internal
-flow clearer and easier to maintain.
+The output includes a node for each Polygon and MultiPolygon feature, with the
+`_featureType: "Polygon"` and `_featureIndex` properties. These nodes have no
+shape: netjsongraph.js draws the shapes from the original GeoJSON.
+
+### Polygons
+
+Each Polygon and MultiPolygon feature is drawn by Leaflet and represented by a
+node without a visible marker. It shares point-node labels, tooltips, clustering,
+popups and bookmarks. Label visibility uses `showMapLabelsAtZoom`, and hover
+information follows the same ECharts tooltip settings as points.
+
+- When the feature provides an `id`, its node id is prefixed with `polygon_` (e.g.
+  `polygon_42`).
+- While its node belongs to a cluster, the shape is hidden.
+- Clicking a shape calls `onClickElement` with the type `"Feature"`, opens the
+  popup (if enabled) and updates the URL fragment (if `bookmarkableActions` is
+  enabled).
+- Polygon nodes are left out in graph mode.
+
+A custom `geoOptions.onEachFeature` replaces the default click and hover handlers.
 
 ## Automatic Cluster Overlap Prevention
 

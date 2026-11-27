@@ -76,27 +76,6 @@
       .njg-container .njg-sideBar {
         display: none;
       }
-      .njg-container .leaflet-popup-tip-container {
-        bottom: -3.5%;
-      }
-      .njg-container .leaflet-popup-tip {
-        box-shadow: none;
-      }
-      .njg-container .default-popup .njg-popup-button-container {
-        text-align: center;
-      }
-      .njg-container .default-popup .njg-popup-button {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 5px;
-        background-color: black;
-        color: white;
-        cursor: pointer;
-        margin-top: 5px;
-      }
-      .njg-container .default-popup .njg-popup-button:hover {
-        background-color: rgb(85, 85, 85);
-      }
     </style>
   </head>
   <body>
@@ -114,7 +93,6 @@
         closeOnClick: false,
         autoPan: true,
         autoPanPadding: [25, 25],
-        offset: [-8, -8],
       };
       const netjsonmap = new NetJSONGraph("../assets/data/netjsonmap.json", {
         el: "#map-content",

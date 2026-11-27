@@ -8,77 +8,130 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.repository }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   qa-checks:
-    name: QA-Checks
+    name: QA checks
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        id: node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
+
+      # GitHub's Linux runners can use different Ubuntu versions. Include the
+      # version in the cache key because native packages may not work across them.
+      - name: Identify runner image
+        id: platform
+        run: echo "image_os=$ImageOS" >> "$GITHUB_OUTPUT"
 
       - name: Cache yarn
-        uses: actions/cache@v6
-        id: yarn-cache
+        id: cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-yarn-
+          # Matching children keeps tar from including excluded build files.
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            node_modules/*
+            !node_modules/.cache
+            !node_modules/.cache/**
+          key: >-
+            ${{ format('{0}-{1}-{2}-yarn-{3}-{4}', runner.os, runner.arch,
+                steps.platform.outputs.image_os, steps.node.outputs.node-version,
+                hashFiles('yarn.lock', 'package.json', '.nvmrc', 'install-ci-deps.sh')) }}
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        id: python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
 
-      - name: Installing dependencies
-        run: |
-          yarn install
-          python --version
-          pip install --upgrade "openwisp-utils[qa]~=1.3.0"
-          sudo npm install -g prettier
+      - name: Cache QA Python dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/pip
+          key: >-
+            ${{ format('{0}-{1}-{2}-pip-qa-{3}-{4}', runner.os, runner.arch,
+                steps.platform.outputs.image_os, steps.python.outputs.python-version,
+                hashFiles('install-ci-deps.sh')) }}
+
+      - name: Install dependencies
+        id: deps
+        env:
+          CI_QA: "1"
+        run: ./install-ci-deps.sh
 
       - name: QA checks
         run: ./run-qa-checks
 
-  build:
-    name: Tests and Coverage (${{ matrix.build-type }})
+  test:
+    name: Tests and coverage (${{ matrix.build-type }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         build-type: [dev, prod, echarts-only]
+        include:
+          - build-type: dev
+            review_default: true # Used by on-demand AI reviews
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        id: node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
+
+      # GitHub's Linux runners can use different Ubuntu versions. Include the
+      # version in the cache key because native packages may not work across them.
+      - name: Identify runner image
+        id: platform
+        run: echo "image_os=$ImageOS" >> "$GITHUB_OUTPUT"
 
       - name: Cache yarn
-        uses: actions/cache@v6
-        id: yarn-cache
+        id: cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-yarn-
+          # Matching children keeps tar from including excluded build files.
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            node_modules/*
+            !node_modules/.cache
+            !node_modules/.cache/**
+          key: >-
+            ${{ format('{0}-{1}-{2}-yarn-{3}-{4}', runner.os, runner.arch,
+                steps.platform.outputs.image_os, steps.node.outputs.node-version,
+                hashFiles('yarn.lock', 'package.json', '.nvmrc', 'install-ci-deps.sh')) }}
 
-      - name: Installing dependencies
-        run: |
-          yarn install
+      - name: Install dependencies
+        id: deps
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: ./install-ci-deps.sh
 
       - name: Build (Prod Full)
         if: matrix.build-type == 'prod'
@@ -88,11 +141,11 @@ jobs:
         if: matrix.build-type == 'echarts-only'
         run: yarn build:echarts-only
 
-      - name: Running Server (Dev)
+      - name: Run server (Dev)
         if: matrix.build-type == 'dev'
         run: yarn dev:test &
 
-      - name: Running Server (Dist)
+      - name: Run server (Dist)
         if: matrix.build-type == 'prod' || matrix.build-type == 'echarts-only'
         run: npx --yes http-server dist -p 8080 &
 
@@ -101,53 +154,64 @@ jobs:
 
       - name: Set up Chrome and ChromeDriver
         id: setup-chrome
-        uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4
+        uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
         with:
           chrome-version: stable
           install-chromedriver: true
 
       - name: Check chrome and chromedriver version
+        env:
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+          CHROMEDRIVER_PATH: ${{ steps.setup-chrome.outputs.chromedriver-path }}
         run: |
-          "${{ steps.setup-chrome.outputs.chrome-path }}" --version
-          "${{ steps.setup-chrome.outputs.chromedriver-path }}" --version
+          "$CHROME_PATH" --version
+          "$CHROMEDRIVER_PATH" --version
 
       - name: Unit tests
         if: matrix.build-type == 'dev'
-        run: yarn coverage --testPathIgnorePatterns=test/netjsongraph.browser.test.js
+        run: ./runtests --coverage --testPathIgnorePatterns=test/netjsongraph.browser.test.js
 
       - name: Browser tests
-        # Test timeout set to 30 seconds in CI since it runs slower
         env:
           SE_CHROME: ${{ steps.setup-chrome.outputs.chrome-path }}
           SE_CHROMEDRIVER: ${{ steps.setup-chrome.outputs.chromedriver-path }}
-        run: yarn test --runInBand --testTimeout=30000 test/netjsongraph.browser.test.js
+        run: ./runtests --runInBand --testTimeout=30000 test/netjsongraph.browser.test.js
 
       - name: Coveralls
         if: matrix.build-type == 'dev'
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-deploy:
-    name: Build and Deploy
+    name: Build and deploy GitHub Pages
+    if: >-
+      github.repository == 'openwisp/netjsongraph.js' && github.event_name == 'push' &&
+      github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    if: ${{ github.event_name=='push' }}
+    environment: github-pages
+    permissions:
+      contents: write # Pushes generated files to the legacy gh-pages branch.
+    concurrency:
+      group: github-pages-${{ github.repository }}
+      cancel-in-progress: false
     env:
       MAPBOX_URL_TEMPLATE: ${{ secrets.MAPBOX_URL_TEMPLATE }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Installing dependencies
-        run: |
-          yarn install
+      - name: Install dependencies
+        run: ./install-ci-deps.sh
 
       - name: Build
         run: yarn build
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist

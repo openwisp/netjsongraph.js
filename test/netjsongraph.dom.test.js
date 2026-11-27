@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 import NetJSONGraphCore from "../src/js/netjsongraph.core";
 import NetJSONGraphGUI from "../src/js/netjsongraph.gui";
+import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
 
 const graph = new NetJSONGraphCore({
   type: "NetworkGraph",
@@ -63,6 +64,28 @@ describe("Test netjsongraph utils dom functions", () => {
     expect(graph.utils.createTooltipItem("test", "test")).toBeInstanceOf(HTMLElement);
     expect(graph.utils.createTooltipItem("test", "test").outerHTML).toEqual(
       toolTipItem,
+    );
+  });
+
+  test("Node and link tooltips render untrusted keys and values as text", () => {
+    const markup = '<img src=x onerror="alert(1)">';
+    const node = {
+      id: markup,
+      label: markup,
+      properties: {[markup]: `${markup}\nsecond line`},
+      local_addresses: [markup, "192.168.0.1"],
+    };
+    const link = {source: markup, target: "target", properties: node.properties};
+    [
+      graph.utils.getNodeTooltipInfo(node),
+      graph.utils.getLinkTooltipInfo(link),
+    ].forEach((tooltip) => {
+      expect(tooltip.querySelector("img")).toBeNull();
+      expect(tooltip.textContent).toContain(`${markup}\nsecond line`);
+      expect(tooltip.querySelectorAll(".njg-tooltip-key")[2].textContent).toBe(markup);
+    });
+    expect(graph.utils.getNodeTooltipInfo(node).textContent).toContain(
+      `${markup}\n192.168.0.1`,
     );
   });
 
@@ -311,6 +334,99 @@ describe("Test netjsongraph gui", () => {
     graph.gui.init();
     expect(graph.gui.controls).not.toBe(null);
     expect(graph.gui.renderModeSelector).not.toBe(null);
+  });
+
+  test("Restoring a polygon bookmark shows markup in its id, keys and values as text", () => {
+    const id = '<b data-injected="true">Area</b>';
+    const data = geojsonToNetjson({
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          id,
+          properties: {
+            name: "Area",
+            "<i data-injected>key</i>": "<b data-injected>value</b>",
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [0, 0],
+                [1, 0],
+                [1, 1],
+                [0, 1],
+                [0, 0],
+              ],
+            ],
+          },
+        },
+      ],
+    });
+    const map = new NetJSONGraphCore(data);
+    map.event = map.utils.createEvent();
+    map.gui = new NetJSONGraphGUI(map);
+    map.setConfig({
+      render: "map",
+      bookmarkableActions: {enabled: true, id: "geo"},
+    });
+    map.setUtils();
+    map.data = data;
+    map.nodeLinkIndex = {[data.nodes[0].id]: data.nodes[0]};
+    map.gui.sideBar = map.gui.createSideBar();
+    map.gui.nodeLinkInfoContainer = map.gui.createNodeLinkInfoContainer();
+    map.gui.metaInfoContainer = map.gui.createMetaInfoContainer();
+    window.location.hash = `#id=geo&nodeId=${encodeURIComponent(data.nodes[0].id)}`;
+
+    map.utils.applyUrlFragmentState(map);
+
+    const container = map.gui.nodeLinkInfoContainer;
+    expect(container.querySelector("[data-injected]")).toBe(null);
+    const keys = [...container.querySelectorAll(".njg-keyLabel")];
+    expect(keys.map((key) => key.textContent)).toContain("<i data-injected>key</i>");
+    const values = [...container.querySelectorAll(".njg-valueLabel")].map(
+      (value) => value.textContent,
+    );
+    expect(values).toContain(id);
+    expect(values).toContain("<b data-injected>value</b>");
+    window.location.hash = "";
+  });
+
+  test.each([
+    [
+      "node",
+      {id: "A", properties: {"<i data-injected>key</i>": "<b data-injected>value</b>"}},
+    ],
+    [
+      "link",
+      {
+        source: "A",
+        target: "B",
+        properties: {"<i data-injected>key</i>": "<b data-injected>value</b>"},
+      },
+    ],
+  ])("Clicking a %s shows markup in its keys and values as text", (type, element) => {
+    const data = {nodes: [{id: "A"}, {id: "B"}], links: []};
+    const map = new NetJSONGraphCore(data);
+    map.event = map.utils.createEvent();
+    map.gui = new NetJSONGraphGUI(map);
+    map.setConfig({});
+    map.setUtils();
+    map.data = data;
+    map.gui.sideBar = map.gui.createSideBar();
+    map.gui.nodeLinkInfoContainer = map.gui.createNodeLinkInfoContainer();
+    map.gui.metaInfoContainer = map.gui.createMetaInfoContainer();
+
+    map.config.onClickElement.call(map, type, element);
+
+    const container = map.gui.nodeLinkInfoContainer;
+    expect(container.querySelector("[data-injected]")).toBe(null);
+    const keys = [...container.querySelectorAll(".njg-keyLabel")];
+    expect(keys.map((key) => key.textContent)).toContain("<i data-injected>key</i>");
+    const values = [...container.querySelectorAll(".njg-valueLabel")];
+    expect(values.map((value) => value.textContent)).toContain(
+      "<b data-injected>value</b>",
+    );
   });
 });
 describe("Test netjsongraph dom operate", () => {
@@ -701,6 +817,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -737,6 +854,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -779,6 +897,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     });
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: {remove: jest.fn()},
       currentPopupRequest: null,
       once: jest.fn(),
@@ -815,6 +934,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -837,6 +957,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -872,6 +993,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -916,6 +1038,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -954,6 +1077,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -972,6 +1096,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -998,6 +1123,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1030,6 +1156,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       setOption: jest.fn(),
     };
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1068,6 +1195,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     });
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       once: jest.fn(),
       off: jest.fn(),
@@ -1132,6 +1260,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
 
     testGraph.echarts = {setOption: jest.fn()};
     testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
       currentPopup: null,
       currentPopupRequest: null,
       once: jest.fn(),
@@ -1152,6 +1281,71 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     expect(popups).toHaveLength(2);
     expect(popups[0].remove).toHaveBeenCalled();
 
+    expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    {
+      name: "category size",
+      category: {name: "large", nodeSize: 40},
+      expected: [0, -30],
+    },
+    {name: "custom offset", offset: [5, -50], expected: [5, -50]},
+    {name: "array height", size: [40, 80], expected: [0, -50]},
+    {
+      name: "emphasis array height",
+      category: {name: "large", nodeSize: 40, emphasis: {nodeSize: [40, 100]}},
+      expected: [0, -60],
+    },
+    {name: "emphasis scale", size: 80, scale: 2, expected: [0, -90]},
+    {name: "disabled scale", size: 80, scale: false, expected: [0, -50]},
+    {
+      name: "category array fallback",
+      size: 80,
+      category: {name: "large", nodeSize: [40, 20]},
+      expected: [0, -50],
+    },
+  ])(
+    "node popup offset uses $name",
+    async ({size, scale, category, offset, expected}) => {
+      testGraph.leaflet = {getSize: jest.fn(() => ({x: 800}))};
+      testGraph.echarts = {setOption: jest.fn()};
+      testGraph.utils.updateLabelVisibility = jest.fn();
+      testGraph.utils.setTooltipVisibility = jest.fn();
+      if (size != null) {
+        testGraph.config.mapOptions.nodeConfig.nodeSize = size;
+      }
+      if (scale != null) {
+        testGraph.config.mapOptions.nodeConfig.emphasis.scale = scale;
+      }
+      if (offset) {
+        testGraph.config.mapOptions.nodePopup.config.offset = offset;
+      }
+      if (category) {
+        testGraph.setConfig({nodeCategories: [category]});
+      }
+      const node = {
+        id: "node-1",
+        category: category?.name,
+        location: {lat: 10, lng: 20},
+      };
+      await testGraph.gui.loadNodePopup(node);
+      expect(window.L.popup).toHaveBeenLastCalledWith(
+        expect.objectContaining({offset: expected}),
+      );
+    },
+  );
+
+  test("failed popup content preserves a newer link bookmark", async () => {
+    testGraph.leaflet = {getSize: jest.fn(() => ({x: 800})), currentPopup: null};
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.config.mapOptions.nodePopup.content = () =>
+      Promise.reject(new Error("failed"));
+    testGraph.utils.parseUrlFragments = jest.fn(() => ({
+      id: new URLSearchParams({nodeId: "node-1~node-2"}),
+    }));
+    testGraph.utils.removeUrlFragment = jest.fn();
+    await testGraph.gui.loadNodePopup({id: "node-1", location: {lat: 10, lng: 20}});
     expect(testGraph.utils.removeUrlFragment).not.toHaveBeenCalled();
   });
 });

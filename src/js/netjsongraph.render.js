@@ -10,7 +10,11 @@ import {install as GraphicComponent} from "echarts/lib/component/graphic/install
 import {install as SVGRenderer} from "echarts/lib/renderer/installSVGRenderer";
 import {install as CanvasRenderer} from "echarts/lib/renderer/installCanvasRenderer";
 import getLeaflet from "./leaflet-loader";
-import {addPolygonOverlays} from "./netjsongraph.geojson";
+import {
+  addPolygonOverlays,
+  isPolygon,
+  updatePolygonOverlays,
+} from "./netjsongraph.geojson";
 
 use([
   GraphChart,
@@ -150,9 +154,35 @@ class NetJSONGraphRender {
       echartsLayer.off("click", self.echartsClickHandler);
     }
     self.echartsClickHandler = (params) => {
-      self.utils.addActionToUrl(self, params);
+      const popupSelection = {};
+      self.popupSelection = popupSelection;
       const event = params.event && (params.event.event || params.event);
       const append = Boolean(event && (event.ctrlKey || event.metaKey));
+      if (
+        params.componentSubType !== "graph" &&
+        params.componentSubType !== "lines" &&
+        params.data &&
+        !params.data.cluster &&
+        !isPolygon(params.data.node) &&
+        configs.mapOptions?.nodePopup?.show &&
+        self.leaflet
+      ) {
+        // Supersede pending content immediately, before the deferred loader
+        // starts, so an older failure cannot clear the new bookmark.
+        self.leaflet.currentPopupRequest = null;
+        if (self.leaflet.currentPopup) {
+          // Replacement is not a user close: retain selection and history.
+          const previousPopup = self.leaflet.currentPopup;
+          self.leaflet.currentPopup = null;
+          previousPopup.remove();
+          if (!append) {
+            self.utils.clearHighlight.call(self);
+          }
+          self.utils.setTooltipVisibility(self, true);
+          self.utils.updateLabelVisibility(self, true);
+        }
+      }
+      self.utils.addActionToUrl(self, params);
       const highlightOptions = {
         showInfo: true,
         append,
@@ -181,10 +211,28 @@ class NetJSONGraphRender {
         return;
       }
       if (params.data && !params.data.cluster) {
+        const {node} = params.data;
         if (configs.mapOptions?.nodePopup?.show) {
-          self.gui.loadNodePopup(params.data.node);
+          if (!isPolygon(node)) {
+            // Let Leaflet process the same click before opening the popup, so
+            // it cannot immediately close it or hide the click from listeners.
+            setTimeout(() => {
+              if (self.popupSelection === popupSelection) {
+                self.gui.loadNodePopup(node);
+              }
+            }, 0);
+          } else {
+            self.gui.loadNodePopup(node);
+          }
         }
-        self.utils.highlightNode(params.data.node, {
+        if (isPolygon(node)) {
+          self.config.onClickElement.call(self, "Feature", {
+            // eslint-disable-next-line no-underscore-dangle
+            ...self.originalGeoJSON.features[node.properties._featureIndex].properties,
+          });
+          return;
+        }
+        self.utils.highlightNode(node, {
           ...highlightOptions,
         });
       }
@@ -209,7 +257,9 @@ class NetJSONGraphRender {
   generateGraphOption(JSONData, self) {
     const categories = [];
     const configs = self.config;
-    const nodes = JSONData.nodes.map((node) => {
+    // Polygons can only be drawn on maps: the nodes which stand for them are left out
+    const drawableNodes = JSONData.nodes.filter((node) => !isPolygon(node));
+    const nodes = drawableNodes.map((node) => {
       const nodeResult = self.utils.fastDeepCopy(node);
       const {nodeStyleConfig, nodeSizeConfig, nodeEmphasisConfig} =
         self.utils.getNodeStyle(node, configs, "graph");
@@ -327,6 +377,7 @@ class NetJSONGraphRender {
     const flatNodes = JSONData.flatNodes || {};
     const linesData = [];
     let nodesData = [];
+    self.polygonDataIndices = new Map();
 
     nodes.forEach((node) => {
       if (node.properties) {
@@ -336,13 +387,14 @@ class NetJSONGraphRender {
         }
       }
 
-      // Non-Point geometries should not become scatter markers, but we still need them for lines
+      // Polygon anchors share ECharts labels/tooltips with points, without a marker.
       if (
         node.properties &&
         // eslint-disable-next-line no-underscore-dangle
         node.properties._featureType &&
         // eslint-disable-next-line no-underscore-dangle
-        node.properties._featureType !== "Point"
+        node.properties._featureType !== "Point" &&
+        !isPolygon(node)
       ) {
         return; // skip marker push only
       }
@@ -351,7 +403,7 @@ class NetJSONGraphRender {
       } else {
         const {location} = node.properties;
 
-        if (!location || !location.lng || !location.lat) {
+        if (!location || location.lng == null || location.lat == null) {
           console.error(`Node ${node.id} position is undefined!`);
         } else {
           const {nodeStyleConfig, nodeEmphasisConfig} = self.utils.getNodeStyle(
@@ -373,9 +425,13 @@ class NetJSONGraphRender {
           } else if (node.id !== undefined && node.id !== null) {
             nodeName = String(node.id);
           }
+          if (isPolygon(node)) {
+            self.polygonDataIndices.set(node.id, nodesData.length);
+          }
           nodesData.push({
             name: nodeName,
             value: [location.lng, location.lat],
+            ...(isPolygon(node) ? {symbolSize: 0} : {}),
             ...(Object.keys(emphasisConfig.nodeStyle).length || emphasisConfig.nodeSize
               ? {
                   emphasis: {
@@ -579,6 +635,7 @@ class NetJSONGraphRender {
    *
    */
   graphRender(JSONData, self) {
+    self.el.classList.remove("njg-map");
     self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
     window.onresize = () => {
       self.echarts.resize();
@@ -626,11 +683,12 @@ class NetJSONGraphRender {
     if (!L) {
       throw new Error("Leaflet api is not loaded");
     }
-    const {circleMarker, latLngBounds} = L;
+    const {latLngBounds} = L;
 
     if (!self.config.mapTileConfig[0]) {
       throw new Error(`You must add the tiles via the "mapTileConfig" param!`);
     }
+    self.el.classList.add("njg-map");
 
     // Accept both NetJSON and GeoJSON inputs. If GeoJSON is detected,
     // deep-copy it for polygon overlays and convert the working copy to
@@ -654,29 +712,9 @@ class NetJSONGraphRender {
     // eslint-disable-next-line no-underscore-dangle
     self.leaflet._zoomAnimated = false;
 
-    self.config.geoOptions = self.utils.deepMergeObj(
-      {
-        pointToLayer: (feature, latlng) =>
-          circleMarker(latlng, self.config.geoOptions.style),
-        onEachFeature: (feature, layer) => {
-          layer.on("click", () => {
-            const properties = {
-              ...feature.properties,
-            };
-            self.config.onClickElement.call(self, "Feature", properties);
-          });
-        },
-      },
-      self.config.geoOptions,
-    );
-
-    // Render Polygon and MultiPolygon features from the original GeoJSON data.
-    // While nodes (Points) and links (LineStrings) are handled by ECharts,
-    // polygon features are rendered directly onto the Leaflet map using
-    // a separate L.geoJSON layer. This allows for displaying geographical
-    // areas like parks or districts alongside the network topology.
+    // Leaflet draws the shapes; ECharts handles their labels and interactions.
     if (self.originalGeoJSON) {
-      addPolygonOverlays(self);
+      addPolygonOverlays(self, JSONData.nodes);
       // Auto-fit view to encompass ALL geometries (polygons + nodes)
       let bounds = null;
 
@@ -748,6 +786,8 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        // The chart is redrawn without clusters, hence no polygon may stay hidden
+        updatePolygonOverlays(self);
         self.bboxData.nodes = [];
         self.bboxData.links = [];
       };
@@ -782,6 +822,7 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+        updatePolygonOverlays(self);
         self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
@@ -794,7 +835,7 @@ class NetJSONGraphRender {
       let {clusters, nonClusterNodes, nonClusterLinks} = self.utils.makeCluster(self);
 
       // Only show clusters if we're below the disableClusteringAtLevel
-      if (self.leaflet.getZoom() > self.config.disableClusteringAtLevel) {
+      if (self.leaflet.getZoom() >= self.config.disableClusteringAtLevel) {
         clusters = [];
         nonClusterNodes = JSONData.nodes;
         nonClusterLinks = JSONData.links;
@@ -811,6 +852,7 @@ class NetJSONGraphRender {
           clusters,
         ),
       );
+      updatePolygonOverlays(self, clusters);
       self.utils.updateLabelVisibility(self, true);
 
       self.echarts.on("click", (params) => {
@@ -850,12 +892,14 @@ class NetJSONGraphRender {
               clusters,
             ),
           );
+          updatePolygonOverlays(self, clusters);
         } else {
           // When above the threshold, show all nodes without clustering
           if (typeof self.utils.clearHighlight === "function") {
             self.utils.clearHighlight.call(self);
           }
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
+          updatePolygonOverlays(self);
         }
         self.utils.updateLabelVisibility(self, true);
       });
@@ -884,7 +928,15 @@ class NetJSONGraphRender {
 
     if (self.config.render === self.utils.mapRender) {
       self.utils.clearHighlight.call(self);
+      const polygonIndices = self.polygonDataIndices;
       const opts = self.utils.generateMapOption(JSONData, self);
+      if (polygonIndices && (polygonIndices.size || self.polygonDataIndices.size)) {
+        const offset = self.echarts.getModel().getSeriesByIndex(0).getData().count();
+        self.polygonDataIndices.forEach((index, id) => {
+          polygonIndices.set(id, offset + index);
+        });
+        self.polygonDataIndices = polygonIndices;
+      }
       opts.series.forEach((obj, index) => {
         self.echarts.appendData({seriesIndex: index, data: obj.data});
       });
