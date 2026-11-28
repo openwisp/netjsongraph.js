@@ -829,19 +829,28 @@ describe("Chart Rendering Test", () => {
         };
       `);
     };
-    // At the lowest zoom the polygon of Austria is close to the points around
-    // it, while the MultiPolygon is far from any other feature.
+    // At the lowest zoom the polygons in Europe are close to the features
+    // around them, while the MultiPolygon in Africa is far from any other.
+    const polygons = [
+      "Austria",
+      "Sample MultiPolygon",
+      "Andalusia",
+      "Sample Iberian MultiPolygon",
+      "Belgium",
+      "Luxembourg",
+    ];
+    const clustered = polygons.filter((name) => name !== "Sample MultiPolygon");
     const zoomedOut = await getPolygons(3);
-    // The MultiPolygon is represented by a single node
-    expect(zoomedOut.nodes).toEqual(["Austria", "Sample MultiPolygon"]);
-    expect(zoomedOut.clustered).toEqual(["Austria"]);
-    expect(zoomedOut.hidden).toEqual(["Austria"]);
+    // Each MultiPolygon is represented by a single node
+    expect(zoomedOut.nodes).toEqual(polygons);
+    expect(zoomedOut.clustered).toEqual(clustered);
+    expect(zoomedOut.hidden).toEqual(clustered);
     expect(zoomedOut.shown).toEqual(["Sample MultiPolygon"]);
     // Above disableClusteringAtLevel nothing is clustered
     const zoomedIn = await getPolygons(7);
     expect(zoomedIn.clustered).toEqual([]);
     expect(zoomedIn.hidden).toEqual([]);
-    expect(zoomedIn.shown).toEqual(["Austria", "Sample MultiPolygon"]);
+    expect(zoomedIn.shown).toEqual(polygons);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);

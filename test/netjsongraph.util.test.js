@@ -452,6 +452,7 @@ describe("Test URL fragment utilities", () => {
       nodeLinkIndex: {n1: node},
       leaflet: {
         options: {zoomSnap: 1},
+        getMinZoom: () => 0,
         project: ([lat, lng], zoom) => ({
           x: lng * 2 ** zoom,
           y: lat * 2 ** zoom,

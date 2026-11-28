@@ -1588,7 +1588,8 @@ class NetJSONGraphUtil {
     // in browsers without 3D support
     const zoomSnap =
       getLeaflet(true)?.Browser?.any3d === false ? 1 : self.leaflet.options.zoomSnap;
-    const startZoom = zoomSnap ? Math.round(fromZoom / zoomSnap) * zoomSnap : fromZoom;
+    const snapped = zoomSnap ? Math.round(fromZoom / zoomSnap) * zoomSnap : fromZoom;
+    const startZoom = Math.max(self.leaflet.getMinZoom(), snapped);
     for (let zoom = startZoom; zoom < disableClusteringAtLevel; zoom += zoomSnap || 1) {
       // makeCluster moves the drawn location, the original one is clustered
       const points = nodes.map((n) => {
