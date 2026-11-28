@@ -48,6 +48,7 @@ export const urls = {
   indoorMapOverlay: `${url}/examples/netjsonmap-indoormap-overlay.html`,
   customAttributes: `${url}/examples/netjsongraph-elementsLegend.html`,
   wifiClients: `${url}/examples/netjsongraph-wifi-clients.html`,
+  searchElements: `${url}/examples/netjson-searchElements.html`,
   geoJson: `${url}/examples/njg-geojson.html`,
   movingNode: `${url}/examples/netjsonmap-moving-node.html`,
   clustering: `${url}/examples/netjson-clustering.html`,
@@ -83,12 +84,13 @@ export const getElementsByCss = async (driver, css, waitTime = 1000) => {
 
 export const getRenderedNodesAndLinksCount = async (driver) => {
   try {
-    const nodes = await driver.executeScript(`
-      return document.querySelector('.njg-metaDataItems:nth-child(5) .njg-valueLabel').textContent;
-    `);
-
-    const links = await driver.executeScript(`
-      return document.querySelector('.njg-metaDataItems:nth-child(6) .njg-valueLabel').textContent;
+    const {nodes, links} = await driver.executeScript(`
+      const values = {};
+      for (const item of document.querySelectorAll(".njg-metaDataItems")) {
+        const label = item.querySelector(".njg-keyLabel").textContent.toLowerCase();
+        values[label] = item.querySelector(".njg-valueLabel").textContent;
+      }
+      return { nodes: values.nodes, links: values.links };
     `);
     const nodesRendered = parseInt(nodes, 10);
     const linksRendered = parseInt(links, 10);

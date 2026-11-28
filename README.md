@@ -778,75 +778,23 @@ In this demo the nodes and links change after 5 seconds.
 
 #### Search elements
 
-If you want to add search elements function, you just need to pass the url as param to `searchElements`, which will return a function `searchFunc`.
-Then you just need to obtain the value input, and pass it to the `searchFunc`.
-`searchFunc` is similar to JSONDataUpdate, you can also set `appendData` and `isRaw` params according to different conditions.
+Call `searchElements` in the graph's `onReady` callback, after the initial
+graph has loaded. It returns a function that appends the search key to the
+URL and updates the graph with the NetJSON response.
 
-```JS
-/**
- * @function
- * @name searchElements
- * Add search function for new data.
- *
- * @param  {string}         url      listen url
- *
- * @this   {object}         NetJSONGraph object
- *
- * @return {function}       searchFunc
- */
-
-const graph = new NetJSONGraph("./data/netjsonmap.json", {
-  onLoad: function(){
-    let searchContainer = document.createElement("div"),
-      searchInput = document.createElement("input"),
-      searchBtn = document.createElement("button"),
-      /*
-        Pass in the url to listen to, and save the returned function.
-        Please ensure that the return value of the api is the specified json format.
-      */
-      searchFunc = this.utils.searchElements.call(this, "https://ee3bdf59-d14c-4280-b514-52bd3dfc2c17.mock.pstmn.io/?search=");
-
-    searchInput.setAttribute("class", "njg-searchInput");
-    searchInput.placeholder = "Input value for searching special elements.";
-    searchBtn.setAttribute("class", "njg-searchBtn");
-    searchBtn.innerHTML = "search";
-    searchContainer.setAttribute("class", "njg-searchContainer");
-    searchContainer.appendChild(searchInput);
-    searchContainer.appendChild(searchBtn);
-    this.el.appendChild(searchContainer);
-
-    searchInput.onchange = () => {
-      // do something to deal user input value.
-    };
-
-    searchBtn.onclick = () => {
-      let inputValue = searchInput.value.trim();
-
-      /*
-        Pass in the relevant search value,
-        which will re-render automatically according to the request result within the function.
-      */
-      if(inputValue === "appendData"){
-        // appendData
-        searchFunc(inputValue, false);
-      }
-      else{
-        searchFunc(inputValue);
-      }
-
-      searchInput.value = "";
-    }
-
-    this.utils.hideLoading();
-  }
-});
-
-graph.render();
+```js
+const search = this.utils.searchElements.call(this, "/api/netjson/?search=");
+search(encodeURIComponent("router-1"));
 ```
 
-Demo is [here](https://openwisp.github.io/netjsongraph.js/examples/netjson-searchElements.html).
-You can input `test`(overrideData) or `appendData`(appendData) and click the `search` button.
-The view will change if the value is `valid`, and you can also click the back button of browser to `go back`.
+Pass `false` as the second argument to append results to the current graph.
+The third argument, `isRaw`, controls the same data preparation as
+`JSONDataUpdate`.
+
+In the [Search elements demo](https://openwisp.github.io/netjsongraph.js/examples/netjson-searchElements.html),
+enter `test` to replace the sample graph or `appendData` to add to it. Click
+**Search** or press **Enter**, then use the browser's Back button to restore
+the previous result.
 
 #### Deal data by WebWorker
 
