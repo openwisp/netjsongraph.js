@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom";
+import L from "leaflet";
 import NetJSONGraphCore from "../src/js/netjsongraph.core";
 import NetJSONGraphGUI from "../src/js/netjsongraph.gui";
 import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
@@ -751,6 +752,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
 
   const mockLeafletPopup = (popupElement) => {
     mockPopup = {
+      options: {},
       getElement: jest.fn(() => popupElement),
       setLatLng: jest.fn(() => mockPopup),
       setContent: jest.fn(() => mockPopup),
@@ -775,6 +777,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     originalLeaflet = window.L;
     mockLeafletPopup({
       querySelector: jest.fn(),
+      style: {},
     });
     container = document.createElement("div");
     container.setAttribute("id", "test-popup-map");
@@ -831,6 +834,50 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
       testGraph,
       false,
     );
+  });
+
+  test("loadNodePopup hides the popup of a node which is already clustered", async () => {
+    const popupElement = {querySelector: jest.fn(), style: {}};
+    mockLeafletPopup(popupElement);
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.leaflet = {
+      getSize: jest.fn(() => ({x: 800})),
+      currentPopup: null,
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
+    const node = {id: "node-1", location: {lat: 10, lng: 20}};
+    testGraph.clusters = [{cluster: true, childNodes: [node]}];
+    await testGraph.gui.loadNodePopup(node);
+    expect(testGraph.leaflet.currentPopup).toBe(mockPopup);
+    expect(popupElement.style.display).toBe("none");
+    // The tooltip of the map is not hidden by a hidden popup
+    expect(testGraph.utils.setTooltipVisibility).toHaveBeenLastCalledWith(
+      testGraph,
+      true,
+    );
+  });
+
+  test("loadNodePopup should not pan the map to the popup of a node which is already clustered", async () => {
+    window.L = L;
+    global.L = L;
+    const map = L.map(container, {center: [0, 0], zoom: 5});
+    // jsdom has no layout, the map gets the size of a screen
+    map.getSize = () => L.point(800, 600);
+    const panBy = jest.spyOn(map, "panBy");
+    testGraph.echarts = {setOption: jest.fn()};
+    testGraph.leaflet = map;
+    testGraph.utils.updateLabelVisibility = jest.fn();
+    testGraph.utils.setTooltipVisibility = jest.fn();
+    // Outside the view
+    const node = {id: "node-1", location: {lat: 0, lng: 60}};
+    testGraph.clusters = [{cluster: true, childNodes: [node]}];
+    await testGraph.gui.loadNodePopup(node);
+    expect(map.currentPopup.getElement().style.display).toBe("none");
+    expect(panBy).not.toHaveBeenCalled();
+    map.remove();
   });
 
   test("loadNodePopup handles async content error and cleans up URL fragment", async () => {
@@ -1236,6 +1283,7 @@ describe("Test GUI loadNodePopup with async and tooltip handling", () => {
     const popups = [];
     const makePopup = () => {
       const popup = {
+        options: {},
         setLatLng: jest.fn(() => popup),
         setContent: jest.fn(() => popup),
         openOn: jest.fn(() => popup),

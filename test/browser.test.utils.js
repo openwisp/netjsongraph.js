@@ -181,6 +181,13 @@ export const printConsoleErrors = (errors) => {
   }
 };
 
+export const waitForPolygons = (driver) =>
+  driver.wait(
+    () => driver.executeScript("return Boolean(window.map?.leaflet?.polygonGeoJSON);"),
+    5000,
+    "Timed out waiting for the polygons to be drawn",
+  );
+
 export const tearDown = async (driver) => {
   await driver.executeScript("window.sessionStorage.clear()");
   await driver.executeScript("window.localStorage.clear()");

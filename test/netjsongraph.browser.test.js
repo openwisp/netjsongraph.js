@@ -11,6 +11,7 @@ import {
   getPresentNodesAndLinksCount,
   urls,
   printConsoleErrors,
+  waitForPolygons,
 } from "./browser.test.utils";
 
 describe("Chart Rendering Test", () => {
@@ -790,14 +791,7 @@ describe("Chart Rendering Test", () => {
 
   test("GeoJSON: polygons are hidden while they belong to a cluster", async () => {
     await driver.get(urls.geoJson);
-    await driver.wait(
-      () =>
-        driver.executeScript(
-          "return Boolean(window.map && window.map.leaflet && window.map.leaflet.polygonGeoJSON);",
-        ),
-      5000,
-      "Timed out waiting for the polygons to be drawn",
-    );
+    await waitForPolygons(driver);
     const getPolygons = async (zoom) => {
       // Without animation the clusters are redrawn before setZoom returns
       await driver.executeScript(
@@ -835,19 +829,28 @@ describe("Chart Rendering Test", () => {
         };
       `);
     };
-    // At the lowest zoom the polygon of Austria is close to the points around
-    // it, while the MultiPolygon is far from any other feature.
+    // At the lowest zoom the polygons in Europe are close to the features
+    // around them, while the MultiPolygon in Africa is far from any other.
+    const polygons = [
+      "Austria",
+      "Sample MultiPolygon",
+      "Andalusia",
+      "Sample Iberian MultiPolygon",
+      "Belgium",
+      "Luxembourg",
+    ];
+    const clustered = polygons.filter((name) => name !== "Sample MultiPolygon");
     const zoomedOut = await getPolygons(3);
-    // The MultiPolygon is represented by a single node
-    expect(zoomedOut.nodes).toEqual(["Austria", "Sample MultiPolygon"]);
-    expect(zoomedOut.clustered).toEqual(["Austria"]);
-    expect(zoomedOut.hidden).toEqual(["Austria"]);
+    // Each MultiPolygon is represented by a single node
+    expect(zoomedOut.nodes).toEqual(polygons);
+    expect(zoomedOut.clustered).toEqual(clustered);
+    expect(zoomedOut.hidden).toEqual(clustered);
     expect(zoomedOut.shown).toEqual(["Sample MultiPolygon"]);
     // Above disableClusteringAtLevel nothing is clustered
     const zoomedIn = await getPolygons(7);
     expect(zoomedIn.clustered).toEqual([]);
     expect(zoomedIn.hidden).toEqual([]);
-    expect(zoomedIn.shown).toEqual(["Austria", "Sample MultiPolygon"]);
+    expect(zoomedIn.shown).toEqual(polygons);
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
@@ -859,14 +862,7 @@ describe("Chart Rendering Test", () => {
       await driver.manage().window().setRect({width, height: 800});
       try {
         await driver.get(urls.geoJson);
-        await driver.wait(
-          () =>
-            driver.executeScript(
-              "return Boolean(window.map?.leaflet?.polygonGeoJSON);",
-            ),
-          5000,
-          "Timed out waiting for polygon overlays",
-        );
+        await waitForPolygons(driver);
         const label = await driver.executeScript(`
         const {leaflet, data} = window.map;
         const node = data.nodes.find((n) => n.properties.country === "Austria");
@@ -940,14 +936,7 @@ describe("Chart Rendering Test", () => {
 
   test("GeoJSON: clicking a polygon opens its popup and adds it to the URL", async () => {
     await driver.get(urls.geoJson);
-    await driver.wait(
-      () =>
-        driver.executeScript(
-          "return Boolean(window.map && window.map.leaflet && window.map.leaflet.polygonGeoJSON);",
-        ),
-      5000,
-      "Timed out waiting for the polygons to be drawn",
-    );
+    await waitForPolygons(driver);
     // Center the map on the node of the polygon, which lies within the
     // polygon, at a zoom level at which nothing is clustered.
     const nodeId = await driver.executeScript(`
@@ -982,6 +971,44 @@ describe("Chart Rendering Test", () => {
       {type: "Feature", data: {country: "Austria"}},
     ]);
     expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    // The popup is hidden while the polygon is in a cluster, which happens at
+    // zoom 3, and the polygon stays selected
+    await driver.executeScript("window.map.leaflet.setZoom(3, {animate: false});");
+    await driver.wait(
+      async () => !(await popup.isDisplayed()),
+      2000,
+      "Timed out waiting for the popup of the clustered polygon to be hidden",
+    );
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
+    await driver.executeScript("window.map.leaflet.setZoom(7, {animate: false});");
+    await driver.wait(
+      () => popup.isDisplayed(),
+      2000,
+      "Timed out waiting for the popup to be shown again",
+    );
+    // Clicking the cluster of the polygon zooms in until the polygon is shown,
+    // with its popup, and the polygon stays selected
+    await driver.executeScript("window.map.leaflet.setZoom(3, {animate: false});");
+    await driver.wait(
+      async () => !(await popup.isDisplayed()),
+      2000,
+      "Timed out waiting for the popup of the clustered polygon to be hidden again",
+    );
+    const {x, y} = await driver.executeScript(
+      `const {leaflet, clusters} = window.map;
+      const cluster = clusters.find((c) => c.childNodes.some((n) => n.id === arguments[0]));
+      const point = leaflet.latLngToContainerPoint([cluster.value[1], cluster.value[0]]);
+      const size = leaflet.getSize();
+      return {x: Math.round(point.x - size.x / 2), y: Math.round(point.y - size.y / 2)};`,
+      nodeId,
+    );
+    await driver.actions().move({origin: container, x, y}).click().perform();
+    await driver.wait(
+      () => popup.isDisplayed(),
+      2000,
+      "Timed out waiting for the popup to be shown after clicking the cluster",
+    );
+    expect(await driver.getCurrentUrl()).toContain(`nodeId=${nodeId}`);
     // The popup of the polygon is restored when the page is loaded again
     await driver.navigate().refresh();
     const restoredPopup = await getElementByCss(driver, ".leaflet-popup", 5000);
@@ -990,7 +1017,104 @@ describe("Chart Rendering Test", () => {
     const consoleErrors = await captureConsoleErrors(driver);
     printConsoleErrors(consoleErrors);
     expect(consoleErrors.length).toBe(0);
-  }, 10000); // This test needs more time
+  }, 15000); // This test needs more time
+
+  test("GeoJSON: clicking back reopens popup for every clicked polygon and point", async () => {
+    await driver.manage().window().setSize(1280, 800);
+    await driver.get(urls.geoJson);
+    await waitForPolygons(driver);
+    // Both polygons and the point are shown, outside clusters, at zoom 4
+    await driver.executeScript(
+      "window.map.leaflet.setView([30, 15], 4, {animate: false});",
+    );
+    const container = await getElementByCss(driver, ".ec-extension-leaflet", 2000);
+    const popupText = () =>
+      driver.executeScript(
+        'return document.querySelector(".leaflet-popup-content")?.textContent ?? null;',
+      );
+    const getZoom = () => driver.executeScript("return window.map.leaflet.getZoom();");
+    const clickNode = async (id) => {
+      // Opening a popup pans the map, wait for it before finding the node
+      await driver.sleep(500);
+      const {x, y} = await driver.executeScript(
+        `const {leaflet, data} = window.map;
+        const node = data.nodes.find((n) => n.id === arguments[0]);
+        const point = leaflet.latLngToContainerPoint(node.location);
+        const size = leaflet.getSize();
+        return {x: Math.round(point.x - size.x / 2), y: Math.round(point.y - size.y / 2)};`,
+        id,
+      );
+      await driver.actions().move({origin: container, x, y}).click().perform();
+      await driver.wait(
+        async () => (await driver.getCurrentUrl()).includes(`nodeId=${id}`),
+        2000,
+        `Timed out waiting for ${id} to be added to the URL`,
+      );
+    };
+    // Covers a polygon clicked after a polygon and after a point, whose
+    // previous entries were lost, and a point clicked after a polygon
+    const clicked = ["gjn_polygon_0", "gjn_polygon_1", "gjn_6", "gjn_polygon_0"];
+    // The clicks and the Back steps must run one after the other
+    await clicked.reduce(
+      (previous, id) => previous.then(() => clickNode(id)),
+      Promise.resolve(),
+    );
+    const goBackTo = async (id) => {
+      await driver.navigate().back();
+      await driver.wait(
+        async () => (await popupText())?.includes(id),
+        2000,
+        `Timed out waiting for the popup of ${id} after going back`,
+      );
+      expect(await driver.getCurrentUrl()).toContain(`nodeId=${id}`);
+      // The element is shown at the zoom chosen by the user, which is kept
+      expect(await getZoom()).toBe(4);
+    };
+    // Each Back reopens the element clicked before, newest first
+    await clicked
+      .slice(0, -1)
+      .reverse()
+      .reduce((previous, id) => previous.then(() => goBackTo(id)), Promise.resolve());
+    // Before the first click nothing was open
+    await driver.navigate().back();
+    await driver.wait(
+      async () => (await popupText()) === null,
+      2000,
+      "Timed out waiting for the popup to close",
+    );
+    // At zoom 3 the first clicked polygon is in a cluster, hence going
+    // forward to it zooms in to 4, at which it was clicked out of clusters
+    await driver.executeScript("window.map.leaflet.setZoom(3, {animate: false});");
+    await driver.navigate().forward();
+    await driver.wait(
+      async () => (await popupText())?.includes("gjn_polygon_0"),
+      2000,
+      "Timed out waiting for the popup of gjn_polygon_0 after going forward",
+    );
+    expect(await getZoom()).toBe(4);
+    // Without zoomOnRestore the view is not changed, hence the popup of the
+    // clustered polygon is opened hidden
+    await driver.executeScript(
+      `window.map.config.bookmarkableActions.zoomOnRestore = false;
+      window.map.leaflet.setZoom(3, {animate: false});`,
+    );
+    await driver.navigate().back();
+    await driver.navigate().forward();
+    await driver.wait(
+      async () => (await popupText())?.includes("gjn_polygon_0"),
+      2000,
+      "Timed out waiting for the popup of gjn_polygon_0 after going forward again",
+    );
+    expect(
+      await driver.executeScript(
+        'return document.querySelector(".leaflet-popup").style.display;',
+      ),
+    ).toBe("none");
+    expect(await getZoom()).toBe(3);
+    const consoleErrors = await captureConsoleErrors(driver);
+    printConsoleErrors(consoleErrors);
+    expect(consoleErrors.length).toBe(0);
+  }, 30000);
 
   test("renders Leaflet plugins and captures measurement clicks across the map", async () => {
     await driver.manage().window().setSize(1280, 800);

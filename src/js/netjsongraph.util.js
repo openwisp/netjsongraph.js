@@ -1,6 +1,84 @@
 /* eslint-disable no-underscore-dangle */
 import KDBush from "kdbush";
 import {geojsonToNetjson as convertGeojson, isPolygon} from "./netjsongraph.geojson";
+import getLeaflet from "./leaflet-loader";
+
+/**
+ * Whether the node with the given id is inside one of the given clusters.
+ *
+ * @param {Array}         clusters  Clusters currently displayed on the map
+ * @param {string|number} nodeId
+ * @returns {boolean}
+ */
+const isClustered = (clusters, nodeId) =>
+  clusters.some((cluster) =>
+    cluster.childNodes.some((node) => String(node.id) === String(nodeId)),
+  );
+
+const isPoint = (node) =>
+  !(node.properties && node.properties._featureType) ||
+  node.properties._featureType === "Point";
+
+// Points and the nodes which stand for Polygon features can be clustered
+const isClusterable = (node) => isPoint(node) || isPolygon(node);
+
+/**
+ * Group the nodes which are drawn close to each other, as makeCluster does,
+ * without changing them.
+ *
+ * @param {Object} config  NetJSONGraph config
+ * @param {Array}  nodes   Nodes which can be clustered
+ * @param {Array}  points  Pixel coordinates ({x, y}) of each node
+ * @returns {{locationGroups: Map, isolated: Array}} The nodes close to each
+ *   node which is not yet in a group, by pixel location and then by
+ *   clusteringAttribute, and the nodes which are far from any other
+ */
+const groupNearbyNodes = (config, nodes, points) => {
+  const index = new KDBush(nodes.length);
+  points.forEach(({x, y}) => index.add(x, y));
+  index.finish();
+  const visited = new Set();
+  const locationGroups = new Map();
+  const isolated = [];
+  nodes.forEach((node, i) => {
+    if (visited.has(node)) {
+      return;
+    }
+    const {x, y} = points[i];
+    // Find all neighbors within clusterRadius in pixel space
+    // For a node at (x, y), find all nodes (xi, yi) such that:
+    // sqrt((xi - x)^2 + (yi - y)^2) <= clusterRadius
+    // This is the Euclidean distance formula in 2D.
+    const neighbors = index.within(x, y, config.clusterRadius).map((id) => nodes[id]);
+    if (neighbors.length > 1) {
+      // Group by rounded pixel location (to avoid floating point issues)
+      const key = `${Math.round(x)},${Math.round(y)}`;
+      if (!locationGroups.has(key)) {
+        locationGroups.set(key, new Map());
+      }
+      const groupByAttribute = locationGroups.get(key);
+      // Further group by attribute if configured (e.g., status)
+      neighbors.forEach((n) => {
+        if (visited.has(n)) {
+          return;
+        }
+        const attr = config.clusteringAttribute
+          ? n.properties[config.clusteringAttribute]
+          : "default";
+        if (!groupByAttribute.has(attr)) {
+          groupByAttribute.set(attr, []);
+        }
+        groupByAttribute.get(attr).push(n);
+        visited.add(n);
+      });
+    } else {
+      // Node is isolated, not clustered
+      visited.add(node);
+      isolated.push(node);
+    }
+  });
+  return {locationGroups, isolated};
+};
 
 /**
  * @class
@@ -346,14 +424,9 @@ class NetJSONGraphUtil {
     // nodes which stand for Polygon features should be clustered.
     const {nodes: allNodes, links} = self.data;
 
-    const isPoint = (n) =>
-      !(n.properties && n.properties._featureType) ||
-      n.properties._featureType === "Point";
-    const clusterableNodes = (n) => isPoint(n) || isPolygon(n);
-
     // Candidates for clustering and nodes to always stay unclustered (e.g. LineString endpoints).
-    const nodes = allNodes.filter(clusterableNodes);
-    const nonClusterNodes = allNodes.filter((n) => !clusterableNodes(n));
+    const nodes = allNodes.filter(isClusterable);
+    const nonClusterNodes = allNodes.filter((n) => !isClusterable(n));
     const nonClusterLinks = [];
     const clusters = [];
     const nodeMap = new Map();
@@ -390,11 +463,6 @@ class NetJSONGraphUtil {
       node.cluster = null;
     });
 
-    // 2. Build a spatial index for fast neighbor search
-    const index = new KDBush(nodes.length);
-    nodes.forEach(({x, y}) => index.add(x, y));
-    index.finish();
-
     // Helper to get cluster symbol size (for overlap calculations)
     const symbolSizeSetting =
       self.config &&
@@ -415,48 +483,18 @@ class NetJSONGraphUtil {
       return typeof symbolSizeSetting === "number" ? symbolSizeSetting : 30;
     };
 
-    const locationGroups = new Map();
+    // 2-4. Group the nodes close to each other, by attribute
+    const {locationGroups, isolated} = groupNearbyNodes(
+      self.config,
+      nodes,
+      nodes.map(({x, y}) => ({x, y})),
+    );
     nodes.forEach((node) => {
-      if (node.visited) {
-        return;
-      }
-
-      // 3. Find all neighbors within clusterRadius in pixel space
-      // For a node at (x, y), find all nodes (xi, yi) such that:
-      // sqrt((xi - x)^2 + (yi - y)^2) <= clusterRadius
-      // This is the Euclidean distance formula in 2D.
-      const neighbors = index
-        .within(node.x, node.y, self.config.clusterRadius)
-        .map((id) => nodes[id]);
-
-      if (neighbors.length > 1) {
-        // Group by rounded pixel location (to avoid floating point issues)
-        const key = `${Math.round(node.x)},${Math.round(node.y)}`;
-        if (!locationGroups.has(key)) {
-          locationGroups.set(key, new Map());
-        }
-        const groupByAttribute = locationGroups.get(key);
-
-        // 4. Further group by attribute if configured (e.g., status)
-        neighbors.forEach((n) => {
-          if (n.visited) {
-            return;
-          }
-          const attr = self.config.clusteringAttribute
-            ? n.properties[self.config.clusteringAttribute]
-            : "default";
-          if (!groupByAttribute.has(attr)) {
-            groupByAttribute.set(attr, []);
-          }
-          groupByAttribute.get(attr).push(n);
-          n.visited = true;
-        });
-      } else {
-        // Node is isolated, not clustered
-        node.visited = true;
-        nodeMap.set(node.id, null);
-        nonClusterNodes.push(node);
-      }
+      node.visited = true;
+    });
+    isolated.forEach((node) => {
+      nodeMap.set(node.id, null);
+      nonClusterNodes.push(node);
     });
 
     // 5. For each pixel location, process attribute groups
@@ -1482,6 +1520,11 @@ class NetJSONGraphUtil {
       console.error("nodeId not found in nodeLinkIndex lookup.");
       return;
     }
+    // Clicking the element which is already open, e.g. another part of the
+    // same MultiPolygon, must not add a duplicate history entry
+    if (fragments[id]?.get("nodeId") === String(nodeId)) {
+      return;
+    }
     if (!fragments[id]) {
       fragments[id] = new URLSearchParams();
       fragments[id].set("id", id);
@@ -1525,7 +1568,63 @@ class NetJSONGraphUtil {
     this.updateUrlFragments(fragments, state, replace);
   }
 
-  applyUrlFragmentState(self) {
+  /**
+   * The lowest zoom level, from the given one, at which the node is not in a
+   * cluster. At disableClusteringAtLevel nothing is clustered.
+   *
+   * @param {Object} self      NetJSONGraph instance
+   * @param {Object} node      Node to show
+   * @param {number} fromZoom  Lowest zoom level to return
+   * @returns {number}
+   */
+  getUnclusteredZoom(self, node, fromZoom) {
+    const {clustering, clusteringThreshold, disableClusteringAtLevel} = self.config;
+    const allNodes = self.data?.nodes || [];
+    if (!clustering || clusteringThreshold >= allNodes.length) {
+      return fromZoom;
+    }
+    const nodes = allNodes.filter(isClusterable);
+    // setView rounds the zoom to the zoomSnap of the map, or to whole levels
+    // in browsers without 3D support
+    const zoomSnap =
+      getLeaflet(true)?.Browser?.any3d === false ? 1 : self.leaflet.options.zoomSnap;
+    const snapped = zoomSnap ? Math.round(fromZoom / zoomSnap) * zoomSnap : fromZoom;
+    const startZoom = Math.max(self.leaflet.getMinZoom(), snapped);
+    for (let zoom = startZoom; zoom < disableClusteringAtLevel; zoom += zoomSnap || 1) {
+      // makeCluster moves the drawn location, the original one is clustered
+      const points = nodes.map((n) => {
+        const loc = n._origLocation || n.properties?.location || n.location;
+        return loc
+          ? self.leaflet.project([loc.lat, loc.lng], zoom).round()
+          : {x: NaN, y: NaN};
+      });
+      const {locationGroups} = groupNearbyNodes(self.config, nodes, points);
+      const clustered = Array.from(locationGroups.values()).some((groups) =>
+        Array.from(groups.values()).some(
+          (group) =>
+            group.length > 1 && group.some((n) => String(n.id) === String(node.id)),
+        ),
+      );
+      if (!clustered) {
+        return zoom;
+      }
+    }
+    // Rounded up, so that the zoom applied is not below the cutoff
+    const cutoff = zoomSnap
+      ? Math.ceil(disableClusteringAtLevel / zoomSnap) * zoomSnap
+      : disableClusteringAtLevel;
+    return Math.max(startZoom, cutoff);
+  }
+
+  /**
+   * Open the element selected in the URL.
+   *
+   * @param {Object}  self         NetJSONGraph instance
+   * @param {boolean} fromHistory  Whether the user went back or forward in
+   *   the history: the view, which the user has chosen, is then kept when the
+   *   element is shown in it.
+   */
+  applyUrlFragmentState(self, fromHistory = false) {
     // Browser navigation supersedes any point popup queued by an earlier click.
     self.popupSelection = null;
     if (!self.config.bookmarkableActions.enabled) {
@@ -1553,7 +1652,7 @@ class NetJSONGraphUtil {
       (self.config.mapOptions &&
         self.config.mapOptions.nodeConfig &&
         self.config.mapOptions.nodeConfig.type);
-    const {location, cluster} = node || {};
+    const {location} = node || {};
     // Center the map view when returning from a bookmark.
     // We only do this when:
     // - zoomOnRestore is enabled,
@@ -1567,13 +1666,23 @@ class NetJSONGraphUtil {
       location != null
     ) {
       const center = [location.lat, location.lng];
-      const zoom =
-        cluster != null
-          ? self.config.disableClusteringAtLevel
-          : self.config.bookmarkableActions.zoomLevel ||
-            self.config.showMapLabelsAtZoom;
       if (self.leaflet) {
-        self.leaflet.setView(center, zoom);
+        if (fromHistory && !isClustered(self.clusters || [], node.id)) {
+          // The element is drawn at the current zoom, show it without zooming
+          if (!self.leaflet.getBounds().contains(center)) {
+            self.leaflet.panTo(center);
+          }
+        } else {
+          // Zoom in only as much as needed to show the element out of clusters
+          const fromZoom = fromHistory
+            ? self.leaflet.getZoom() + (self.leaflet.options.zoomSnap || 1)
+            : self.config.bookmarkableActions.zoomLevel ||
+              self.config.showMapLabelsAtZoom;
+          self.leaflet.setView(
+            center,
+            self.utils.getUnclusteredZoom(self, node, fromZoom),
+          );
+        }
       }
     }
     if (target == null && self.config.mapOptions?.nodePopup?.show) {
@@ -1594,13 +1703,57 @@ class NetJSONGraphUtil {
     }
   }
 
+  /**
+   * Hide the open popup while its node is inside one of the given clusters,
+   * and show it again once the node is drawn on its own.
+   *
+   * The popup is not closed: its node stays selected and in the URL.
+   *
+   * @param {Object} self      NetJSONGraph instance
+   * @param {Array}  clusters  Clusters currently displayed on the map
+   */
+  updateClusteredPopup(self, clusters = []) {
+    const popup = self.leaflet?.currentPopup;
+    const element = popup?.getElement?.();
+    if (!element || popup.nodeId == null) {
+      return;
+    }
+    const clustered = isClustered(clusters, popup.nodeId);
+    element.style.display = clustered ? "none" : "";
+    if (!clustered) {
+      // makeCluster may have moved the marker since the popup was opened
+      const node = self.data?.nodes?.find((n) => String(n.id) === popup.nodeId);
+      const location = node?.properties?.location || node?.location;
+      if (location && !isPolygon(node)) {
+        // Moving the popup must not pan the map after the zoom of the user
+        popup.options.autoPan = false;
+        popup.setLatLng(location);
+      }
+    }
+    // A hidden popup must not move the map to fit itself
+    popup.options.autoPan = !clustered && popup.autoPan;
+    // The tooltip of the map is hidden only while the popup is shown
+    self.utils.setTooltipVisibility(self, clustered);
+  }
+
+  /**
+   * Whether the node is inside one of the given clusters.
+   *
+   * @param {Array}         clusters  Clusters currently displayed on the map
+   * @param {string|number} nodeId    ID of the node
+   * @returns {boolean}
+   */
+  isClustered(clusters, nodeId) {
+    return isClustered(clusters, nodeId);
+  }
+
   setupHashChangeHandler(self) {
     // Avoid duplicate listeners per instance
     if (self._popstateHandler) {
       window.removeEventListener("popstate", self._popstateHandler);
     }
     self._popstateHandler = (event) => {
-      this.applyUrlFragmentState(self);
+      this.applyUrlFragmentState(self, true);
       if (event && event._fragmentchangePending) {
         return;
       }

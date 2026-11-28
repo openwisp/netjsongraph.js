@@ -1,5 +1,10 @@
+import L from "leaflet";
+import getLeaflet from "../src/js/leaflet-loader";
 import NetJSONGraphUtil from "../src/js/netjsongraph.util";
 import {geojsonToNetjson} from "../src/js/netjsongraph.geojson";
+
+// Lets a test choose the Leaflet found by the library, none by default
+jest.mock("../src/js/leaflet-loader", () => jest.fn());
 
 // Mock Leaflet projection (minimal for pixel<->latlng)
 const mockLeaflet = {
@@ -387,6 +392,201 @@ describe("Test URL fragment utilities", () => {
     utils.applyUrlFragmentState(self);
     expect(mockSetView).toHaveBeenCalledWith([12.1, 77.5], 6);
     expect(mockOnClick).toHaveBeenCalledWith("node", node);
+  });
+
+  test("addActionToUrl does not add a history entry when clicking the open node", () => {
+    window.location.hash = "id=geo&nodeId=node1";
+    const self = {
+      config: {
+        render: "graph",
+        bookmarkableActions: {enabled: true, id: "geo"},
+      },
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeLinkIndex: {node1: {id: "node1"}},
+    };
+    const pushState = jest.spyOn(window.history, "pushState");
+    utils.addActionToUrl(self, {dataType: "node", data: {id: "node1"}});
+    expect(pushState).not.toHaveBeenCalled();
+    pushState.mockRestore();
+  });
+
+  test("addActionToUrl does not add a history entry when the open node has a numeric ID", () => {
+    window.location.hash = "id=geo&nodeId=1";
+    const self = {
+      config: {
+        render: "graph",
+        bookmarkableActions: {enabled: true, id: "geo"},
+      },
+      utils: {...utils, graphRender: "graph", mapRender: "map"},
+      nodeLinkIndex: {1: {id: 1}},
+    };
+    const pushState = jest.spyOn(window.history, "pushState");
+    utils.addActionToUrl(self, {dataType: "node", data: {id: 1}});
+    expect(pushState).not.toHaveBeenCalled();
+    pushState.mockRestore();
+  });
+
+  // A clustered map whose node n1 is selected in the URL, with another node
+  // at the given longitude. Like in Leaflet, the pixel distance between them
+  // doubles at each zoom level: with a longitude of 0.01 they are clustered
+  // up to zoom 12 and drawn on their own from zoom 13.
+  const clusteredMapWithSelectedNode = (leaflet, neighborLng = 0.01) => {
+    window.location.hash = "#id=geo&nodeId=n1";
+    const node = {id: "n1", location: {lat: 0, lng: 0}};
+    const neighbor = {id: "n2", location: {lat: 0, lng: neighborLng}};
+    const self = {
+      config: {
+        render: "map",
+        clustering: true,
+        clusterRadius: 80,
+        disableClusteringAtLevel: 15,
+        bookmarkableActions: {
+          enabled: true,
+          id: "geo",
+          zoomLevel: 10,
+          zoomOnRestore: true,
+        },
+        mapOptions: {nodeConfig: {type: "scatter"}},
+      },
+      data: {nodes: [node, neighbor], links: []},
+      nodeLinkIndex: {n1: node},
+      leaflet: {
+        options: {zoomSnap: 1},
+        getMinZoom: () => 0,
+        project: ([lat, lng], zoom) => ({
+          x: lng * 2 ** zoom,
+          y: lat * 2 ** zoom,
+          round() {
+            return {x: Math.round(this.x), y: Math.round(this.y)};
+          },
+        }),
+        ...leaflet,
+      },
+      utils,
+    };
+    return {self, node};
+  };
+
+  test("applyUrlFragmentState zooms in only as much as needed to show a restored node out of clusters", () => {
+    const setView = jest.fn();
+    const {self} = clusteredMapWithSelectedNode({setView});
+    // Like on page load, which calls it with the NetJSONGraph instance as this
+    utils.applyUrlFragmentState.call(self, self);
+    expect(setView).toHaveBeenLastCalledWith([0, 0], 13);
+    // Nodes at the same location are clustered until clustering is disabled
+    utils.applyUrlFragmentState(clusteredMapWithSelectedNode({setView}, 0).self);
+    expect(setView).toHaveBeenLastCalledWith([0, 0], 15);
+    // A node far from the others is shown at zoomLevel
+    utils.applyUrlFragmentState(clusteredMapWithSelectedNode({setView}, 1).self);
+    expect(setView).toHaveBeenLastCalledWith([0, 0], 10);
+    self.config.bookmarkableActions.zoomLevel = 17;
+    utils.applyUrlFragmentState(self);
+    expect(setView).toHaveBeenLastCalledWith([0, 0], 17);
+  });
+
+  // A real Leaflet map with two nodes the given pixels apart at the given zoom
+  const realMapWithTwoNodes = ({
+    zoomSnap = 1,
+    distance = 0,
+    atZoom = 3,
+    disableClusteringAtLevel = 8,
+  }) => {
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const map = L.map(el, {minZoom: 0, maxZoom: 18, zoomSnap}).setView([0, 0], 4);
+    const a = map.unproject([1000, 1000], atZoom);
+    const b = map.unproject([1000 + distance, 1000], atZoom);
+    const nodes = [a, b].map((loc, id) => ({
+      id,
+      location: {lat: loc.lat, lng: loc.lng},
+      properties: {},
+    }));
+    const self = {
+      leaflet: map,
+      data: {nodes, links: []},
+      config: {
+        clustering: true,
+        clusteringThreshold: 0,
+        clusterRadius: 80,
+        disableClusteringAtLevel,
+        mapOptions: {clusterConfig: {}},
+      },
+    };
+    const remove = () => {
+      map.remove();
+      el.remove();
+    };
+    return {map, a, nodes, self, remove};
+  };
+
+  test("getUnclusteredZoom predicts clusters at the zoom Leaflet applies", () => {
+    // 81 pixels apart at zoom 3.4, which Leaflet rounds to zoom 3
+    const {map, a, nodes, self, remove} = realMapWithTwoNodes({
+      distance: 81,
+      atZoom: 3.4,
+    });
+    const zoom = utils.getUnclusteredZoom(self, nodes[0], 3.4);
+    map.setView(a, zoom, {animate: false});
+    expect(utils.makeCluster(self).clusters).toHaveLength(0);
+    remove();
+  });
+
+  test("getUnclusteredZoom predicts clusters at whole zoom levels in browsers without 3D support", () => {
+    // Leaflet then rounds to whole levels whatever zoomSnap is, like in jsdom
+    getLeaflet.mockReturnValue({Browser: {any3d: false}});
+    // 85 pixels apart at zoom 4.2, which Leaflet rounds to zoom 4
+    const {map, a, nodes, self, remove} = realMapWithTwoNodes({
+      zoomSnap: 0.3,
+      distance: 85,
+      atZoom: 4.2,
+    });
+    const zoom = utils.getUnclusteredZoom(self, nodes[0], 3.4);
+    getLeaflet.mockReset();
+    map.setView(a, zoom, {animate: false});
+    expect(utils.makeCluster(self).clusters).toHaveLength(0);
+    remove();
+  });
+
+  test("getUnclusteredZoom returns a zoom Leaflet applies at or above disableClusteringAtLevel", () => {
+    // At the same location, the nodes are clustered until clustering is disabled
+    const {map, nodes, self, remove} = realMapWithTwoNodes({
+      disableClusteringAtLevel: 8.3,
+    });
+    const zoom = utils.getUnclusteredZoom(self, nodes[0], 3);
+    map.setView([0, 0], zoom, {animate: false});
+    expect(map.getZoom()).toBeGreaterThanOrEqual(8.3);
+    remove();
+  });
+
+  test("applyUrlFragmentState does not change the zoom on Back and Forward unless the node is clustered", () => {
+    const contains = jest.fn(() => true);
+    const {self, node} = clusteredMapWithSelectedNode({
+      setView: jest.fn(),
+      panTo: jest.fn(),
+      getBounds: () => ({contains}),
+      getZoom: () => 11,
+    });
+    // The node is in the view
+    utils.applyUrlFragmentState(self, true);
+    expect(contains).toHaveBeenCalledWith([0, 0]);
+    expect(self.leaflet.panTo).not.toHaveBeenCalled();
+    // The node is out of the view
+    contains.mockReturnValue(false);
+    utils.applyUrlFragmentState(self, true);
+    expect(self.leaflet.panTo).toHaveBeenCalledWith([0, 0]);
+    expect(self.leaflet.setView).not.toHaveBeenCalled();
+    // The node is clustered, zooming in from 11 shows it on its own at 13
+    self.clusters = [{cluster: true, childNodes: [node]}];
+    utils.applyUrlFragmentState(self, true);
+    expect(self.leaflet.setView).toHaveBeenCalledWith([0, 0], 13);
+    const setView = jest.fn();
+    const fractional = clusteredMapWithSelectedNode(
+      {options: {zoomSnap: 0.1}, setView, getZoom: () => 4.1},
+      78 / 2 ** 4.1,
+    );
+    fractional.self.clusters = [{cluster: true, childNodes: [fractional.node]}];
+    utils.applyUrlFragmentState(fractional.self, true);
+    expect(setView.mock.calls[0][1]).toBeCloseTo(4.2);
   });
 
   test("applyUrlFragmentState shows a polygon as when its shape is clicked", () => {
@@ -996,7 +1196,7 @@ describe("Test setupHashChangeHandler fragmentchange event", () => {
     util.setupHashChangeHandler(self);
     const popstateEvent = {};
     self._popstateHandler(popstateEvent);
-    expect(applySpy).toHaveBeenCalledWith(self);
+    expect(applySpy).toHaveBeenCalledWith(self, true);
     // Dispatch is deferred via queueMicrotask — not yet called
     expect(dispatchSpy).not.toHaveBeenCalled();
     // Flush microtasks
@@ -1024,8 +1224,8 @@ describe("Test setupHashChangeHandler fragmentchange event", () => {
     const popstateEvent = {};
     self1._popstateHandler(popstateEvent);
     self2._popstateHandler(popstateEvent);
-    expect(util1.applyUrlFragmentState).toHaveBeenCalledWith(self1);
-    expect(util2.applyUrlFragmentState).toHaveBeenCalledWith(self2);
+    expect(util1.applyUrlFragmentState).toHaveBeenCalledWith(self1, true);
+    expect(util2.applyUrlFragmentState).toHaveBeenCalledWith(self2, true);
     // Both handlers ran — state restored, but dispatch queued as microtask
     expect(dispatchSpy).not.toHaveBeenCalled();
     // Flush microtasks
@@ -1435,5 +1635,84 @@ describe("Test highlight utilities", () => {
       type: "hideTip",
     });
     expect(mockSelf.activeHighlightedElements).toEqual([]);
+  });
+});
+
+describe("updateClusteredPopup", () => {
+  const setUp = () => {
+    const util = new NetJSONGraphUtil();
+    const element = document.createElement("div");
+    // The popup stores the node id as a string, unlike the clustered node
+    const popup = {
+      nodeId: "1",
+      options: {},
+      getElement: () => element,
+      remove: jest.fn(),
+    };
+    const self = {
+      leaflet: {currentPopup: popup},
+      utils: {setTooltipVisibility: jest.fn()},
+    };
+    return {util, element, popup, self};
+  };
+  const clusters = [{cluster: true, childNodes: [{id: 1}]}];
+
+  test("hides the popup of a clustered node and shows it again when unclustered", () => {
+    const {util, element, popup, self} = setUp();
+    util.updateClusteredPopup(self, clusters);
+    expect(element.style.display).toBe("none");
+    expect(self.utils.setTooltipVisibility).toHaveBeenLastCalledWith(self, true);
+    util.updateClusteredPopup(self, []);
+    expect(element.style.display).toBe("");
+    expect(self.utils.setTooltipVisibility).toHaveBeenLastCalledWith(self, false);
+    // The popup is not closed, which would remove the node from the URL
+    expect(self.leaflet.currentPopup).toBe(popup);
+    expect(popup.remove).not.toHaveBeenCalled();
+  });
+
+  test("does nothing without an open popup", () => {
+    const {util, self} = setUp();
+    self.leaflet.currentPopup = null;
+    expect(() => util.updateClusteredPopup(self, clusters)).not.toThrow();
+    expect(self.utils.setTooltipVisibility).not.toHaveBeenCalled();
+  });
+
+  test("moves the popup to its point when makeCluster has moved the point", () => {
+    const util = new NetJSONGraphUtil();
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const map = L.map(el, {minZoom: 0, maxZoom: 18}).setView([0, 0], 7);
+    // Close enough to be pushed apart by makeCluster at zoom 6
+    const nodes = [
+      [1000, 1000],
+      [1008, 1000],
+    ].map((point, id) => {
+      const loc = map.unproject(point, 5);
+      return {id: String(id), location: {lat: loc.lat, lng: loc.lng}, properties: {}};
+    });
+    const self = {
+      leaflet: map,
+      el,
+      utils: util,
+      data: {nodes, links: []},
+      config: {clusterRadius: 10, mapOptions: {clusterConfig: {}}},
+    };
+    util.makeCluster(self);
+    const popup = L.popup({autoPan: false})
+      .setLatLng(nodes[0].location)
+      .setContent("node")
+      .openOn(map);
+    popup.nodeId = "0";
+    map.currentPopup = popup;
+    map.setZoom(5, {animate: false});
+    util.updateClusteredPopup(self, util.makeCluster(self).clusters);
+    expect(popup.getElement().style.display).toBe("none");
+    map.setZoom(6, {animate: false});
+    const {clusters: shown} = util.makeCluster(self);
+    expect(shown).toHaveLength(0);
+    util.updateClusteredPopup(self, shown);
+    expect(popup.getLatLng().lng).toBeCloseTo(nodes[0].location.lng, 8);
+    map.remove();
+    el.remove();
   });
 });

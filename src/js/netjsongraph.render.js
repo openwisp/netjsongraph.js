@@ -769,6 +769,16 @@ class NetJSONGraphRender {
       }
     });
 
+    // After the chart is redrawn without clusters, no polygon nor popup may
+    // stay hidden
+    const showUnclustered = () => {
+      updatePolygonOverlays(self);
+      self.clusters = [];
+      if (typeof self.utils.updateClusteredPopup === "function") {
+        self.utils.updateClusteredPopup(self, []);
+      }
+    };
+
     self.leaflet.on("moveend", async () => {
       const bounds = self.leaflet.getBounds();
       const removeBBoxData = () => {
@@ -786,8 +796,7 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-        // The chart is redrawn without clusters, hence no polygon may stay hidden
-        updatePolygonOverlays(self);
+        showUnclustered();
         self.bboxData.nodes = [];
         self.bboxData.links = [];
       };
@@ -822,12 +831,15 @@ class NetJSONGraphRender {
           self.utils.clearHighlight.call(self);
         }
         self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
-        updatePolygonOverlays(self);
+        showUnclustered();
         self.data = JSONData;
       } else if (self.hasMoreData && self.bboxData.nodes.length > 0) {
         removeBBoxData();
       }
     });
+    // Nothing is clustered unless clustering applies below, not even what an
+    // earlier render clustered
+    self.clusters = [];
     if (
       self.config.clustering &&
       self.config.clusteringThreshold < JSONData.nodes.length
@@ -853,6 +865,9 @@ class NetJSONGraphRender {
         ),
       );
       updatePolygonOverlays(self, clusters);
+      // Lets the restored element of the URL be shown without zooming when it
+      // is not clustered
+      self.clusters = clusters;
       self.utils.updateLabelVisibility(self, true);
 
       self.echarts.on("click", (params) => {
@@ -861,6 +876,9 @@ class NetJSONGraphRender {
             params.componentSubType === "effectScatter") &&
           params.data.cluster
         ) {
+          // Leaflet would close the open popup, whose node may be in this
+          // cluster, and remove the node from the URL
+          params.event?.event?.stopPropagation();
           const currentZoom = self.leaflet.getZoom();
           const targetZoom = Math.min(currentZoom + 2, self.leaflet.getMaxZoom());
 
@@ -895,14 +913,23 @@ class NetJSONGraphRender {
           updatePolygonOverlays(self, clusters);
         } else {
           // When above the threshold, show all nodes without clustering
+          clusters = [];
           if (typeof self.utils.clearHighlight === "function") {
             self.utils.clearHighlight.call(self);
           }
           self.echarts.setOption(self.utils.generateMapOption(JSONData, self));
           updatePolygonOverlays(self);
         }
+        self.clusters = clusters;
+        if (typeof self.utils.updateClusteredPopup === "function") {
+          self.utils.updateClusteredPopup(self, clusters);
+        }
         self.utils.updateLabelVisibility(self, true);
       });
+    }
+    // A popup kept open from before a data update follows the new clusters
+    if (typeof self.utils.updateClusteredPopup === "function") {
+      self.utils.updateClusteredPopup(self, self.clusters);
     }
 
     self.utils.setupHashChangeHandler(self);

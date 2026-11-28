@@ -421,6 +421,7 @@ export function addPolygonOverlays(self, nodes = self.data?.nodes || []) {
             active ? {type: "showTip", ...target} : {type: "hideTip"},
           );
         };
+        layer.on("preclick", L.DomEvent.stopPropagation);
         layer.on("click", (event) => clickPolygonNode(self, feature, event));
         layer.on("mouseover", () => hover(true));
         layer.on("mouseout", () => hover(false));
