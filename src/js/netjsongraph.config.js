@@ -55,6 +55,7 @@ const NetJSONGraphDefaultConfig = {
   showMetaOnNarrowScreens: false,
   showMapLabelsAtZoom: 13,
   showGraphLabelsAtZoom: null,
+  autoFitGraph: true,
   echartsOption: {
     stateAnimation: {
       duration: 150,

@@ -1,4 +1,5 @@
 import {use} from "echarts/core";
+import {setLabelText} from "echarts/lib/label/labelStyle";
 import {install as LinesChart} from "echarts/lib/chart/lines/install";
 import {install as GraphChart} from "echarts/lib/chart/graph/install";
 import {install as ScatterChart} from "echarts/lib/chart/scatter/install";
@@ -310,30 +311,22 @@ class NetJSONGraphRender {
     const baseGraphSeries = {...configs.graphConfig.series};
     const baseGraphLabel = {...(baseGraphSeries.label || {})};
 
-    // Shared helper to get current graph zoom level
-    const getGraphZoom = () => {
-      try {
-        const option = self.echarts.getOption();
-        const series = Array.isArray(option.series) ? option.series : [];
-        const graphSeries = series.find((s) => s && s.id === "network-graph");
-        return graphSeries && typeof graphSeries.zoom === "number"
-          ? graphSeries.zoom
-          : 1;
-      } catch (e) {
-        return 1;
-      }
-    };
-
-    // Set up dynamic label visibility based on zoom threshold
-    if (
-      typeof self.config.showGraphLabelsAtZoom === "number" &&
-      self.config.showGraphLabelsAtZoom > 0
-    ) {
-      const threshold = self.config.showGraphLabelsAtZoom;
-      baseGraphLabel.formatter = (params) =>
-        getGraphZoom() >= threshold
-          ? (params && params.data && params.data.name) || ""
-          : "";
+    if (self.config.showGraphLabelsAtZoom > 0) {
+      const {formatter} = baseGraphLabel;
+      baseGraphLabel.formatter = (params) => {
+        const model = self.echarts.getModel().getSeriesByIndex(0);
+        const visible =
+          self.fitLabelsVisible ??
+          (model.get("zoom") || 1) >= self.config.showGraphLabelsAtZoom;
+        if (!visible || formatter === "") {
+          return "";
+        }
+        if (formatter) {
+          const index = model.getData().indexOfRawIndex(params.dataIndex);
+          return model.getFormattedLabel(index, "normal", null, null, formatter);
+        }
+        return params.name ?? params.data?.name ?? "";
+      };
     }
     baseGraphSeries.label = baseGraphLabel;
     const series = [
@@ -625,6 +618,272 @@ class NetJSONGraphRender {
     );
   }
 
+  getGraphBounds(series, reserveLabels = false, formatter = null) {
+    let bounds;
+    const include = (element, name) => {
+      if (!element || element.ignore || element.invisible) {
+        return;
+      }
+      if (element.isGroup) {
+        element.eachChild((child) => include(child, name));
+      } else {
+        const rect = element.getBoundingRect().clone();
+        const transform = element.getComputedTransform();
+        if (transform) {
+          rect.applyTransform(transform);
+        }
+        if (![rect.x, rect.y, rect.width, rect.height].every(Number.isFinite)) {
+          return;
+        }
+        if (bounds) {
+          bounds.union(rect);
+        } else {
+          bounds = rect;
+        }
+      }
+      const label = element.getTextContent();
+      if (reserveLabels && label && !label.ignore && name && !label.style.text) {
+        // Reserve hidden label space so crossing the threshold cannot change
+        // the fitted zoom and immediately hide the labels again.
+        // Measure the attached label to retain alignment inherited from its node.
+        const previousText = label.style.text;
+        let rect;
+        try {
+          label.setStyle("text", name);
+          const transform = label.getComputedTransform();
+          rect = label.getBoundingRect().clone();
+          if (transform) {
+            rect.applyTransform(transform);
+          }
+        } finally {
+          label.setStyle("text", previousText);
+        }
+        if (bounds) {
+          bounds.union(rect);
+        } else {
+          bounds = rect;
+        }
+      } else {
+        include(label);
+      }
+    };
+    const data = series.getData();
+    data.eachItemGraphicEl((element, index) =>
+      include(
+        element,
+        formatter != null
+          ? (series.getFormattedLabel(index, "normal", null, null, formatter) ??
+              data.getName(index))
+          : data.getName(index),
+      ),
+    );
+    series.getEdgeData().eachItemGraphicEl((element) => include(element));
+    return bounds;
+  }
+
+  fitGraph(self, series, state = {}) {
+    const chart = self.echarts;
+    const width = chart.getWidth();
+    const height = chart.getHeight();
+    const padding = 40;
+    if (width <= padding * 2 || height <= padding * 2) {
+      return false;
+    }
+    const limit = series.get("scaleLimit") || {};
+    const reserveLabels = self.config.showGraphLabelsAtZoom > 0;
+    const measure = () =>
+      this.getGraphBounds(
+        series,
+        reserveLabels,
+        self.config.graphConfig.series.label?.formatter,
+      );
+    const setZoom = (zoom) => {
+      chart.dispatchAction(
+        {
+          type: "graphRoam",
+          seriesId: series.id,
+          zoom: zoom / (series.get("zoom") || 1),
+          originX: width / 2,
+          originY: height / 2,
+        },
+        {silent: true},
+      );
+    };
+    // Restore animations can leave the visible transform behind the model.
+    if (!state.synced) {
+      setZoom(series.get("zoom") || 1);
+      state.synced = true;
+    }
+    if (state.width !== width || state.height !== height) {
+      state.lower = 0;
+      state.upper = Infinity;
+      state.attempts = 0;
+      state.width = width;
+      state.height = height;
+    }
+    let bounds = measure();
+    if (!bounds || !bounds.width || !bounds.height) {
+      return true;
+    }
+    const ratioOf = (rect) =>
+      Math.max(
+        rect.width / (width - padding * 2),
+        rect.height / (height - padding * 2),
+      );
+    const ratio = ratioOf(bounds);
+    const zoom = series.get("zoom") || 1;
+    let finished = series.getData().count() === 1 || (ratio <= 1 && 1 - ratio < 0.0005);
+    if (!finished) {
+      if (ratio <= 1) {
+        state.lower = zoom;
+      } else {
+        state.upper = zoom;
+      }
+      // Keep the bracket between scheduled passes instead of repeatedly
+      // measuring and transforming the entire graph in one callback.
+      let target =
+        state.attempts && Number.isFinite(state.upper)
+          ? ((state.lower || 0) + state.upper) / 2
+          : zoom / ratio;
+      target = Math.max(limit.min || 1e-6, Math.min(limit.max || Infinity, target));
+      state.attempts = (state.attempts || 0) + 1;
+      if (Math.abs(target - zoom) < 1e-8) {
+        finished = true;
+      } else {
+        setZoom(target);
+        bounds = measure();
+        const nextRatio = ratioOf(bounds);
+        if (nextRatio <= 1) {
+          state.lower = series.get("zoom") || 1;
+        }
+        finished = nextRatio <= 1 && 1 - nextRatio < 0.0005;
+      }
+      if (state.attempts >= 20) {
+        if (state.lower && (series.get("zoom") || 1) > state.lower) {
+          setZoom(Math.max(limit.min || 1e-6, state.lower));
+          bounds = measure();
+        }
+        finished = true;
+      }
+    }
+    const dx = width / 2 - (bounds.x + bounds.width / 2);
+    const dy = height / 2 - (bounds.y + bounds.height / 2);
+    if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+      chart.dispatchAction(
+        {type: "graphRoam", seriesId: series.id, dx, dy},
+        {silent: true},
+      );
+    }
+    return finished;
+  }
+
+  updateGraphLabels(self, series) {
+    if (!(self.config.showGraphLabelsAtZoom > 0)) {
+      return;
+    }
+    const visible = (series.get("zoom") || 1) >= self.config.showGraphLabelsAtZoom;
+    const data = series.getData();
+    data.eachItemGraphicEl((element, index) => {
+      const label = element.getSymbolPath().getTextContent();
+      if (label) {
+        const normal = series.getFormattedLabel(index, "normal") ?? data.getName(index);
+        const text = {normal: visible ? normal : ""};
+        ["emphasis", "blur", "select"].forEach((state) => {
+          text[state] = visible
+            ? (series.getFormattedLabel(index, state) ?? normal)
+            : "";
+        });
+        setLabelText(label, text);
+      }
+    });
+  }
+
+  setupGraphFit(self) {
+    if (self.cancelGraphFit) {
+      self.cancelGraphFit();
+    }
+    if (!self.config.autoFitGraph || self.graphFitted) {
+      return;
+    }
+    const {zoom, center} = self.config.graphConfig.series;
+    if (zoom !== undefined || center !== undefined) {
+      return;
+    }
+    const chart = self.echarts;
+    let timer;
+    const state = {};
+    const fit = () => {
+      timer = null;
+      if (chart.isDisposed()) {
+        self.cancelGraphFit();
+        return;
+      }
+      const series = chart.getModel().getSeriesByIndex(0);
+      if (!series || series.id !== "network-graph") {
+        self.cancelGraphFit();
+        return;
+      }
+      if (
+        !series.getData().count() ||
+        chart.getWidth() <= 80 ||
+        chart.getHeight() <= 80
+      ) {
+        return;
+      }
+      if (self.fitLabelsVisible === undefined) {
+        self.fitLabelsVisible =
+          (series.get("zoom") || 1) >= self.config.showGraphLabelsAtZoom;
+      }
+      const view = chart.getViewOfSeriesModel(series);
+      const settled =
+        (series.get("layout") !== "force" || !view || !view._layouting) &&
+        chart.getZr().animation.isFinished();
+      if (!settled || !state.settled) {
+        state.lower = 0;
+        state.upper = Infinity;
+        state.attempts = 0;
+      }
+      state.settled = settled;
+      const fitted = this.fitGraph(self, series, state);
+      if (
+        series.get("layout") === "force" &&
+        view &&
+        typeof view._layouting !== "boolean" &&
+        !self.graphFitWarned
+      ) {
+        self.graphFitWarned = true;
+        console.warn("autoFitGraph: cannot reliably detect force layout completion.");
+      }
+      // The flag only controls completion; fitting already runs on each frame.
+      if (settled && fitted) {
+        self.graphFitted = true;
+        self.cancelGraphFit();
+        this.updateGraphLabels(self, series);
+      } else if (settled && !timer) {
+        timer = setTimeout(fit, 100);
+      }
+    };
+    const rendered = () => {
+      if (!timer) {
+        timer = setTimeout(fit, 100);
+      }
+    };
+    const interacted = () => {
+      self.graphFitted = true;
+      self.cancelGraphFit();
+      self.graphLabelHandler?.();
+    };
+    self.cancelGraphFit = () => {
+      clearTimeout(timer);
+      chart.off("rendered", rendered);
+      chart.off("graphRoam", interacted);
+      self.fitLabelsVisible = undefined;
+      self.cancelGraphFit = null;
+    };
+    chart.on("rendered", rendered);
+    chart.on("graphRoam", interacted);
+  }
+
   /**
    * @function
    * @name graphRender
@@ -636,29 +895,76 @@ class NetJSONGraphRender {
    */
   graphRender(JSONData, self) {
     self.el.classList.remove("njg-map");
-    self.utils.echartsSetOption(self.utils.generateGraphOption(JSONData, self), self);
-    window.onresize = () => {
-      self.echarts.resize();
+    const chart = self.echarts;
+    const previous = ((chart.getOption() || {}).series || []).find(
+      (series) => series.id === "network-graph",
+    );
+    if (!previous) {
+      self.graphFitted = false;
+    }
+    if (self.restoreGraphFit) {
+      chart.off("restore", self.restoreGraphFit);
+    }
+    self.restoreGraphFit = () => {
+      self.graphFitted = false;
+      self.utils.setupGraphFit(self);
     };
-    // Handles zoom outside graph area
+    chart.on("restore", self.restoreGraphFit);
+    self.utils.setupGraphFit(self);
+    const option = self.utils.generateGraphOption(JSONData, self);
+    if (previous) {
+      const view = {
+        zoom: option.series[0].zoom ?? previous.zoom,
+        center: option.series[0].center ?? previous.center,
+      };
+      Object.assign(option.series[0], view);
+      // Media options otherwise reapply their initial zoom on every data update.
+      option.media = (option.media || []).map((media) => ({
+        ...media,
+        option: {
+          ...media.option,
+          series: []
+            .concat(media.option.series || [])
+            .map((series) => ({...series, ...view})),
+        },
+      }));
+    }
+    if (
+      self.config.autoFitGraph &&
+      self.config.graphConfig.series.zoom === undefined &&
+      self.config.graphConfig.series.center === undefined
+    ) {
+      option.media = (option.media || []).map((media) => ({
+        ...media,
+        option: {
+          ...media.option,
+          series: [].concat(media.option.series || []).map((series) => {
+            const responsiveStyle = {...series};
+            delete responsiveStyle.zoom;
+            delete responsiveStyle.center;
+            return responsiveStyle;
+          }),
+        },
+      }));
+    }
+    self.utils.echartsSetOption(option, self);
+    window.onresize = () => {
+      chart.resize();
+    };
     self.utils._propagateGraphZoom(self);
-    // Toggle labels on zoom threshold crossing
+    if (self.graphLabelHandler) {
+      chart.off("graphRoam", self.graphLabelHandler);
+    }
+    self.graphLabelHandler = null;
     if (self.config.showGraphLabelsAtZoom > 0) {
-      self.echarts.on("graphRoam", (params) => {
-        if (!params || !params.zoom) {
-          return;
+      self.graphLabelHandler = () => {
+        const series = chart.getModel().getSeriesByIndex(0);
+        if (series && series.id === "network-graph") {
+          self.utils.updateGraphLabels(self, series);
         }
-        const option = self.echarts.getOption();
-        const labelsVisible =
-          option &&
-          option.series &&
-          option.series[0] &&
-          option.series[0].zoom >= self.config.showGraphLabelsAtZoom;
-        if (labelsVisible !== self._labelsVisible) {
-          self.echarts.resize({animation: false, silent: true});
-          self._labelsVisible = labelsVisible;
-        }
-      });
+      };
+      chart.on("graphRoam", self.graphLabelHandler);
+      self.graphLabelHandler();
     }
 
     self.utils.setupHashChangeHandler(self);
@@ -679,6 +985,17 @@ class NetJSONGraphRender {
    *
    */
   mapRender(JSONData, self) {
+    if (self.graphLabelHandler) {
+      self.echarts.off("graphRoam", self.graphLabelHandler);
+      self.graphLabelHandler = null;
+    }
+    if (self.restoreGraphFit) {
+      self.echarts.off("restore", self.restoreGraphFit);
+      self.restoreGraphFit = null;
+    }
+    if (self.cancelGraphFit) {
+      self.cancelGraphFit();
+    }
     const L = getLeaflet();
     if (!L) {
       throw new Error("Leaflet api is not loaded");
