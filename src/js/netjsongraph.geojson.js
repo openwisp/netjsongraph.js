@@ -3,6 +3,15 @@ import getLeaflet from "./leaflet-loader";
  * Dedicated GeoJSON utilities for netjsongraph.js.
  */
 
+// Start with the feature properties, then keep the top-level GeoJSON feature
+// id (location primary-key) if present.
+const getFeatureProps = (feature) => ({
+  ...((feature && feature.properties) || {}),
+  ...(feature && feature.id !== undefined && feature.id !== null
+    ? {id: feature.id}
+    : {}),
+});
+
 /**
  * Signed area and centroid of a ring, computed with the shoelace formula.
  *
@@ -146,20 +155,59 @@ export function geojsonToNetjson(geojson) {
     return {nodes, links};
   }
 
-  // Coordinate string → node id (deduplication across features)
+  // Coordinate string → node id. Only used for the vertices of LineString /
+  // MultiLineString features, so that lines which meet share one node.
   const coordMap = new Map();
   // Polygons have their own sequence of generated ids, hence they do not
   // shift the generated ids of the other nodes, which may be bookmarked.
   let polygonCount = 0;
 
-  const addNode = (coord, baseProps, idPrefix, generatedId) => {
+  // The explicit id of a node, if the data source specifies one.
+  const providedIdOf = (props) => present(props.id) ?? present(props.node_id) ?? null;
+
+  // Every explicit id of a non-polygon feature, collected up front so that a
+  // suffixed MultiPoint or line id never takes an id another feature already
+  // uses, even when that feature comes later (e.g. MultiPoint "mp" and Point
+  // "mp_0"). Polygon nodes get the "polygon_" prefix and are deduplicated
+  // after the conversion, hence they are not reserved here.
+  const reservedIds = new Set();
+  geojson.features.forEach((feature) => {
+    const type = feature && feature.geometry && feature.geometry.type;
+    if (type === "Polygon" || type === "MultiPolygon") {
+      return;
+    }
+    const explicitId = providedIdOf(getFeatureProps(feature));
+    if (explicitId !== null) {
+      reservedIds.add(String(explicitId));
+    }
+  });
+
+  // Return the first `${base}_${n}` (n >= start) not used by any other node.
+  // Each base resumes from its last suffix, since the lower ones are taken.
+  // reservedIds holds every id that is reserved or taken; nodeIds holds only
+  // the ids already given to a non-polygon node, to detect a repeated Point
+  // id. The id of a polygon node is provisional, as the final pass renames it
+  // if another node uses it.
+  const nextSuffix = new Map();
+  const nodeIds = new Set();
+  const uniqueSuffixedId = (base, start) => {
+    let n = Math.max(start, nextSuffix.get(base) || 0);
+    while (reservedIds.has(`${base}_${n}`)) {
+      n += 1;
+    }
+    const id = `${base}_${n}`;
+    reservedIds.add(id);
+    nextSuffix.set(base, n + 1);
+    return id;
+  };
+
+  const addNode = (coord, baseProps, id) => {
     // If the data source specifies an identifier (or label) keep it public,
-    // otherwise generate an internal id and flag it so UI layers can hide it.
-    const providedId = present(baseProps.id) ?? present(baseProps.node_id) ?? null;
+    // otherwise flag the generated id so UI layers can hide it.
+    const providedId = providedIdOf(baseProps);
     const hasId = providedId !== null;
     const displayLabel =
       baseProps.label || baseProps.name || (hasId ? String(providedId) : null);
-    const id = hasId ? `${idPrefix}${providedId}` : generatedId;
     nodes.push({
       id,
       ...(displayLabel ? {label: String(displayLabel)} : {}),
@@ -170,15 +218,49 @@ export function geojsonToNetjson(geojson) {
       },
       _generatedIdentity: !hasId, // internal marker – not shown to users
     });
+    // eslint-disable-next-line no-underscore-dangle
+    if (baseProps._featureType !== "Polygon") {
+      nodeIds.add(id);
+    }
     return id;
   };
 
-  const createNode = (coord, baseProps = {}) => {
+  // Always create a new node and return its id. Features that are Points are
+  // independent locations, so they must never be merged with another node.
+  // A MultiPoint or a line creates several nodes from one feature, so its
+  // explicit id gets a suffix that no other feature uses, keeping every graph
+  // id unique. The original id stays in properties.id, or in
+  // properties.node_id when properties.id is missing or empty. The label is
+  // label or name when set, otherwise the explicit id without any suffix.
+  const createNode = (coord, baseProps = {}, idSuffix = null) => {
+    const providedId = providedIdOf(baseProps);
+    // eslint-disable-next-line no-underscore-dangle
+    const isPoint = baseProps._featureType === "Point";
+    let id;
+    if (providedId === null) {
+      id = uniqueSuffixedId("gjn", nodes.length - polygonCount);
+    } else if (idSuffix !== null) {
+      id = uniqueSuffixedId(String(providedId), idSuffix);
+    } else if (isPoint && nodeIds.has(String(providedId))) {
+      // A second Point with the same id (e.g. in one GeometryCollection)
+      // gets a suffix too, so it is not dropped as a duplicate node.
+      id = uniqueSuffixedId(String(providedId), 1);
+    } else {
+      id = String(providedId);
+    }
+    return addNode(coord, baseProps, id);
+  };
+
+  // Return the node id for a line vertex: reuse the node already created for
+  // the same coordinates by a line, or create (and remember) a new one. A new
+  // vertex of a line with an explicit id gets a suffixed id, so the vertices
+  // of one line, or a vertex and a Point with that id, never share an id.
+  const getVertexNode = (coord, baseProps = {}) => {
     const key = `${coord[0]},${coord[1]}`;
     if (coordMap.has(key)) {
       return coordMap.get(key); // reuse existing node id
     }
-    const id = addNode(coord, baseProps, "", `gjn_${nodes.length - polygonCount}`);
+    const id = createNode(coord, baseProps, 0);
     coordMap.set(key, id);
     return id;
   };
@@ -186,7 +268,12 @@ export function geojsonToNetjson(geojson) {
   // A polygon's node is never merged with other nodes, which may share its
   // position by chance.
   const createPolygonNode = (coord, baseProps) => {
-    addNode(coord, baseProps, "polygon_", `gjn_polygon_${polygonCount}`);
+    const providedId = providedIdOf(baseProps);
+    addNode(
+      coord,
+      baseProps,
+      providedId === null ? `gjn_polygon_${polygonCount}` : `polygon_${providedId}`,
+    );
     polygonCount += 1;
   };
 
@@ -196,14 +283,14 @@ export function geojsonToNetjson(geojson) {
 
   const processCoordsSeq = (coords, props, closeRing = false) => {
     for (let i = 0; i < coords.length - 1; i += 1) {
-      const a = createNode(coords[i], props);
-      const b = createNode(coords[i + 1], props);
+      const a = getVertexNode(coords[i], props);
+      const b = getVertexNode(coords[i + 1], props);
       addEdge(a, b, props);
     }
     if (closeRing && coords.length > 2) {
       // close the polygon ring (ensure topology correctness)
-      const first = createNode(coords[0], props);
-      const last = createNode(coords[coords.length - 1], props);
+      const first = getVertexNode(coords[0], props);
+      const last = getVertexNode(coords[coords.length - 1], props);
       addEdge(last, first, props);
     }
   };
@@ -219,7 +306,9 @@ export function geojsonToNetjson(geojson) {
         createNode(coordinates, {...props, _featureType: "Point"});
         break;
       case "MultiPoint":
-        coordinates.forEach((pt) => createNode(pt, {...props, _featureType: "Point"}));
+        coordinates.forEach((pt, i) =>
+          createNode(pt, {...props, _featureType: "Point"}, i),
+        );
         break;
       case "LineString":
         // Tag nodes coming from line geometries
@@ -253,14 +342,7 @@ export function geojsonToNetjson(geojson) {
   };
 
   geojson.features.forEach((feature, index) => {
-    // Start with existing properties, then add top-level Feature info we want to preserve.
-    const baseProps = {
-      ...(feature.properties || {}),
-      // Preserve original GeoJSON feature id (location primary-key) if present.
-      ...(feature.id !== undefined && feature.id !== null ? {id: feature.id} : {}),
-    };
-
-    handleGeometry(feature.geometry, baseProps, index);
+    handleGeometry(feature.geometry, getFeatureProps(feature), index);
   });
 
   const usedIds = new Set(
